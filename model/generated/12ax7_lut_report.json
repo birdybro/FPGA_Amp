@@ -1,0 +1,34 @@
+{
+  "algorithm": "128x256 uniform LUT with bit-accurate bilinear interpolation",
+  "seed": 4775,
+  "random_vectors": 4096,
+  "ranges": {
+    "v_gk_v": [
+      -5.0,
+      1.0
+    ],
+    "v_pk_v": [
+      0.0,
+      400.0
+    ]
+  },
+  "formats": {
+    "v_gk": "Q8.24",
+    "v_pk": "Q12.20",
+    "i_p": "Q0.31"
+  },
+  "error_probe_vectors": 100000,
+  "mean_absolute_error_a": 1.3852505566455287e-07,
+  "rms_error_a": 2.3694893709033265e-07,
+  "worst_absolute_error_a": 9.328864550647757e-06,
+  "worst_relative_error_active": 1.853175820851579,
+  "plate_memory_bits": 1048576,
+  "grid_memory_bits": 4096,
+  "vg_scale_q24": 1387179,
+  "vp_scale_q24": 668467,
+  "outputs": [
+    "model/generated/12ax7_plate_128x256_q31.mem",
+    "model/generated/12ax7_grid_128_q31.mem",
+    "sim/vectors/generated/triode_random.txt"
+  ]
+}
