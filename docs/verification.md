@@ -1,0 +1,58 @@
+# Verification
+
+## Reproducible gates
+
+`make test` runs the mathematical unit suite and the bit-exact RTL test. The
+reference tests cover the canonical RIAA table, AT-VM95E resonance, 12AX7 bias,
+LUT absolute error, V1 DC nodes, 1 kHz gain, and solver convergence. Verilator
+checks 4,096 deterministic randomized tuples including range boundaries and
+requires exact `Ip`, `Ig`, clipping, valid timing, and eight-clock latency.
+
+The analog/reference commands are intentionally separate so a missing external
+tool is not reported as a pass:
+
+```text
+make spice                          ngspice DC/AC/transient
+scripts/spice_level_sweep.py        H1-H10/THD/gain compression
+scripts/compare_spice_python.py     transient residual
+scripts/characterize_solver.py      fixed-iteration residual/convergence
+scripts/study_lut_resolution.py     BRAM/error trade study
+scripts/run_synthesis.py            XC7 structural resource report
+```
+
+## Current acceptance record
+
+| Comparison | Evidence | Result |
+|---|---|---|
+| ideal RIAA vs E1 table | published frequencies | 0.0705 dB max table/equation difference |
+| Koren vs approximate GE curves | checked digitization | 0.0131 mA RMS, 0.0346 mA worst |
+| physical V1 vs ideal RIAA | ngspice AC, 20 Hz–20 kHz | -0.919…+0.000 dB, 0.364 dB RMS |
+| Python MNA vs ngspice | 5 mV peak, 1 kHz, last 10 ms | -53.10 dB normalized residual, 0.00179 dB gain error |
+| 2-pass vs converged solver | 20 mV peak, 1 kHz | all samples ≤100 pA residual; -136.84 dB output residual |
+| LUT vs analytical tube | 100,000 random full-range points | 0.139 µA mean, 9.33 µA worst |
+| RTL vs fixed LUT | 4,096 deterministic vectors | bit-exact, latency 8 |
+| synthesized RTL vs hardware | none | not validated |
+
+## A/B and null methodology
+
+Waveform comparison first selects a steady interval or estimates latency by
+cross-correlation, then performs integer alignment, optional fractional-delay
+alignment, and least-squares gain reporting. The default residual does **not**
+gain-normalize away a real amplitude error: raw residual RMS, normalized residual,
+gain error, and worst sample error are separate fields. Fractional alignment must
+be labeled because it can conceal phase/integration error.
+
+Future audio regressions include silence, impulse, log sweep, low-level sine,
+20/50/100 Hz and 1/10/20 kHz levels, multitone, SMPTE/CCIF IMD, synthetic pops,
+5–20 Hz warp, grid-conduction overload, recovery, and licensed/locally supplied
+music. Every found numerical bug gets the smallest durable regression vector.
+
+## Physical verification plan
+
+Calibrate generator/interface/analyzer independently, then measure cartridge
+load, front-end/ADC, digital loopback, DAC/line, and complete path in stages.
+Archive raw samples, instrument settings, calibration date, environment, board
+revision, FPGA bitstream hash, model version, and control-register dump. A real
+Kennedy circuit comparison requires the same stimulus capture split to hardware
+and FPGA, followed by gain/latency alignment and variation reporting. Listening
+is useful product evidence but never replaces electrical equivalence data.

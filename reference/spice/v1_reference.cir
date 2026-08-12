@@ -1,0 +1,56 @@
+FPGA_Amp V1 Kennedy 1998 single-12AX7 passive-RIAA phono stage
+
+.include reference/spice/koren_12ax7.lib
+
+* Documented AT-VM95E electrical source and 150 pF nominal total load.
+V_SIGNAL CART_SOURCE 0 DC 0 AC 1 SIN(0 5m 1k)
+R_CART CART_SOURCE CART_L 485
+L_CART CART_L INPUT 550m
+C_LOAD INPUT 0 150p
+
+* Frozen Kennedy circuit values (one channel).
+R_INPUT INPUT 0 47.5k
+R_STOP INPUT G1 221
+X_V1 P1 G1 K1 KOREN_12AX7
+R_PA1 BPLUS P1 121k
+R_K1 K1 0 1.21k
+
+C_COUPLE P1 EQ_PRE 0.047u
+R_EQ_SERIES EQ_PRE G2 210k
+R_EQ_LOW G2 EQ_LOW 33.2k
+C_EQ_LOW EQ_LOW 0 10000p
+C_EQ_HIGH G2 0 3300p
+R_G2 G2 0 2.21meg
+
+X_V2 P2 G2 K2 KOREN_12AX7
+R_PA2 BPLUS P2 100k
+R_K2 K2 0 1.21k
+C_OUTPUT P2 OUTPUT 0.47u
+R_OUTPUT_LOAD OUTPUT 0 2.21meg
+
+V_BPLUS BPLUS 0 300
+
+.options reltol=1e-6 abstol=1e-12 vntol=1e-8 numdgt=12
+
+.control
+set wr_singlescale
+set wr_vecnames
+op
+let ip1=(v(bplus)-v(p1))/121k
+let ip2=(v(bplus)-v(p2))/100k
+wrdata reference/results/spice_op.csv v(g1) v(k1) v(p1) ip1 v(g2) v(k2) v(p2) ip2 v(output)
+
+ac dec 80 10 100k
+let overall_gain_db=db(v(output)/v(cart_source))
+let circuit_gain_db=db(v(output)/v(input))
+let gain_phase_deg=ph(v(output)/v(input))
+let input_db=db(v(input)/v(cart_source))
+let stage1_db=db(v(p1)/v(input))
+wrdata reference/results/spice_ac.csv circuit_gain_db overall_gain_db gain_phase_deg input_db stage1_db
+
+tran 2u 30m 0 2u
+wrdata reference/results/spice_tran_1khz_5mv.csv v(cart_source) v(input) v(p1) v(g2) v(p2) v(output)
+quit
+.endc
+
+.end

@@ -1,0 +1,55 @@
+model:
+  id: 12ax7_passive_riaa_v1
+  version: 0.1.0
+  category: reference
+  title: Kennedy single-tube passive-RIAA phono stage
+  source_url: https://www.kta-hifi.net/projects/pre_page/ots_preamp/1tbpre.pdf
+  source_date: 1998-02-17
+  frozen_on: 2026-08-12
+
+circuit:
+  bplus_v: 300.0
+  input_load_ohm: 47500.0
+  input_grid_stopper_ohm: 221.0
+  stage1_plate_ohm: 121000.0
+  stage1_cathode_ohm: 1210.0
+  interstage_coupling_f: 47.0e-9
+  riaa_series_ohm: 210000.0
+  riaa_low_resistor_ohm: 33200.0
+  riaa_low_capacitor_f: 10.0e-9
+  riaa_high_capacitor_f: 3.3e-9
+  stage2_grid_leak_ohm: 2.21e6
+  stage2_plate_ohm: 100000.0
+  stage2_cathode_ohm: 1210.0
+  output_coupling_f: 470.0e-9
+  reference_output_load_ohm: 2.21e6
+
+cartridge:
+  id: audio_technica_at_vm95e_nominal
+  source_level_v_rms_at_1khz: 4.0e-3
+  series_resistance_ohm: 485.0
+  series_inductance_h: 0.550
+  total_load_capacitance_f: 150.0e-12
+  recommended_load_capacitance_min_f: 100.0e-12
+  recommended_load_capacitance_max_f: 200.0e-12
+
+tube:
+  model: koren_12ax7_1996
+  mu: 100.0
+  ex: 1.4
+  kg1: 1060.0
+  kp: 600.0
+  kvb: 300.0
+  rgi_ohm: 2000.0
+  grid_diode_is_a: 1.0e-9
+  grid_diode_n: 1.0
+  grid_diode_temperature_c: 27.0
+  c_cathode_grid_f: 2.3e-12
+  c_grid_plate_f: 2.4e-12
+  c_cathode_plate_f: 0.9e-12
+
+simulation:
+  external_sample_rate_hz: 48000
+  oversampling: 16
+  internal_sample_rate_hz: 768000
+  fabric_clock_hz: 96000000

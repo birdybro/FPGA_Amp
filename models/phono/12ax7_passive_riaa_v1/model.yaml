@@ -1,0 +1,30 @@
+schema_version: 1
+id: 12ax7_passive_riaa_v1
+version: 0.1.0
+classification: reference
+name: Kennedy 1998 single-12AX7 passive-RIAA phono stage
+provenance:
+  author: Kevin Kennedy
+  schematic_date: 1998-02-17
+  source: https://www.kta-hifi.net/projects/pre_page/ots_preamp/1tbpre.pdf
+implementation:
+  configuration: ../../../model/configurations/v1.yaml
+  spice: ../../../reference/spice/v1_reference.cir
+  tube_model: koren_12ax7_1996
+  python_core: ../../../model/python/fpga_amp/v1_circuit.py
+  compatible_core_version: 0.1.0
+reference_conditions:
+  supply_v: 300.0
+  source: audio_technica_at_vm95e_nominal
+  output_load_ohm: 2210000.0
+expected_results:
+  stage1_plate_v: 179.993992
+  stage1_plate_current_a: 0.000991785191
+  stage2_plate_v: 192.808422
+  stage2_plate_current_a: 0.00107191578
+  circuit_gain_db_at_1khz: 41.0869962
+  riaa_error_db_20hz_20khz: [-0.9194501, 0.0003694]
+limitations:
+  - Koren grid-current parameters are weakly supported.
+  - Physical tube/component variation is not represented in nominal reference mode.
+  - The Python transient uses backward Euler; fixed circuit-state RTL is not complete.

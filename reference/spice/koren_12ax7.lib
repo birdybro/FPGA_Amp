@@ -1,0 +1,16 @@
+* Norman Koren improved 12AX7 triode model, plate grid cathode
+* Source equations/parameters: Glass Audio Vol. 8 No. 5 (1996), updated 2003.
+.subckt KOREN_12AX7 P G K
++ params: MU=100 EX=1.4 KG1=1060 KP=600 KVB=300 RGI=2000
++ CCG=2.3p CGP=2.4p CCP=0.9p
+E_E1 E1 0 value={V(P,K)/KP*log(1+exp(KP*(1/MU+V(G,K)/sqrt(KVB+V(P,K)*V(P,K)))))}
+R_E1 E1 0 1g
+G_PLATE P K value={2*pwr(max(V(E1),0),EX)/KG1}
+R_CONVERGE P K 1g
+C_CG G K {CCG}
+C_GP G P {CGP}
+C_CP P K {CCP}
+R_GRID G GD {RGI}
+D_GRID GD K GRID_DIODE
+.model GRID_DIODE D(IS=1n RS=1 CJO=10p TT=1n)
+.ends KOREN_12AX7

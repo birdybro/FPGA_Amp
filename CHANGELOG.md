@@ -1,0 +1,50 @@
+# Changelog
+
+All notable engineering changes are recorded here. The project is pre-release; dates use ISO 8601.
+
+## Unreleased
+
+### Added
+
+- Established the physical-reference → SPICE → Python float → Python fixed → RTL verification hierarchy.
+- Selected and versioned the Kennedy 1998 single-12AX7 passive-RIAA phono stage as the V1 circuit artifact.
+- Added reproducible project structure, engineering instructions, task ledger, and local-tool bootstrap path.
+- Added the AT-VM95E R/L/load model, canonical RIAA reference, Koren 12AX7 plate/grid-current equations, checked GE curve points, and deterministic mathematical regressions.
+- Added an automated ngspice golden reference with DC, 10 Hz–100 kHz AC, transient, and H1–H10 level-sweep extraction.
+- Added a nine-node 768 kHz backward-Euler nonlinear nodal model of the complete V1 signal circuit and SPICE/null comparison tooling.
+- Added reproducible 12AX7 LUT generation, resolution/error study, bit-accurate fixed interpolation, and a synthesizable serialized SystemVerilog tube primitive.
+- Added an integer-only complete V1 chord candidate with per-node Q formats,
+  Q0.47 conductances, Q4.44 KCL residuals, Q17.15 inverse coefficients, wide
+  products, explicit rounding/saturation, fixed capacitor state, and diagnostics.
+- Added warning-free Verilator lint and a 4,096-vector bit-exact testbench with checked eight-clock latency.
+- Added non-root ngspice/Yosys bootstrap and a generic XC7 out-of-context synthesis report.
+- Added quantitative cartridge/front-end noise, ADC headroom, and analog-versus-digital RIAA partition analysis.
+- Added architecture, model, phono, fixed-point, gain, noise, analog front-end, converter/clock, hardware, controls, safety, verification, and annotated-reference documentation.
+
+### Reference decisions
+
+- V1 is one mono channel using both halves of one 12AX7, 300 V B+, unbypassed 1.21 kΩ cathode resistors, and the original two-pole passive equalizer values.
+- High-resolution inspection corrected the equalizer capacitor transcription to 3300 pF shunt (the source scan's decimal text is easy to misread at page scale). The failed 300 pF/series interpretations were rejected by topology inspection and RIAA regression.
+- The nominal external cartridge is the Audio-Technica AT-VM95E equivalent: 485 Ω, 550 mH, 47 kΩ load, and configurable total shunt capacitance (150 pF nominal).
+- The Koren 12AX7 parameter set is the first analytical and SPICE tube model. Model error against manufacturer curves is tracked separately from numerical implementation error.
+
+### Measured
+
+- ngspice bias is 179.994 V/0.9918 mA for stage 1 and 192.808 V/1.0719 mA for stage 2; circuit gain is 41.087 dB at 1 kHz.
+- The physical passive network's ideal-RIAA error is -0.919 to +0.000 dB over 20 Hz–20 kHz (0.364 dB RMS), retained as reference behavior.
+- The 768 kHz float model is -53.10 dB normalized residual from the 5 mV-peak/1 kHz ngspice transient, with 0.00179 dB gain error and no nonconvergence.
+- Two solver passes satisfy the 100 pA residual target for every sample in the 20 mV-peak/1 kHz characterization; a one-pass output is close but does not satisfy the residual criterion.
+- Raw tube-current fixed-point iteration was rejected after missing the residual
+  criterion even at 12 relaxed passes. Three-pass constant quiescent-Jacobian
+  chord iteration converges every multitone sample and is -137.28 dB normalized
+  output residual from full Newton; it is the fixed-point hardware candidate.
+- The 128 × 256 LUT has 0.139 µA mean and 9.33 µA worst full-range absolute error in 100,000 random points.
+- XC7 structural synthesis reports 16 DSP48E1, 47 RAMB18E1, and 414 estimated logic cells; no Fmax is claimed without named-part place-and-route.
+- The flat 26 dB Architecture A study gives -28.0 dBFS for a 4 mV nominal cartridge and about 0.656 µV RMS combined RIAA-weighted input noise under stated assumptions.
+- The complete fixed candidate is -57.73 dB normalized residual from analytical
+  float on the initial settled multitone. Tube-LUT error is -56.14 dB, while the
+  isolated fixed-state/chord layer is -70.92 dB; no saturation or LUT clips occur.
+
+### Changed
+
+- Reused a single interpolation multiply datapath in RTL, reducing generic XC7 synthesis from 24 to 16 DSP48E1 blocks while retaining bit-exact output and eight-clock latency.
