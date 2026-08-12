@@ -34,14 +34,17 @@ The mono reference and first synthesizable primitive are operating:
   gain, with no failed solves.
 - The 128 × 256 Q0.31 tube LUT has 0.139 µA mean and 9.33 µA worst absolute
   error in a 100,000-point full-range probe.
-- The complete bit-accurate three-pass chord candidate is -57.73 dB normalized
+- The complete bit-accurate three-pass chord candidate is -57.87 dB normalized
   residual from analytical/full-Newton float on the initial multitone; isolated
-  state/chord error is -70.92 dB relative to the same circuit using the tube LUT.
+  state/chord error is -70.33 dB relative to the same circuit using the tube LUT.
 - The SystemVerilog tube lookup accepts physical Q-format voltages, is
   bit-exact for 4,096 randomized vectors, and has eight-clock latency.
 - Out-of-context XC7 synthesis reports 16 DSP48E1 and 47 RAMB18E1 blocks plus
   414 estimated logic cells. This is an accuracy-first baseline; no Fmax is
   claimed before place-and-route.
+- A four-stage 16× half-band reference provides at least 91.6 dB per-stage image
+  rejection and suppresses the measured cubic 45 kHz→3 kHz decimation alias to
+  -137.8 dB with bit-accurate Q8.24/Q1.23 MACs; polyphase RTL is not implemented yet.
 
 There is no fabricated analog front end, converter board, complete streaming
 phono RTL, or physical audio measurement yet.
@@ -86,6 +89,7 @@ python3 scripts/study_solver_architecture.py
 python3 scripts/compare_fixed_float.py
 python3 scripts/study_lut_resolution.py
 python3 scripts/analyze_frontend.py
+python3 scripts/design_resampler.py
 make rtl                           # lint + 4,096 bit-exact vectors
 make synth                         # generic XC7 structural estimate
 ```

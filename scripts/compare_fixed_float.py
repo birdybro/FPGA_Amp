@@ -59,7 +59,7 @@ def main() -> int:
     settled = time >= 0.002
     report = {
         "reference": "analytical Koren tube, backward Euler, full Newton to 1 pA",
-        "candidate": "Q-format state/network, Q15 chord inverse, 128x256 Q31 tube LUT, exactly 3 passes",
+        "candidate": "Q-format state/network, DSP-native Q17.1 inverse x 25-bit Q30 correction residual, 128x256 Q31 tube LUT, exactly 3 passes",
         "stimulus": "10 mV peak 50 Hz + 10 mV peak 1 kHz + 5 mV peak 10 kHz",
         "sample_rate_hz": sample_rate_hz,
         "all_samples": metrics(reference, candidate),
@@ -79,6 +79,8 @@ def main() -> int:
             "arithmetic_saturation_count": fixed_model.saturation_count,
             "tube_lut_clip_count": fixed_model.lut_clip_count,
             "max_iterations_observed": fixed_model.max_iterations_observed,
+            "chord_inverse_format": "signed 18-bit Q17.1",
+            "chord_correction_residual_format": "signed 25-bit, 30 fractional bits",
             "lut_float_nonconvergence_count": lut_float_model.nonconvergence_count,
         },
     }

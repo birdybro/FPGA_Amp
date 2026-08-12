@@ -27,14 +27,23 @@ The complete Python fixed candidate uses heterogeneous 32-bit voltage formats:
 | capacitor history | V | Q12.20 | ±2048 V / 0.954 µV |
 | dynamic conductance matrix | S | signed Q0.47, 48 bit | ±1 S / 7.11 fS |
 | KCL residual/RHS | A | signed Q4.44, 48 bit | ±8 A / 56.8 fA |
-| chord inverse | Ω | signed Q17.15, 32 bit | ±65.536 kΩ / 30.5 µΩ |
+| chord inverse | Ω | signed Q17.1, 18 bit | ±65.536 kΩ / 0.5 Ω |
+| chord correction residual | A | signed 25 bit, 30 fractional | ±15.625 mA / 0.931 nA |
 
 Each conductance-voltage product is rounded once into Q4.44 before KCL
-accumulation. Tube Q0.31 current is exactly extended by 13 bits. Each chord
-correction uses nine 32×48-bit coefficient/residual products, an 84-bit signed
-accumulator, one documented add-half/arithmetic shift into the destination node
-format, and 32-bit saturation. Capacitor differences are rounded to Q12.20 only
-after the corrected node vector is committed.
+accumulation. Tube Q0.31 current is exactly extended by 13 bits. Before chord
+correction, the high-resolution diagnostic residual is rounded/saturated to the
+25-bit Q30 operand. Each correction uses nine native DSP-sized 18×25-bit
+coefficient/residual products, a signed 48-bit accumulator, one documented
+add-half/arithmetic shift into the destination node format, and 32-bit
+saturation. Capacitor differences are rounded to Q12.20 only after the corrected
+node vector is committed.
+
+The compact correction was selected by a reproducible precision study. Against
+the original Q17.15 × Q4.44 correction, Q17.1 × 25-bit-Q30 is -83.63 dB
+normalized residual, 0.492 mV worst output error, and -0.00047 dB RMS gain error
+on the multitone, with no saturation. This makes each correction multiply fit a
+DSP48E1's 25×18 multiplier. Broader overload proof remains required.
 
 Exactly three chord corrections execute per sample; the fixed model does not
 exit early based on quantized residual. A 2 µA residual diagnostic limit is a
@@ -43,8 +52,8 @@ not a replacement for the float solver's 100 pA criterion. The multitone test
 observes 0.342 µA maximum residual with no saturation or LUT range clips.
 
 For 10 mV peak at 50 Hz + 10 mV at 1 kHz + 5 mV at 10 kHz, settled fixed output
-is -57.73 dB normalized residual and +0.0100 dB RMS gain from analytical/full-
+is -57.87 dB normalized residual and +0.00988 dB RMS gain from analytical/full-
 Newton float. Error decomposition shows the floating LUT circuit itself at
 -56.14 dB versus analytical float, while Q-format plus three-pass chord is
--70.92 dB versus the floating LUT circuit. Thus LUT device resolution—not fixed
+-70.33 dB versus the floating LUT circuit. Thus LUT device resolution—not fixed
 state arithmetic—is the dominant measured downstream approximation in this test.

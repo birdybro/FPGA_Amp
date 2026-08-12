@@ -20,8 +20,8 @@ measured SPICE behavior. The reference circuit is frozen at model version 0.1.0.
   residual, saturation, LUT-range, and deadline diagnostics.
 - [ ] Extend the fixed/RTL path to both triodes and the physical passive-RIAA
   network; automate 20 Hz–20 kHz and level comparisons.
-- [ ] Design and verify four 2× half-band interpolators plus nonlinear-output
-  decimation; measure ripple, rejection, latency, alias products, and resources.
+- [ ] Implement polyphase half-band RTL against the bit-accurate Q8.24/Q1.23
+  model; prove sample timing, alias rejection, latency, and synthesis resources.
 - [ ] Add reset/state-initialization and post-model mute ramp regressions.
 
 ## Completed this milestone
@@ -45,6 +45,14 @@ measured SPICE behavior. The reference circuit is frozen at model version 0.1.0.
 - [x] Define all V1 state/matrix/residual/inverse formats and implement an
   integer-only three-pass chord model with explicit rounding and saturation.
 - [x] Decompose initial multitone error into tube-LUT and fixed-state/chord layers.
+- [x] Design the four-stage 16× float/Q1.23-coefficient half-band reference,
+  measure response/latency, and verify rejection of a nonlinear 45 kHz alias.
+- [x] Implement the fixed Q8.24/Q1.23 per-stage MAC/rounding/saturation model and
+  preserve the nonlinear alias test as a regression.
+- [x] Reduce chord correction to DSP-native 18×25 operands; measure its error
+  independently against the original Q17.15 × Q4.44 correction.
+- [x] Add CI jobs for Python/RTL/generated-asset regressions and ngspice/model
+  cross-comparisons.
 - [x] Implement synthesizable eight-clock 12AX7 RTL with range diagnostics.
 - [x] Pass warning-free Verilator lint and 4,096 bit-exact randomized vectors.
 - [x] Run generic XC7 synthesis and record actual structural resource use.

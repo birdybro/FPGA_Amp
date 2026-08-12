@@ -14,8 +14,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a nine-node 768 kHz backward-Euler nonlinear nodal model of the complete V1 signal circuit and SPICE/null comparison tooling.
 - Added reproducible 12AX7 LUT generation, resolution/error study, bit-accurate fixed interpolation, and a synthesizable serialized SystemVerilog tube primitive.
 - Added an integer-only complete V1 chord candidate with per-node Q formats,
-  Q0.47 conductances, Q4.44 KCL residuals, Q17.15 inverse coefficients, wide
-  products, explicit rounding/saturation, fixed capacitor state, and diagnostics.
+  Q0.47 conductances, Q4.44 diagnostic KCL residuals, explicit rounding/
+  saturation, fixed capacitor state, and diagnostics.
+- Added four-stage 16× half-band interpolation/decimation design, reproducible
+  float/Q1.23 coefficients, response/latency extraction, and a nonlinear alias
+  regression.
+- Added bit-accurate Q8.24 half-band sample paths with Q1.23 coefficients,
+  signed MAC rounding, per-stage saturation, and fixed-chain alias verification.
+- Added GitHub Actions model/RTL/generated-asset and ngspice cross-model jobs.
 - Added warning-free Verilator lint and a 4,096-vector bit-exact testbench with checked eight-clock latency.
 - Added non-root ngspice/Yosys bootstrap and a generic XC7 out-of-context synthesis report.
 - Added quantitative cartridge/front-end noise, ADC headroom, and analog-versus-digital RIAA partition analysis.
@@ -41,10 +47,17 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - The 128 × 256 LUT has 0.139 µA mean and 9.33 µA worst full-range absolute error in 100,000 random points.
 - XC7 structural synthesis reports 16 DSP48E1, 47 RAMB18E1, and 414 estimated logic cells; no Fmax is claimed without named-part place-and-route.
 - The flat 26 dB Architecture A study gives -28.0 dBFS for a 4 mV nominal cartridge and about 0.656 µV RMS combined RIAA-weighted input noise under stated assumptions.
-- The complete fixed candidate is -57.73 dB normalized residual from analytical
+- The complete fixed candidate is -57.87 dB normalized residual from analytical
   float on the initial settled multitone. Tube-LUT error is -56.14 dB, while the
-  isolated fixed-state/chord layer is -70.92 dB; no saturation or LUT clips occur.
+  isolated fixed-state/chord layer is -70.33 dB; no saturation or LUT clips occur.
+- Half-band image rejection is at least 91.6 dB per stage; the cubic 45 kHz
+  harmonic aliases to 3 kHz at -144.34 dB with float and -137.91 dB with Q1.23
+  coefficients/float MACs. The complete fixed MAC chain measures -137.81 dB
+  with zero saturation in the test.
 
 ### Changed
 
 - Reused a single interpolation multiply datapath in RTL, reducing generic XC7 synthesis from 24 to 16 DSP48E1 blocks while retaining bit-exact output and eight-clock latency.
+- Reduced each chord-correction multiply from Q17.15 × Q4.44 to DSP-native
+  Q17.1 × signed 25-bit Q30. It is -83.63 dB residual from the high-precision
+  correction on the initial multitone with 0.492 mV worst output difference.

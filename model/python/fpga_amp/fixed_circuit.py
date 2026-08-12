@@ -78,11 +78,21 @@ class FixedChordV1CircuitModel:
     VOLTAGE_WIDTH = 32
     CONDUCTANCE_FRACTIONAL_BITS = 47
     RESIDUAL_FRACTIONAL_BITS = 44
-    INVERSE_FRACTIONAL_BITS = 15
     CAPACITOR_STATE_FRACTIONAL_BITS = 20
 
-    def __init__(self, sample_rate_hz: float = 768_000.0):
+    def __init__(
+        self,
+        sample_rate_hz: float = 768_000.0,
+        inverse_fractional_bits: int = 1,
+        correction_residual_fractional_bits: int = 30,
+        correction_residual_width: int = 25,
+    ):
         self.sample_rate_hz = float(sample_rate_hz)
+        self.inverse_fractional_bits = int(inverse_fractional_bits)
+        self.correction_residual_fractional_bits = int(
+            correction_residual_fractional_bits
+        )
+        self.correction_residual_width = int(correction_residual_width)
         self.reference = V1CircuitModel(sample_rate_hz)
         self.node = self.reference.node
         self.node_count = self.reference.node_count
@@ -102,8 +112,8 @@ class FixedChordV1CircuitModel:
         self.fixed_rhs_q44 = np.rint(
             self.reference.fixed_rhs * residual_scale
         ).astype(np.int64)
-        inverse_scale = 1 << self.INVERSE_FRACTIONAL_BITS
-        self.chord_inverse_q15 = np.rint(
+        inverse_scale = 1 << self.inverse_fractional_bits
+        self.chord_inverse_q = np.rint(
             self.reference.chord_inverse * inverse_scale
         ).astype(np.int64)
 
@@ -221,12 +231,28 @@ class FixedChordV1CircuitModel:
     def _apply_correction(self, residual_q44: list[int]) -> None:
         next_voltage = self.voltage_q.copy()
         product_fraction = (
-            self.INVERSE_FRACTIONAL_BITS + self.RESIDUAL_FRACTIONAL_BITS
+            self.inverse_fractional_bits
+            + self.correction_residual_fractional_bits
         )
+        correction_residual: list[int] = []
+        for value in residual_q44:
+            converted = round_shift(
+                value,
+                self.RESIDUAL_FRACTIONAL_BITS
+                - self.correction_residual_fractional_bits,
+            )
+            converted, clipped = saturate_signed(
+                converted, self.correction_residual_width
+            )
+            correction_residual.append(converted)
+            self.saturation_count += int(clipped)
         for row in range(self.node_count):
             accumulator = 0
             for column in range(self.node_count):
-                accumulator += int(self.chord_inverse_q15[row, column]) * residual_q44[column]
+                accumulator += (
+                    int(self.chord_inverse_q[row, column])
+                    * correction_residual[column]
+                )
             correction_q = round_shift(
                 accumulator,
                 product_fraction - int(self.VOLTAGE_FRACTIONAL_BITS[row]),

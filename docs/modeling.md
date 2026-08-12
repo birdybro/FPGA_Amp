@@ -93,7 +93,7 @@ misleading.
 | chord vs full Newton | -137.28 dB normalized residual, 3-pass multitone | float architecture candidate |
 | fixed tube LUT | 0.139 µA mean / 9.33 µA worst full range | measured |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |
-| fixed chord/state vs float LUT circuit | -70.92 dB normalized residual, initial multitone | implemented candidate; wider sweeps open |
+| fixed chord/state vs float LUT circuit | -70.33 dB normalized residual, initial multitone | implemented DSP-friendly candidate; wider sweeps open |
 | interpolation/decimation | not implemented | open |
 | ADC/front end/DAC | analytical requirements only | unvalidated |
 | physical FPGA/audio chain | absent | unvalidated |

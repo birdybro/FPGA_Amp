@@ -1,0 +1,46 @@
+name: FPGA Amp regression
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  model-and-rtl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install model and RTL tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          sudo apt-get update
+          sudo apt-get install --yes verilator
+      - name: Run mathematical and bit-exact RTL regressions
+        run: make test
+      - name: Regenerate fixed resampler assets
+        run: make resampler
+      - name: Verify generated assets are reproducible
+        run: git diff --exit-code -- model/generated
+
+  spice-reference:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install reference tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          sudo apt-get update
+          sudo apt-get install --yes ngspice
+      - name: Reproduce SPICE and cross-model reports
+        run: |
+          make spice-all
+          make analysis
