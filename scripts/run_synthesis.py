@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 from pathlib import Path
@@ -24,6 +25,11 @@ def locate(name: str) -> Path | None:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--top", choices=("triode_12ax7", "chord_corrector_v1"), default="triode_12ax7"
+    )
+    args = parser.parse_args()
     yosys = locate("yosys")
     abc = locate("abc")
     if yosys is None or abc is None:
@@ -31,15 +37,19 @@ def main() -> int:
         return 2
     results = REPOSITORY_ROOT / "reference" / "results"
     results.mkdir(parents=True, exist_ok=True)
-    log_path = results / "yosys_xc7_triode.log"
+    source = {
+        "triode_12ax7": "rtl/tube/triode_12ax7.sv",
+        "chord_corrector_v1": "rtl/circuit/chord_corrector_v1.sv",
+    }[args.top]
+    log_path = results / f"yosys_xc7_{args.top}.log"
 
     # The packaged Yosys has an absolute system ABC default. Stopping before
     # map_luts and invoking the identical documented steps with -exe keeps the
     # non-root bootstrap reproducible.
     script = "; ".join(
         [
-            "read_verilog -sv rtl/tube/triode_12ax7.sv",
-            "synth_xilinx -family xc7 -top triode_12ax7 -noiopad -noclkbuf -run begin:map_luts",
+            f"read_verilog -sv {source}",
+            f"synth_xilinx -family xc7 -top {args.top} -noiopad -noclkbuf -run begin:map_luts",
             "opt_expr -mux_undef -noclkinv",
             f"abc -exe {abc} -luts 2:2,3,6:5,10,20",
             "clean",
@@ -72,7 +82,7 @@ def main() -> int:
         print(completed.stdout, file=sys.stderr)
         return completed.returncode
 
-    section = completed.stdout.split("=== triode_12ax7 ===", 1)[1].split(
+    section = completed.stdout.split(f"=== {args.top} ===", 1)[1].split(
         "=== design hierarchy ===", 1
     )[0]
 
@@ -84,6 +94,7 @@ def main() -> int:
     warning_match = re.search(r"Warnings:\s+(\d+) unique", completed.stdout)
     summary = {
         "flow": "Yosys out-of-context synth_xilinx XC7; no place/route",
+        "top": args.top,
         "yosys": subprocess.check_output([str(yosys), "-V"], text=True).strip(),
         "estimated_logic_cells": int(lc_match.group(1)) if lc_match else None,
         "lut_by_size": {f"LUT{size}": count(f"LUT{size}") for size in range(2, 7)},
@@ -98,7 +109,7 @@ def main() -> int:
         "fmax_mhz": None,
         "timing_note": "Fmax requires a named part plus vendor place-and-route and is not claimed here.",
     }
-    summary_path = results / "synthesis_summary.json"
+    summary_path = results / f"synthesis_{args.top}_summary.json"
     summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=2))
     return 0

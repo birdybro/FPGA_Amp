@@ -28,6 +28,22 @@ outside version control and must be reviewed on tool upgrades. Verilator lint of
 the source/testbench is warning-free. No Fmax is reported because generic
 structural synthesis is not place-and-route on a named speed grade.
 
+The separate `chord_corrector_v1` out-of-context result is:
+
+| Resource | Count |
+|---|---:|
+| estimated logic cells | 1,109 |
+| LUT2 / LUT3 / LUT4 / LUT5 / LUT6 | 858 / 12 / 34 / 112 / 545 |
+| FDRE | 1,185 |
+| DSP48E1 | 9 |
+| RAMB18E1 | 0 |
+| CARRY4 / MUXF7 | 240 / 57 |
+
+Its structural check reports zero problems and six techmap resize warnings. The
+measured nine DSPs confirm that Q17.1 × 25-bit-Q30 maps one native multiplier per
+row; no timing claim is made. Tube plus corrector total 25 DSPs when composed,
+before KCL/network/filter arithmetic.
+
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.
 Time-multiplexing it across triodes/channels is therefore favored over blind
@@ -37,7 +53,7 @@ without an end-to-end error/resource comparison.
 
 ## Required next implementation evidence
 
-1. Synthesize fixed-point matrix/network arithmetic with two solver passes.
+1. Synthesize KCL/network arithmetic and integrate the measured three-pass chord controller.
 2. Demonstrate the complete mono 768 kHz cycle schedule at 98.304 MHz.
 3. Run Vivado synthesis/place/route on the exact Arty part and record worst slack,
    clocks, utilization, power estimate, and all CDC/timing exceptions.

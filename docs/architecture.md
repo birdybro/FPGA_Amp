@@ -71,6 +71,13 @@ The current direction is mono completion followed by either duplicated L/R table
 engines, a higher-throughput ROM pipeline, or a measured smaller-table trade.
 Deadline counters remain mandatory; no full stereo budget is claimed yet.
 
+The chord matrix correction is now a measured ten-clock RTL block with nine
+parallel row multipliers. Three corrections add 30 clocks to the mono sample.
+Together with six serialized tube requests (48 clocks), 78 of 128 clocks are
+accounted for, leaving 50 for KCL residual construction, capacitor state, and
+control. This is materially tighter than the table-only budget and is why a
+full mono scheduler must precede stereo duplication.
+
 ## Runtime observability contract
 
 The integrated stream will provide saturating counters for input/ADC clipping,

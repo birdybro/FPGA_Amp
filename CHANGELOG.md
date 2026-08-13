@@ -22,6 +22,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added bit-accurate Q8.24 half-band sample paths with Q1.23 coefficients,
   signed MAC rounding, per-stage saturation, and fixed-chain alias verification.
 - Added GitHub Actions model/RTL/generated-asset and ngspice cross-model jobs.
+- Added a synthesizable nine-row V1 chord corrector, reproducible coefficient/
+  vector generation, exact boundary testbench, and generic XC7 synthesis flow.
 - Added warning-free Verilator lint and a 4,096-vector bit-exact testbench with checked eight-clock latency.
 - Added non-root ngspice/Yosys bootstrap and a generic XC7 out-of-context synthesis report.
 - Added quantitative cartridge/front-end noise, ADC headroom, and analog-versus-digital RIAA partition analysis.
@@ -54,6 +56,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   harmonic aliases to 3 kHz at -144.34 dB with float and -137.91 dB with Q1.23
   coefficients/float MACs. The complete fixed MAC chain measures -137.81 dB
   with zero saturation in the test.
+- The chord corrector passes 1,024 bit-exact vectors at ten-clock latency,
+  including 18 saturation cases. XC7 synthesis reports 9 DSP48E1, no block RAM,
+  and 1,109 estimated logic cells with no structural check errors.
 
 ### Changed
 

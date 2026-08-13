@@ -51,6 +51,8 @@ measured SPICE behavior. The reference circuit is frozen at model version 0.1.0.
   preserve the nonlinear alias test as a regression.
 - [x] Reduce chord correction to DSP-native 18×25 operands; measure its error
   independently against the original Q17.15 × Q4.44 correction.
+- [x] Implement, lint, synthesize, and verify the nine-node chord-correction RTL
+  against 1,024 exact vectors including saturation boundaries.
 - [x] Add CI jobs for Python/RTL/generated-asset regressions and ngspice/model
   cross-comparisons.
 - [x] Implement synthesizable eight-clock 12AX7 RTL with range diagnostics.

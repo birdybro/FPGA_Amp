@@ -7,6 +7,8 @@ reference tests cover the canonical RIAA table, AT-VM95E resonance, 12AX7 bias,
 LUT absolute error, V1 DC nodes, 1 kHz gain, and solver convergence. Verilator
 checks 4,096 deterministic randomized tuples including range boundaries and
 requires exact `Ip`, `Ig`, clipping, valid timing, and eight-clock latency.
+The chord-corrector test requires exact nine-node outputs and saturation status
+for 1,024 vectors, including forced positive/negative limits, at ten clocks.
 
 The analog/reference commands are intentionally separate so a missing external
 tool is not reported as a pass:
@@ -31,6 +33,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | 2-pass vs converged solver | 20 mV peak, 1 kHz | all samples ≤100 pA residual; -136.84 dB output residual |
 | LUT vs analytical tube | 100,000 random full-range points | 0.139 µA mean, 9.33 µA worst |
 | RTL vs fixed LUT | 4,096 deterministic vectors | bit-exact, latency 8 |
+| chord RTL vs fixed correction | 1,024 deterministic vectors | bit-exact, latency 10, 18 saturation cases |
 | synthesized RTL vs hardware | none | not validated |
 
 ## A/B and null methodology

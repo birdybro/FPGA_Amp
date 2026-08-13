@@ -45,6 +45,12 @@ normalized residual, 0.492 mV worst output error, and -0.00047 dB RMS gain error
 on the multitone, with no saturation. This makes each correction multiply fit a
 DSP48E1's 25×18 multiplier. Broader overload proof remains required.
 
+`chord_corrector_v1.sv` implements this correction with nine parallel row
+multipliers and one column per clock. It matches 1,024 generated vectors exactly,
+including 18 forced-saturation vectors, and produces results ten clocks after an
+idle start. This proves only the correction/update block; KCL residual formation
+and the three-pass solver controller remain outside the module.
+
 Exactly three chord corrections execute per sample; the fixed model does not
 exit early based on quantized residual. A 2 µA residual diagnostic limit is a
 provisional bound derived above the 1.43 µA observed operating-region LUT error,

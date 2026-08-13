@@ -39,6 +39,9 @@ The mono reference and first synthesizable primitive are operating:
   state/chord error is -70.33 dB relative to the same circuit using the tube LUT.
 - The SystemVerilog tube lookup accepts physical Q-format voltages, is
   bit-exact for 4,096 randomized vectors, and has eight-clock latency.
+- The nine-node chord corrector is bit-exact for 1,024 randomized/boundary
+  vectors, including 18 saturation cases, with ten-clock latency; XC7 synthesis
+  uses 9 DSP48E1 blocks and no block RAM.
 - Out-of-context XC7 synthesis reports 16 DSP48E1 and 47 RAMB18E1 blocks plus
   414 estimated logic cells. This is an accuracy-first baseline; no Fmax is
   claimed before place-and-route.
@@ -91,7 +94,9 @@ python3 scripts/study_lut_resolution.py
 python3 scripts/analyze_frontend.py
 python3 scripts/design_resampler.py
 make rtl                           # lint + 4,096 bit-exact vectors
+make chord-rtl                     # lint + 1,024 circuit-correction vectors
 make synth                         # generic XC7 structural estimate
+make synth-chord                   # generic XC7 chord-corrector estimate
 ```
 
 Generated CSV, plots, logs, ROM images, and reports are intentionally ignored;
