@@ -172,6 +172,9 @@ module v1_solver_mono_wide #(
 
     logic [359:0] voltage_flat;
     logic [399:0] capacitor_flat;
+    logic [479:0] capacitor_current_flat;
+    logic [479:0] capacitor_current_next_unused;
+    logic [3:0] capacitor_current_saturation_unused;
     logic signed [41:0] capacitor_voltage_a [0:9];
     logic signed [41:0] capacitor_voltage_b [0:9];
     logic signed [42:0] capacitor_difference [0:9];
@@ -201,6 +204,7 @@ module v1_solver_mono_wide #(
             capacitor_next[lane] = saturate_40(capacitor_difference[lane]);
             if (exceeds_40(capacitor_difference[lane]))
                 capacitor_saturation_count = capacitor_saturation_count + 1'b1;
+            capacitor_current_flat[lane * 48 +: 48] = '0;
         end
     end
 
@@ -266,6 +270,7 @@ module v1_solver_mono_wide #(
         .start(kcl_start),
         .voltage(residual_voltage_flat),
         .capacitor_state_q30(capacitor_flat),
+        .capacitor_current_state_q44(capacitor_current_flat),
         .rhs_q44(residual_rhs_q44),
         .requested_residual_fractional_bits,
         .tube_current_valid(kcl_tube_current_valid),
@@ -276,6 +281,8 @@ module v1_solver_mono_wide #(
         .correction_scale_fallback(kcl_scale_fallback),
         .saturation_any(kcl_saturation_any),
         .saturation_count(kcl_saturation_count),
+        .capacitor_current_next_q44(capacitor_current_next_unused),
+        .capacitor_current_saturation_count(capacitor_current_saturation_unused),
         .busy(kcl_busy),
         .valid(kcl_valid)
     );
@@ -487,7 +494,9 @@ module v1_solver_mono_wide #(
 
     logic unused_status;
     always_comb unused_status = rhs_busy || kcl_busy || kcl_saturation_any
-                                || chord_busy || chord_saturation_any;
+                                || chord_busy || chord_saturation_any
+                                || (|capacitor_current_next_unused)
+                                || (|capacitor_current_saturation_unused);
 
 endmodule
 

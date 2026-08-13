@@ -243,6 +243,15 @@ coupling capacitor changes from 0.36096 S to 0.72192 S. Its Q0.47 integer is
 capacitor-coefficient contract. Any trapezoidal RTL must widen that coefficient
 and its multiplier input explicitly.
 
+`network_kcl_v1_wide.sv` now performs that widening behind an explicit
+`TRAPEZOIDAL` parameter. It latches ten signed Q4.44 previous-current inputs,
+subtracts them in the corresponding branch stamps, and returns ten saturated
+Q4.44 currents for commit. The existing column schedule remains ten clocks.
+An independent 1,024-vector regression is exact for residuals, selected
+correction format, maximum residual, all current states, and both saturation
+counts; 1,015 intentionally extreme vectors exercise current saturation. The
+default backward-Euler mode still passes its original 1,024 vectors exactly.
+
 The overload gate passes only through the measured 0.5 V level. At 20 mV, the
 candidate matches analytical 10%/1% recovery within about 0.002/0.000 ms and
 reduces post-burst fixed/analytical RMS from 5.80 mV legacy to 0.258 mV. At

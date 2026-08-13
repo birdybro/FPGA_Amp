@@ -145,6 +145,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   all ten Q30 branch differences, tests delayed tube-current handshakes, and
   globally selects correction precision. Structural XC7 results are 31 logic
   cells / 4 DSPs for RHS and 7,804 logic cells / 72 DSPs for KCL.
+- The same KCL block now has an explicit trapezoidal mode. It remains ten clocks
+  and matches 1,024 independent residual/current-history vectors exactly,
+  including 1,015 deliberately extreme Q4.44 current-saturation cases. The
+  original backward-Euler vector set remains exact and warning-free.
 - The integrated wide factorized solver matches Python bit-for-bit for 512
   sequential samples, including every node, capacitor, residual, and diagnostic.
   The measured schedule is 116 clocks, leaving 12 of 128 clocks, with zero test

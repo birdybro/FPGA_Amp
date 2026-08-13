@@ -2,19 +2,22 @@
 `default_nettype none
 
 // Wide-state V1 residual engine. The resistor/source conductance matrix is
-// static; all ten backward-Euler capacitors are evaluated as cancellation-safe
-// Q30 branch-voltage differences. A request chooses the maximum correction
-// precision, and the block globally falls back through Q40/Q34/Q30 until every
-// signed 25-bit correction operand fits.
+// static; all ten capacitors are evaluated as cancellation-safe Q30 branch-
+// voltage differences. Optional trapezoidal mode subtracts explicit Q4.44
+// previous branch current and returns the saturated current for state commit.
+// A request chooses the maximum correction precision, and the block globally
+// falls back through Q40/Q34/Q30 until every signed 25-bit operand fits.
 module network_kcl_v1_wide #(
     parameter MATRIX_FILE = "model/generated/v1_static_matrix_q0_47.mem",
-    parameter CAP_G_FILE = "model/generated/v1_cap_conductance_q0_47.mem"
+    parameter CAP_G_FILE = "model/generated/v1_cap_conductance_q0_47.mem",
+    parameter bit TRAPEZOIDAL = 1'b0
 ) (
     input  logic                  clk,
     input  logic                  rst_n,
     input  logic                  start,
     input  logic [359:0]          voltage,
     input  logic [399:0]          capacitor_state_q30,
+    input  logic [479:0]          capacitor_current_state_q44,
     input  logic [494:0]          rhs_q44,
     input  logic [5:0]            requested_residual_fractional_bits,
     input  logic                  tube_current_valid,
@@ -25,23 +28,28 @@ module network_kcl_v1_wide #(
     output logic                  correction_scale_fallback,
     output logic                  saturation_any,
     output logic [3:0]            saturation_count,
+    output logic [479:0]          capacitor_current_next_q44,
+    output logic [3:0]            capacitor_current_saturation_count,
     output logic                  busy,
     output logic                  valid
 );
 
-    // Generated bounds prove 41 bits for the static resistor matrix and 47 for
-    // the largest capacitor conductance. Retaining unused sign bits here costs
-    // multiple DSP slices per row.
+    // Generated bounds prove 41 bits for the static resistor matrix. Backward
+    // Euler needs 47 capacitor-coefficient bits; trapezoidal doubles the
+    // 470 nF companion and therefore requires all 48 signed Q0.47 bits.
     logic signed [40:0] matrix [0:80];
-    logic signed [46:0] capacitor_g [0:9];
+    logic signed [47:0] capacitor_g [0:9];
     logic signed [39:0] voltage_latched [0:8];
     logic signed [39:0] capacitor_latched [0:9];
+    logic signed [47:0] capacitor_current_latched [0:9];
+    logic signed [47:0] capacitor_current_result [0:8];
     logic signed [62:0] accumulator [0:8];
     logic signed [31:0] current_latched [0:3]; // ip1, ig1, ip2, ig2
     logic [5:0] requested_fraction_latched;
     logic [3:0] column;
     logic finish_pending;
     logic current_ready;
+    logic [3:0] current_saturation_running;
 
     initial begin
         $readmemh(MATRIX_FILE, matrix);
@@ -98,12 +106,34 @@ module network_kcl_v1_wide #(
     endfunction
 
     function automatic logic signed [62:0] rounded_capacitor_q44(
-        input logic signed [89:0] product
+        input logic signed [90:0] product
     );
-        logic signed [89:0] biased;
+        logic signed [90:0] biased;
         begin
-            biased = product + (90'sd1 <<< 32);
+            biased = product + (91'sd1 <<< 32);
             rounded_capacitor_q44 = 63'($signed(biased) >>> 33);
+        end
+    endfunction
+
+    function automatic logic signed [47:0] saturate_current_q44(
+        input logic signed [62:0] value
+    );
+        begin
+            if (value > 63'sd140737488355327)
+                saturate_current_q44 = 48'sh7fffffffffff;
+            else if (value < -63'sd140737488355328)
+                saturate_current_q44 = 48'sh800000000000;
+            else
+                saturate_current_q44 = value[47:0];
+        end
+    endfunction
+
+    function automatic logic current_overflow(
+        input logic signed [62:0] value
+    );
+        begin
+            current_overflow = (value > 63'sd140737488355327)
+                               || (value < -63'sd140737488355328);
         end
     endfunction
 
@@ -216,12 +246,12 @@ module network_kcl_v1_wide #(
     logic signed [41:0] cap_voltage_a_q30;
     logic signed [41:0] cap_voltage_b_q30;
     logic signed [42:0] cap_delta_q30;
-    logic signed [89:0] cap_product;
+    logic signed [90:0] cap_product;
     logic signed [62:0] cap_current_q44;
     logic signed [41:0] cap9_voltage_a_q30;
     logic signed [41:0] cap9_voltage_b_q30;
     logic signed [42:0] cap9_delta_q30;
-    logic signed [89:0] cap9_product;
+    logic signed [90:0] cap9_product;
     logic signed [62:0] cap9_current_q44;
     logic signed [62:0] final_residual_by_row [0:8];
     logic signed [62:0] q30_by_row [0:8];
@@ -261,6 +291,11 @@ module network_kcl_v1_wide #(
                                     capacitor_latched[column]});
         cap_product = capacitor_g[column] * cap_delta_q30;
         cap_current_q44 = rounded_capacitor_q44(cap_product);
+        if (TRAPEZOIDAL)
+            cap_current_q44 = cap_current_q44 - $signed({
+                {15{capacitor_current_latched[column][47]}},
+                capacitor_current_latched[column]
+            });
 
         cap9_voltage_a_q30 = node_voltage_q30(voltage_latched[6], 6);
         cap9_voltage_b_q30 = node_voltage_q30(voltage_latched[8], 8);
@@ -270,6 +305,23 @@ module network_kcl_v1_wide #(
                                      capacitor_latched[9]});
         cap9_product = capacitor_g[9] * cap9_delta_q30;
         cap9_current_q44 = rounded_capacitor_q44(cap9_product);
+        if (TRAPEZOIDAL)
+            cap9_current_q44 = cap9_current_q44 - $signed({
+                {15{capacitor_current_latched[9][47]}},
+                capacitor_current_latched[9]
+            });
+
+        capacitor_current_next_q44 = '0;
+        for (int capacitor_index = 0; capacitor_index < 9;
+             capacitor_index = capacitor_index + 1)
+            capacitor_current_next_q44[capacitor_index * 48 +: 48] =
+                capacitor_current_result[capacitor_index];
+        capacitor_current_next_q44[9 * 48 +: 48] =
+            saturate_current_q44(cap9_current_q44);
+        capacitor_current_saturation_count = current_saturation_running;
+        if (TRAPEZOIDAL && current_overflow(cap9_current_q44))
+            capacitor_current_saturation_count =
+                capacitor_current_saturation_count + 1'b1;
 
         q30_all_fit = 1'b1;
         q34_all_fit = 1'b1;
@@ -331,12 +383,17 @@ module network_kcl_v1_wide #(
             column <= '0;
             finish_pending <= 1'b0;
             current_ready <= 1'b0;
+            current_saturation_running <= '0;
             for (lane = 0; lane < 9; lane = lane + 1) begin
                 voltage_latched[lane] <= '0;
                 accumulator[lane] <= '0;
             end
             for (lane = 0; lane < 10; lane = lane + 1)
                 capacitor_latched[lane] <= '0;
+            for (lane = 0; lane < 10; lane = lane + 1)
+                capacitor_current_latched[lane] <= '0;
+            for (lane = 0; lane < 9; lane = lane + 1)
+                capacitor_current_result[lane] <= '0;
             for (lane = 0; lane < 4; lane = lane + 1)
                 current_latched[lane] <= '0;
         end else begin
@@ -351,6 +408,7 @@ module network_kcl_v1_wide #(
                     correction_scale_fallback <= 1'b0;
                     saturation_any <= 1'b0;
                     saturation_count <= '0;
+                    current_saturation_running <= '0;
                     for (lane = 0; lane < 9; lane = lane + 1) begin
                         voltage_latched[lane] <= $signed(
                             voltage[lane * 40 +: 40]
@@ -363,6 +421,10 @@ module network_kcl_v1_wide #(
                     for (lane = 0; lane < 10; lane = lane + 1)
                         capacitor_latched[lane] <= $signed(
                             capacitor_state_q30[lane * 40 +: 40]
+                        );
+                    for (lane = 0; lane < 10; lane = lane + 1)
+                        capacitor_current_latched[lane] <= $signed(
+                            capacitor_current_state_q44[lane * 48 +: 48]
                         );
                     if (tube_current_valid) begin
                         for (lane = 0; lane < 4; lane = lane + 1)
@@ -380,6 +442,11 @@ module network_kcl_v1_wide #(
                     current_ready <= 1'b1;
                 end
                 if (!finish_pending) begin
+                    capacitor_current_result[column] <=
+                        saturate_current_q44(cap_current_q44);
+                    if (TRAPEZOIDAL && current_overflow(cap_current_q44))
+                        current_saturation_running <=
+                            current_saturation_running + 1'b1;
                     for (lane = 0; lane < 9; lane = lane + 1)
                         accumulator[lane] <= accumulator[lane]
                             + matrix_current_by_row[lane]

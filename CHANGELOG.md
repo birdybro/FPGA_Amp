@@ -100,6 +100,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Extended the controlled overload harness to select fixed trapezoidal state,
   report all capacitor-current maxima, and enforce a diagnostic-clean <=0.5 V
   acceptance region while retaining severe overload as characterization.
+- Added a parameterized 48-bit-capacitor KCL mode with Q4.44 previous/next
+  current ports, exact trapezoidal branch stamping, state saturation reporting,
+  and an independent 1,024-vector warning-free RTL regression.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.

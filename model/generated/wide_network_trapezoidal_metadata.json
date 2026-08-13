@@ -1,0 +1,25 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "algorithm": "trapezoidal Q30 voltage/Q4.44 current branch stamps",
+  "vectors": 1024,
+  "seed": 1414676816,
+  "capacitor_conductance_width_bits": 48,
+  "maximum_capacitor_conductance_q47": 101601207593478,
+  "maximum_capacitor_conductance_s": 0.7219199999999972,
+  "capacitor_current_width_bits": 48,
+  "capacitor_current_fractional_bits": 44,
+  "selected_format_vectors": {
+    "30": 360,
+    "34": 341,
+    "40": 323
+  },
+  "fallback_vectors": 48,
+  "correction_saturation_vectors": 18,
+  "current_saturation_vectors": 1015,
+  "latency_clocks": 10,
+  "outputs": [
+    "model/generated/v1_cap_conductance_q0_47_trapezoidal.mem",
+    "model/generated/v1_cap_current_initial_q4_44_trapezoidal.mem",
+    "sim/vectors/generated/network_kcl_wide_trapezoidal.txt"
+  ]
+}
