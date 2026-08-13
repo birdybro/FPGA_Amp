@@ -75,6 +75,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
   synthesis support.
 - Added a complete wide 48 kHz reference stream with explicit Q8.32-to-Q8.24
   conversion, exact end-to-end vectors, diagnostics, and synthesis target.
+- Added arbitrary-vector/capture support to the wide solver regression and an
+  automated 23,040-sample RTL-versus-analytical nominal audio measurement.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -194,6 +196,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   exactly with zero diagnostics. Structural synthesis reports 16,993 logic
   cells, 170 DSP48E1s, and 8 RAMB18E1s; mono fits the A7-100T, naive stereo does
   not fit its 240-DSP budget.
+- Captured wide solver RTL is Q32-exact to fixed Python for 23,040 samples at
+  5 mV/1 kHz. Versus analytical float it measures -0.000054 dB gain error,
+  -0.000187 degree phase error, 0.019371% THD, and -63.834 dB raw residual.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.

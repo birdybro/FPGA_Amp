@@ -25,6 +25,7 @@ module v1_solver_mono_wide_tb;
     always #5 clk = ~clk;
 
     integer file_handle;
+    integer capture_handle;
     integer scan_count;
     integer vector_count = 0;
     integer errors = 0;
@@ -37,15 +38,23 @@ module v1_solver_mono_wide_tb;
     logic [31:0] expected_nonconvergence_count;
     logic [31:0] expected_fallback_count;
     logic [5:0] expected_minimum_fraction;
+    string vector_path;
+    string capture_path;
 
     initial begin
         clk = 1'b0;
         input_q24 = '0;
-        file_handle = $fopen(
-            "sim/vectors/generated/v1_solver_wide_factorized_stream.txt", "r"
-        );
+        if (!$value$plusargs("VECTORS=%s", vector_path))
+            vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream.txt";
+        file_handle = $fopen(vector_path, "r");
         if (file_handle == 0)
             $fatal(1, "cannot open wide solver vectors");
+        capture_handle = 0;
+        if ($value$plusargs("CAPTURE=%s", capture_path)) begin
+            capture_handle = $fopen(capture_path, "w");
+            if (capture_handle == 0)
+                $fatal(1, "cannot open capture output");
+        end
         repeat (3) @(posedge clk);
         rst_n = 1'b1;
         @(posedge clk);
@@ -113,6 +122,8 @@ module v1_solver_mono_wide_tb;
                        vector_count, output_q32, expected_node[8]);
                 errors = errors + 1;
             end
+            if (capture_handle != 0)
+                $fwrite(capture_handle, "%0d %0d\n", vector_count, output_q32);
             if (last_residual_q44 !== expected_residual
                 || saturation_count !== expected_saturation_count
                 || lut_clip_count !== expected_lut_clip_count
@@ -133,6 +144,8 @@ module v1_solver_mono_wide_tb;
             #1;
         end
         $fclose(file_handle);
+        if (capture_handle != 0)
+            $fclose(capture_handle);
         if (missed_request_count != 0 || deadline_miss_count != 0) begin
             $error("scheduler counters missed=%0d deadline=%0d",
                    missed_request_count, deadline_miss_count);

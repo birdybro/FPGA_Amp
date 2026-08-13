@@ -132,6 +132,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   nonlinear updates exactly with zero diagnostics. Structural synthesis is
   16,993 logic cells, 170 DSP48E1s, and 8 RAMB18E1s, so the mono reference fits
   the provisional A7-100T resource envelope but leaves only 70 of 240 DSPs.
+- A 23,040-sample captured RTL run at 5 mV / 1 kHz is Q32 bit-exact to fixed
+  Python. Measured directly from RTL output, gain/phase error versus analytical
+  float is -0.000054 dB / -0.000187 degrees, THD is 0.019371% versus 0.019059%,
+  and raw/mean-removed residual is -63.83 / -88.45 dB.
 - A downstream, explicitly non-reference output guard now starts muted, applies
   a configurable sample-qualified linear ramp, bypasses exactly at unity, and
   synchronously clamps held output on a fault. Its warning-free RTL regression
@@ -192,6 +196,7 @@ make factorized-frequency-wide      # same sweep with wide-state candidate
 make state-drift                    # one-second silence/click state audit
 make state-wide                     # wide-state candidate on the same audit
 make state-wide-audio               # 5 mV/1 kHz legacy/wide A/B
+make wide-rtl-audio                 # capture and measure 23,040 RTL samples
 make overload-study                 # grid conduction, clipping, recovery
 make overload-wide                  # same bursts with wide-state candidate
 make overload-iterations            # three-to-six-pass solver trade

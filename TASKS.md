@@ -15,8 +15,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   the factorized candidate fixes THD but retains -42.90 dB raw residual at
   5 mV. A -2.840 mV mean offset dominates it; mean-removed residual is -59.63 dB,
   phase error 0.00958°, and fundamental gain error +0.00026 dB.
-- [ ] Capture longer wide-stream RTL sweeps and automate frequency, phase,
-  distortion, overload, and nonlinear alias measurements from RTL output.
+- [ ] Extend captured wide RTL measurement from the completed nominal 1 kHz
+  case to frequency sweeps, level/overload, and nonlinear alias measurements.
 - [ ] Lengthen severe-overload recovery windows.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
 - [ ] Evaluate overload-specific solver strategies (adaptive Jacobian, parallel
@@ -127,6 +127,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Integrate the wide solver into 16x interpolation/decimation; match 64
   outputs / 1,024 solves exactly with zero diagnostics and synthesize at 16,993
   LC / 170 DSP48E1 / 8 RAMB18E1.
+- [x] Capture 23,040 wide-solver RTL samples at 5 mV/1 kHz; prove Q32 exactness
+  and measure -0.000054 dB gain, -0.000187 degree phase, 0.019371% THD, and
+  -63.834 dB raw residual directly from RTL output.
 - [x] Implement and test a downstream Q0.16 output mute/ramp with reset-muted
   startup, symmetric rounding, exact-unity bypass, and synchronous fault clamp;
   synthesize at 171 XC7 logic cells, 2 DSP48E1s, and no block RAM.

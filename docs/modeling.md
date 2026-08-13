@@ -198,6 +198,14 @@ diagnostics and a 4.598 nA maximum residual. Structural synthesis measures
 16,993 logic cells, 170 DSP48E1s, and 8 RAMB18E1s. These counts fit mono on the
 provisional A7-100T but rule out simple stereo duplication on its 240 DSPs.
 
+A longer 23,040-sample solver capture now closes the nominal measurement loop.
+For a Q8.24-quantized 5 mV / 1 kHz input, captured RTL Q8.32 output is bit-exact
+to fixed Python. Against analytical float over the final 10 ms, its gain error
+is -0.0000542 dB, phase error -0.0001866 degrees, THD 0.0193708% versus
+0.0190586%, and raw/mean-removed residual -63.834/-88.448 dB. The residual mean
+is retained at -0.2573 mV rather than removed from reference behavior. Maximum
+fixed KCL residual is 4.961 nA and all diagnostics are zero.
+
 At 20 mV, fixed 10%/1%/1 mV recovery becomes 8.466/14.918/18.297 ms versus
 analytical 8.465/14.918/18.280 ms. Legacy fixed needed 8.668/24.612/34.643 ms.
 Post-burst wide fixed/analytical RMS is 0.258 mV at both 20 mV and 0.5 V,
@@ -266,6 +274,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | wide RHS/KCL RTL vs fixed | 1,024 vectors each | bit-exact, latency 2/10; KCL fallback/overflow/delayed-current coverage |
 | wide factorized solver RTL vs fixed | 512 persistent samples | bit-exact all state/diagnostics, latency 116; 11,981 LC / 122 DSP / 8 RAMB18 |
 | wide factorized stream vs fixed | 64 outputs / 1,024 updates | bit-exact, zero diagnostics; 16,993 LC / 170 DSP / 8 RAMB18 |
+| captured wide solver RTL vs analytical | 23,040 samples, 5 mV/1 kHz | Q32 exact to fixed; -0.000054 dB / -0.000187 degree gain/phase error; 0.019371% THD |
 | wide-state frequency response | 5 mV, 20 Hz--20 kHz | <=0.000196 dB gain / <=0.000982 degree phase; zero diagnostics |
 | wide-state overload/recovery | 20 mV--1.5 V bursts | clean through 0.5 V; convergence fails at 1 V; adaptive scale prevents arithmetic saturation |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |

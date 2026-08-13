@@ -17,18 +17,22 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
     parser.add_argument("--lint-only", action="store_true")
+    parser.add_argument("--skip-generate", action="store_true")
+    parser.add_argument("--vectors-file")
+    parser.add_argument("--capture-file")
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
         print("ERROR: verilator unavailable", file=sys.stderr)
         return 2
-    for generator in (
-        "scripts/generate_wide_network_vectors.py",
-        "scripts/generate_wide_chord_vectors.py",
-        "scripts/generate_factorized_tube.py",
-        "scripts/generate_wide_solver_vectors.py",
-    ):
-        subprocess.run([sys.executable, generator], cwd=ROOT, check=True)
+    if not args.skip_generate:
+        for generator in (
+            "scripts/generate_wide_network_vectors.py",
+            "scripts/generate_wide_chord_vectors.py",
+            "scripts/generate_factorized_tube.py",
+            "scripts/generate_wide_solver_vectors.py",
+        ):
+            subprocess.run([sys.executable, generator], cwd=ROOT, check=True)
     sources = [
         "rtl/tube/triode_12ax7_factorized.sv",
         "rtl/circuit/network_rhs_v1_wide.sv",
@@ -62,7 +66,12 @@ def main() -> int:
         cwd=ROOT,
         check=True,
     )
-    subprocess.run([str(build / "Vv1_solver_mono_wide_tb")], cwd=ROOT, check=True)
+    simulation = [str(build / "Vv1_solver_mono_wide_tb")]
+    if args.vectors_file:
+        simulation.append(f"+VECTORS={args.vectors_file}")
+    if args.capture_file:
+        simulation.append(f"+CAPTURE={args.capture_file}")
+    subprocess.run(simulation, cwd=ROOT, check=True)
     return 0
 
 
