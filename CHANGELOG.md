@@ -6,6 +6,13 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added dependency-free 16/24/32-bit integer PCM WAV I/O, an offline 48 kHz
+  fixed-V1 processor with mandatory peak-voltage mappings and per-channel
+  diagnostics, and explicit latency/gain/fractional-delay null comparison with
+  residual WAV and spectrum outputs. A 1,024-frame synthetic terminal-
+  trapezoidal regression is diagnostic/clip clean, recovers an injected
+  23-sample delay exactly, and retains raw, latency-only, and opt-in gain-aligned
+  residuals separately.
 - Added exact trapezoidal terminal correction. Ten corrected Q4.44 capacitor
   current histories commit on the existing final chord edge, remain full-state
   bit-exact across 384,000 overload updates, and retain the 127-clock schedule.

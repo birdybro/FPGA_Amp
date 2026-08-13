@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "stimulus": {
+    "license": "generated in-repository; no third-party audio",
+    "sample_rate_hz": 48000,
+    "frame_count": 1024,
+    "input_full_scale_peak_v": 0.02,
+    "components_hz": [
+      11.0,
+      73.0,
+      997.0,
+      7013.0
+    ],
+    "synthetic_pop_samples": [
+      211,
+      212
+    ]
+  },
+  "v1_processing": {
+    "mode": "banked-terminal-trapezoidal",
+    "output_full_scale_peak_v": 2.0,
+    "diagnostic_total": 0,
+    "output_wav_clip_count": 0
+  },
+  "null_fixture": {
+    "known_integer_latency_samples": 23,
+    "measured_integer_latency_samples": 23,
+    "known_candidate_gain": 0.97,
+    "reported_gain_to_apply": 1.030910670467015,
+    "raw_zero_lag_normalized_residual_db": 2.4049706589558744,
+    "latency_aligned_before_gain_normalized_residual_db": -30.462251791612104,
+    "gain_aligned_normalized_residual_db": -100.81003115429282,
+    "fractional_delay_alignment_enabled": false,
+    "residual_wav_clip_count": 0
+  },
+  "artifacts": {
+    "note": "WAV/CSV/report artifacts are reproducible under build/ and are not tracked",
+    "process_report": "build/wav_null_regression/v1_process_report.json",
+    "null_report": "build/wav_null_regression/v1_null_report.json",
+    "residual_spectrum": "build/wav_null_regression/v1_residual_spectrum.csv"
+  }
+}

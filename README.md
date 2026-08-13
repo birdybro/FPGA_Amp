@@ -165,6 +165,14 @@ The mono reference and complete 768 kHz circuit solver are operating:
   fixed/float startup-state residual drifts 87.89 µV across the 50 ms window;
   retaining that metric while removing only its fitted linear drift gives a
   -74.79 dB shape null. No gain, phase, or fractional-delay alignment is used.
+- The fixed stream now has a real PCM WAV boundary with mandatory, explicit
+  input/output peak-voltage mappings and no hidden normalization. A 1,024-frame
+  synthetic MM/pop/multitone regression runs the trapezoidal terminal model
+  with zero diagnostics or WAV clips. Its independent null fixture recovers an
+  injected 23-sample delay exactly and preserves +2.405 dB raw, -30.462 dB
+  latency-aligned, and -100.810 dB opt-in gain-aligned residuals as separate
+  fields. Optional fractional alignment is labeled with its interpolation
+  method; it is never enabled by default.
 - Moving only the shallow trapezoidal threshold from -2.50 to -2.75 V prevents
   bank activation at 0.5 V, preserves zero 1.0 V failures, and reduces final
   10 ms mean error from 1.042 to 0.537 mV with the former 128-point grid-current
@@ -199,7 +207,8 @@ The mono reference and complete 768 kHz circuit solver are operating:
   128-clock deadline. An optional backward-Euler terminal path instead reuses
   the already-computed diagnostic residual: it is output-exact to four-pass,
   completes in 127 measured clocks, and explicitly reports the preterminal
-  residual. Trapezoidal terminal history commit is not yet implemented.
+  residual. The later accuracy-first trapezoidal implementation also recomputes
+  and commits all ten corrected companion-current histories on that edge.
 - Removing the shallowest cutoff matrix is not a valid optimization: the 100 ms
   selector study leaves 289 backward-Euler or 119 trapezoidal 1.0 V residual
   failures. All generated matrices remain required; activation thresholds are
@@ -408,6 +417,7 @@ make trapezoidal-terminal-stream-rtl-frequency # accuracy-first stream sweep
 make wide-rtl-overload              # captured 100 ms overload/recovery sweep
 make terminal-banked-rtl-metrics    # terminal H1-H10/clipping/recovery capture
 make wide-stream-rtl-alias          # captured nonlinear decimation-alias test
+make wav-null-regression            # fixed V1 PCM WAV + explicit null fixture
 make overload-study                 # grid conduction, clipping, recovery
 make overload-trapezoidal           # fixed/float trapezoidal burst comparison
 make overload-long                  # 235 ms floating severe-recovery observation
@@ -477,6 +487,24 @@ make synth-stream-factorized       # smooth-tube stream resource estimate
 make synth-mute                    # output ramp structural estimate
 ```
 
+Run a user-supplied 48 kHz integer-PCM WAV through an explicitly selected V1
+fixed model by supplying the physical peak-voltage mappings at both boundaries:
+
+```bash
+python3 scripts/process_wav.py input.wav output.wav \
+  --report build/process.json \
+  --mode banked-terminal-trapezoidal \
+  --input-full-scale-v 0.02 --output-full-scale-v 2.0
+
+python3 scripts/compare_wav.py reference.wav candidate.wav \
+  --report build/null.json --residual-wav build/residual.wav \
+  --spectrum-csv build/residual_spectrum.csv
+```
+
+The comparison defaults to integer latency alignment but does not fit gain, DC,
+or fractional delay. `--gain-align` and `--fractional-delay` are opt-in and every
+applied transformation is recorded alongside the unaligned metrics.
+
 Generated CSV, plots, logs, ROM images, and reports are intentionally ignored;
 every one has a source script. The compact LUT characterization report is kept
 under `model/generated/` as part of the numerical contract.
@@ -494,9 +522,10 @@ under `model/generated/` as part of the numerical contract.
 - `docs/`: engineering decisions, budgets, known limitations, and hardware path
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
-path is resolving overload convergence without breaking the 128-clock deadline,
-then extending fixed/float and captured-RTL equivalence across long state,
-frequency, level, and recovery tests.
+path is further reducing terminal-solver approximation error without breaking
+the 128-clock deadline and proving the 98.304 MHz one-clock-margin design in
+named-part place-and-route; the latter requires vendor tooling not present in
+the current environment.
 
 ## License
 

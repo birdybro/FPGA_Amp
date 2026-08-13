@@ -47,6 +47,9 @@ scripts/sweep_wide_stream_rtl.py --trapezoidal  captured complete 48 kHz sweep
 scripts/characterize_wide_solver_rtl_overload.py  captured 100 ms burst/recovery
 scripts/characterize_wide_solver_rtl_overload.py --banked --terminal-correction  terminal H1-H10/clipping/recovery
 scripts/characterize_wide_stream_rtl_alias.py     captured cubic alias/full stream
+scripts/process_wav.py                         explicit-voltage fixed V1 WAV path
+scripts/compare_wav.py                         latency/gain/residual WAV comparison
+scripts/run_wav_null_regression.py             synthetic end-to-end audio gate
 scripts/characterize_overload_recovery.py     grid conduction and recovery
 scripts/characterize_overload_recovery.py --trapezoidal  fixed integrator overload
 scripts/characterize_long_overload_recovery.py  235 ms physical-model tail
@@ -115,6 +118,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | trapezoidal banked terminal solver synthesis | Yosys 0.66 structural | 14,945 LC, 174 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | trapezoidal banked terminal stream | 64 outputs / 1,024 circuit samples plus synthesis | bit-exact, zero diagnostics, 127 clocks; 20,241 LC / 222 DSP48E1 / 8 RAMB18E1; no Fmax claim |
 | captured trapezoidal banked terminal stream frequency | 4,800 outputs each at 100 Hz/1/10/20 kHz | Q24 exact; <=0.000134 dB / <=0.000444 degree vs float; -74.79 dB worst linear-detrended null; zero diagnostics |
+| fixed V1 WAV/null regression | 1,024 frames; 11/73/997/7013 Hz plus synthetic pop | trapezoidal terminal path zero diagnostics/clips; injected 23-sample delay recovered; raw/latency-only/gain-aligned residual +2.405/-30.462/-100.810 dB |
 | trapezoidal 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 116-clock solver |
 | trapezoidal stream synthesis | Yosys 0.66 structural | 17,735 LC, 168 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | wide factorized solver RTL vs fixed | 512 sequential samples | bit-exact all 19 states and diagnostics, latency 116, zero events |
@@ -155,6 +159,27 @@ alignment, and least-squares gain reporting. The default residual does **not**
 gain-normalize away a real amplitude error: raw residual RMS, normalized residual,
 gain error, and worst sample error are separate fields. Fractional alignment must
 be labeled because it can conceal phase/integration error.
+
+`scripts/compare_wav.py` implements that policy for integer PCM. It searches a
+bounded signed latency using DC-removed normalized correlation; positive lag
+means the candidate is delayed. Short searches use direct dot products and long
+recordings use FFT dot products with exact-overlap mean/energy normalization.
+The reported search bound retains at least half of a short fixture, preventing
+spuriously perfect edge correlations over only a few samples. It always records
+zero-lag metrics. Silence/constant streams return deterministic zero latency and
+explicitly report that latency is not identifiable. Integer
+alignment is on by default, while gain and fractional-delay alignment are opt-in.
+The gain fit is a scalar candidate multiplier and never fits a DC offset. The
+fractional option uses a parabolic correlation-peak estimate and labeled linear
+interpolation. Reports preserve metrics before and after gain, the applied
+transformations, a residual WAV clip count, and optional Hann-windowed spectrum.
+
+`scripts/process_wav.py` is the offline physical-scaling boundary for the actual
+fixed V1 stream. It requires 48 kHz integer PCM, an explicitly named integration/
+solver mode, and peak volts corresponding to WAV full scale on input and output.
+It does not normalize. Stereo files are scheduled as independent model instances
+and each channel receives its own diagnostic report. This is an offline software
+path, not evidence of stereo RTL scheduling or an I²S implementation.
 
 The complete-stream frequency report performs no alignment. It fits the raw
 48 kHz input/output with absolute sample indices. A separate identity-path

@@ -26,6 +26,12 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Add dependency-free 16/24/32-bit PCM WAV I/O, explicit peak-voltage
+  scaling through the exact fixed V1 stream, and transparent latency/gain/
+  fractional-delay null tooling. Run a 1,024-frame terminal-trapezoidal audio
+  regression with zero diagnostics/clips, exact recovery of an injected
+  23-sample delay, and separate +2.405/-30.462/-100.810 dB raw/latency/gain
+  residuals.
 - [x] Capture the complete trapezoidal terminal stream at 100 Hz, 1 kHz,
   10 kHz, and 20 kHz for 4,800 outputs each. Prove fixed/RTL identity and zero
   diagnostics; bound gain/phase error to 0.000134 dB / 0.000444 degree; and
@@ -266,9 +272,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   100 Hz to -21.50 dB at 20 kHz. The 20 kHz gain error is only -0.0646 dB, but
   phase error is +4.72 degrees. Floating trapezoidal reduces that phase error to
   +0.0582 degrees. The fixed trapezoidal model is now nominally bounded against
-  that floating candidate and implemented through the complete RTL stream.
-  Severe-overload convergence remains unresolved and the SPICE link is still
-  based on separate, non-sample-identical transient stimuli.
+  that floating candidate and implemented through the complete RTL stream. The
+  legacy unbanked solver still fails severe-overload convergence; the selected
+  banked terminal path is diagnostic-clean through the tested 1.5 V burst but
+  retains 3.604 mV trapezoidal burst RMS approximation error. The SPICE link is
+  still based on separate, non-sample-identical transient stimuli.
 - The frozen historical circuit is -0.919 dB from ideal RIAA at its worst audio-
   band point. This is reference behavior, not an implementation defect.
 - The explicit 2-D-LUT RTL mode produces 0.0733% THD versus 0.0191% analytical
@@ -298,7 +306,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   freezing converter/gain/anti-alias parts.
 - Determine a credible stereo architecture; one solver uses 126/128 clocks and
   cannot be time-multiplexed across two channels at the present throughput. The
-  best-accuracy mono stream now uses 170/240 A7-100T DSPs, preventing duplication.
+  best-accuracy mono stream now uses 222/240 A7-100T DSPs, preventing duplication.
 - Select a first full integrated-amplifier topology only after V1 phono equivalence.
 
 ## Verification debt
@@ -306,9 +314,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - The full-phono circuit RTL is bit-exact to fixed Python and now has nominal
   four-point solver and complete-stream captures. SPICE comparison remains at
   four frequencies and large-signal cross-layer coverage is still incomplete.
-- WAV/null, CDC, and formal infrastructure remain absent. The cubic and
-  full-tube alias-family tests are captured from RTL; the latter is now bounded
-  below fixed rounding closure rather than inferred from the confounded raw bin.
+- PCM WAV processing and explicit null comparison now exist. The broader audio
+  distortion/IMD/overload vector library, CDC, and formal infrastructure remain
+  absent. The cubic and full-tube alias-family tests are captured from RTL; the
+  latter is bounded below fixed rounding closure rather than inferred from the
+  confounded raw bin.
 - No vendor place-and-route/Fmax, FPGA capture, analog converter, or physical tube
   measurement exists.
 - GE curve digitization has ±0.05 mA visual uncertainty; production tube spread
@@ -319,7 +329,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 ## Later milestones
 
 - [ ] Stereo scheduling and converter interface on Arty A7-100T reference platform.
-- [ ] WAV/null comparison and distortion/overload regression library.
+- [x] PCM WAV processing and latency/gain/fractional-delay null comparison.
+- [ ] Expanded WAV distortion/IMD/overload regression vector library.
 - [ ] Fabricated MM front end, ADC/FPGA/DAC loopback, and calibrated line output.
 - [ ] Validated phase inverter, power tubes, transformer, dynamic supply, feedback,
   and speaker interaction for one selected integrated-amplifier circuit.
