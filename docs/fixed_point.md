@@ -250,8 +250,18 @@ per integration mode matches every fixed node, capacitor state, output,
 residual, and cumulative diagnostic word exactly; every generated bank is
 selected and latency remains 116 clocks. Structural synthesis measures 12,942
 logic cells / 122 DSP48E1 / 8 RAMB18E1 for backward Euler and 13,870 / 122 / 8
-for trapezoidal. Full-Newton waveform error remains open before making the bank
-the default reference implementation.
+for trapezoidal. Full-Newton waveform error was therefore the next acceptance
+question before making the bank the default reference implementation.
+
+A subsequent 100 ms full-Newton audit closes the burst-waveform question but
+does not erase the recovery-state tradeoff. With Q8.24 input and no gain, DC,
+or delay alignment, the 1.0 V raw burst residual improves from -53.45 to
+-76.43 dB for backward Euler and from -53.65 to -82.89 dB for trapezoidal.
+Every 20 mV--1.0 V banked burst is below the frozen -70 dB gate. In the final
+10 ms, however, the trapezoidal bank has 1.042 mV raw RMS/mean error versus
+48.0 uV for the nonconvergent-during-burst baseline; removing the mean leaves
+-89.64 dB error. This is evidence of a small slow-state displacement, not
+permission to DC-align the comparison, and keeps the bank optional.
 
 `v1_solver_mono_wide.sv` composes those blocks with the factorized tube and
 matches 512 sequential fixed-Python samples exactly across all nine nodes, ten

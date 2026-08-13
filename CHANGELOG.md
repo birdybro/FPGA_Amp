@@ -143,6 +143,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added generated three-bank backward-Euler and five-bank trapezoidal chord
   assets, a sample-held selector in the wide solver, explicit synthesis
   wrappers, and a 9,216-sample-per-mode full-state RTL overload regression.
+- Added a parallel 100 ms banked/DC-chord/full-Newton waveform audit at 20 mV,
+  0.5 V, and 1.0 V with Q8.24 stimulus, unaligned windowed residuals, and a
+  -70 dB raw burst-error gate.
 - Added architecture, model, phono, fixed-point, gain, noise, analog front-end, converter/clock, hardware, controls, safety, verification, and annotated-reference documentation.
 
 ### Fixed
@@ -186,6 +189,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
   event. XC7 structural synthesis measures 12,942/13,870 logic cells for
   backward Euler/trapezoidal with 122 DSP48E1s and 8 RAMB18E1s in either mode:
   +503/+1,327 logic cells and no DSP/RAM increase over the nominal solvers.
+- At 1.0 V, the bank improves raw full-Newton burst error from -53.45 to
+  -76.43 dB for backward Euler and from -53.65 to -82.89 dB for trapezoidal.
+  The latter retains 1.042 mV final-window mean error after 85 ms recovery;
+  mean-removed error is -89.64 dB, so the unhidden slow-state offset remains an
+  optimization target rather than being removed by null alignment.
 
 - ngspice bias is 179.994 V/0.9918 mA for stage 1 and 192.808 V/1.0719 mA for stage 2; circuit gain is 41.087 dB at 1 kHz.
 - The physical passive network's ideal-RIAA error is -0.919 to +0.000 dB over 20 Hz–20 kHz (0.364 dB RMS), retained as reference behavior.

@@ -119,6 +119,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   13,870 / 122 / 8 for trapezoidal. The 1.5 V characterization still has 72/0
   residual failures and 4,052/4,052 tube-table clips; the bank is a numerical
   solver improvement, not a change to the physical circuit or tube domain.
+- Against full Newton with the same Q8.24 input, banked 1.0 V burst error is
+  -76.43 dB backward Euler and -82.89 dB trapezoidal, improving the failing DC
+  chord by 22.98 and 29.24 dB. No gain, DC, or delay alignment is applied. The
+  trapezoidal final 10 ms retains a 1.042 mV mean error after the burst even
+  though its mean-removed error is -89.64 dB; selector/state optimization is
+  still required before the bank becomes the default solver.
 - A new one-second silence/click audit exposes a Q12.20 state deadband that the
   KCL diagnostics miss: after bipolar 100 mV one-sample clicks, fixed output is
   still -5.368 mV in the final 100 ms while analytical output is about 7.2 uV
@@ -342,6 +348,7 @@ make trapezoidal-solver-rtl        # exact selectable integration-mode solver
 make banked-solver-rtl             # exact three-bank cutoff solver
 make trapezoidal-banked-solver-rtl # exact five-bank cutoff solver
 make banked-rtl-overload           # 9,216-sample/mode bank-selection gate
+make banked-accuracy               # 100 ms banked/full-Newton waveform gate
 make halfband-rtl                  # exact 2x units and complete 16x streams
 make stream-rtl                    # complete 48 kHz reference stream
 make stream-factorized-rtl         # complete smooth-tube reference stream

@@ -11,9 +11,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
-- [ ] Quantify banked fixed/RTL overload waveform error against the full-Newton
-  analytical reference, then expand or explicitly bound the factorized tube
-  domain below -5 V. Extra chord passes remain rejected.
+- [ ] Reduce the measured trapezoidal cutoff-bank post-burst state offset
+  without regressing 1.0 V convergence, then expand or explicitly bound the
+  factorized tube domain below -5 V. Extra chord passes remain rejected.
 - [ ] Extend integrated-solver RTL capture beyond nominal frequency response to
   level-dependent harmonics, clipping asymmetry, and recovery metrics.
 - [ ] Separate folded nonlinear harmonics from preexisting in-band solver energy
@@ -22,6 +22,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Completed this milestone
 
+- [x] Compare 100 ms banked waveforms against full Newton without alignment.
+  At 1.0 V, improve raw burst error from -53.45/-53.65 dB to -76.43/-82.89 dB
+  for backward Euler/trapezoidal; retain the trapezoidal 1.042 mV final-window
+  mean error as an open selector/state discrepancy.
 - [x] Implement integration-mode-specific cutoff-Jacobian banks in RTL; prove
   all 9,216 overload states per mode bit-exact, exercise every bank at the
   unchanged 116-clock latency, and synthesize without added DSP or block RAM.
