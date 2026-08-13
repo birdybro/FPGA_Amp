@@ -30,6 +30,7 @@ scripts/characterize_solver.py      fixed-iteration residual/convergence
 scripts/study_lut_resolution.py     BRAM/error trade study
 scripts/study_factorized_tube.py    factorized current/circuit accuracy
 scripts/characterize_factorized_frequency.py  six-point audio-band equivalence
+scripts/characterize_state_drift.py           one-second silence/click state audit
 scripts/characterize_overload_recovery.py     grid conduction and recovery
 scripts/study_overload_iterations.py          pass-count/deadline trade
 scripts/run_synthesis.py            XC7 structural resource report
@@ -51,6 +52,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | factorized fixed frequency sweep | 5 mV, 20/50/100/1k/10k/20k Hz | ≤0.00846 dB gain, ≤0.0729° phase; zero fixed diagnostics |
 | factorized overload burst | 5 ms at 20 mV / 0.5 / 1.0 / 1.5 V | residual clean through 0.5 V; failures at 1.0 V; internal range clips at 1.5 V |
 | overload solver iterations | 3–6 chord corrections, 1.0/1.5 V | six still fails; 213-clock serialized projection |
+| long state/click recovery | 1 s, +/-100 mV one-sample clicks | fixed late output -5.368 mV vs 7.2 uV analytical RMS; diagnostics silent |
 | factorized RTL vs fixed tube | 4,107 randomized/directed vectors | bit-exact, 5 clip cases, latency 8 |
 | RTL vs fixed LUT | 4,096 deterministic vectors | bit-exact, latency 8 |
 | chord RTL vs fixed correction | 1,024 deterministic vectors | bit-exact, latency 10, 18 saturation cases |

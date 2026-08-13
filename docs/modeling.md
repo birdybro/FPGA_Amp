@@ -131,6 +131,16 @@ slow output coupling network preserves small operating-point discrepancies.
 The raw result remains the primary unaligned metric while fixed-domain DC
 initialization and coefficient error are investigated.
 
+A one-second state regression has isolated a more severe discontinuity case.
+With silence except for +100 mV and -100 mV one-sample clicks at 0.1 and 0.3 s,
+the Q12.20 fixed output holds +35.655 mV between events and -5.368 mV from 0.5 s
+through the end. Analytical output is 7.2 uV RMS in the final 100 ms. The final
+output and 470 nF coupling-capacitor state errors are 5.373 and 5.299 mV even
+though the fixed maximum KCL residual is only 0.334 uA and every diagnostic
+counter is zero. This proves that the residual criterion does not detect
+long-time state deadbands. The exact raw waveform and all node/capacitor
+checkpoints are retained in `state_drift_summary.json`.
+
 The same comparison now spans 20 Hz, 50 Hz, 100 Hz, 1 kHz, 10 kHz, and 20 kHz
 at 5 mV peak, using at least ten stimulus cycles and analyzing at least the last
 five. Maximum fundamental gain and phase errors are 0.00846 dB and 0.0729°.
@@ -185,6 +195,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | factorized frequency response | six 5 mV points, 20 Hz–20 kHz | ≤0.00846 dB gain / ≤0.0729° phase; zero diagnostics |
 | factorized overload/recovery | 5 ms bursts, 20 mV–1.5 V | clean at 20/500 mV; residual failure at 1 V; range clip at 1.5 V |
 | overload iteration count | 3–6 corrections at 1.0/1.5 V | improved but still failing; projected 213 clocks at six |
+| long fixed state / click recovery | 1 s silence with +/-100 mV single-sample clicks | Q12.20 deadband leaves -5.368 mV late output; must be redesigned |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |
 | fixed chord/state vs float LUT circuit | -70.33 dB initial multitone; -34.58 dB at 5 mV/1 kHz | signal-dependent; low-level improvement required |
 | low-level complete fixed model | 2-D: 0.0733%; factorized: 0.0188%; analytical: 0.0191% THD | device error improved; RTL/state-phase work open |

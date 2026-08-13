@@ -57,6 +57,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
   asymmetry, three recovery thresholds, and solver/range diagnostics.
 - Added a three-through-six-correction overload solver study with analytical
   waveform error and explicit serialized latency projections.
+- Added a one-second, 768,000-sample fixed/analytical state audit with bipolar
+  synthetic clicks and complete node/capacitor checkpoints.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -143,6 +145,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - At 1.0 V, three-to-six chord corrections reduce maximum residual from 6.93 to
   2.31 µA and failures from 942 to 30, but project 126 to 213 clocks. At 1.5 V,
   six corrections still leave 5.83 µA and 960 failures.
+- The state audit exposes a Q12.20 history deadband: fixed output holds
+  +35.655 mV between clicks and -5.368 mV in the final 100 ms while analytical
+  output is about 7.2 uV RMS. Final output/coupling-capacitor errors are 5.373 /
+  5.299 mV despite zero diagnostics, so the current state contract is rejected
+  for long recovery rather than presented as accepted RTL accuracy.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.

@@ -15,8 +15,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   the factorized candidate fixes THD but retains -42.90 dB raw residual at
   5 mV. A -2.840 mV mean offset dominates it; mean-removed residual is -59.63 dB,
   phase error 0.00958°, and fundamental gain error +0.00026 dB.
-- [ ] Extend factorized-fixed-vs-float comparison across silence, impulses, and
-  long-duration capacitor-state drift; lengthen severe-overload recovery windows.
+- [ ] Replace the rejected Q12.20 output/capacitor state contract. The first
+  one-second click audit leaves -5.368 mV late output with zero diagnostics;
+  evaluate wider output state plus cancellation-safe capacitor branch stamps.
+- [ ] Lengthen severe-overload recovery windows.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
 - [ ] Evaluate overload-specific solver strategies (adaptive Jacobian, parallel
   tube evaluation, or higher-rate schedule); six chord passes still fail at
@@ -102,6 +104,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   and recovery relative to an undisturbed nominal trajectory.
 - [x] Sweep three through six chord corrections at 1.0/1.5 V; quantify residual,
   output error, range events, and the 126-to-213-clock serialized projection.
+- [x] Run a 768,000-sample silence/bipolar-click state audit with node and all
+  capacitor checkpoints; expose the Q12.20 deadband and preserve it as a
+  reproducible regression rather than hiding it with output DC removal.
 - [x] Implement and test a downstream Q0.16 output mute/ramp with reset-muted
   startup, symmetric rounding, exact-unity bypass, and synchronous fault clamp;
   synthesize at 171 XC7 logic cells, 2 DSP48E1s, and no block RAM.
@@ -125,6 +130,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - In a 5 ms burst, factorized residual-limit failures begin at the tested 1.0 V
   level (1,134 samples); 1.5 V causes 4,046 transformed-domain clip events.
   Bursts ≥0.5 V do not recover below 10% nominal RMS within the 35 ms window.
+- The Q12.20 output/capacitor state can freeze after a discontinuity. In the
+  one-second bipolar-click audit the final fixed output is -5.368 mV versus
+  4.5 uV instantaneous analytical output; no runtime diagnostic fires.
 - Yosys reports 204 Xilinx BRAM primitive port-resize warnings on the hierarchical
   solver while `check` reports no structural problem. Track tool-version behavior;
   do not describe synthesis as warning-free.

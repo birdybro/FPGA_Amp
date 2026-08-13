@@ -124,3 +124,15 @@ match the factorized fixed model bit-for-bit for 512 samples at the same 126
 clocks. Structural resources become 9,194 logic cells, 110 DSP48E1s, and 8
 RAMB18E1s. Relative to the 2-D hierarchy this saves 39 BRAMs while adding 21
 DSPs and 1,170 logic cells. Both modes remain named and reproducible.
+
+The uniform Q12.20 capacitor/output-state choice is now known to be inadequate
+for long settling. In a one-second silence/click regression, a one-sample
+100 mV click leaves the fixed output held near +35.655 mV; after the opposite
+click it remains at -5.368 mV in the 0.9--1.0 s window while analytical output
+is about 7.2 uV RMS. The 0.954 uV state LSB is too coarse for the per-sample
+decay of the roughly 1.04 s output-coupling time constant. Because the frozen
+state is a valid solution of the quantized companion equations, residual,
+saturation, and range diagnostics all remain clear. This is an exposed
+numerical-contract failure, not reference behavior. Wider internal output/
+history formats and a branch-current capacitor stamp are under measured
+evaluation; the current RTL has not been silently changed.

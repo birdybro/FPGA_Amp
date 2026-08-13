@@ -89,6 +89,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   residual from 6.93 to 2.31 µA but still leaves 30 failures and projects a
   213-clock serialized schedule. At 1.5 V it remains inadequate. Overload needs
   a different solver/range strategy rather than an unbudgeted extra pass.
+- A new one-second silence/click audit exposes a Q12.20 state deadband that the
+  KCL diagnostics miss: after bipolar 100 mV one-sample clicks, fixed output is
+  still -5.368 mV in the final 100 ms while analytical output is about 7.2 uV
+  RMS. The current RTL remains bit-exact to that now-rejected state contract;
+  wider internal output/history precision is the active redesign.
 - A downstream, explicitly non-reference output guard now starts muted, applies
   a configurable sample-qualified linear ramp, bypasses exactly at unity, and
   synchronously clamps held output on a fault. Its warning-free RTL regression
@@ -145,6 +150,7 @@ python3 scripts/compare_fixed_float.py
 make accuracy-sweeps                # settled level and low-level LUT studies
 make factorized-study               # smooth 1-D/Hermite tube candidate
 make factorized-frequency           # 20 Hz-20 kHz fixed/analytical sweep
+make state-drift                    # one-second silence/click state audit
 make overload-study                 # grid conduction, clipping, recovery
 make overload-iterations            # three-to-six-pass solver trade
 python3 scripts/study_lut_resolution.py
