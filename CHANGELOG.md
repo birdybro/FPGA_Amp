@@ -122,6 +122,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added parallel 850 ms floating severe-overload trajectories and a regression
   that preserves their non-monotonic cancellation/rebound. This falsifies the
   earlier one-exponential projection instead of converting it into a claim.
+- Added a 384,000-update selectable-trapezoidal RTL recovery capture at the
+  accepted 0.5 V boundary, with full-state exactness, zero-diagnostic gates,
+  and an explicitly non-sample-identical floating recovery comparison.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.

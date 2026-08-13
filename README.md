@@ -209,6 +209,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   importantly, deviation nearly cancels at 362/316 ms and then rebounds by
   451×/413× to 31.6/183.8 mV RMS. Recovery is therefore gated on the last
   sliding-RMS threshold crossing, and no severe fixed/RTL accuracy is claimed.
+- At the accepted 0.5 V boundary, a separate selectable-trapezoidal RTL run
+  captures 192,000 control and 192,000 overload updates. Every node and both
+  voltage/current histories for all ten capacitors are fixed-model exact, all
+  diagnostics are zero, and sustained 10% recovery is 146.570 ms—18.23 µs from
+  the independent floating result. The 1% threshold remains outside 235 ms.
 - A downstream, explicitly non-reference output guard now starts muted, applies
   a configurable sample-qualified linear ramp, bypasses exactly at unity, and
   synchronously clamps held output on a fault. Its warning-free RTL regression
@@ -283,6 +288,7 @@ make state-wide-audio               # 5 mV/1 kHz legacy/wide A/B
 make wide-rtl-audio                 # capture and measure 23,040 RTL samples
 make wide-rtl-frequency             # captured 100 Hz-20 kHz solver sweep
 make trapezoidal-rtl-frequency      # captured selectable-integrator sweep
+make trapezoidal-rtl-recovery       # accepted 0.5 V long-recovery capture
 make trapezoidal-stream-rtl-frequency # captured complete 48 kHz sweep
 make wide-rtl-overload              # captured 100 ms overload/recovery sweep
 make wide-stream-rtl-alias          # captured nonlinear decimation-alias test

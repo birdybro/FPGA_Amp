@@ -323,6 +323,14 @@ recovery. At least two opposing state modes temporarily cancel. A first
 threshold crossing would therefore be physically misleading; all recovery
 claims continue to use the last 1 ms RMS crossing.
 
+The 0.5 V accepted boundary is also captured through selectable trapezoidal
+RTL for the full 250 ms record. Control and overload account for 384,000 exact
+comparisons of all nine nodes, ten voltage histories, ten current histories,
+and cumulative diagnostics. No saturation, range clip, residual-limit event,
+or scale fallback occurs. RTL/fixed recovery reaches 10% at 146.570 ms versus
+146.552 ms in the separate floating run; the 18.23 µs difference includes input
+quantization and fixed arithmetic. Neither reaches 1% inside 235 ms.
+
 At 20 mV, fixed 10%/1%/1 mV recovery becomes 8.466/14.918/18.297 ms versus
 analytical 8.465/14.918/18.280 ms. Legacy fixed needed 8.668/24.612/34.643 ms.
 Post-burst wide fixed/analytical RMS is 0.258 mV at both 20 mV and 0.5 V,
@@ -403,6 +411,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | captured wide solver RTL vs analytical | 23,040 samples, 5 mV/1 kHz | Q32 exact to fixed; -0.000054 dB / -0.000187 degree gain/phase error; 0.019371% THD |
 | captured wide solver RTL frequency sweep | 5 mV, 100 Hz/1/10/20 kHz | Q32 exact to fixed; <=0.0001943 dB gain / <=0.0009814 degree phase; zero diagnostics |
 | captured trapezoidal solver RTL frequency | 5 mV, 100 Hz/1/10/20 kHz | all fixed states exact; <=0.000128 dB / <=0.000784 degree vs float; zero diagnostics |
+| captured trapezoidal solver RTL recovery | 0.5 V, 384,000 control/overload updates | all states exact; zero diagnostics; 10% recovery 146.570 ms |
 | captured trapezoidal complete stream | 4,800 Q8.24 outputs per 100 Hz/1/10/20 kHz point | exact to fixed; <=0.000111 dB / <=0.001185 degree vs composed float; 51-sample converter delay separated |
 | captured wide solver RTL overload | 384,000 updates, 5 ms bursts, 85 ms observation | full state exact to fixed; clean through 0.5 V; failures at 1 V; range clips at 1.5 V |
 | captured nonlinear decimation alias | 131,072 internal / 8,192 external samples | exact to fixed; 45 kHz to 3 kHz alias -137.814 dBc; zero saturation |

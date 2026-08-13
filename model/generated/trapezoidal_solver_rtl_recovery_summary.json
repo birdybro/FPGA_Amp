@@ -1,0 +1,66 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "implementation": "captured SystemVerilog wide factorized solver",
+  "integration_method": "trapezoidal",
+  "sample_rate_hz": 768000.0,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_peak_v": 0.5,
+    "burst_start_s": 0.01,
+    "burst_end_s": 0.015,
+    "duration_s": 0.25,
+    "post_burst_observation_s": 0.235,
+    "quantized_input": "Q8.24"
+  },
+  "captured_samples_per_trajectory": 192000,
+  "total_captured_solver_updates": 384000,
+  "control_rtl_fixed_all_state_exact": true,
+  "overload_rtl_fixed_all_state_exact": true,
+  "nominal_output_rms_v": 0.400869542536032,
+  "recovery_thresholds_v_rms": {
+    "ten_percent_nominal_output_rms": 0.0400869542536032,
+    "one_percent_nominal_output_rms": 0.00400869542536032,
+    "one_millivolt_rms": 0.001
+  },
+  "measured_recovery_s_after_burst": {
+    "ten_percent_nominal_output_rms": 0.1465703125,
+    "one_percent_nominal_output_rms": null,
+    "one_millivolt_rms": null
+  },
+  "one_ms_deviation_rms_v_at_absolute_time_s": {
+    "0.05": 0.09863686557560049,
+    "0.1": 0.06659849380171663,
+    "0.15": 0.04422222391245163,
+    "0.2": 0.028559362587570365,
+    "0.25": 0.017608568063552956
+  },
+  "final_10ms_deviation_rms_v": 0.01845562924357692,
+  "peak_post_burst_deviation_v": 35.98202853533439,
+  "control_diagnostics": {
+    "maximum_residual_a": 5.903359578951495e-09,
+    "residual_limit_exceedance_count": 0,
+    "saturation_count": 0,
+    "range_clip_count": 0,
+    "correction_scale_fallback_count": 0,
+    "minimum_correction_residual_fractional_bits": null
+  },
+  "overload_diagnostics": {
+    "maximum_residual_a": 3.329976721033745e-07,
+    "residual_limit_exceedance_count": 0,
+    "saturation_count": 0,
+    "range_clip_count": 0,
+    "correction_scale_fallback_count": 0,
+    "minimum_correction_residual_fractional_bits": null
+  },
+  "upstream_float_trapezoidal": {
+    "source": "model/generated/long_overload_recovery_summary.json",
+    "measured_recovery_s_after_burst": {
+      "ten_percent_nominal_output_rms": 0.14655208333333333,
+      "one_percent_nominal_output_rms": null,
+      "one_millivolt_rms": null
+    },
+    "ten_percent_recovery_difference_s": 1.822916666666119e-05,
+    "note": "The difference includes Q8.24 input quantization and fixed circuit arithmetic; trajectories are not sample-identical."
+  }
+}

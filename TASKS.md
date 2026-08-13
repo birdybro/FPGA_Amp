@@ -71,6 +71,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   850 ms. Falsify the earlier single-exponential projection, measure 1.0 V
   sustained 10% recovery at 270.112 ms, and expose 413--451× late rebounds
   after opposing circuit modes temporarily cancel near 316--362 ms.
+- [x] Capture selectable trapezoidal RTL through the accepted 0.5 V overload
+  and 235 ms recovery window. Match 384,000 complete fixed-state updates with
+  zero diagnostics and measure sustained 10% recovery at 146.570 ms, 18.23 µs
+  from the independent floating trajectory.
 - [x] Select, document, and version the Kennedy 1998 two-stage passive-RIAA circuit.
 - [x] Implement AT-VM95E R/L/47.5 kΩ/150 pF cartridge loading.
 - [x] Build ngspice DC, 10 Hz–100 kHz AC, transient, and 1 kHz H1–H10 level sweeps.
