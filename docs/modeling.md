@@ -44,6 +44,37 @@ residual RMS on 397.6 mV reference RMS (-53.10 dB normalized), 1.524 mV worst
 sample error, and 0.00179 dB RMS gain error over the last 10 ms. Major remaining
 contributors are integration-method and SPICE-output resampling differences.
 
+A matched transient sweep now quantifies that integration term directly. With
+the physical cartridge/load retained and the Python model driven from SPICE's
+`INPUT` node, 768 kHz backward Euler measures the following fundamental errors:
+
+| Frequency | Gain error | Phase error | Raw normalized residual |
+|---:|---:|---:|---:|
+| 100 Hz | +0.001307 dB | +0.02443° | -66.42 dB |
+| 1 kHz | +0.001894 dB | +0.11221° | -53.10 dB |
+| 10 kHz | -0.048491 dB | +2.29757° | -27.83 dB |
+| 20 kHz | -0.064578 dB | +4.71974° | -21.50 dB |
+
+All Newton solves converge in at most two iterations. The high-frequency phase
+error decreases monotonically with backward-Euler rate, but even 3.072 MHz
+leaves 0.608° at 10 kHz and 1.235° at 20 kHz. Rate alone is therefore an
+expensive and incomplete fix.
+
+The floating model now has an explicitly selected `trapezoidal` companion
+candidate. It stores previous branch current as well as voltage and uses
+
+```text
+Gc = 2*C/dt
+Ieq[n] = Gc*vcap[n-1] + icap[n-1]
+icap[n] = Gc*(vcap[n] - vcap[n-1]) - icap[n-1]
+```
+
+At 768 kHz it measures +0.005806 dB / +0.03900° at 10 kHz and -0.008455 dB /
++0.05817° at 20 kHz, with no failed solve. It is a candidate rather than a
+downstream change: trapezoidal overload stability, fixed state/current formats,
+coefficient widths, solver residuals, and a 128-clock RTL schedule remain to be
+proven. Backward Euler remains the bit-accurate fixed/RTL behavior.
+
 Three nonlinear solution forms have now been measured. Full Newton with a live
 Jacobian is the float reference and needs at most two correction passes for the
 20 mV 1 kHz test. Raw fixed-point iteration around the linear network is rejected:
@@ -287,7 +318,8 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | analytical tube equation | 0.0131 mA RMS vs approximate GE points | provisional |
 | grid conduction | Koren rough diode/RGI model | high uncertainty |
 | SPICE circuit | reproducible DC/AC/transient | golden numerical reference, not hardware truth |
-| integration/solver | -53.10 dB residual vs SPICE at one level/frequency | measured, more sweeps needed |
+| 768 kHz backward-Euler integration | four SPICE transients, 100 Hz--20 kHz | <=0.0646 dB gain; phase grows to 4.72 degrees |
+| 768 kHz trapezoidal float candidate | 10/20 kHz SPICE transients | <=0.00846 dB gain / <=0.0582 degree phase; downstream proof open |
 | chord vs full Newton | -137.28 dB normalized residual, 3-pass multitone | float architecture candidate |
 | fixed tube LUT | 0.139 µA mean / 9.33 µA worst full range | measured |
 | fixed factorized tube | 10.5 nA mean / 51.8 nA worst; 233,472 raw table bits | measured; standalone RTL passing |

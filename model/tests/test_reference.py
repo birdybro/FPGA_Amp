@@ -199,6 +199,20 @@ class V1CircuitTests(unittest.TestCase):
         self.assertEqual(model.nonconvergence_count, 0)
         self.assertLessEqual(model.max_iterations_observed, 3)
 
+    def test_trapezoidal_candidate_is_explicit_and_converges(self) -> None:
+        sample_rate = 768_000.0
+        time = np.arange(int(0.003 * sample_rate)) / sample_rate
+        input_signal = 5.0e-3 * np.sin(2.0 * np.pi * 20_000.0 * time)
+        model = V1CircuitModel(
+            sample_rate, integration_method="trapezoidal"
+        )
+        output = model.process(input_signal)
+        self.assertTrue(np.all(np.isfinite(output)))
+        self.assertEqual(model.nonconvergence_count, 0)
+        self.assertLessEqual(model.max_iterations_observed, 3)
+        with self.assertRaises(ValueError):
+            V1CircuitModel(sample_rate, integration_method="implicit_magic")
+
     def test_three_pass_chord_candidate_tracks_newton(self) -> None:
         sample_rate = 768_000.0
         time = np.arange(int(0.002 * sample_rate)) / sample_rate

@@ -89,6 +89,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a model-change guard and complete guarded wide-stream top with muted
   startup, ramp-down, frame-aligned reset, muted warmup, acknowledgment, and
   ramp-up sequencing.
+- Added a four-frequency ngspice/Python transient sweep, a two-rate refinement
+  study, and an explicit floating trapezoidal capacitor-companion candidate.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -230,6 +232,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
   reset follows zero gain, warmup output remains muted, the 48 kHz phase counter
   stays aligned, one acknowledgment fires, and unity gain returns. Structural
   synthesis reports 17,142 logic cells, 172 DSP48E1s, and 8 RAMB18E1s.
+- At 768 kHz, backward-Euler gain/phase error versus ngspice reaches -0.0646 dB /
+  +4.72 degrees at 20 kHz. Quadrupling rate leaves +1.235 degrees. The floating
+  trapezoidal candidate measures -0.00846 dB / +0.0582 degrees at 20 kHz and
+  +0.00581 dB / +0.0390 degrees at 10 kHz, with no failed solves.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.

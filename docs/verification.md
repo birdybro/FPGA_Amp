@@ -30,6 +30,7 @@ tool is not reported as a pass:
 make spice                          ngspice DC/AC/transient
 scripts/spice_level_sweep.py        H1-H10/THD/gain compression
 scripts/compare_spice_python.py     transient residual
+scripts/compare_spice_python_frequency.py  four-point integrator/SPICE sweep
 scripts/characterize_solver.py      fixed-iteration residual/convergence
 scripts/study_lut_resolution.py     BRAM/error trade study
 scripts/study_factorized_tube.py    factorized current/circuit accuracy
@@ -53,6 +54,8 @@ scripts/run_synthesis.py            XC7 structural resource report
 | Koren vs approximate GE curves | checked digitization | 0.0131 mA RMS, 0.0346 mA worst |
 | physical V1 vs ideal RIAA | ngspice AC, 20 Hz–20 kHz | -0.919…+0.000 dB, 0.364 dB RMS |
 | Python MNA vs ngspice | 5 mV peak, 1 kHz, last 10 ms | -53.10 dB normalized residual, 0.00179 dB gain error |
+| backward Euler vs ngspice frequency | 5 mV, 100 Hz/1/10/20 kHz | <=0.0646 dB gain; phase rises from 0.0244 to 4.7197 degrees |
+| trapezoidal float candidate vs ngspice | 5 mV, 10/20 kHz | <=0.00846 dB gain, <=0.0582 degree phase; zero failed solves |
 | 2-pass vs converged solver | 20 mV peak, 1 kHz | all samples ≤100 pA residual; -136.84 dB output residual |
 | LUT vs analytical tube | 100,000 random full-range points | 0.139 µA mean, 9.33 µA worst |
 | factorized fixed vs analytical tube | 100,000 quantized full-range points | 10.5 nA mean, 51.8 nA worst; 12.67 raw RAMB18 equivalents |

@@ -11,10 +11,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
-- [ ] Diagnose the fixed circuit's low-level raw waveform residual/phase error;
-  the factorized candidate fixes THD but retains -42.90 dB raw residual at
-  5 mV. A -2.840 mV mean offset dominates it; mean-removed residual is -59.63 dB,
-  phase error 0.00958°, and fundamental gain error +0.00026 dB.
+- [ ] Evaluate trapezoidal integration as the next fixed/RTL state contract.
+  Floating SPICE error is <=0.00846 dB / <=0.0582 degrees at 10/20 kHz versus
+  backward Euler's 0.0646 dB / 4.72 degrees at 20 kHz, but overload stability,
+  previous-current formats, coefficient bounds, and cycle cost remain open.
 - [ ] Lengthen severe-overload recovery beyond the new 85 ms post-burst window;
   neither analytical nor RTL trajectories reach 10% nominal output at >=0.5 V.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
@@ -38,6 +38,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   outputs exactly and measure -137.814 dBc with zero saturation.
 - [x] Integrate frame-aligned reset/warmup and the mute ramp around the wide
   stream; prove no state-reset sample escapes and synthesize the guarded top.
+- [x] Compare 768 kHz backward Euler with SPICE at 100 Hz, 1 kHz, 10 kHz, and
+  20 kHz; expose 4.72 degree high-frequency phase error and measure a floating
+  trapezoidal candidate at <=0.0582 degrees for 10/20 kHz.
 - [x] Select, document, and version the Kennedy 1998 two-stage passive-RIAA circuit.
 - [x] Implement AT-VM95E R/L/47.5 kΩ/150 pF cartridge loading.
 - [x] Build ngspice DC, 10 Hz–100 kHz AC, transient, and 1 kHz H1–H10 level sweeps.
@@ -146,9 +149,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 ## Known discrepancies and failing regressions
 
 - No failing regression.
-- Python MNA versus ngspice is -53.10 dB normalized residual for the one tested
-  5 mV-peak/1 kHz case. More frequency/level coverage is required before this is
-  an acceptance bound.
+- Python backward-Euler MNA versus ngspice ranges from -66.42 dB raw residual at
+  100 Hz to -21.50 dB at 20 kHz. The 20 kHz gain error is only -0.0646 dB, but
+  phase error is +4.72 degrees. Floating trapezoidal reduces that phase error to
+  +0.0582 degrees; fixed/RTL adoption is not yet justified.
 - The frozen historical circuit is -0.919 dB from ideal RIAA at its worst audio-
   band point. This is reference behavior, not an implementation defect.
 - The explicit 2-D-LUT RTL mode produces 0.0733% THD versus 0.0191% analytical

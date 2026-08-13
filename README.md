@@ -32,6 +32,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
 - The 768 kHz backward-Euler nonlinear nodal model differs from the ngspice
   5 mV-peak, 1 kHz result by -53.10 dB normalized residual and 0.0018 dB RMS
   gain, with no failed solves.
+- A four-frequency SPICE transient sweep exposes backward-Euler's audio-band
+  phase cost: at 100 Hz it is +0.00131 dB / +0.0244°, while at 20 kHz it is
+  -0.0646 dB / +4.72°. Raising backward-Euler to 3.072 MHz still leaves 1.24°
+  at 20 kHz. An explicit floating-only 768 kHz trapezoidal candidate improves
+  10/20 kHz error to at most 0.00846 dB / 0.0582°, but is not yet the fixed or
+  RTL contract.
 - The 128 × 256 Q0.31 tube LUT has 0.139 µA mean and 9.33 µA worst absolute
   error in a 100,000-point full-range probe.
 - The complete bit-accurate three-pass chord candidate is -57.87 dB normalized
@@ -205,6 +211,7 @@ make spice                         # DC, AC, and 5 mV transient
 python3 scripts/spice_level_sweep.py
 python3 scripts/run_reference.py --plots
 python3 scripts/compare_spice_python.py
+make spice-python-frequency          # four SPICE transients + integrator study
 python3 scripts/characterize_solver.py
 python3 scripts/study_solver_architecture.py
 python3 scripts/compare_fixed_float.py

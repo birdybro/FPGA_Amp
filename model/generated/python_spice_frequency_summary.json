@@ -1,0 +1,304 @@
+{
+  "comparison": "ngspice transient vs 768 kHz backward-Euler nonlinear MNA",
+  "stimulus": {
+    "input_peak_v": 0.005,
+    "frequencies_hz": [
+      100.0,
+      1000.0,
+      10000.0,
+      20000.0
+    ],
+    "source": "AT-VM95E INPUT node after cartridge R/L/load network"
+  },
+  "maximum_absolute_gain_error_db": 0.06457848179036188,
+  "maximum_absolute_phase_error_deg": 4.719735518605091,
+  "worst_raw_normalized_residual_db": -21.495107307390505,
+  "trapezoidal_768khz_high_frequency": {
+    "maximum_absolute_gain_error_db": 0.00845533967575772,
+    "maximum_absolute_phase_error_deg": 0.058170343325656404
+  },
+  "total_python_nonconvergence_count": 0,
+  "total_method_study_nonconvergence_count": 0,
+  "measurements": [
+    {
+      "sample_rate_hz": 768000.0,
+      "integration_method": "backward_euler",
+      "samples": 76800,
+      "spice": {
+        "fundamental_peak_v": 2.4203714728676298,
+        "phase_deg": -52.058791996965766,
+        "mean_v": -0.039395524346861756,
+        "thd_percent_h2_to_h10": 0.08330564964189352
+      },
+      "python": {
+        "fundamental_peak_v": 2.420735711188752,
+        "phase_deg": -52.03436548513958,
+        "mean_v": -0.03913300170084598,
+        "thd_percent_h2_to_h10": 0.08341099647660512
+      },
+      "python_vs_spice": {
+        "fundamental_gain_error_db": 0.0013070290513743888,
+        "fundamental_phase_error_deg": 0.024426511826192154,
+        "raw_normalized_residual_db": -66.41715109877501,
+        "mean_removed_normalized_residual_db": -66.88947722128007,
+        "residual_mean_v": 0.00026251353947936447,
+        "maximum_absolute_error_v": 0.0014030613032175454
+      },
+      "python_solver": {
+        "maximum_iterations": 2,
+        "nonconvergence_count": 0
+      },
+      "frequency_hz": 100.0,
+      "duration_s": 0.1,
+      "analysis_start_s": 0.05,
+      "ngspice_maximum_step_s": 2e-06
+    },
+    {
+      "sample_rate_hz": 768000.0,
+      "integration_method": "backward_euler",
+      "samples": 23040,
+      "spice": {
+        "fundamental_peak_v": 0.5622079248168521,
+        "phase_deg": -52.84021028837991,
+        "mean_v": -0.005022805503613575,
+        "thd_percent_h2_to_h10": 0.018869459748785716
+      },
+      "python": {
+        "fundamental_peak_v": 0.5623305045451845,
+        "phase_deg": -52.72799787930657,
+        "mean_v": -0.0046217973631973155,
+        "thd_percent_h2_to_h10": 0.018973034626828596
+      },
+      "python_vs_spice": {
+        "fundamental_gain_error_db": 0.0018936017988833483,
+        "fundamental_phase_error_deg": 0.1122124090733223,
+        "raw_normalized_residual_db": -53.096880391002244,
+        "mean_removed_normalized_residual_db": -54.107262282514995,
+        "residual_mean_v": 0.00040100814041623914,
+        "maximum_absolute_error_v": 0.0015240977436434336
+      },
+      "python_solver": {
+        "maximum_iterations": 2,
+        "nonconvergence_count": 0
+      },
+      "frequency_hz": 1000.0,
+      "duration_s": 0.03,
+      "analysis_start_s": 0.02,
+      "ngspice_maximum_step_s": 2e-06
+    },
+    {
+      "sample_rate_hz": 768000.0,
+      "integration_method": "backward_euler",
+      "samples": 23040,
+      "spice": {
+        "fundamental_peak_v": 0.1269049477026683,
+        "phase_deg": -137.2862142716907,
+        "mean_v": -0.00011087354708502983,
+        "thd_percent_h2_to_h10": 0.0043856882017853415
+      },
+      "python": {
+        "fundamental_peak_v": 0.1261984524762592,
+        "phase_deg": -134.988639309158,
+        "mean_v": 0.00028867270006146574,
+        "thd_percent_h2_to_h10": 0.004369609248878551
+      },
+      "python_vs_spice": {
+        "fundamental_gain_error_db": -0.04849050229917219,
+        "fundamental_phase_error_deg": 2.297574962532707,
+        "raw_normalized_residual_db": -27.825974450763454,
+        "mean_removed_normalized_residual_db": -27.878480670845313,
+        "residual_mean_v": 0.0003995462471464935,
+        "maximum_absolute_error_v": 0.005540218670948218
+      },
+      "python_solver": {
+        "maximum_iterations": 2,
+        "nonconvergence_count": 0
+      },
+      "frequency_hz": 10000.0,
+      "duration_s": 0.03,
+      "analysis_start_s": 0.02,
+      "ngspice_maximum_step_s": 5e-07
+    },
+    {
+      "sample_rate_hz": 768000.0,
+      "integration_method": "backward_euler",
+      "samples": 23040,
+      "spice": {
+        "fundamental_peak_v": 0.032489261625003624,
+        "phase_deg": 148.7945539172071,
+        "mean_v": -0.00015509165975478297,
+        "thd_percent_h2_to_h10": 0.002127423298673634
+      },
+      "python": {
+        "fundamental_peak_v": 0.03224860384653903,
+        "phase_deg": 153.5142894358122,
+        "mean_v": 0.00024359381836366173,
+        "thd_percent_h2_to_h10": 0.0018808344088254271
+      },
+      "python_vs_spice": {
+        "fundamental_gain_error_db": -0.06457848179036188,
+        "fundamental_phase_error_deg": 4.719735518605091,
+        "raw_normalized_residual_db": -21.495107307390505,
+        "mean_removed_normalized_residual_db": -21.68368093676875,
+        "residual_mean_v": 0.0003986854781184446,
+        "maximum_absolute_error_v": 0.0030902994868535986
+      },
+      "python_solver": {
+        "maximum_iterations": 2,
+        "nonconvergence_count": 0
+      },
+      "frequency_hz": 20000.0,
+      "duration_s": 0.03,
+      "analysis_start_s": 0.02,
+      "ngspice_maximum_step_s": 2.5e-07
+    }
+  ],
+  "high_frequency_method_study": [
+    {
+      "frequency_hz": 10000.0,
+      "candidates": [
+        {
+          "sample_rate_hz": 768000.0,
+          "integration_method": "backward_euler",
+          "samples": 23040,
+          "python_vs_spice": {
+            "fundamental_gain_error_db": -0.04849050229917219,
+            "fundamental_phase_error_deg": 2.297574962532707,
+            "raw_normalized_residual_db": -27.825974450763454,
+            "mean_removed_normalized_residual_db": -27.878480670845313,
+            "residual_mean_v": 0.0003995462471464935,
+            "maximum_absolute_error_v": 0.005540218670948218
+          },
+          "python_solver": {
+            "maximum_iterations": 2,
+            "nonconvergence_count": 0
+          }
+        },
+        {
+          "sample_rate_hz": 1536000.0,
+          "integration_method": "backward_euler",
+          "samples": 46080,
+          "python_vs_spice": {
+            "fundamental_gain_error_db": -0.01972498185020551,
+            "fundamental_phase_error_deg": 1.1717642516811395,
+            "raw_normalized_residual_db": -33.541290604368086,
+            "mean_removed_normalized_residual_db": -33.74231875071138,
+            "residual_mean_v": 0.0004014480694850244,
+            "maximum_absolute_error_v": 0.003025918233980648
+          },
+          "python_solver": {
+            "maximum_iterations": 2,
+            "nonconvergence_count": 0
+          }
+        },
+        {
+          "sample_rate_hz": 3072000.0,
+          "integration_method": "backward_euler",
+          "samples": 92160,
+          "python_vs_spice": {
+            "fundamental_gain_error_db": -0.004805553425802959,
+            "fundamental_phase_error_deg": 0.6083396457306662,
+            "raw_normalized_residual_db": -38.7598710601945,
+            "mean_removed_normalized_residual_db": -39.469733335311304,
+            "residual_mean_v": 0.00040193921564671904,
+            "maximum_absolute_error_v": 0.001767480758987425
+          },
+          "python_solver": {
+            "maximum_iterations": 2,
+            "nonconvergence_count": 0
+          }
+        },
+        {
+          "sample_rate_hz": 768000.0,
+          "integration_method": "trapezoidal",
+          "samples": 23040,
+          "python_vs_spice": {
+            "fundamental_gain_error_db": 0.005806367121769899,
+            "fundamental_phase_error_deg": 0.03899974349721447,
+            "raw_normalized_residual_db": -46.83319856656533,
+            "mean_removed_normalized_residual_db": -60.347762625143005,
+            "residual_mean_v": 0.00039940641058731907,
+            "maximum_absolute_error_v": 0.0005394688009029286
+          },
+          "python_solver": {
+            "maximum_iterations": 2,
+            "nonconvergence_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "frequency_hz": 20000.0,
+      "candidates": [
+        {
+          "sample_rate_hz": 768000.0,
+          "integration_method": "backward_euler",
+          "samples": 23040,
+          "python_vs_spice": {
+            "fundamental_gain_error_db": -0.06457848179036188,
+            "fundamental_phase_error_deg": 4.719735518605091,
+            "raw_normalized_residual_db": -21.495107307390505,
+            "mean_removed_normalized_residual_db": -21.68368093676875,
+            "residual_mean_v": 0.0003986854781184446,
+            "maximum_absolute_error_v": 0.0030902994868535986
+          },
+          "python_solver": {
+            "maximum_iterations": 2,
+            "nonconvergence_count": 0
+          }
+        },
+        {
+          "sample_rate_hz": 1536000.0,
+          "integration_method": "backward_euler",
+          "samples": 46080,
+          "python_vs_spice": {
+            "fundamental_gain_error_db": -0.02947608884652521,
+            "fundamental_phase_error_deg": 2.3965458153247994,
+            "raw_normalized_residual_db": -26.86144992674126,
+            "mean_removed_normalized_residual_db": -27.557391316683713,
+            "residual_mean_v": 0.00040122689087194346,
+            "maximum_absolute_error_v": 0.0017785379787192642
+          },
+          "python_solver": {
+            "maximum_iterations": 2,
+            "nonconvergence_count": 0
+          }
+        },
+        {
+          "sample_rate_hz": 3072000.0,
+          "integration_method": "backward_euler",
+          "samples": 92160,
+          "python_vs_spice": {
+            "fundamental_gain_error_db": -0.009990738250590457,
+            "fundamental_phase_error_deg": 1.2350494051592875,
+            "raw_normalized_residual_db": -31.12774935057167,
+            "mean_removed_normalized_residual_db": -33.32019013409693,
+            "residual_mean_v": 0.0004017065677725898,
+            "maximum_absolute_error_v": 0.0011192314275504992
+          },
+          "python_solver": {
+            "maximum_iterations": 2,
+            "nonconvergence_count": 0
+          }
+        },
+        {
+          "sample_rate_hz": 768000.0,
+          "integration_method": "trapezoidal",
+          "samples": 23040,
+          "python_vs_spice": {
+            "fundamental_gain_error_db": -0.00845533967575772,
+            "fundamental_phase_error_deg": 0.058170343325656404,
+            "raw_normalized_residual_db": -35.183031740433705,
+            "mean_removed_normalized_residual_db": -56.691387413739974,
+            "residual_mean_v": 0.00039860558326910967,
+            "maximum_absolute_error_v": 0.00046081501867256333
+          },
+          "python_solver": {
+            "maximum_iterations": 2,
+            "nonconvergence_count": 0
+          }
+        }
+      ]
+    }
+  ]
+}

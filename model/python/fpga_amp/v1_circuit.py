@@ -25,6 +25,7 @@ class CapacitorBranch:
     node_b: int | None
     capacitance_f: float
     previous_voltage_v: float = 0.0
+    previous_current_a: float = 0.0
 
 
 class V1CircuitModel:
@@ -37,8 +38,14 @@ class V1CircuitModel:
         sample_rate_hz: float = 768_000.0,
         tube: Koren12AX7 | None = None,
         dc_tolerance_a: float = 1.0e-12,
+        integration_method: str = "backward_euler",
     ):
         self.sample_rate_hz = float(sample_rate_hz)
+        if integration_method not in ("backward_euler", "trapezoidal"):
+            raise ValueError(
+                "integration_method must be 'backward_euler' or 'trapezoidal'"
+            )
+        self.integration_method = integration_method
         self.tube = tube or Koren12AX7()
         self.node = {name: index for index, name in enumerate(self.NODE_NAMES)}
         self.node_count = len(self.NODE_NAMES)
@@ -193,11 +200,18 @@ class V1CircuitModel:
         if dynamic:
             for capacitor in self.capacitors:
                 companion_g = capacitor.capacitance_f * self.sample_rate_hz
+                history_current = companion_g * capacitor.previous_voltage_v
+                if self.integration_method == "trapezoidal":
+                    companion_g *= 2.0
+                    history_current = (
+                        companion_g * capacitor.previous_voltage_v
+                        + capacitor.previous_current_a
+                    )
                 self._stamp_matrix_branch(matrix, capacitor.node_a, capacitor.node_b, companion_g)
                 if capacitor.node_a is not None:
-                    rhs[capacitor.node_a] += companion_g * capacitor.previous_voltage_v
+                    rhs[capacitor.node_a] += history_current
                 if capacitor.node_b is not None:
-                    rhs[capacitor.node_b] -= companion_g * capacitor.previous_voltage_v
+                    rhs[capacitor.node_b] -= history_current
         return matrix, rhs
 
     @staticmethod
@@ -320,6 +334,7 @@ class V1CircuitModel:
             va = voltage[capacitor.node_a] if capacitor.node_a is not None else 0.0
             vb = voltage[capacitor.node_b] if capacitor.node_b is not None else 0.0
             capacitor.previous_voltage_v = float(va - vb)
+            capacitor.previous_current_a = 0.0
         self.last_iterations = iterations
         self.last_residual = residual
         return self.nodes
@@ -366,7 +381,17 @@ class V1CircuitModel:
         for capacitor in self.capacitors:
             va = voltage[capacitor.node_a] if capacitor.node_a is not None else 0.0
             vb = voltage[capacitor.node_b] if capacitor.node_b is not None else 0.0
-            capacitor.previous_voltage_v = float(va - vb)
+            branch_voltage_v = float(va - vb)
+            if self.integration_method == "trapezoidal":
+                companion_g = (
+                    2.0 * capacitor.capacitance_f * self.sample_rate_hz
+                )
+                capacitor.previous_current_a = (
+                    companion_g
+                    * (branch_voltage_v - capacitor.previous_voltage_v)
+                    - capacitor.previous_current_a
+                )
+            capacitor.previous_voltage_v = branch_voltage_v
         return float(voltage[self.node["out"]])
 
     def process(self, samples: FloatArray, **kwargs: float | int) -> FloatArray:
