@@ -2,7 +2,8 @@
 `default_nettype none
 
 module v1_solver_mono_wide_tb #(
-    parameter bit TRAPEZOIDAL = 1'b0
+    parameter bit TRAPEZOIDAL = 1'b0,
+    parameter bit BANKED = 1'b0
 );
     logic clk;
     logic rst_n = 1'b0;
@@ -41,10 +42,15 @@ module v1_solver_mono_wide_tb #(
                 : "model/generated/v1_cap_conductance_q0_47.mem"
         ),
         .CHORD_COEFFICIENT_FILE(
-            TRAPEZOIDAL
-                ? "model/generated/v1_chord_inverse_q17_1_trapezoidal.mem"
-                : "model/generated/v1_chord_inverse_q17_1.mem"
+            BANKED
+                ? (TRAPEZOIDAL
+                   ? "model/generated/v1_chord_inverse_banked_q17_1_trapezoidal.mem"
+                   : "model/generated/v1_chord_inverse_banked_q17_1.mem")
+                : (TRAPEZOIDAL
+                   ? "model/generated/v1_chord_inverse_q17_1_trapezoidal.mem"
+                   : "model/generated/v1_chord_inverse_q17_1.mem")
         ),
+        .CHORD_COEFFICIENT_SETS(BANKED ? (TRAPEZOIDAL ? 5 : 3) : 1),
         .TRAPEZOIDAL(TRAPEZOIDAL)
     ) dut (.*);
     always #5 clk = ~clk;
@@ -71,8 +77,12 @@ module v1_solver_mono_wide_tb #(
         clk = 1'b0;
         input_q24 = '0;
         if (!$value$plusargs("VECTORS=%s", vector_path)) begin
-            if (TRAPEZOIDAL)
+            if (TRAPEZOIDAL && BANKED)
+                vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_trapezoidal_banked.txt";
+            else if (TRAPEZOIDAL)
                 vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_trapezoidal.txt";
+            else if (BANKED)
+                vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_banked.txt";
             else
                 vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream.txt";
         end

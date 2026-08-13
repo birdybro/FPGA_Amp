@@ -140,6 +140,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a reproducible fixed cutoff-Jacobian bank study using integration-mode-
   specific matrices derived from the analytical second-stage trajectory and a
   previous-sample Vgk selector held across the fixed three-correction schedule.
+- Added generated three-bank backward-Euler and five-bank trapezoidal chord
+  assets, a sample-held selector in the wide solver, explicit synthesis
+  wrappers, and a 9,216-sample-per-mode full-state RTL overload regression.
 - Added architecture, model, phono, fixed-point, gain, noise, analog front-end, converter/clock, hardware, controls, safety, verification, and annotated-reference documentation.
 
 ### Fixed
@@ -168,7 +171,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 - Added a conservative full-interface integer interval proof for wide RHS,
   backward-Euler/trapezoidal KCL, tube stamps, chord correction, and solver
-  tube-pin conversion. All 37 checks pass; the tightest cases require 44/44
+  tube-pin conversion, including every banked chord matrix. All 47 checks pass;
+  the tightest cases require 44/44
   capacitor-delta bits, 34/34
   cathode-sum bits, 57/63 KCL-accumulator bits, and 89/92 capacitor-product
   bits. The proof is now a default regression gate.
@@ -177,6 +181,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
   maximum residual, with zero saturation, tube-range clips, or correction
   fallbacks. At 1.5 V it leaves 72/0 residual failures but 4,052/4,052 tube-table
   clips, so tube-domain expansion remains separate from solver convergence.
+- Banked RTL is bit-exact across all 9,216 captured overload states per mode,
+  selects every generated bank, retains 116 clocks, and records no diagnostic
+  event. XC7 structural synthesis measures 12,942/13,870 logic cells for
+  backward Euler/trapezoidal with 122 DSP48E1s and 8 RAMB18E1s in either mode:
+  +503/+1,327 logic cells and no DSP/RAM increase over the nominal solvers.
 
 - ngspice bias is 179.994 V/0.9918 mA for stage 1 and 192.808 V/1.0719 mA for stage 2; circuit gain is 41.087 dB at 1 kHz.
 - The physical passive network's ideal-RIAA error is -0.919 to +0.000 dB over 20 Hz–20 kHz (0.364 dB RMS), retained as reference behavior.

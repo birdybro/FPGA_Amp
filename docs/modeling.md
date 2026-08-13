@@ -427,6 +427,8 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | factorized frequency response | six 5 mV points, 20 Hz–20 kHz | ≤0.00846 dB gain / ≤0.0729° phase; zero diagnostics |
 | factorized overload/recovery | 5 ms bursts, 20 mV–1.5 V | clean at 20/500 mV; residual failure at 1 V; range clip at 1.5 V |
 | overload iteration count | 3–6 corrections at 1.0/1.5 V | improved but still failing; projected 213 clocks at six |
+| cutoff-Jacobian bank | 100 ms 1 kHz bursts through 1.5 V | zero 1 V failures in both modes; 1.5 V retains tube-domain clips |
+| banked cutoff RTL | 9,216 samples/mode at 1.0 V | fixed full-state exact, all banks selected, 116 clocks, zero diagnostics |
 | long fixed state / click recovery | 1 s silence with +/-100 mV single-sample clicks | Q12.20 deadband leaves -5.368 mV late output; must be redesigned |
 | wide-state Python candidate | same 1 s click audit; 5 mV/1 kHz | 38.74 uV late residual; -63.83 dB nominal raw null; complete-RTL proof open |
 | wide chord RTL vs fixed | 1,024 randomized/directed vectors | bit-exact, latency 10; 1,701 LC / 9 DSP / 0 RAMB18 structural |

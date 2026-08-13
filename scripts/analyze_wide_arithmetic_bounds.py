@@ -20,6 +20,7 @@ sys.path.insert(0, str(ROOT / "model" / "python"))
 
 from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
 from fpga_amp.fixed_circuit import (  # noqa: E402
+    FixedWideStateBankedChordV1CircuitModel,
     FixedWideStateTrapezoidalV1CircuitModel,
     FixedWideStateV1CircuitModel,
 )
@@ -294,37 +295,52 @@ def network_bounds(
 
 
 def chord_bounds(
-    model: FixedWideStateV1CircuitModel, checks: list[dict[str, object]]
+    model: FixedWideStateV1CircuitModel,
+    checks: list[dict[str, object]],
+    name: str = "chord",
+    coefficient_sets: list[np.ndarray] | None = None,
 ) -> dict[str, object]:
+    if coefficient_sets is None:
+        coefficient_sets = [model.chord_inverse_q]
     residual = signed_interval(25)
     products: list[Interval] = []
     accumulators: list[Interval] = []
     final_by_row: list[Interval] = []
     scaled: list[Interval] = []
     updated: list[Interval] = []
-    for row in range(model.node_count):
-        accumulator = Interval(0, 0)
-        for column in range(model.node_count):
-            product = residual.scale(int(model.chord_inverse_q[row, column]))
-            products.append(product)
-            accumulator = accumulator + product
-            accumulators.append(accumulator)
-        final_by_row.append(accumulator)
-        for residual_fraction in (30, 34, 40):
-            node_fraction = int(model.VOLTAGE_FRACTIONAL_BITS[row])
-            shift = model.inverse_fractional_bits + residual_fraction - node_fraction
-            correction = rounded_shift(accumulator, shift)
-            scaled.append(correction)
-            updated.append(signed_interval(40) - correction)
+    for coefficient_set in coefficient_sets:
+        for row in range(model.node_count):
+            accumulator = Interval(0, 0)
+            for column in range(model.node_count):
+                product = residual.scale(int(coefficient_set[row, column]))
+                products.append(product)
+                accumulator = accumulator + product
+                accumulators.append(accumulator)
+            final_by_row.append(accumulator)
+            for residual_fraction in (30, 34, 40):
+                node_fraction = int(model.VOLTAGE_FRACTIONAL_BITS[row])
+                shift = (
+                    model.inverse_fractional_bits
+                    + residual_fraction
+                    - node_fraction
+                )
+                correction = rounded_shift(accumulator, shift)
+                scaled.append(correction)
+                updated.append(signed_interval(40) - correction)
 
     all_products = enclosing(products)
     all_accumulators = enclosing(accumulators)
     all_scaled = enclosing(scaled)
     all_updated = enclosing(updated)
-    add_check(checks, "chord coefficient-residual products", all_products, 43)
-    add_check(checks, "chord serialized partial sums", all_accumulators, 48)
-    add_check(checks, "chord scaled correction", all_scaled, 49)
-    add_check(checks, "chord voltage-minus-correction before saturation", all_updated, 50)
+    add_check(checks, f"{name} coefficient-residual products", all_products, 43)
+    add_check(checks, f"{name} serialized partial sums", all_accumulators, 48)
+    add_check(checks, f"{name} scaled correction", all_scaled, 49)
+    add_check(
+        checks,
+        f"{name} voltage-minus-correction before saturation",
+        all_updated,
+        50,
+    )
     return {
         "accumulator_by_row": [value.as_dict() for value in final_by_row],
         "worst_partial_sum": all_accumulators.as_dict(),
@@ -337,6 +353,10 @@ def main() -> int:
     tube = FixedFactorizedKoren12AX7()
     backward_euler = FixedWideStateV1CircuitModel(tube_lut=tube)
     trapezoidal = FixedWideStateTrapezoidalV1CircuitModel(tube_lut=tube)
+    banked_backward_euler = FixedWideStateBankedChordV1CircuitModel(tube_lut=tube)
+    banked_trapezoidal = FixedWideStateBankedChordV1CircuitModel(
+        tube_lut=tube, integration_method="trapezoidal"
+    )
     checks: list[dict[str, object]] = []
 
     add_check(
@@ -375,6 +395,29 @@ def main() -> int:
         ),
         18,
     )
+    banked_coefficients = {
+        "backward-Euler": [
+            *banked_backward_euler.chord_inverse_banks_q,
+            banked_backward_euler.nominal_chord_inverse_q,
+        ],
+        "trapezoidal": [
+            *banked_trapezoidal.chord_inverse_banks_q,
+            banked_trapezoidal.nominal_chord_inverse_q,
+        ],
+    }
+    for name, coefficient_sets in banked_coefficients.items():
+        add_check(
+            checks,
+            f"{name} banked chord inverse coefficients",
+            constant_interval(
+                [
+                    int(value)
+                    for coefficient_set in coefficient_sets
+                    for value in coefficient_set.flat
+                ]
+            ),
+            18,
+        )
 
     reachable_rhs = rhs_bounds(backward_euler, checks)
     solver_tube_pin_bounds(checks)
@@ -383,6 +426,20 @@ def main() -> int:
         "trapezoidal": network_bounds(trapezoidal, "trapezoidal", checks),
     }
     chord = chord_bounds(backward_euler, checks)
+    banked_chord = {
+        "backward_euler": chord_bounds(
+            banked_backward_euler,
+            checks,
+            name="backward-Euler banked chord",
+            coefficient_sets=banked_coefficients["backward-Euler"],
+        ),
+        "trapezoidal": chord_bounds(
+            banked_trapezoidal,
+            checks,
+            name="trapezoidal banked chord",
+            coefficient_sets=banked_coefficients["trapezoidal"],
+        ),
+    }
     failures = [str(check["name"]) for check in checks if not bool(check["passes"])]
     report = {
         "model": "12ax7_passive_riaa_v1",
@@ -395,6 +452,7 @@ def main() -> int:
             "backward-Euler and trapezoidal wide KCL engines",
             "tube-current KCL stamps",
             "wide chord corrector",
+            "banked wide chord coefficient sets",
             "wide solver tube-pin conversions",
         ],
         "deliberate_saturators_excluded_from_no_wrap_claim": [
@@ -410,6 +468,7 @@ def main() -> int:
         "reachable_rhs_by_row_q44": [value.as_dict() for value in reachable_rhs],
         "network_modes": modes,
         "chord": chord,
+        "banked_chord": banked_chord,
     }
     output = ROOT / "reference" / "results" / "wide_arithmetic_bounds.json"
     output.parent.mkdir(parents=True, exist_ok=True)

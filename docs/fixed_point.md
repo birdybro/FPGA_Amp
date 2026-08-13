@@ -193,7 +193,7 @@ RAM.
 
 `make arithmetic-bounds` independently propagates conservative integer
 intervals over every declared input/state bit pattern and the frozen V1
-constants. All 37 storage, product, rounding-bias, branch-current, serialized
+constants. All 47 storage, product, rounding-bias, branch-current, serialized
 sum, chord-correction, and tube-pin conversion checks pass. Tight cases consume
 all 44 capacitor
 difference bits and all 34 pre-shift cathode-sum bits. The worst conservative
@@ -242,8 +242,16 @@ zero arithmetic saturation, tube-range clips, or scale fallbacks. At 1.5 V,
 backward-Euler failures fall from 1,695 to 72 and trapezoidal from 1,690 to zero,
 but both still record 4,052 tube-range clips. This improves the FPGA
 approximation only; it neither changes the physical reference circuit nor
-claims behavior outside the factorized tube table. RTL and floating-error
-equivalence remain open before acceptance.
+claims behavior outside the factorized tube table.
+
+The synthesizable solver latches the bank from the previous sample's stage-two
+Vgk and holds it through all three corrections. A 9,216-sample, 1.0 V capture
+per integration mode matches every fixed node, capacitor state, output,
+residual, and cumulative diagnostic word exactly; every generated bank is
+selected and latency remains 116 clocks. Structural synthesis measures 12,942
+logic cells / 122 DSP48E1 / 8 RAMB18E1 for backward Euler and 13,870 / 122 / 8
+for trapezoidal. Full-Newton waveform error remains open before making the bank
+the default reference implementation.
 
 `v1_solver_mono_wide.sv` composes those blocks with the factorized tube and
 matches 512 sequential fixed-Python samples exactly across all nine nodes, ten

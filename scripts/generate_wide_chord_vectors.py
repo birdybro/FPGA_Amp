@@ -16,6 +16,7 @@ sys.path.insert(0, str(REPOSITORY_ROOT / "model" / "python"))
 
 from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
 from fpga_amp.fixed_circuit import (  # noqa: E402
+    FixedWideStateBankedChordV1CircuitModel,
     FixedWideStateTrapezoidalV1CircuitModel,
     FixedWideStateV1CircuitModel,
     round_shift,
@@ -27,15 +28,24 @@ from generate_solver_vectors import write_memory  # noqa: E402
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--trapezoidal", action="store_true")
+    parser.add_argument("--banked", action="store_true")
     args = parser.parse_args()
     vectors = 1024
     rng = np.random.default_rng(0x40C0DE)
-    model_type = (
-        FixedWideStateTrapezoidalV1CircuitModel
-        if args.trapezoidal
-        else FixedWideStateV1CircuitModel
-    )
-    model = model_type(tube_lut=FixedFactorizedKoren12AX7())
+    if args.banked:
+        model = FixedWideStateBankedChordV1CircuitModel(
+            tube_lut=FixedFactorizedKoren12AX7(),
+            integration_method=(
+                "trapezoidal" if args.trapezoidal else "backward_euler"
+            ),
+        )
+    else:
+        model_type = (
+            FixedWideStateTrapezoidalV1CircuitModel
+            if args.trapezoidal
+            else FixedWideStateV1CircuitModel
+        )
+        model = model_type(tube_lut=FixedFactorizedKoren12AX7())
     suffix = "_trapezoidal" if args.trapezoidal else ""
     path = (
         REPOSITORY_ROOT
@@ -49,12 +59,56 @@ def main() -> int:
         REPOSITORY_ROOT
         / "model"
         / "generated"
-        / f"v1_chord_inverse_q17_1{suffix}.mem"
+        / (
+            f"v1_chord_inverse_banked_q17_1{suffix}.mem"
+            if args.banked
+            else f"v1_chord_inverse_q17_1{suffix}.mem"
+        )
     )
-    coefficients = [int(value) for value in model.chord_inverse_q.flat]
+    if args.banked:
+        coefficient_sets = [
+            *model.chord_inverse_banks_q,
+            model.nominal_chord_inverse_q,
+        ]
+        coefficients = [
+            int(value) for bank in coefficient_sets for value in bank.flat
+        ]
+    else:
+        coefficient_sets = [model.chord_inverse_q]
+        coefficients = [int(value) for value in model.chord_inverse_q.flat]
     if not all(-(1 << 17) <= value < (1 << 17) for value in coefficients):
         raise RuntimeError("chord inverse exceeds signed 18-bit contract")
     write_memory(coefficient_path, coefficients, 18)
+    if args.banked:
+        report = {
+            "algorithm": "Vgk2-selected bank of 9x9 Q17.1 chord inverses",
+            "integration_method": (
+                "trapezoidal" if args.trapezoidal else "backward_euler"
+            ),
+            "coefficient_sets": len(coefficient_sets),
+            "coefficients_per_set": 81,
+            "coefficient_min": min(coefficients),
+            "coefficient_max": max(coefficients),
+            "cutoff_regimes": [
+                {
+                    "upper_v_gk_v": upper,
+                    "representative_v_gk_v": v_gk,
+                    "representative_v_pk_v": v_pk,
+                }
+                for upper, v_gk, v_pk in model.cutoff_jacobian_regimes
+            ],
+            "nominal_set_index": len(coefficient_sets) - 1,
+            "output": str(coefficient_path.relative_to(REPOSITORY_ROOT)),
+        }
+        metadata = (
+            REPOSITORY_ROOT
+            / "model"
+            / "generated"
+            / f"wide_chord_banked{suffix}_metadata.json"
+        )
+        metadata.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+        print(json.dumps(report, indent=2))
+        return 0
     saturation_vectors = 0
     fractions = (30, 34, 40)
     with path.open("w", encoding="ascii") as handle:

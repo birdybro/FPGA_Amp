@@ -112,12 +112,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   213-clock serialized schedule. At 1.5 V it remains inadequate. Overload needs
   a different solver/range strategy rather than an unbudgeted extra pass.
 - A physically derived, fixed-schedule cutoff-Jacobian bank removes the 1.0 V
-  residual failure in Python for both backward-Euler and trapezoidal state.
-  Over the 100 ms burst gate, failures fall from 1,122/1,107 to zero, with no
-  arithmetic, range, or scale-fallback event through 1.0 V and the same
-  projected 116-clock schedule. At 1.5 V, backward Euler retains 72 residual
-  failures while trapezoidal has none, but both retain 4,052 tube-table range
-  clips. This is an FPGA-solver candidate, not yet RTL or a tube-domain change.
+  residual failure for both backward-Euler and trapezoidal state. RTL matches
+  every fixed state over 9,216 overload samples per mode, exercises every bank,
+  retains the 116-clock schedule, and records zero diagnostics. Structural
+  synthesis is 12,942 logic cells / 122 DSPs / 8 RAMs for backward Euler and
+  13,870 / 122 / 8 for trapezoidal. The 1.5 V characterization still has 72/0
+  residual failures and 4,052/4,052 tube-table clips; the bank is a numerical
+  solver improvement, not a change to the physical circuit or tube domain.
 - A new one-second silence/click audit exposes a Q12.20 state deadband that the
   KCL diagnostics miss: after bipolar 100 mV one-sample clicks, fixed output is
   still -5.368 mV in the final 100 ms while analytical output is about 7.2 uV
@@ -338,6 +339,9 @@ make solver-rtl                    # 512-sample persistent-state integration
 make solver-factorized-rtl         # exact smooth-tube solver integration
 make wide-solver-rtl               # exact 40-bit branch-current solver
 make trapezoidal-solver-rtl        # exact selectable integration-mode solver
+make banked-solver-rtl             # exact three-bank cutoff solver
+make trapezoidal-banked-solver-rtl # exact five-bank cutoff solver
+make banked-rtl-overload           # 9,216-sample/mode bank-selection gate
 make halfband-rtl                  # exact 2x units and complete 16x streams
 make stream-rtl                    # complete 48 kHz reference stream
 make stream-factorized-rtl         # complete smooth-tube reference stream
@@ -354,6 +358,8 @@ make synth-solver                  # hierarchical complete-solver estimate
 make synth-solver-factorized       # smooth-tube hierarchy/resource trade
 make synth-wide-solver             # wide-state hierarchy estimate
 make synth-trapezoidal-solver      # trapezoidal hierarchy estimate
+make synth-banked-solver           # backward-Euler banked hierarchy estimate
+make synth-trapezoidal-banked-solver # trapezoidal banked hierarchy estimate
 make synth-stream-wide             # complete wide-state stream estimate
 make synth-stream-trapezoidal      # complete trapezoidal stream estimate
 make synth-stream-guarded          # wide stream plus safety/control guard

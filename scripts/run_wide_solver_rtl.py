@@ -21,6 +21,7 @@ def main() -> int:
     parser.add_argument("--vectors-file")
     parser.add_argument("--capture-file")
     parser.add_argument("--trapezoidal", action="store_true")
+    parser.add_argument("--banked", action="store_true")
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
@@ -40,6 +41,9 @@ def main() -> int:
             )
             generators[2].append("--trapezoidal")
             generators[-1].append("--trapezoidal")
+        if args.banked:
+            generators[1 if not args.trapezoidal else 2].append("--banked")
+            generators[-1].append("--banked")
         for command in generators:
             subprocess.run(command, cwd=ROOT, check=True)
     sources = [
@@ -57,6 +61,7 @@ def main() -> int:
         if args.trapezoidal
         else "v1_solver_mono_wide_tb"
     )
+    parameter_args = ["-GBANKED=1"] if args.banked else []
     subprocess.run(
         [
             verilator,
@@ -67,6 +72,7 @@ def main() -> int:
             "-sv",
             "--top-module",
             top,
+            *parameter_args,
             *sources,
         ],
         cwd=ROOT,
@@ -75,9 +81,9 @@ def main() -> int:
     if args.lint_only:
         return 0
     build = ROOT / "build" / (
-        "verilator_v1_solver_wide_trapezoidal"
-        if args.trapezoidal
-        else "verilator_v1_solver_wide"
+        "verilator_v1_solver_wide"
+        + ("_trapezoidal" if args.trapezoidal else "")
+        + ("_banked" if args.banked else "")
     )
     subprocess.run(
         [
@@ -91,6 +97,7 @@ def main() -> int:
             top,
             "--Mdir",
             str(build),
+            *parameter_args,
             *sources,
         ],
         cwd=ROOT,

@@ -5,7 +5,8 @@
 // Residual values are signed 25-bit operands whose binary point is supplied
 // per request (the measured schedule requests Q30, Q34, then Q40).
 module chord_corrector_v1_wide #(
-    parameter COEFFICIENT_FILE = "model/generated/v1_chord_inverse_q17_1.mem"
+    parameter COEFFICIENT_FILE = "model/generated/v1_chord_inverse_q17_1.mem",
+    parameter integer COEFFICIENT_SETS = 1
 ) (
     input  logic                    clk,
     input  logic                    rst_n,
@@ -13,6 +14,7 @@ module chord_corrector_v1_wide #(
     input  logic [359:0]            voltage,
     input  logic [224:0]            residual,
     input  logic [5:0]              residual_fractional_bits,
+    input  logic [2:0]              coefficient_set,
     output logic [359:0]            corrected_voltage,
     output logic                    saturation_any,
     output logic [3:0]              saturation_count,
@@ -20,11 +22,12 @@ module chord_corrector_v1_wide #(
     output logic                    valid
 );
 
-    logic signed [17:0] coefficient [0:80];
+    logic signed [17:0] coefficient [0:COEFFICIENT_SETS * 81 - 1];
     logic signed [24:0] residual_latched [0:8];
     logic signed [39:0] voltage_latched [0:8];
     logic signed [47:0] accumulator [0:8];
     logic [5:0] residual_fraction_latched;
+    logic [2:0] coefficient_set_latched;
     logic [3:0] column;
 
     initial $readmemh(COEFFICIENT_FILE, coefficient);
@@ -34,6 +37,18 @@ module chord_corrector_v1_wide #(
             case (row)
                 1, 3, 6: node_fractional_bits = 28;
                 default: node_fractional_bits = 32;
+            endcase
+        end
+    endfunction
+
+    function automatic int coefficient_set_base(input logic [2:0] set_index);
+        begin
+            case (set_index)
+                3'd1: coefficient_set_base = 81;
+                3'd2: coefficient_set_base = 162;
+                3'd3: coefficient_set_base = 243;
+                3'd4: coefficient_set_base = 324;
+                default: coefficient_set_base = 0;
             endcase
         end
     endfunction
@@ -115,7 +130,12 @@ module chord_corrector_v1_wide #(
         saturation_combined = 1'b0;
         saturation_count_combined = '0;
         for (int row = 0; row < 9; row = row + 1) begin
-            product_by_row[row] = coefficient[row * 9 + int'(column)]
+            product_by_row[row] = coefficient[
+                                      coefficient_set_base(
+                                          coefficient_set_latched
+                                      )
+                                      + row * 9 + int'(column)
+                                  ]
                                   * residual_latched[column];
             correction_by_row[row] = scale_correction(
                 accumulator[row], row, residual_fraction_latched
@@ -138,6 +158,7 @@ module chord_corrector_v1_wide #(
             saturation_any <= 1'b0;
             saturation_count <= '0;
             residual_fraction_latched <= '0;
+            coefficient_set_latched <= '0;
             column <= '0;
             apply_pending <= 1'b0;
             for (row = 0; row < 9; row = row + 1) begin
@@ -156,6 +177,7 @@ module chord_corrector_v1_wide #(
                     saturation_any <= 1'b0;
                     saturation_count <= '0;
                     residual_fraction_latched <= residual_fractional_bits;
+                    coefficient_set_latched <= coefficient_set;
                     for (row = 0; row < 9; row = row + 1) begin
                         accumulator[row] <= '0;
                         residual_latched[row] <= $signed(

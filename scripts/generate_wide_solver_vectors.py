@@ -16,6 +16,7 @@ sys.path.insert(0, str(REPOSITORY_ROOT / "model" / "python"))
 
 from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
 from fpga_amp.fixed_circuit import (  # noqa: E402
+    FixedWideStateBankedChordV1CircuitModel,
     FixedWideStateTrapezoidalV1CircuitModel,
     FixedWideStateV1CircuitModel,
 )
@@ -26,23 +27,33 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--vectors", type=int, default=512)
     parser.add_argument("--trapezoidal", action="store_true")
+    parser.add_argument("--banked", action="store_true")
     args = parser.parse_args()
-    model_type = (
-        FixedWideStateTrapezoidalV1CircuitModel
-        if args.trapezoidal
-        else FixedWideStateV1CircuitModel
-    )
-    model = model_type(tube_lut=FixedFactorizedKoren12AX7())
+    if args.banked:
+        model = FixedWideStateBankedChordV1CircuitModel(
+            tube_lut=FixedFactorizedKoren12AX7(),
+            integration_method=(
+                "trapezoidal" if args.trapezoidal else "backward_euler"
+            ),
+        )
+    else:
+        model_type = (
+            FixedWideStateTrapezoidalV1CircuitModel
+            if args.trapezoidal
+            else FixedWideStateV1CircuitModel
+        )
+        model = model_type(tube_lut=FixedFactorizedKoren12AX7())
     generated = REPOSITORY_ROOT / "model" / "generated"
     generated.mkdir(parents=True, exist_ok=True)
-    suffix = "_trapezoidal" if args.trapezoidal else ""
+    asset_suffix = "_trapezoidal" if args.trapezoidal else ""
+    vector_suffix = asset_suffix + ("_banked" if args.banked else "")
     write_memory(
-        generated / f"v1_node_initial_wide{suffix}.mem",
+        generated / f"v1_node_initial_wide{asset_suffix}.mem",
         [int(value) for value in model.voltage_q],
         40,
     )
     write_memory(
-        generated / f"v1_cap_initial_q30_wide{suffix}.mem",
+        generated / f"v1_cap_initial_q30_wide{asset_suffix}.mem",
         [int(capacitor.previous_voltage_q20) for capacitor in model.capacitors],
         40,
     )
@@ -59,7 +70,7 @@ def main() -> int:
         / "sim"
         / "vectors"
         / "generated"
-        / f"v1_solver_wide_factorized_stream{suffix}.txt"
+        / f"v1_solver_wide_factorized_stream{vector_suffix}.txt"
     )
     vector_path.parent.mkdir(parents=True, exist_ok=True)
     maximum_residual = 0
@@ -110,10 +121,14 @@ def main() -> int:
         "nonconvergence_count": model.nonconvergence_count,
         "correction_scale_fallback_count": model.correction_scale_fallback_count,
         "minimum_correction_residual_fractional_bits": model.minimum_correction_residual_fractional_bits,
+        "banked_chord": args.banked,
+        "chord_bank_selection_count": (
+            model.chord_bank_selection_count if args.banked else None
+        ),
         "latency_clocks": 116,
         "output": str(vector_path.relative_to(REPOSITORY_ROOT)),
     }
-    metadata = generated / f"v1_solver_wide_factorized{suffix}_metadata.json"
+    metadata = generated / f"v1_solver_wide_factorized{vector_suffix}_metadata.json"
     metadata.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
     return 0

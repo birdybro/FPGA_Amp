@@ -17,6 +17,7 @@ sys.path.insert(0, str(ROOT / "model" / "python"))
 
 from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
 from fpga_amp.fixed_circuit import (  # noqa: E402
+    FixedWideStateBankedChordV1CircuitModel,
     FixedWideStateTrapezoidalV1CircuitModel,
     FixedWideStateV1CircuitModel,
 )
@@ -37,6 +38,7 @@ def capture_wide_solver_rtl(
     run_stem: str,
     verilator: str = "verilator",
     trapezoidal: bool = False,
+    banked: bool = False,
 ) -> WideSolverRTLCapture:
     """Run one persistent input trajectory through fixed Python and RTL.
 
@@ -56,12 +58,20 @@ def capture_wide_solver_rtl(
         raise ValueError("input_q24 must be a non-empty one-dimensional array")
 
     tube = FixedFactorizedKoren12AX7()
-    model_type = (
-        FixedWideStateTrapezoidalV1CircuitModel
-        if trapezoidal
-        else FixedWideStateV1CircuitModel
-    )
-    fixed = model_type(tube_lut=tube)
+    if banked:
+        fixed = FixedWideStateBankedChordV1CircuitModel(
+            tube_lut=tube,
+            integration_method=(
+                "trapezoidal" if trapezoidal else "backward_euler"
+            ),
+        )
+    else:
+        model_type = (
+            FixedWideStateTrapezoidalV1CircuitModel
+            if trapezoidal
+            else FixedWideStateV1CircuitModel
+        )
+        fixed = model_type(tube_lut=tube)
     output_q32 = np.empty(samples.size, dtype=np.int64)
     maximum_grid_current_q31 = np.zeros(2, dtype=np.int64)
     vector_path = ROOT / "sim" / "vectors" / "generated" / f"{run_stem}.txt"
@@ -121,6 +131,8 @@ def capture_wide_solver_rtl(
     ]
     if trapezoidal:
         command.append("--trapezoidal")
+    if banked:
+        command.append("--banked")
     subprocess.run(
         command,
         cwd=ROOT,

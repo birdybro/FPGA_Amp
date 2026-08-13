@@ -1,0 +1,22 @@
+{
+  "algorithm": "Vgk2-selected bank of 9x9 Q17.1 chord inverses",
+  "integration_method": "backward_euler",
+  "coefficient_sets": 3,
+  "coefficients_per_set": 81,
+  "coefficient_min": -23414,
+  "coefficient_max": 130068,
+  "cutoff_regimes": [
+    {
+      "upper_v_gk_v": -3.25,
+      "representative_v_gk_v": -3.5,
+      "representative_v_pk_v": 284.0
+    },
+    {
+      "upper_v_gk_v": -2.75,
+      "representative_v_gk_v": -3.0,
+      "representative_v_pk_v": 270.0
+    }
+  ],
+  "nominal_set_index": 2,
+  "output": "model/generated/v1_chord_inverse_banked_q17_1.mem"
+}

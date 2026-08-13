@@ -11,6 +11,7 @@ module v1_solver_mono_wide #(
     parameter CAP_G_FILE = "model/generated/v1_cap_conductance_q0_47.mem",
     parameter CHORD_COEFFICIENT_FILE =
         "model/generated/v1_chord_inverse_q17_1.mem",
+    parameter integer CHORD_COEFFICIENT_SETS = 1,
     parameter bit TRAPEZOIDAL = 1'b0
 ) (
     input  logic                  clk,
@@ -105,6 +106,33 @@ module v1_solver_mono_wide #(
                 1, 3, 6: node_is_q28 = 1'b1;
                 default: node_is_q28 = 1'b0;
             endcase
+        end
+    endfunction
+
+    function automatic logic [2:0] select_chord_coefficient_set(
+        input logic signed [40:0] previous_v_gk2_q32
+    );
+        begin
+            select_chord_coefficient_set = 3'd0;
+            if (CHORD_COEFFICIENT_SETS == 3) begin
+                if (previous_v_gk2_q32 < -41'sd13958643712) // -3.25 V
+                    select_chord_coefficient_set = 3'd0;
+                else if (previous_v_gk2_q32 < -41'sd11811160064) // -2.75 V
+                    select_chord_coefficient_set = 3'd1;
+                else
+                    select_chord_coefficient_set = 3'd2;
+            end else if (CHORD_COEFFICIENT_SETS == 5) begin
+                if (previous_v_gk2_q32 < -41'sd17179869184) // -4.0 V
+                    select_chord_coefficient_set = 3'd0;
+                else if (previous_v_gk2_q32 < -41'sd15032385536) // -3.5 V
+                    select_chord_coefficient_set = 3'd1;
+                else if (previous_v_gk2_q32 < -41'sd12884901888) // -3.0 V
+                    select_chord_coefficient_set = 3'd2;
+                else if (previous_v_gk2_q32 < -41'sd10737418240) // -2.5 V
+                    select_chord_coefficient_set = 3'd3;
+                else
+                    select_chord_coefficient_set = 3'd4;
+            end
         end
     endfunction
 
@@ -405,10 +433,16 @@ module v1_solver_mono_wide #(
     logic [3:0] chord_saturation_count;
     logic chord_busy;
     logic chord_valid;
+    logic signed [40:0] previous_v_gk2_q32;
+    logic [2:0] chord_coefficient_set;
     assign chord_start = (state == WAIT_KCL) && kcl_valid && !final_pass;
+    assign previous_v_gk2_q32 =
+        $signed({node_voltage[4][39], node_voltage[4]})
+        - $signed({node_voltage[7][39], node_voltage[7]});
 
     chord_corrector_v1_wide #(
-        .COEFFICIENT_FILE(CHORD_COEFFICIENT_FILE)
+        .COEFFICIENT_FILE(CHORD_COEFFICIENT_FILE),
+        .COEFFICIENT_SETS(CHORD_COEFFICIENT_SETS)
     ) chord_engine (
         .clk,
         .rst_n,
@@ -416,6 +450,7 @@ module v1_solver_mono_wide #(
         .voltage(voltage_flat),
         .residual,
         .residual_fractional_bits,
+        .coefficient_set(chord_coefficient_set),
         .corrected_voltage,
         .saturation_any(chord_saturation_any),
         .saturation_count(chord_saturation_count),
@@ -447,6 +482,7 @@ module v1_solver_mono_wide #(
             correction_scale_fallback_count <= '0;
             minimum_correction_fractional_bits <= '0;
             last_residual_q44 <= '0;
+            chord_coefficient_set <= '0;
             for (lane = 0; lane < 9; lane = lane + 1)
                 node_voltage[lane] <= node_initial[lane];
             for (lane = 0; lane < 10; lane = lane + 1)
@@ -474,6 +510,9 @@ module v1_solver_mono_wide #(
                         deadline_reported <= 1'b0;
                         correction_index <= '0;
                         final_pass <= 1'b0;
+                        chord_coefficient_set <= select_chord_coefficient_set(
+                            previous_v_gk2_q32
+                        );
                         state <= WAIT_RHS;
                     end
                 end

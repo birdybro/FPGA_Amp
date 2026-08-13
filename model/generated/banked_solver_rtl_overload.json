@@ -1,0 +1,61 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "implementation": "banked wide SystemVerilog solver",
+  "sample_rate_hz": 768000.0,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_peak_v": 1.0,
+    "burst_start_s": 0.004,
+    "burst_end_s": 0.008,
+    "duration_s": 0.012,
+    "input_format": "Q8.24"
+  },
+  "gates": {
+    "both_modes_full_state_exact": true,
+    "both_modes_converged_without_diagnostics": true,
+    "every_generated_bank_selected": true,
+    "fixed_schedule_preserved": true
+  },
+  "all_gates_pass": true,
+  "measurements": [
+    {
+      "integration_method": "backward_euler",
+      "samples": 9216,
+      "full_state_rtl_fixed_bit_exact": true,
+      "latency_clocks": 116,
+      "maximum_residual_a": 1.8890066826315888e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "bank_selection_count": [
+        859,
+        245,
+        8112
+      ],
+      "all_cutoff_banks_exercised": true,
+      "nominal_bank_exercised": true
+    },
+    {
+      "integration_method": "trapezoidal",
+      "samples": 9216,
+      "full_state_rtl_fixed_bit_exact": true,
+      "latency_clocks": 116,
+      "maximum_residual_a": 1.5898833680694224e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "bank_selection_count": [
+        417,
+        315,
+        251,
+        243,
+        7990
+      ],
+      "all_cutoff_banks_exercised": true,
+      "nominal_bank_exercised": true
+    }
+  ]
+}

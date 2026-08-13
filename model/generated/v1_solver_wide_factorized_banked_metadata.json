@@ -13,8 +13,12 @@
   "nonconvergence_count": 0,
   "correction_scale_fallback_count": 0,
   "minimum_correction_residual_fractional_bits": null,
-  "banked_chord": false,
-  "chord_bank_selection_count": null,
+  "banked_chord": true,
+  "chord_bank_selection_count": [
+    0,
+    0,
+    512
+  ],
   "latency_clocks": 116,
-  "output": "sim/vectors/generated/v1_solver_wide_factorized_stream.txt"
+  "output": "sim/vectors/generated/v1_solver_wide_factorized_stream_banked.txt"
 }

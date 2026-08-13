@@ -8,6 +8,7 @@ module chord_corrector_v1_wide_tb;
     logic [359:0] voltage;
     logic [224:0] residual;
     logic [5:0] residual_fractional_bits;
+    logic [2:0] coefficient_set = '0;
     logic [359:0] corrected_voltage;
     logic saturation_any;
     logic [3:0] saturation_count;

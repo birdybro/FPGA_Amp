@@ -84,6 +84,19 @@ no named-part Fmax or routing closure is claimed. The solver consumes 50.8% of
 the Arty A7-100T's DSP count before resampling; this materially constrains stereo
 duplication and makes a complete-stream resource measurement mandatory.
 
+The optional cutoff-Jacobian-bank wrappers retain the same tube engines,
+network, and 116-clock schedule. The generated coefficient selector adds no DSP
+or block RAM; measured structural resources are:
+
+| Solver | Logic cells | DSP48E1 | RAMB18E1 | Delta logic vs nominal |
+|---|---:|---:|---:|---:|
+| backward Euler, banked | 12,942 | 122 | 8 | +503 |
+| trapezoidal, banked | 13,870 | 122 | 8 | +1,327 |
+
+Both checks report zero structural problems and 57 primitive-resize warnings.
+The larger trapezoidal selector is accepted only as a solver candidate pending
+full-Newton waveform-error measurement; no Fmax claim is inferred from Yosys.
+
 The complete wide stream measures 17,552 logic cells, 170 DSP48E1s, and 8
 RAMB18E1s, with zero structural check problems and 61 techmap resize warnings.
 This is 17.3% of nominal A7-100T logic cells, 70.8% of DSPs, and about 3.3% of
