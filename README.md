@@ -80,6 +80,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   fundamental gain error to 0.00846 dB and phase error to 0.0729°, with no
   residual-limit failures, saturations, or tube-range clips. Raw high-frequency
   nulls remain DC-offset dominated and are not substituted for gain/phase error.
+- A 5 ms, 1 kHz overload-burst study measures grid current, clipping asymmetry,
+  and recovery against an undisturbed trajectory. The 20 mV fixed case is clean
+  and recovers below 10% / 1% nominal RMS in 8.67 / 24.6 ms. At 1.0 V the
+  residual limit fails; at 1.5 V stage-two grid current reaches 26.3 µA and the
+  transformed tube domain clips.
 - A four-stage 16× half-band reference provides at least 91.6 dB per-stage image
   rejection and suppresses the measured cubic 45 kHz→3 kHz decimation alias to
   -137.8 dB with bit-accurate Q8.24/Q1.23 MACs. The complete interpolation and
@@ -129,6 +134,7 @@ python3 scripts/compare_fixed_float.py
 make accuracy-sweeps                # settled level and low-level LUT studies
 make factorized-study               # smooth 1-D/Hermite tube candidate
 make factorized-frequency           # 20 Hz-20 kHz fixed/analytical sweep
+make overload-study                 # grid conduction, clipping, recovery
 python3 scripts/study_lut_resolution.py
 python3 scripts/analyze_frontend.py
 python3 scripts/design_resampler.py

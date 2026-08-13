@@ -52,6 +52,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a reproducible six-frequency, cycle-counted factorized fixed-versus-
   analytical circuit sweep with gain, phase, THD, raw/mean-removed residual,
   DC difference, range, saturation, and convergence reporting.
+- Added controlled overload-burst and recovery analysis against an undisturbed
+  nominal trajectory, including per-triode grid-current peaks, output clipping
+  asymmetry, three recovery thresholds, and solver/range diagnostics.
 - Added warning-free Verilator lint and a 4,096-vector bit-exact testbench with checked eight-clock latency.
 - Added non-root ngspice/Yosys bootstrap and a generic XC7 out-of-context synthesis report.
 - Added quantitative cartridge/front-end noise, ADC headroom, and analog-versus-digital RIAA partition analysis.
@@ -128,6 +131,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Across 20 Hz, 50 Hz, 100 Hz, 1 kHz, 10 kHz, and 20 kHz at 5 mV peak, the
   factorized fixed model stays within 0.00846 dB fundamental gain and 0.0729°
   phase of analytical float with zero residual-limit, saturation, or range events.
+- A 20 mV, 5 ms burst has zero fixed diagnostics and reaches 10% / 1% nominal
+  recovery thresholds in 8.67 / 24.6 ms. A 1.0 V burst has 1,134 residual-limit
+  failures; a 1.5 V burst produces 26.3 µA stage-two grid current, 1,698 residual
+  failures, and 4,046 transformed-domain clips. Recovery ≥0.5 V exceeds 35 ms.
 
 ### Changed
 

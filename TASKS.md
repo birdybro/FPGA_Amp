@@ -15,8 +15,8 @@ RTL, then prove frequency, level, and overload behavior through the complete
   the factorized candidate fixes THD but retains -42.90 dB raw residual at
   5 mV. A -2.840 mV mean offset dominates it; mean-removed residual is -59.63 dB,
   phase error 0.00958°, and fundamental gain error +0.00026 dB.
-- [ ] Extend factorized-fixed-vs-float comparison across silence, impulse, grid
-  conduction, overload/recovery, and long-duration capacitor-state drift.
+- [ ] Extend factorized-fixed-vs-float comparison across silence, impulses, and
+  long-duration capacitor-state drift; lengthen severe-overload recovery windows.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
 - [ ] Automate RTL frequency and level comparisons through the integrated solver,
   including DC, gain, harmonics, clipping asymmetry, and recovery.
@@ -93,6 +93,9 @@ RTL, then prove frequency, level, and overload behavior through the complete
 - [x] Sweep 5 mV factorized fixed vs analytical at 20/50/100 Hz and
   1/10/20 kHz: ≤0.00846 dB gain error, ≤0.0729° phase error, and no diagnostic
   failures across 683,520 nonlinear samples.
+- [x] Characterize 5 ms overload bursts at 20 mV, 0.5 V, 1.0 V, and 1.5 V,
+  including peak grid current, clipping asymmetry, residual/range diagnostics,
+  and recovery relative to an undisturbed nominal trajectory.
 - [x] Quantify flat/partial/full-analog RIAA front-end architectures.
 - [x] Produce initial gain/headroom, MM loading, noise, converter, clock, control,
   safety, stereo schedule, and hardware-verification engineering documents.
@@ -105,12 +108,14 @@ RTL, then prove frequency, level, and overload behavior through the complete
   an acceptance bound.
 - The frozen historical circuit is -0.919 dB from ideal RIAA at its worst audio-
   band point. This is reference behavior, not an implementation defect.
-- The currently integrated 2-D-LUT RTL produces 0.0733% THD versus 0.0191%
-  analytical at 5 mV/1 kHz. The factorized Python fixed candidate reduces this
-  to 0.0188%, but remains unimplemented in RTL and therefore is not silently
-  substituted into reference-stream claims.
+- The explicit 2-D-LUT RTL mode produces 0.0733% THD versus 0.0191% analytical
+  at 5 mV/1 kHz. The separately selectable, fully integrated factorized RTL mode
+  reduces this to 0.0188%; both modes remain named and independently verified.
 - At 1.0 V peak the factorized fixed candidate records 5,209 residual-limit
   failures and 7.03 µA maximum residual; overload solver behavior remains open.
+- In a 5 ms burst, factorized residual-limit failures begin at the tested 1.0 V
+  level (1,134 samples); 1.5 V causes 4,046 transformed-domain clip events.
+  Bursts ≥0.5 V do not recover below 10% nominal RMS within the 35 ms window.
 - Yosys reports 204 Xilinx BRAM primitive port-resize warnings on the hierarchical
   solver while `check` reports no structural problem. Track tool-version behavior;
   do not describe synthesis as warning-free.

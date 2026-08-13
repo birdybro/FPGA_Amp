@@ -1,0 +1,222 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "sample_rate_hz": 768000.0,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_start_s": 0.01,
+    "burst_end_s": 0.015,
+    "duration_s": 0.05,
+    "burst_levels_peak_v": [
+      0.02,
+      0.5,
+      1.0,
+      1.5
+    ]
+  },
+  "nominal_analytical_output_rms_v": 0.40079449238123305,
+  "recovery_thresholds_v_rms": {
+    "ten_percent_nominal_output_rms": 0.04007944923812331,
+    "one_percent_nominal_output_rms": 0.004007944923812331,
+    "one_millivolt_rms": 0.001
+  },
+  "recovery_definition": "last 1 ms sliding-RMS threshold crossing relative to a nominal undisturbed trajectory",
+  "measurements": [
+    {
+      "burst_input_peak_v": 0.02,
+      "analytical": {
+        "burst_output": {
+          "positive_peak_v": 2.9154000297562632,
+          "negative_peak_v": -2.146042535258917,
+          "peak_to_peak_v": 5.061442565015181,
+          "absolute_peak_asymmetry_db": 2.6611965661323667
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          0.0
+        ],
+        "nonconvergence_count": 0,
+        "peak_post_burst_deviation_v": 1.1537461694992062,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": 0.00846484375,
+          "one_percent_nominal_output_rms": 0.01491796875,
+          "one_millivolt_rms": 0.018279947916666667
+        }
+      },
+      "fixed_factorized": {
+        "burst_output": {
+          "positive_peak_v": 2.912388801574707,
+          "negative_peak_v": -2.150043487548828,
+          "peak_to_peak_v": 5.062432289123535,
+          "absolute_peak_asymmetry_db": 2.636042165543465
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          0.0
+        ],
+        "peak_post_burst_deviation_v": 1.1541061401367188,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": 0.00866796875,
+          "one_percent_nominal_output_rms": 0.024611979166666666,
+          "one_millivolt_rms": 0.034643229166666664
+        },
+        "max_residual_a": 3.4478352972655557e-07,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0
+      },
+      "fixed_vs_analytical": {
+        "post_burst_residual_rms_v": 0.005797889279571513,
+        "post_burst_residual_mean_v": -0.00567316024877583,
+        "maximum_post_burst_absolute_error_v": 0.0076805508530661815
+      }
+    },
+    {
+      "burst_input_peak_v": 0.5,
+      "analytical": {
+        "burst_output": {
+          "positive_peak_v": 71.16924059838537,
+          "negative_peak_v": -50.596290244254014,
+          "peak_to_peak_v": 121.76553084263938,
+          "absolute_peak_asymmetry_db": 2.963473130862116
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          0.0
+        ],
+        "nonconvergence_count": 0,
+        "peak_post_burst_deviation_v": 35.911932455556055,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        }
+      },
+      "fixed_factorized": {
+        "burst_output": {
+          "positive_peak_v": 71.16591930389404,
+          "negative_peak_v": -50.59959316253662,
+          "peak_to_peak_v": 121.76551246643066,
+          "absolute_peak_asymmetry_db": 2.9625007770921097
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          0.0
+        ],
+        "peak_post_burst_deviation_v": 35.91191864013672,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        },
+        "max_residual_a": 6.308566184998199e-07,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0
+      },
+      "fixed_vs_analytical": {
+        "post_burst_residual_rms_v": 0.007691820991336639,
+        "post_burst_residual_mean_v": -0.00748432006197617,
+        "maximum_post_burst_absolute_error_v": 0.009712080254262845
+      }
+    },
+    {
+      "burst_input_peak_v": 1.0,
+      "analytical": {
+        "burst_output": {
+          "positive_peak_v": 101.9847851382328,
+          "negative_peak_v": -94.59353231774648,
+          "peak_to_peak_v": 196.5783174559793,
+          "absolute_peak_asymmetry_db": 0.653478840708952
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          6.316159076964017e-08
+        ],
+        "nonconvergence_count": 0,
+        "peak_post_burst_deviation_v": 66.30259040775697,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        }
+      },
+      "fixed_factorized": {
+        "burst_output": {
+          "positive_peak_v": 102.12856197357178,
+          "negative_peak_v": -94.59319019317627,
+          "peak_to_peak_v": 196.72175216674805,
+          "absolute_peak_asymmetry_db": 0.6657468875094307
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          8.102506399154663e-08
+        ],
+        "peak_post_burst_deviation_v": 66.30146408081055,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        },
+        "max_residual_a": 6.949438386527618e-06,
+        "residual_limit_exceedance_count": 1134,
+        "saturation_count": 0,
+        "range_clip_count": 0
+      },
+      "fixed_vs_analytical": {
+        "post_burst_residual_rms_v": 0.008871404028724906,
+        "post_burst_residual_mean_v": -0.008643458248894712,
+        "maximum_post_burst_absolute_error_v": 0.011230713981994045
+      }
+    },
+    {
+      "burst_input_peak_v": 1.5,
+      "analytical": {
+        "burst_output": {
+          "positive_peak_v": 102.52247524675742,
+          "negative_peak_v": -109.12070875749306,
+          "peak_to_peak_v": 211.6431840042505,
+          "absolute_peak_asymmetry_db": -0.5417619025958009
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          2.628757083747627e-05
+        ],
+        "nonconvergence_count": 0,
+        "peak_post_burst_deviation_v": 72.93773740334899,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        }
+      },
+      "fixed_factorized": {
+        "burst_output": {
+          "positive_peak_v": 103.9312515258789,
+          "negative_peak_v": -109.04629898071289,
+          "peak_to_peak_v": 212.9775505065918,
+          "absolute_peak_asymmetry_db": -0.4172954645195973
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          2.63056717813015e-05
+        ],
+        "peak_post_burst_deviation_v": 72.80829906463623,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        },
+        "max_residual_a": 1.733451352947668e-05,
+        "residual_limit_exceedance_count": 1698,
+        "saturation_count": 0,
+        "range_clip_count": 4046
+      },
+      "fixed_vs_analytical": {
+        "post_burst_residual_rms_v": 0.0320281351941911,
+        "post_burst_residual_mean_v": 0.028351291483138138,
+        "maximum_post_burst_absolute_error_v": 0.12576141339924618
+      }
+    }
+  ]
+}

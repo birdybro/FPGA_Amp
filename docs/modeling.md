@@ -140,6 +140,25 @@ No fixed residual-limit, arithmetic-saturation, or tube-range event occurs in
 attenuated AC output; direct gain errors remain 0.00056 and -0.00033 dB. This is
 why the report retains raw null, mean-removed null, gain, phase, and DC separately.
 
+## Overload and recovery
+
+A reproducible 1 kHz test runs a nominal 5 mV signal, substitutes a 5 ms burst,
+then compares recovery with an undisturbed nominal trajectory. Recovery is the
+last crossing of a 1 ms sliding-RMS threshold, not the first momentary crossing.
+At 20 mV, analytical/fixed 10%-of-nominal recovery is 8.46/8.67 ms; 1% recovery
+is 14.9/24.6 ms, and the fixed path reaches 1 mV RMS at 34.6 ms. No residual,
+range, or arithmetic diagnostic fires.
+
+The 0.5 V burst does not reach even 10% recovery within the 35 ms post-window,
+although its fixed residual remains below 0.631 µA. At 1.0 V, stage-two grid
+current reaches 0.063 µA analytical / 0.081 µA fixed and 1,134 fixed samples
+exceed the 2 µA residual criterion. At 1.5 V, stage-two grid current is 26.29 /
+26.31 µA, 1,698 samples exceed the residual limit, and 4,046 nonlinear
+evaluations clip an internal transformed/table range. The analytical Newton
+model converges throughout. Those clip/failure counts prohibit claiming the
+present three-pass fixed result as overload-equivalent above the tested 0.5 V
+case. Koren's grid-current branch is itself only a rough physical estimate.
+
 ## Explicit error budget status
 
 | Layer | Present evidence | Status |
@@ -156,6 +175,7 @@ why the report retains raw null, mean-removed null, gain, phase, and DC separate
 | factorized solver vs fixed | 512 stateful samples exact at 126 clocks; 9,194 LC / 110 DSP / 8 RAMB18 | passing |
 | factorized stream vs fixed | 64 outputs / 1,024 updates exact; 14,366 LC / 158 DSP / 8 RAMB18 | passing; broader stimuli open |
 | factorized frequency response | six 5 mV points, 20 Hz–20 kHz | ≤0.00846 dB gain / ≤0.0729° phase; zero diagnostics |
+| factorized overload/recovery | 5 ms bursts, 20 mV–1.5 V | clean at 20/500 mV; residual failure at 1 V; range clip at 1.5 V |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |
 | fixed chord/state vs float LUT circuit | -70.33 dB initial multitone; -34.58 dB at 5 mV/1 kHz | signal-dependent; low-level improvement required |
 | low-level complete fixed model | 2-D: 0.0733%; factorized: 0.0188%; analytical: 0.0191% THD | device error improved; RTL/state-phase work open |
