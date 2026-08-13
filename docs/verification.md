@@ -26,6 +26,7 @@ scripts/spice_level_sweep.py        H1-H10/THD/gain compression
 scripts/compare_spice_python.py     transient residual
 scripts/characterize_solver.py      fixed-iteration residual/convergence
 scripts/study_lut_resolution.py     BRAM/error trade study
+scripts/study_factorized_tube.py    factorized current/circuit accuracy
 scripts/run_synthesis.py            XC7 structural resource report
 ```
 
@@ -39,6 +40,8 @@ scripts/run_synthesis.py            XC7 structural resource report
 | Python MNA vs ngspice | 5 mV peak, 1 kHz, last 10 ms | -53.10 dB normalized residual, 0.00179 dB gain error |
 | 2-pass vs converged solver | 20 mV peak, 1 kHz | all samples ≤100 pA residual; -136.84 dB output residual |
 | LUT vs analytical tube | 100,000 random full-range points | 0.139 µA mean, 9.33 µA worst |
+| factorized fixed vs analytical tube | 100,000 quantized full-range points | 10.5 nA mean, 51.8 nA worst; 12.67 raw RAMB18 equivalents |
+| factorized fixed circuit vs analytical | 5 mV / 0.5 V, 1 kHz, 20–30 ms | 0.0188% / 2.2419% THD vs 0.0191% / 2.2417% |
 | RTL vs fixed LUT | 4,096 deterministic vectors | bit-exact, latency 8 |
 | chord RTL vs fixed correction | 1,024 deterministic vectors | bit-exact, latency 10, 18 saturation cases |
 | RHS RTL vs fixed network | 1,024 deterministic vectors | bit-exact, latency 12 |

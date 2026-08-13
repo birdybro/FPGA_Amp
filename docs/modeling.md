@@ -96,6 +96,31 @@ to 0.0723% while doubling raw plate-table storage. A 512×256 table gives
 A transformed, smooth polynomial, Hermite, or hybrid approximation should be
 studied before changing the frozen RTL table.
 
+That study selected a candidate based on the algebra already present in the
+Koren law rather than fitting an unrelated waveshaper:
+
+```text
+r(Vpk) = 1 / sqrt(Kvb + Vpk^2)
+z       = 1/mu + Vgk*r(Vpk)
+f(z)    = ln(1 + exp(Kp*z)) / Kp
+E1      = Vpk*f(z)
+Ip(E1)  = 2*E1^Ex/Kg1
+```
+
+The three scalar functions use 512, 1024, and 2048 uniformly spaced value and
+derivative-times-step entries. A Q0.16 cubic Hermite coordinate is evaluated in
+Horner form. Including the unchanged 128-entry grid-current branch, the fixed
+candidate contains 233,472 raw bits, 22.2% of the present 2-D-plus-grid raw
+table bits. This is a storage comparison rather than a placed-BRAM claim.
+
+On 100,000 random quantized inputs it has 10.5 nA mean, 16.0 nA RMS, and
+51.8 nA worst plate-current error. Circuit-level 5 mV/1 kHz THD is 0.0188%
+versus 0.0191% analytical; 0.5 V results are 2.2419% and 2.2417%. The 5 mV
+unaligned waveform residual is still only -42.90 dB, despite +0.00026 dB
+fundamental gain error, demonstrating a separate state/phase error that requires
+diagnosis. RTL is not yet implemented, so the verified 2-D primitive remains
+the integrated baseline.
+
 ## Explicit error budget status
 
 | Layer | Present evidence | Status |
@@ -107,9 +132,10 @@ studied before changing the frozen RTL table.
 | integration/solver | -53.10 dB residual vs SPICE at one level/frequency | measured, more sweeps needed |
 | chord vs full Newton | -137.28 dB normalized residual, 3-pass multitone | float architecture candidate |
 | fixed tube LUT | 0.139 µA mean / 9.33 µA worst full range | measured |
+| fixed factorized tube | 10.5 nA mean / 51.8 nA worst; 233,472 raw table bits | Python candidate; RTL open |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |
 | fixed chord/state vs float LUT circuit | -70.33 dB initial multitone; -34.58 dB at 5 mV/1 kHz | signal-dependent; low-level improvement required |
-| low-level complete fixed model | 0.0733% THD vs 0.0191% analytical at 5 mV/1 kHz | measured approximation error; unresolved |
+| low-level complete fixed model | 2-D: 0.0733%; factorized: 0.0188%; analytical: 0.0191% THD | device error improved; RTL/state-phase work open |
 | interpolation/decimation | exact fixed/RTL streams; Python alias -137.81 dB | implemented; RTL alias capture open |
 | ADC/front end/DAC | analytical requirements only | unvalidated |
 | physical FPGA/audio chain | absent | unvalidated |

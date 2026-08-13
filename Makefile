@@ -2,7 +2,7 @@ PYTHON ?= python3
 NGSPICE ?= ngspice
 VERILATOR ?= verilator
 
-.PHONY: all reference analysis accuracy-sweeps precision-study resampler test python-test plots spice spice-all rtl chord-rtl network-rtl solver-rtl halfband-rtl stream-rtl lint synth synth-chord synth-network synth-solver synth-halfband synth-stream clean tools
+.PHONY: all reference analysis accuracy-sweeps factorized-study precision-study resampler test python-test plots spice spice-all rtl chord-rtl network-rtl solver-rtl halfband-rtl stream-rtl lint synth synth-chord synth-network synth-solver synth-halfband synth-stream clean tools
 
 all: reference test
 
@@ -17,6 +17,9 @@ analysis:
 accuracy-sweeps:
 	$(PYTHON) scripts/characterize_fixed_levels.py
 	$(PYTHON) scripts/study_low_level_lut.py
+
+factorized-study:
+	$(PYTHON) scripts/study_factorized_tube.py
 
 resampler:
 	$(PYTHON) scripts/design_resampler.py

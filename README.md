@@ -39,7 +39,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   state/chord error is -70.33 dB relative to the same circuit using the tube LUT.
 - A settled 1 kHz sweep exposes a narrower low-level limitation: at 5 mV peak,
   fixed THD is 0.0733% versus 0.0191% analytical. Doubling either LUT axis does
-  not fix it, so this remains an explicit approximation error and active priority.
+  not fix the existing 2-D implementation.
+- A new factorized Koren candidate replaces that current surface with three
+  value/slope 1-D tables and cubic Hermite interpolation. Its bit-accurate Python
+  model measures 51.8 nA worst current error in 100,000 points and 0.0188% THD
+  at 5 mV versus 0.0191% analytical, using 233,472 raw table bits (12.67 raw
+  RAMB18 equivalents). It is not the reference RTL until its own RTL equivalence,
+  scheduling, and synthesis work is complete.
 - The SystemVerilog tube lookup accepts physical Q-format voltages, is
   bit-exact for 4,096 randomized vectors, and has eight-clock latency.
 - The nine-node chord corrector is bit-exact for 1,024 randomized/boundary
@@ -104,6 +110,7 @@ python3 scripts/characterize_solver.py
 python3 scripts/study_solver_architecture.py
 python3 scripts/compare_fixed_float.py
 make accuracy-sweeps                # settled level and low-level LUT studies
+make factorized-study               # smooth 1-D/Hermite tube candidate
 python3 scripts/study_lut_resolution.py
 python3 scripts/analyze_frontend.py
 python3 scripts/design_resampler.py
@@ -137,8 +144,8 @@ under `model/generated/` as part of the numerical contract.
 - `docs/`: engineering decisions, budgets, known limitations, and hardware path
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
-path is wider frequency/overload equivalence, then bit-exact 16× interpolation
-and decimation around the now-complete mono circuit solver.
+path is bit-exact RTL and cycle/resource proof for the factorized tube candidate,
+followed by wider frequency and overload equivalence through the complete stream.
 
 ## License
 

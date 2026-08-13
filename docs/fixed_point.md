@@ -16,6 +16,33 @@ The primitive is single-issue, uses one synchronous read port per ROM, and asser
 
 The table itself contributes physical-model approximation error. Q-format, coordinate, and interpolation error are measured together against the analytical model; that number must not be presented as error against a real tube.
 
+## Factorized tube candidate
+
+The improved candidate retains the Q8.24/Q12.20 voltage and Q0.31 current
+interfaces, but evaluates three scalar tables in sequence:
+
+| Function | Axis format/range | Value format | Entries |
+|---|---|---|---:|
+| `1/sqrt(Kvb+Vpk²)` | Q12.20, 0…400 V | unsigned Q0.32 value/slope-step | 512 |
+| `softplus(Kp*z)/Kp` | signed Q2.30, -0.30…0.08 | unsigned Q0.32 value/slope-step | 1024 |
+| `2*E1^Ex/Kg1` | Q12.20, 0…6 V | unsigned Q0.31 value/slope-step | 2048 |
+
+For endpoints `y0/y1`, derivative-times-axis-step values `m0/m1`, and Q0.16
+fraction `t`, fixed Python defines the exact Horner sequence:
+
+```text
+d  = y1 - y0
+c2 = 3*d - 2*m0 - m1
+c3 = -2*d + m0 + m1
+y  = round(round(round(c3*t) + c2)*t + m0)*t + y0
+```
+
+Each multiply is rounded back to the table format with add-half then arithmetic
+shift. `z` is Q2.30 and `E1` is Q12.20. The 128-entry linear grid-current table
+is unchanged. Total raw table storage is 233,472 bits. These formats are a
+bit-accurate Python contract; RTL latency and intermediate-width proof remain
+open and the existing 2-D RTL is still the synthesized baseline.
+
 ## Circuit-state chord candidate
 
 The complete Python fixed candidate uses heterogeneous 32-bit voltage formats:

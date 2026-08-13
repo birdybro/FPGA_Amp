@@ -11,6 +11,7 @@ sys.path.insert(0, str(REPOSITORY_ROOT / "model" / "python"))
 
 from fpga_amp.cartridge import CartridgeModel  # noqa: E402
 from fpga_amp.fixed import TubeLUT  # noqa: E402
+from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
 from fpga_amp.fixed_circuit import FixedChordV1CircuitModel  # noqa: E402
 from fpga_amp.riaa import riaa_db  # noqa: E402
 from fpga_amp.resampling import (  # noqa: E402
@@ -74,6 +75,27 @@ class TubeModelTests(unittest.TestCase):
         # Worst error is at positive grid and nearly zero plate volts, far
         # outside either quiescent point but retained for clipping behavior.
         self.assertLess(worst, 10.5e-6)
+
+    def test_fixed_factorized_tube_has_nanoampere_error(self) -> None:
+        tube = Koren12AX7()
+        factorized = FixedFactorizedKoren12AX7()
+        rng = np.random.default_rng(0xFAC701)
+        worst = 0.0
+        for vg, vp in zip(
+            rng.uniform(-5.0, 1.0, 2000),
+            rng.uniform(0.0, 400.0, 2000),
+            strict=True,
+        ):
+            vg_q24 = int(round(vg * (1 << 24)))
+            vp_q20 = int(round(vp * (1 << 20)))
+            approximate_q31, _, clipped = factorized.evaluate_fixed(vg_q24, vp_q20)
+            reference = float(
+                tube.plate_current(vg_q24 / (1 << 24), vp_q20 / (1 << 20))
+            )
+            self.assertFalse(clipped)
+            worst = max(worst, abs(approximate_q31 / (1 << 31) - reference))
+        self.assertLess(worst, 60.0e-9)
+        self.assertLess(factorized.raw_table_bits, 0.23 * (128 * 256 * 32))
 
 
 class ResamplerTests(unittest.TestCase):

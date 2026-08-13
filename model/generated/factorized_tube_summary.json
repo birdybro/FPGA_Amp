@@ -1,0 +1,122 @@
+{
+  "algorithm": "Koren factorization using reciprocal-sqrt, softplus, and power value/derivative 1-D LUTs with cubic Hermite interpolation",
+  "table_points": {
+    "reciprocal_sqrt": 512,
+    "softplus": 1024,
+    "power": 2048
+  },
+  "floating_plate_table_bits_at_32_bits_each": 229376,
+  "fixed_total_table_bits_including_grid_current": 233472,
+  "fixed_raw_ramb18_equivalents": 12.666666666666666,
+  "baseline_2d_plate_table_bits": 1048576,
+  "linear_factorized_random_current_probe": {
+    "mean_absolute_error_a": 1.8225787456105012e-07,
+    "worst_absolute_error_a": 2.1460901767730205e-06
+  },
+  "random_current_probe": {
+    "vectors": 100000,
+    "mean_absolute_error_a": 1.338357273239849e-09,
+    "rms_error_a": 5.419102736650489e-09,
+    "worst_absolute_error_a": 3.216250949149668e-08,
+    "worst_operating_region_error_a": 3.216250949149668e-08
+  },
+  "fixed_random_current_probe_at_quantized_inputs": {
+    "vectors": 100000,
+    "mean_absolute_error_a": 1.0547604267558867e-08,
+    "rms_error_a": 1.5993231239945952e-08,
+    "worst_absolute_error_a": 5.177595250455136e-08,
+    "worst_operating_region_error_a": 4.91237602418676e-08
+  },
+  "circuit_analysis_window_s": [
+    0.02,
+    0.03
+  ],
+  "circuit_measurements": [
+    {
+      "input_peak_v": 0.005,
+      "analytical_thd_percent_h2_to_h10": 0.019058643568062868,
+      "factorized_thd_percent_h2_to_h10": 0.01906788557322363,
+      "fundamental_gain_error_db": 1.6037759011265532e-08,
+      "normalized_residual_db": -132.06772097457772,
+      "max_absolute_error_v": 1.680049094288094e-07,
+      "factorized_nonconvergence_count": 0,
+      "fixed_factorized_thd_percent_h2_to_h10": 0.01879670987668305,
+      "fixed_fundamental_gain_error_db": 0.0002573785072198976,
+      "fixed_normalized_residual_db": -42.897699917195176,
+      "fixed_max_absolute_error_v": 0.0036574273599729867,
+      "fixed_nonconvergence_count": 0,
+      "fixed_saturation_count": 0,
+      "fixed_range_clip_count": 0,
+      "fixed_max_residual_a": 3.435922621974896e-07
+    },
+    {
+      "input_peak_v": 0.02,
+      "analytical_thd_percent_h2_to_h10": 0.07723194998332816,
+      "factorized_thd_percent_h2_to_h10": 0.07726138591327497,
+      "fundamental_gain_error_db": 9.94600676771952e-07,
+      "normalized_residual_db": -119.57519843583071,
+      "max_absolute_error_v": 2.411648305555847e-06,
+      "factorized_nonconvergence_count": 0,
+      "fixed_factorized_thd_percent_h2_to_h10": 0.07790865036865025,
+      "fixed_fundamental_gain_error_db": 0.00015858088418991526,
+      "fixed_normalized_residual_db": -50.25561842386612,
+      "fixed_max_absolute_error_v": 0.006007885710547445,
+      "fixed_nonconvergence_count": 0,
+      "fixed_saturation_count": 0,
+      "fixed_range_clip_count": 0,
+      "fixed_max_residual_a": 3.494693601169274e-07
+    },
+    {
+      "input_peak_v": 0.1,
+      "analytical_thd_percent_h2_to_h10": 0.3891342573184852,
+      "factorized_thd_percent_h2_to_h10": 0.38912426537504385,
+      "fundamental_gain_error_db": 3.7455446563856874e-07,
+      "normalized_residual_db": -106.63535011709962,
+      "max_absolute_error_v": 4.2238902876690076e-05,
+      "factorized_nonconvergence_count": 0,
+      "fixed_factorized_thd_percent_h2_to_h10": 0.38939417016208644,
+      "fixed_fundamental_gain_error_db": 2.9663751680264908e-05,
+      "fixed_normalized_residual_db": -63.38213890700641,
+      "fixed_max_absolute_error_v": 0.006419487659670153,
+      "fixed_nonconvergence_count": 0,
+      "fixed_saturation_count": 0,
+      "fixed_range_clip_count": 0,
+      "fixed_max_residual_a": 3.6339804410090437e-07
+    },
+    {
+      "input_peak_v": 0.5,
+      "analytical_thd_percent_h2_to_h10": 2.2416512490346077,
+      "factorized_thd_percent_h2_to_h10": 2.2416578252987702,
+      "fundamental_gain_error_db": -1.2841371562370204e-06,
+      "normalized_residual_db": -121.44960672000519,
+      "max_absolute_error_v": 4.104875876720371e-05,
+      "factorized_nonconvergence_count": 0,
+      "fixed_factorized_thd_percent_h2_to_h10": 2.24193538951062,
+      "fixed_fundamental_gain_error_db": -2.515788896821018e-05,
+      "fixed_normalized_residual_db": -78.90989471122202,
+      "fixed_max_absolute_error_v": 0.007594422967848402,
+      "fixed_nonconvergence_count": 0,
+      "fixed_saturation_count": 0,
+      "fixed_range_clip_count": 0,
+      "fixed_max_residual_a": 6.405638828255178e-07
+    },
+    {
+      "input_peak_v": 1.0,
+      "analytical_thd_percent_h2_to_h10": 7.963219833838298,
+      "factorized_thd_percent_h2_to_h10": 7.963222262495474,
+      "fundamental_gain_error_db": -1.0325523490198124e-06,
+      "normalized_residual_db": -130.78578805827652,
+      "max_absolute_error_v": 3.963597553990894e-05,
+      "factorized_nonconvergence_count": 0,
+      "fixed_factorized_thd_percent_h2_to_h10": 7.984168651078669,
+      "fixed_fundamental_gain_error_db": -0.004379886294438055,
+      "fixed_normalized_residual_db": -55.1523863292138,
+      "fixed_max_absolute_error_v": 0.22708563655720582,
+      "fixed_nonconvergence_count": 5209,
+      "fixed_saturation_count": 0,
+      "fixed_range_clip_count": 0,
+      "fixed_max_residual_a": 7.029579137451947e-06
+    }
+  ],
+  "status": "floating and bit-accurate Python arithmetic verified; RTL latency and equivalence not yet implemented"
+}

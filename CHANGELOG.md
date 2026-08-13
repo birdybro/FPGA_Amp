@@ -39,6 +39,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   runtime diagnostics.
 - Added a settled analytical/fixed 1 kHz sweep from 0.5 mV to 5 V and a targeted
   low-level LUT-resolution study with explicit raw memory tradeoffs.
+- Added floating and bit-accurate factorized Koren models using reciprocal-root,
+  softplus, and power value/slope 1-D tables with cubic Hermite interpolation,
+  plus a reproducible 100,000-point and five-level circuit study.
 - Added warning-free Verilator lint and a 4,096-vector bit-exact testbench with checked eight-clock latency.
 - Added non-root ngspice/Yosys bootstrap and a generic XC7 out-of-context synthesis report.
 - Added quantitative cartridge/front-end noise, ADC headroom, and analog-versus-digital RIAA partition analysis.
@@ -91,6 +94,13 @@ All notable engineering changes are recorded here. The project is pre-release; d
   versus 0.0191% analytical. Doubling either LUT axis does not resolve it.
 - The fixed residual limit first fails at 1.0 V peak and LUT clipping begins at
   1.1 V; first tested ≥1 dB fixed gain compression is 1.1 V.
+- The fixed factorized candidate uses 233,472 raw table bits including grid
+  current (12.67 raw RAMB18 equivalents). Its 100,000-point error is 10.5 nA
+  mean, 16.0 nA RMS, and 51.8 nA worst at quantized inputs.
+- At 5 mV/1 kHz, factorized fixed THD is 0.0188% versus 0.0191% analytical with
+  +0.00026 dB fundamental gain error. At 0.5 V it is 2.2419% versus 2.2417%.
+  The unaligned 5 mV waveform residual remains -42.90 dB and is tracked
+  separately; the 1.0 V fixed solve still exceeds its residual limit.
 
 ### Changed
 

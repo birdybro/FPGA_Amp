@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Protocol
 
 import numpy as np
 from numpy.typing import NDArray
@@ -14,10 +15,18 @@ from .v1_circuit import V1CircuitModel
 IntArray = NDArray[np.int64]
 
 
+class FixedTubeApproximation(Protocol):
+    """Numerical interface shared by the 2-D and factorized tube models."""
+
+    def evaluate_fixed(self, v_gk_q: int, v_pk_q: int) -> tuple[int, int, bool]: ...
+
+    def evaluate(self, v_gk: float, v_pk: float) -> tuple[float, float, bool]: ...
+
+
 class LUTTubeAdapter:
     """Expose the fixed LUT through the floating circuit's tube API for DC init."""
 
-    def __init__(self, lut: TubeLUT):
+    def __init__(self, lut: FixedTubeApproximation):
         self.lut = lut
 
     def plate_current(self, v_gk: object, v_pk: object) -> NDArray[np.float64]:
@@ -86,7 +95,7 @@ class FixedChordV1CircuitModel:
         inverse_fractional_bits: int = 1,
         correction_residual_fractional_bits: int = 30,
         correction_residual_width: int = 25,
-        tube_lut: TubeLUT | None = None,
+        tube_lut: FixedTubeApproximation | None = None,
     ):
         self.sample_rate_hz = float(sample_rate_hz)
         self.inverse_fractional_bits = int(inverse_fractional_bits)
@@ -97,9 +106,12 @@ class FixedChordV1CircuitModel:
         self.reference = V1CircuitModel(sample_rate_hz)
         self.node = self.reference.node
         self.node_count = self.reference.node_count
-        self.tube_lut = tube_lut or TubeLUT()
-        if self.tube_lut.plate_table is None or self.tube_lut.grid_table is None:
-            self.tube_lut.generate()
+        if tube_lut is None:
+            default_lut = TubeLUT()
+            default_lut.generate()
+            self.tube_lut: FixedTubeApproximation = default_lut
+        else:
+            self.tube_lut = tube_lut
         initial_reference = V1CircuitModel(
             sample_rate_hz,
             tube=LUTTubeAdapter(self.tube_lut),  # type: ignore[arg-type]

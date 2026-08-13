@@ -4,17 +4,20 @@ Last updated: 2026-08-13
 
 ## Current milestone
 
-Surround the bit-exact, synthesizable 126-clock mono V1 circuit solver with the
-48/768 kHz sample-rate chain, then prove frequency, level, and overload behavior
-against the floating and SPICE references. The circuit is frozen at version 0.1.0.
+Replace the inaccurate low-level 2-D tube approximation only if the measured
+factorized 1-D/Hermite candidate remains bit-exact, schedulable, and smaller in
+RTL, then prove frequency, level, and overload behavior through the complete
+48/768 kHz stream. The circuit is frozen at version 0.1.0.
 
 ## Active, highest value first
 
-- [ ] Extend fixed-vs-float comparison across frequency, level, silence, impulse,
-  grid conduction, overload/recovery, and long-duration capacitor-state drift.
-- [ ] Reduce the measured 5 mV/1 kHz fixed THD error (0.0733% versus 0.0191%
-  analytical). Test smooth polynomial/Hermite/hybrid tube approximations; simple
-  LUT resolution doubling is not an adequate BRAM/accuracy trade.
+- [ ] Implement a bit-exact factorized/Hermite tube RTL primitive, characterize
+  latency/resources, and integrate it without exceeding the 128-clock deadline.
+- [ ] Diagnose the fixed circuit's low-level raw waveform residual/phase error;
+  the factorized candidate fixes THD but retains -42.90 dB unaligned residual at
+  5 mV despite only +0.00026 dB fundamental gain error.
+- [ ] Extend factorized-fixed-vs-float comparison across frequency, silence,
+  impulse, grid conduction, overload/recovery, and capacitor-state drift.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
 - [ ] Automate RTL frequency and level comparisons through the integrated solver,
   including DC, gain, harmonics, clipping asymmetry, and recovery.
@@ -76,6 +79,9 @@ against the floating and SPICE references. The circuit is frozen at version 0.1.
   settled SPICE analysis window; quantify THD, compression, residual, and clips.
 - [x] Measure low-level distortion at four larger LUT resolutions and reject a
   raw BRAM increase as an ineffective fix.
+- [x] Implement and measure a fixed factorized Koren candidate using three
+  value/slope 1-D LUTs with cubic Hermite interpolation: 51.8 nA worst current
+  error and 0.0188% versus 0.0191% analytical THD at 5 mV.
 - [x] Quantify flat/partial/full-analog RIAA front-end architectures.
 - [x] Produce initial gain/headroom, MM loading, noise, converter, clock, control,
   safety, stereo schedule, and hardware-verification engineering documents.
@@ -88,9 +94,12 @@ against the floating and SPICE references. The circuit is frozen at version 0.1.
   an acceptance bound.
 - The frozen historical circuit is -0.919 dB from ideal RIAA at its worst audio-
   band point. This is reference behavior, not an implementation defect.
-- At 5 mV/1 kHz the fixed model produces 0.0733% THD versus 0.0191% analytical.
-  This is approximation error, not reference behavior; the ordinary-level
-  discrepancy has priority over model expansion.
+- The currently integrated 2-D-LUT RTL produces 0.0733% THD versus 0.0191%
+  analytical at 5 mV/1 kHz. The factorized Python fixed candidate reduces this
+  to 0.0188%, but remains unimplemented in RTL and therefore is not silently
+  substituted into reference-stream claims.
+- At 1.0 V peak the factorized fixed candidate records 5,209 residual-limit
+  failures and 7.03 µA maximum residual; overload solver behavior remains open.
 - Yosys reports 204 Xilinx BRAM primitive port-resize warnings on the hierarchical
   solver while `check` reports no structural problem. Track tool-version behavior;
   do not describe synthesis as warning-free.
