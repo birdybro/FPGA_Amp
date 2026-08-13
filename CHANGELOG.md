@@ -187,6 +187,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Measured
 
+- Split the post-grid-resolution fixed error at the exact Q24/Q20 and Q31 tube
+  interfaces. Integer Hermite evaluation contributes at most 0.168 mV burst RMS
+  across the 1.0/1.5 V banked campaigns, while node/capacitor/chord arithmetic
+  contributes 6.40--19.07 mV. Every continuous-coefficient fixed-interface run
+  is diagnostic-clean, redirecting optimization away from the tube datapath.
 - Added a conservative full-interface integer interval proof for wide RHS,
   backward-Euler/trapezoidal KCL, tube stamps, chord correction, and solver
   tube-pin conversion, including every banked chord matrix. All 47 checks pass;

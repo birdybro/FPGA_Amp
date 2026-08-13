@@ -101,7 +101,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | banked wide solver synthesis | Yosys 0.66 structural | BE 13,302 LC; trap 13,840 LC; both 120 DSP48E1 / 8 RAMB18E1 |
 | banked solver vs full Newton | 100 ms, 20 mV/0.5/1.0 V per mode | raw burst error <=-75.28 dB; no alignment or diagnostics; 1 V final RMS 0.372/0.291 mV |
 | Vgk-slew-qualified bank selector | 100 ms, 0.5/1.0/1.5 V per mode | <=1 V bit-exact to prior selector; zero 1.5 V residual failures; pre-resolution severe baseline -61.80/-62.12 dB |
-| banked error decomposition | 100 ms, 1.0/1.5 V per mode | all floating layers converge; after grid refinement fixed evaluation/state/chord dominates burst RMS |
+| banked error decomposition | 100 ms, 1.0/1.5 V per mode | all intermediate layers converge; fixed circuit/state/chord burst error 6.40--19.07 mV vs <=0.168 mV integer tube evaluation |
 | grid-current resolution study | 128/256/512/1,024 entries | implemented 1,024: 12.55 nA exact-mapping worst; 1.5 V burst -72.87/-81.77 dB and final 0.631/0.321 mV |
 | trapezoidal 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 116-clock solver |
 | trapezoidal stream synthesis | Yosys 0.66 structural | 17,735 LC, 168 DSP48E1, 8 RAMB18E1; no Fmax claim |

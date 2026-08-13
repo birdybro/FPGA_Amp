@@ -319,6 +319,16 @@ RMS error to 0.631/0.321 mV; at 1.0 V final RMS error is 0.372/0.291 mV. All
 fixed diagnostics remain zero. The larger table adds 28,672 raw bits but no
 mapped RAMB18E1 to the measured standalone or banked hierarchies.
 
+A further A/B evaluates the same quantized table coefficients continuously at
+the fixed Q24/Q20 input boundary, rounds only the resulting currents to Q31,
+and runs that device through the unchanged banked fixed circuit. Relative to
+that path, the production integer Hermite evaluator contributes 0.149--0.168 mV
+RMS during the tested 1.0/1.5 V bursts. Fixed node, capacitor, and chord
+arithmetic contributes 10.60/19.07 mV for backward Euler and 10.19/6.40 mV for
+trapezoidal. All intermediate runs have zero residual-limit, saturation, range,
+or correction-fallback events. The next numerical investigation therefore
+targets circuit/state/chord arithmetic rather than the tube primitive.
+
 `v1_solver_mono_wide.sv` composes those blocks with the factorized tube and
 matches 512 sequential fixed-Python samples exactly across all nine nodes, ten
 capacitor histories, output, residual, and cumulative diagnostics. The vector

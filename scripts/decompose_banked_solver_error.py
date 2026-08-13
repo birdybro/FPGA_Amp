@@ -143,6 +143,47 @@ class ContinuousQuantizedFactorizedTube:
         )
 
 
+class ContinuousQuantizedFixedInterfaceTube:
+    """Expose continuous quantized coefficients through the fixed tube API.
+
+    Inputs still use the exact Q24/Q20 circuit boundary and outputs are rounded
+    to Q31, but the three Hermite functions are evaluated continuously.  A
+    fixed-circuit run with this adapter therefore isolates node, capacitor,
+    coefficient, and chord arithmetic from the integer Hermite datapath.
+    """
+
+    def __init__(self, fixed: FixedFactorizedKoren12AX7):
+        self.fixed = fixed
+        self.continuous = ContinuousQuantizedFactorizedTube(fixed)
+
+    def evaluate_fixed(
+        self, v_gk_q: int, v_pk_q: int
+    ) -> tuple[int, int, bool]:
+        v_gk = v_gk_q / float(1 << self.fixed.v_gk_fractional_bits)
+        v_pk = v_pk_q / float(1 << self.fixed.v_pk_fractional_bits)
+        scale = 1 << self.fixed.current_fractional_bits
+        plate_q31 = int(
+            np.rint(float(self.continuous.plate_current(v_gk, v_pk)) * scale)
+        )
+        grid_q31 = int(
+            np.rint(float(self.continuous.grid_current(v_gk)) * scale)
+        )
+        current_max = (1 << 31) - 1
+        plate_q31 = min(max(plate_q31, 0), current_max)
+        grid_q31 = min(max(grid_q31, -(1 << 31)), current_max)
+        # Reuse the production evaluator's independent external and transformed
+        # domain guards, while deliberately discarding its integer currents.
+        _, _, clipped = self.fixed.evaluate_fixed(v_gk_q, v_pk_q)
+        return plate_q31, grid_q31, clipped
+
+    def evaluate(self, v_gk: float, v_pk: float) -> tuple[float, float, bool]:
+        v_gk_q = int(round(v_gk * (1 << self.fixed.v_gk_fractional_bits)))
+        v_pk_q = int(round(v_pk * (1 << self.fixed.v_pk_fractional_bits)))
+        plate_q31, grid_q31, clipped = self.evaluate_fixed(v_gk_q, v_pk_q)
+        scale = float(1 << self.fixed.current_fractional_bits)
+        return plate_q31 / scale, grid_q31 / scale, clipped
+
+
 def run_case(integration_method: str, level_peak_v: float) -> dict[str, object]:
     time_s = np.arange(int(round(DURATION_S * SAMPLE_RATE_HZ))) / SAMPLE_RATE_HZ
     input_q24 = input_trajectory_q24(level_peak_v)
@@ -192,6 +233,14 @@ def run_case(integration_method: str, level_peak_v: float) -> dict[str, object]:
         )
         quantized_models[name] = model
     quantized_tables = quantized_outputs["all_coefficients"]
+    continuous_evaluator_fixed_model = FixedWideStateBankedChordV1CircuitModel(
+        SAMPLE_RATE_HZ,
+        tube_lut=ContinuousQuantizedFixedInterfaceTube(fixed_tube),
+        integration_method=integration_method,
+    )
+    continuous_evaluator_fixed = continuous_evaluator_fixed_model.process(
+        stimulus, max_iterations=3, residual_limit_a=2.0e-6
+    )
     fixed_model = FixedWideStateBankedChordV1CircuitModel(
         SAMPLE_RATE_HZ,
         tube_lut=fixed_tube,
@@ -204,13 +253,23 @@ def run_case(integration_method: str, level_peak_v: float) -> dict[str, object]:
     layers = (
         ("factorized_tables", analytical, factorized),
         ("quantized_table_coefficients", factorized, quantized_tables),
-        ("fixed_evaluation_circuit_and_chord", quantized_tables, fixed),
+        (
+            "fixed_circuit_state_and_chord",
+            quantized_tables,
+            continuous_evaluator_fixed,
+        ),
+        (
+            "integer_tube_evaluation",
+            continuous_evaluator_fixed,
+            fixed,
+        ),
         ("total_fixed_vs_analytical", analytical, fixed),
     )
     closure = (
         (factorized - analytical)
         + (quantized_tables - factorized)
-        + (fixed - quantized_tables)
+        + (continuous_evaluator_fixed - quantized_tables)
+        + (fixed - continuous_evaluator_fixed)
         - (fixed - analytical)
     )
     window_results: dict[str, object] = {}
@@ -222,7 +281,8 @@ def run_case(integration_method: str, level_peak_v: float) -> dict[str, object]:
         component_names = (
             "factorized_tables",
             "quantized_table_coefficients",
-            "fixed_evaluation_circuit_and_chord",
+            "fixed_circuit_state_and_chord",
+            "integer_tube_evaluation",
         )
         dominant = max(
             component_names,
@@ -269,6 +329,18 @@ def run_case(integration_method: str, level_peak_v: float) -> dict[str, object]:
             "fixed_range_clip_count": fixed_model.lut_clip_count,
             "fixed_correction_scale_fallback_count": (
                 fixed_model.correction_scale_fallback_count
+            ),
+            "continuous_evaluator_fixed_residual_limit_exceedance_count": (
+                continuous_evaluator_fixed_model.nonconvergence_count
+            ),
+            "continuous_evaluator_fixed_saturation_count": (
+                continuous_evaluator_fixed_model.saturation_count
+            ),
+            "continuous_evaluator_fixed_range_clip_count": (
+                continuous_evaluator_fixed_model.lut_clip_count
+            ),
+            "continuous_evaluator_fixed_correction_scale_fallback_count": (
+                continuous_evaluator_fixed_model.correction_scale_fallback_count
             ),
         },
     }
@@ -328,6 +400,16 @@ def main() -> int:
                 "fixed_correction_scale_fallback_count",
             )
         ),
+        "continuous_evaluator_fixed_diagnostics_clean": all(
+            int(item["diagnostics"][key]) == 0
+            for item in measurements
+            for key in (
+                "continuous_evaluator_fixed_residual_limit_exceedance_count",
+                "continuous_evaluator_fixed_saturation_count",
+                "continuous_evaluator_fixed_range_clip_count",
+                "continuous_evaluator_fixed_correction_scale_fallback_count",
+            )
+        ),
         "component_sum_is_numerically_exact": all(
             float(window["component_sum_closure_maximum_absolute_v"])
             <= 1.0e-12
@@ -352,6 +434,7 @@ def main() -> int:
             "analytical Koren full Newton",
             "floating cubic-Hermite factorized Koren full Newton",
             "quantized fixed-table coefficients with continuous interpolation",
+            "banked fixed circuit using continuous coefficients at Q24/Q20 and Q31 interfaces",
             "bit-accurate banked fixed circuit and three-pass chord",
         ],
         "rejected_intermediate": (

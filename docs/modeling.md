@@ -441,7 +441,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | banked cutoff vs full Newton | 100 ms, 20 mV/0.5/1.0 V bursts | <=-75.28 dB raw burst error; 1 V improves 22.98/23.13 dB vs DC chord |
 | trapezoidal shallow-bank threshold | -2.50 to -2.90 V, 0.5/1.0 V bursts | select -2.75 V; no 0.5 V activation, zero 1 V failures, 0.537 mV final mean error |
 | slew-qualified shallow-bank selector | 100 ms, 0.5/1.0/1.5 V bursts | <=1 V bit-exact; zero 1.5 V residual failures; old 128-point severe burst baseline -61.80/-62.12 dB |
-| grid-current error decomposition | 100 ms, 1.0/1.5 V bursts | 128-entry grid branch dominated old severe recovery; at 1,024 points fixed evaluator/state/chord dominates burst RMS |
+| grid-current error decomposition | 100 ms, 1.0/1.5 V bursts | 128-entry grid branch dominated old severe recovery; at 1,024 points fixed circuit/state/chord contributes 6.40--19.07 mV burst RMS vs <=0.168 mV integer tube evaluation |
 | grid-current resolution | 128--1,024 entries, linear interpolation | implemented 1,024 points: 1.5 V burst -72.87/-81.77 dB, final 0.631/0.321 mV |
 | long fixed state / click recovery | 1 s silence with +/-100 mV single-sample clicks | Q12.20 deadband leaves -5.368 mV late output; must be redesigned |
 | wide-state Python candidate | same 1 s click audit; 5 mV/1 kHz | 38.74 uV late residual; -63.83 dB nominal raw null; complete-RTL proof open |

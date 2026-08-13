@@ -11,11 +11,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
-- [ ] Isolate and reduce the remaining fixed evaluator/circuit/chord error. With
+- [ ] Isolate and reduce the remaining fixed circuit/state/chord error. With
   the implemented 1,024-point grid branch, raw final-window error is now
   0.372/0.291 mV at 1.0 V and 0.631/0.321 mV at 1.5 V for backward Euler/
-  trapezoidal; the decomposition identifies fixed evaluation/state/chord as the
-  dominant burst layer. Extra serialized chord passes remain rejected.
+  trapezoidal. A continuous-coefficient fixed-interface A/B bounds integer tube
+  evaluation to <=0.168 mV burst RMS and identifies circuit/state/chord as the
+  6.40--19.07 mV dominant burst layer. Extra serialized chord passes remain
+  rejected as an implementation, but may be used to diagnose pass truncation.
 - [ ] Extend integrated-solver RTL capture beyond nominal frequency response to
   level-dependent harmonics, clipping asymmetry, and recovery metrics.
 - [ ] Separate folded nonlinear harmonics from preexisting in-band solver energy
@@ -24,6 +26,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Completed this milestone
 
+- [x] Split integer tube evaluation from fixed circuit/state/chord error using
+  the same Q24/Q20 input and Q31 current interfaces. Prove all intermediate
+  banked runs diagnostic-clean; measure <=0.168 mV tube-evaluator burst error
+  versus 6.40--19.07 mV circuit/state/chord error.
 - [x] Decompose banked severe-overload error, sweep the grid-current table, and
   implement the selected 1,024-entry branch in fixed Python and RTL. Reduce
   direct worst error from 716 to 12.55 nA and 1.5 V final error from

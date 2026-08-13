@@ -154,6 +154,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   final-window circuit error to 0.631/0.321 mV for backward Euler/trapezoidal,
   with all fixed diagnostics clean. Standalone and 36,864-state integrated RTL
   regressions are bit-exact and structural RAM use remains eight RAMB18E1s.
+- A second decomposition passes continuously evaluated quantized coefficients
+  through the exact Q24/Q20 input and Q31 current interfaces of the banked fixed
+  circuit. Integer Hermite evaluation accounts for only 0.149–0.168 mV burst
+  RMS, while fixed node/capacitor/chord arithmetic accounts for 6.40–19.07 mV.
+  Every intermediate solve is diagnostic-clean. This directs the next accuracy
+  work to circuit/state/chord arithmetic rather than another tube-table change.
 - Removing the shallowest cutoff matrix is not a valid optimization: the 100 ms
   selector study leaves 289 backward-Euler or 119 trapezoidal 1.0 V residual
   failures. All generated matrices remain required; activation thresholds are
