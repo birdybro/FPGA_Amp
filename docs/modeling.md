@@ -298,6 +298,21 @@ grid current peaks at 0.0806 uA at 1.0 V and 26.30 uA at 1.5 V. These severe
 cases remain rejected as an accuracy claim even though RTL is exact to its
 fixed numerical contract.
 
+A longer floating trapezoidal study now observes 235 ms after the burst. The
+0.5 V trajectory reaches the sustained 10%-of-nominal threshold at 146.552 ms;
+its 1% and 1 mV crossings remain beyond the record. The 1.0 V and 1.5 V cases
+also remain above 10%. Fits over absolute time 50--240 ms give dominant
+envelope time constants of 118.1, 110.1, and 98.2 ms respectively, with 1.55%,
+2.38%, and 4.18% RMS relative fit error. They project 10% crossings at 297 ms
+and 408 ms for 1.0/1.5 V, but projections are not measured acceptance evidence.
+
+The stored checkpoints prevent a simplistic component explanation. At 235 ms
+post-burst, the largest node displacement is the stage-two plate: -23.9 mV,
+-105.1 mV, and +446.2 mV for the three levels. The output is displaced -17.5
+mV, -64.0 mV, and +194.9 mV. The standalone 470 nF × 2.21 MΩ product is 1.039 s,
+but it is not the fitted pole of this coupled nonlinear trajectory. Full nodal
+interaction, including the stage-two grid/RIAA state, determines recovery.
+
 At 20 mV, fixed 10%/1%/1 mV recovery becomes 8.466/14.918/18.297 ms versus
 analytical 8.465/14.918/18.280 ms. Legacy fixed needed 8.668/24.612/34.643 ms.
 Post-burst wide fixed/analytical RMS is 0.258 mV at both 20 mV and 0.5 V,
@@ -353,6 +368,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | 768 kHz backward-Euler integration | four SPICE transients, 100 Hz--20 kHz | <=0.0646 dB gain; phase grows to 4.72 degrees |
 | 768 kHz trapezoidal float candidate | 10/20 kHz SPICE transients | <=0.00846 dB gain / <=0.0582 degree phase; downstream proof open |
 | trapezoidal float overload stability | 20 mV--1.5 V, 100 ms records | finite/convergent; clean recovery matches BE; shared long memory above 0.5 V |
+| long floating overload tail | 0.5--1.5 V, 250 ms records / 235 ms post-burst | 0.5 V 10% recovery 146.552 ms; severe fitted crossings explicitly projected |
 | fixed trapezoidal state | six 5 mV points, 20 Hz--20 kHz | <=0.000131 dB / <=0.000784 degree vs float trapezoidal; zero diagnostics; RTL open |
 | fixed trapezoidal overload | 20 mV--1.5 V bursts | clean through 0.5 V; 203.34 uA history-current peak; severe solver/range limit unchanged |
 | trapezoidal KCL RTL | 1,024 randomized/directed vectors | exact residual and Q4.44 next current; 10 clocks; integrated |

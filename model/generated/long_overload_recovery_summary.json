@@ -1,0 +1,768 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "implementation": "floating nonlinear nodal circuit model",
+  "integration_method": "trapezoidal",
+  "sample_rate_hz": 768000.0,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_start_s": 0.01,
+    "burst_end_s": 0.015,
+    "duration_s": 0.25,
+    "post_burst_observation_s": 0.235,
+    "burst_levels_peak_v": [
+      0.5,
+      1.0,
+      1.5
+    ]
+  },
+  "nominal_output_rms_v": 0.40087495607349205,
+  "recovery_thresholds_v_rms": {
+    "ten_percent_nominal_output_rms": 0.040087495607349206,
+    "one_percent_nominal_output_rms": 0.004008749560734921,
+    "one_millivolt_rms": 0.001
+  },
+  "recovery_definition": "last 1 ms sliding-RMS threshold crossing relative to a nominal undisturbed trajectory",
+  "simple_component_products_not_fitted_poles": {
+    "output_470nf_times_2p21m_s": 1.0387,
+    "riaa_3p3nf_times_2p21m_s": 0.007293,
+    "interstage_47nf_times_210k_s": 0.00987,
+    "note": "These products are context only; the coupled nonlinear nodal response determines the measured recovery."
+  },
+  "control_nonconvergence_count": 0,
+  "measurements": [
+    {
+      "burst_input_peak_v": 0.5,
+      "nonconvergence_count": 0,
+      "peak_post_burst_deviation_v": 35.98208826670442,
+      "measured_recovery_s_after_burst": {
+        "ten_percent_nominal_output_rms": 0.14655208333333333,
+        "one_percent_nominal_output_rms": null,
+        "one_millivolt_rms": null
+      },
+      "one_ms_deviation_rms_v_at_absolute_time_s": {
+        "0.02": 3.902886271988471,
+        "0.05": 0.09859883543047879,
+        "0.1": 0.06660413491548882,
+        "0.15": 0.04422291666774228,
+        "0.2": 0.028539842403885685
+      },
+      "final_10ms_deviation_rms_v": 0.018428840655770277,
+      "dominant_exponential_fit": {
+        "fit_start_s_absolute": 0.05,
+        "fit_end_s_absolute": 0.24,
+        "samples": 145921,
+        "time_constant_s": 0.1180866502855728,
+        "r_squared_log_envelope": 0.9988975739236058,
+        "rms_relative_envelope_error": 0.01551667341631224,
+        "projected_recovery_s_after_burst": {
+          "ten_percent_nominal_output_rms": 0.14457723754152557,
+          "one_percent_nominal_output_rms": 0.41648179817068665,
+          "one_millivolt_rms": 0.5804426750728955
+        },
+        "projection_is_not_measured_recovery": true
+      },
+      "state_difference_checkpoints": [
+        {
+          "absolute_time_s": 0.02,
+          "post_burst_time_s": 0.005000000000000001,
+          "largest_node_difference": {
+            "node": "out",
+            "voltage_v": -3.276137146763297
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": 3.35485849621665
+          },
+          "node_difference_v": {
+            "g1": -5.296908377289632e-09,
+            "p1": 0.028732050609619364,
+            "k1": 0.00021315386046683038,
+            "eq_pre": 0.006791090740200302,
+            "g2": 0.09364524598299515,
+            "eq_low": 0.10528872439489334,
+            "p2": -3.261213250233652,
+            "k2": 0.04125107884580648,
+            "out": -3.276137146763297
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": -0.00021315915737529778,
+            "stage1_grid_plate": -0.028732055906516507,
+            "stage1_plate_cathode": 0.02851889674914787,
+            "stage2_grid_cathode": 0.05239416713718881,
+            "stage2_grid_plate": 3.35485849621665,
+            "stage2_plate_cathode": -3.3024643290794415,
+            "interstage_47nf": 0.02194095986942557,
+            "riaa_10nf": 0.10528872439489334,
+            "riaa_3p3nf": 0.09364524598299515,
+            "output_470nf": 0.014923896529637659
+          }
+        },
+        {
+          "absolute_time_s": 0.05,
+          "post_burst_time_s": 0.035,
+          "largest_node_difference": {
+            "node": "out",
+            "voltage_v": -0.09826947063339031
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": 0.09808332557864219
+          },
+          "node_difference_v": {
+            "g1": 8.805703020052513e-14,
+            "p1": -6.753521159907905e-05,
+            "k1": -5.010338273159221e-07,
+            "eq_pre": 0.0029509044611944714,
+            "g2": 0.002746738446936457,
+            "eq_low": 0.0027534578464639,
+            "p2": -0.09533658713169757,
+            "k2": 0.0012073732045263519,
+            "out": -0.09826947063339031
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": 5.010339152455856e-07,
+            "stage1_grid_plate": 6.753521168434418e-05,
+            "stage1_plate_cathode": -6.70341777606609e-05,
+            "stage2_grid_cathode": 0.0015393652424100512,
+            "stage2_grid_plate": 0.09808332557864219,
+            "stage2_plate_cathode": -0.09654396033621993,
+            "interstage_47nf": -0.003018439672786144,
+            "riaa_10nf": 0.0027534578464639,
+            "riaa_3p3nf": 0.002746738446936457,
+            "output_470nf": 0.0029328835016997346
+          }
+        },
+        {
+          "absolute_time_s": 0.1,
+          "post_burst_time_s": 0.085,
+          "largest_node_difference": {
+            "node": "p2",
+            "voltage_v": -0.06736727654521246
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": 0.06930584984274901
+          },
+          "node_difference_v": {
+            "g1": 2.249594485844407e-13,
+            "p1": -4.8388460101023156e-05,
+            "k1": -3.5898664108025e-07,
+            "eq_pre": 0.0020848567265417386,
+            "g2": 0.0019385732975354866,
+            "eq_low": 0.0019430493736525417,
+            "p2": -0.06736727654521246,
+            "k2": 0.0008514895069300366,
+            "out": -0.06638695412595086
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": 3.589868660114348e-07,
+            "stage1_grid_plate": 4.838846032839683e-05,
+            "stage1_plate_cathode": -4.8029473447286364e-05,
+            "stage2_grid_cathode": 0.0010870837906054032,
+            "stage2_grid_plate": 0.06930584984274901,
+            "stage2_plate_cathode": -0.06821876605212651,
+            "interstage_47nf": -0.0021332451866555857,
+            "riaa_10nf": 0.0019430493736525417,
+            "riaa_3p3nf": 0.0019385732975354866,
+            "output_470nf": -0.0009803224192808102
+          }
+        },
+        {
+          "absolute_time_s": 0.15,
+          "post_burst_time_s": 0.135,
+          "largest_node_difference": {
+            "node": "p2",
+            "voltage_v": -0.04767605502129868
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": 0.04904573357120512
+          },
+          "node_difference_v": {
+            "g1": 3.9453879887522275e-14,
+            "p1": -3.418839753521752e-05,
+            "k1": -2.5363859434968106e-07,
+            "eq_pre": 0.001473033493950015,
+            "g2": 0.001369678549906328,
+            "eq_low": 0.0013728410757798664,
+            "p2": -0.04767605502129868,
+            "k2": 0.0006010079687512881,
+            "out": -0.04407079704144373
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": 2.5363863387362073e-07,
+            "stage1_grid_plate": 3.418839759206094e-05,
+            "stage1_plate_cathode": -3.393475893176401e-05,
+            "stage2_grid_cathode": 0.0007686705811551509,
+            "stage2_grid_plate": 0.04904573357120512,
+            "stage2_plate_cathode": -0.048277062990052855,
+            "interstage_47nf": -0.0015072218914724544,
+            "riaa_10nf": 0.0013728410757798664,
+            "riaa_3p3nf": 0.001369678549906328,
+            "output_470nf": -0.0036052579798422357
+          }
+        },
+        {
+          "absolute_time_s": 0.2,
+          "post_burst_time_s": 0.185,
+          "largest_node_difference": {
+            "node": "p2",
+            "voltage_v": -0.0337602261598704
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": 0.03472795823620345
+          },
+          "node_difference_v": {
+            "g1": 1.5500015821626884e-13,
+            "p1": -2.415554868662184e-05,
+            "k1": -1.7920625694500814e-07,
+            "eq_pre": 0.0010407563006329138,
+            "g2": 0.0009677320763354837,
+            "eq_low": 0.0009699665245336588,
+            "p2": -0.0337602261598704,
+            "k2": 0.0004240653683054152,
+            "out": -0.028433621755643013
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": 1.7920641193214237e-07,
+            "stage1_grid_plate": 2.4155548857152098e-05,
+            "stage1_plate_cathode": -2.3976342419018692e-05,
+            "stage2_grid_cathode": 0.0005436667080300772,
+            "stage2_grid_plate": 0.03472795823620345,
+            "stage2_plate_cathode": -0.03418429152819158,
+            "interstage_47nf": -0.0010649118493120113,
+            "riaa_10nf": 0.0009699665245336588,
+            "riaa_3p3nf": 0.0009677320763354837,
+            "output_470nf": -0.005326604404217505
+          }
+        },
+        {
+          "absolute_time_s": 0.25,
+          "post_burst_time_s": 0.235,
+          "largest_node_difference": {
+            "node": "p2",
+            "voltage_v": -0.023924894386652795
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": 0.02460863546514247
+          },
+          "node_difference_v": {
+            "g1": 2.3950439342283053e-14,
+            "p1": -1.706656914279847e-05,
+            "k1": -1.2661423753890233e-07,
+            "eq_pre": 0.0007353358368863694,
+            "g2": 0.0006837410784963898,
+            "eq_low": 0.0006853198048178029,
+            "p2": -0.023924894386652795,
+            "k2": 0.00029907699633779927,
+            "out": -0.017509253471381936
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": 1.2661426151971966e-07,
+            "stage1_grid_plate": 1.706656917122018e-05,
+            "stage1_plate_cathode": -1.6939954889494402e-05,
+            "stage2_grid_cathode": 0.00038466408215853676,
+            "stage2_grid_plate": 0.02460863546514247,
+            "stage2_plate_cathode": -0.024223971383008802,
+            "interstage_47nf": -0.0007524024060217016,
+            "riaa_10nf": 0.0006853198048178029,
+            "riaa_3p3nf": 0.0006837410784963898,
+            "output_470nf": -0.0064156409152644756
+          }
+        }
+      ]
+    },
+    {
+      "burst_input_peak_v": 1.0,
+      "nonconvergence_count": 0,
+      "peak_post_burst_deviation_v": 66.44401915412341,
+      "measured_recovery_s_after_burst": {
+        "ten_percent_nominal_output_rms": null,
+        "one_percent_nominal_output_rms": null,
+        "one_millivolt_rms": null
+      },
+      "one_ms_deviation_rms_v_at_absolute_time_s": {
+        "0.02": 6.7431017159619495,
+        "0.05": 0.4162936470686863,
+        "0.1": 0.277168753164496,
+        "0.15": 0.17979947390053383,
+        "0.2": 0.11174514061074482
+      },
+      "final_10ms_deviation_rms_v": 0.06802105669895417,
+      "dominant_exponential_fit": {
+        "fit_start_s_absolute": 0.05,
+        "fit_end_s_absolute": 0.24,
+        "samples": 145921,
+        "time_constant_s": 0.11007484416938661,
+        "r_squared_log_envelope": 0.9977620354265305,
+        "rms_relative_envelope_error": 0.023811306250518378,
+        "projected_recovery_s_after_burst": {
+          "ten_percent_nominal_output_rms": 0.29734486160584744,
+          "one_percent_nominal_output_rms": 0.5508015569039196,
+          "one_millivolt_rms": 0.7036382063578641
+        },
+        "projection_is_not_measured_recovery": true
+      },
+      "state_difference_checkpoints": [
+        {
+          "absolute_time_s": 0.02,
+          "post_burst_time_s": 0.005000000000000001,
+          "largest_node_difference": {
+            "node": "out",
+            "voltage_v": -5.710424778519505
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": 5.848197806536376
+          },
+          "node_difference_v": {
+            "g1": -8.691660421154357e-09,
+            "p1": 0.04692330849547943,
+            "k1": 0.0003481107700493702,
+            "eq_pre": 0.02109536909800716,
+            "g2": 0.16294017548694992,
+            "eq_low": 0.18207012171407558,
+            "p2": -5.68525763104941,
+            "k2": 0.07191265664594781,
+            "out": -5.710424778519505
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": -0.0003481194617098726,
+            "stage1_grid_plate": -0.046923317187150815,
+            "stage1_plate_cathode": 0.04657519772541718,
+            "stage2_grid_cathode": 0.09102751884100213,
+            "stage2_grid_plate": 5.848197806536376,
+            "stage2_plate_cathode": -5.757170287695345,
+            "interstage_47nf": 0.0258279393974874,
+            "riaa_10nf": 0.18207012171407558,
+            "riaa_3p3nf": 0.16294017548694992,
+            "output_470nf": 0.025167147470085638
+          }
+        },
+        {
+          "absolute_time_s": 0.05,
+          "post_burst_time_s": 0.035,
+          "largest_node_difference": {
+            "node": "p2",
+            "voltage_v": -0.4177198786551344
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": 0.4297393207512812
+          },
+          "node_difference_v": {
+            "g1": 8.946273219847048e-13,
+            "p1": -0.00029833200065354504,
+            "k1": -2.213280481111468e-06,
+            "eq_pre": 0.012921330717599253,
+            "g2": 0.01201944209614749,
+            "eq_low": 0.01204781374822749,
+            "p2": -0.4177198786551344,
+            "k2": 0.005281565926952725,
+            "out": -0.41491166790145995
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": 2.2132813757291814e-06,
+            "stage1_grid_plate": 0.00029833200153461803,
+            "stage1_plate_cathode": -0.0002961187201719895,
+            "stage2_grid_cathode": 0.006737876169194745,
+            "stage2_grid_plate": 0.4297393207512812,
+            "stage2_plate_cathode": -0.42300144458207,
+            "interstage_47nf": -0.013219662718256586,
+            "riaa_10nf": 0.01204781374822749,
+            "riaa_3p3nf": 0.01201944209614749,
+            "output_470nf": -0.002808210753670437
+          }
+        },
+        {
+          "absolute_time_s": 0.1,
+          "post_burst_time_s": 0.085,
+          "largest_node_difference": {
+            "node": "p2",
+            "voltage_v": -0.2954543803378158
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": 0.30394313612367796
+          },
+          "node_difference_v": {
+            "g1": 9.9306110210029e-13,
+            "p1": -0.00021188666923421806,
+            "k1": -1.5719550843229513e-06,
+            "eq_pre": 0.009129310899120793,
+            "g2": 0.008488755785839993,
+            "eq_low": 0.008508355965260972,
+            "p2": -0.2954543803378158,
+            "k2": 0.0037262241746816027,
+            "out": -0.2762237294871971
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": 1.5719560775284691e-06,
+            "stage1_grid_plate": 0.0002118866702289779,
+            "stage1_plate_cathode": -0.0002103147141383488,
+            "stage2_grid_cathode": 0.0047625316111583604,
+            "stage2_grid_plate": 0.30394313612367796,
+            "stage2_plate_cathode": -0.29918060451248607,
+            "interstage_47nf": -0.009341197568375037,
+            "riaa_10nf": 0.008508355965260972,
+            "riaa_3p3nf": 0.008488755785839993,
+            "output_470nf": -0.019230650850630582
+          }
+        },
+        {
+          "absolute_time_s": 0.15,
+          "post_burst_time_s": 0.135,
+          "largest_node_difference": {
+            "node": "p2",
+            "voltage_v": -0.2091828128122586
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": 0.2151804551576788
+          },
+          "node_difference_v": {
+            "g1": 4.752821197045488e-13,
+            "p1": -0.00014970639628586468,
+            "k1": -1.1106493711388055e-06,
+            "eq_pre": 0.006450219744297194,
+            "g2": 0.005997642345420072,
+            "eq_low": 0.00601149063904928,
+            "p2": -0.2091828128122586,
+            "k2": 0.002629186218247259,
+            "out": -0.17913940298846892
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": 1.11064984631426e-06,
+            "stage1_grid_plate": 0.00014970639676903374,
+            "stage1_plate_cathode": -0.00014859574690717636,
+            "stage2_grid_cathode": 0.0033684561271729585,
+            "stage2_grid_plate": 0.2151804551576788,
+            "stage2_plate_cathode": -0.21181199903048764,
+            "interstage_47nf": -0.006599926140580692,
+            "riaa_10nf": 0.00601149063904928,
+            "riaa_3p3nf": 0.005997642345420072,
+            "output_470nf": -0.030043409823775846
+          }
+        },
+        {
+          "absolute_time_s": 0.2,
+          "post_burst_time_s": 0.185,
+          "largest_node_difference": {
+            "node": "p2",
+            "voltage_v": -0.1482156534962087
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": 0.15245322593074206
+          },
+          "node_difference_v": {
+            "g1": 5.493964251633912e-13,
+            "p1": -0.00010577349937079816,
+            "k1": -7.847174150477088e-07,
+            "eq_pre": 0.004557336195344047,
+            "g2": 0.004237572434519417,
+            "eq_low": 0.004247356798277145,
+            "p2": -0.1482156534962087,
+            "k2": 0.0018543350162567585,
+            "out": -0.11128595014601572
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": 7.847179646081059e-07,
+            "stage1_grid_plate": 0.00010577349993923235,
+            "stage1_plate_cathode": -0.00010498878194198369,
+            "stage2_grid_cathode": 0.0023832374182628513,
+            "stage2_grid_plate": 0.15245322593074206,
+            "stage2_plate_cathode": -0.15006998851245612,
+            "interstage_47nf": -0.0046631096947180595,
+            "riaa_10nf": 0.004247356798277145,
+            "riaa_3p3nf": 0.004237572434519417,
+            "output_470nf": -0.03692970335018231
+          }
+        },
+        {
+          "absolute_time_s": 0.25,
+          "post_burst_time_s": 0.235,
+          "largest_node_difference": {
+            "node": "p2",
+            "voltage_v": -0.10512419771524151
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": 0.10811821138401001
+          },
+          "node_difference_v": {
+            "g1": 1.4948656326457463e-13,
+            "p1": -7.47330406625224e-05,
+            "k1": -5.544333190332651e-07,
+            "eq_pre": 0.0032199394616622664,
+            "g2": 0.0029940136687852306,
+            "eq_low": 0.0030009267085993555,
+            "p2": -0.10512419771524151,
+            "k2": 0.001307066303152471,
+            "out": -0.06404768081553847
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": 5.544334686913288e-07,
+            "stage1_grid_plate": 7.473304083305266e-05,
+            "stage1_plate_cathode": -7.417860734904025e-05,
+            "stage2_grid_cathode": 0.001686947365632685,
+            "stage2_grid_plate": 0.10811821138401001,
+            "stage2_plate_cathode": -0.10643126401839709,
+            "interstage_47nf": -0.003294672502335061,
+            "riaa_10nf": 0.0030009267085993555,
+            "riaa_3p3nf": 0.0029940136687852306,
+            "output_470nf": -0.04107651689969316
+          }
+        }
+      ]
+    },
+    {
+      "burst_input_peak_v": 1.5,
+      "nonconvergence_count": 0,
+      "peak_post_burst_deviation_v": 73.10011898047729,
+      "measured_recovery_s_after_burst": {
+        "ten_percent_nominal_output_rms": null,
+        "one_percent_nominal_output_rms": null,
+        "one_millivolt_rms": null
+      },
+      "one_ms_deviation_rms_v_at_absolute_time_s": {
+        "0.02": 3.1756126135986475,
+        "0.05": 1.663638188011203,
+        "0.1": 1.08260413417642,
+        "0.15": 0.6759425137889763,
+        "0.2": 0.3925568188564671
+      },
+      "final_10ms_deviation_rms_v": 0.2113247719328262,
+      "dominant_exponential_fit": {
+        "fit_start_s_absolute": 0.05,
+        "fit_end_s_absolute": 0.24,
+        "samples": 145921,
+        "time_constant_s": 0.09824205386689905,
+        "r_squared_log_envelope": 0.9946066503932472,
+        "rms_relative_envelope_error": 0.04182502120386193,
+        "projected_recovery_s_after_burst": {
+          "ten_percent_nominal_output_rms": 0.40816960133947117,
+          "one_percent_nominal_output_rms": 0.6343802900785109,
+          "one_millivolt_rms": 0.7707873543972689
+        },
+        "projection_is_not_measured_recovery": true
+      },
+      "state_difference_checkpoints": [
+        {
+          "absolute_time_s": 0.02,
+          "post_burst_time_s": 0.005000000000000001,
+          "largest_node_difference": {
+            "node": "out",
+            "voltage_v": -2.2885032281785067
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": 2.288570395096741
+          },
+          "node_difference_v": {
+            "g1": -7.430982558548848e-09,
+            "p1": 0.0419497312298347,
+            "k1": 0.00031121320047300394,
+            "eq_pre": -0.06283994446182985,
+            "g2": 0.06397052129339482,
+            "eq_low": 0.08013464195546172,
+            "p2": -2.224599873803328,
+            "k2": 0.028166062476851383,
+            "out": -2.2885032281785067
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": -0.000311220631455722,
+            "stage1_grid_plate": -0.041949738660804314,
+            "stage1_plate_cathode": 0.041638518029344596,
+            "stage2_grid_cathode": 0.035804458816543594,
+            "stage2_grid_plate": 2.288570395096741,
+            "stage2_plate_cathode": -2.2527659362801558,
+            "interstage_47nf": 0.10478967569167708,
+            "riaa_10nf": 0.08013464195546172,
+            "riaa_3p3nf": 0.06397052129339482,
+            "output_470nf": 0.06390335437518502
+          }
+        },
+        {
+          "absolute_time_s": 0.05,
+          "post_burst_time_s": 0.035,
+          "largest_node_difference": {
+            "node": "p2",
+            "voltage_v": 1.7639121754717166
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": -1.8146856416049673
+          },
+          "node_difference_v": {
+            "g1": -5.612216664703865e-12,
+            "p1": 0.0012687930932031577,
+            "k1": 9.41298796552914e-06,
+            "eq_pre": -0.05460915760171782,
+            "g2": -0.05077346613326502,
+            "eq_low": -0.050890169315519776,
+            "p2": 1.7639121754717166,
+            "k2": -0.02225108247383356,
+            "out": 1.658050457034948
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": -9.41299357770653e-06,
+            "stage1_grid_plate": -0.0012687930988306562,
+            "stage1_plate_cathode": 0.0012593801052389608,
+            "stage2_grid_cathode": -0.028522383659431494,
+            "stage2_grid_plate": -1.8146856416049673,
+            "stage2_plate_cathode": 1.7861632579455602,
+            "interstage_47nf": 0.05587795069493495,
+            "riaa_10nf": -0.050890169315519776,
+            "riaa_3p3nf": -0.05077346613326502,
+            "output_470nf": 0.10586171843678471
+          }
+        },
+        {
+          "absolute_time_s": 0.1,
+          "post_burst_time_s": 0.085,
+          "largest_node_difference": {
+            "node": "p2",
+            "voltage_v": 1.249529561943433
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": -1.2854059395196487
+          },
+          "node_difference_v": {
+            "g1": -3.582678817786074e-12,
+            "p1": 0.0008955081515864549,
+            "k1": 6.643642026959995e-06,
+            "eq_pre": -0.038583590698115684,
+            "g2": -0.03587637757622664,
+            "eq_low": -0.03595921363362066,
+            "p2": 1.249529561943433,
+            "k2": -0.01570985325526708,
+            "out": 1.0786723516366359
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": -6.643645609649695e-06,
+            "stage1_grid_plate": -0.0008955081551675903,
+            "stage1_plate_cathode": 0.0008888645095623815,
+            "stage2_grid_cathode": -0.020166524320959445,
+            "stage2_grid_plate": -1.2854059395196487,
+            "stage2_plate_cathode": 1.265239415198721,
+            "interstage_47nf": 0.03947909884968226,
+            "riaa_10nf": -0.03595921363362066,
+            "riaa_3p3nf": -0.03587637757622664,
+            "output_470nf": 0.17085721030679224
+          }
+        },
+        {
+          "absolute_time_s": 0.15,
+          "post_burst_time_s": 0.135,
+          "largest_node_difference": {
+            "node": "p2",
+            "voltage_v": 0.8856052745221064
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": -0.910953339946019
+          },
+          "node_difference_v": {
+            "g1": -2.6170775548300766e-12,
+            "p1": 0.0006327108327468522,
+            "k1": 4.6939873481477434e-06,
+            "eq_pre": -0.02726081480615242,
+            "g2": -0.02534806542391021,
+            "eq_low": -0.02540659250559537,
+            "p2": 0.8856052745221064,
+            "k2": -0.011084381487256989,
+            "out": 0.6732021786431971
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": -4.693989965165457e-06,
+            "stage1_grid_plate": -0.0006327108353616495,
+            "stage1_plate_cathode": 0.000628016845411139,
+            "stage2_grid_cathode": -0.014263683936653226,
+            "stage2_grid_plate": -0.910953339946019,
+            "stage2_plate_cathode": 0.8966896560093573,
+            "interstage_47nf": 0.027893525638916117,
+            "riaa_10nf": -0.02540659250559537,
+            "riaa_3p3nf": -0.02534806542391021,
+            "output_470nf": 0.21240309587892625
+          }
+        },
+        {
+          "absolute_time_s": 0.2,
+          "post_burst_time_s": 0.185,
+          "largest_node_difference": {
+            "node": "p2",
+            "voltage_v": 0.6282297913424486
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": -0.6461391990050913
+          },
+          "node_difference_v": {
+            "g1": -1.6398398345598628e-12,
+            "p1": 0.00044703450510041876,
+            "k1": 3.316482350967931e-06,
+            "eq_pre": -0.019260838883833353,
+            "g2": -0.017909407662667166,
+            "eq_low": -0.01795075943262829,
+            "p2": 0.6282297913424486,
+            "k2": -0.007815450392821166,
+            "out": 0.3906581717720659
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": -3.3164839907673382e-06,
+            "stage1_grid_plate": -0.0004470345067488779,
+            "stage1_plate_cathode": 0.0004437180227512272,
+            "stage2_grid_cathode": -0.010093957269845966,
+            "stage2_grid_plate": -0.6461391990050913,
+            "stage2_plate_cathode": 0.6360452417352747,
+            "interstage_47nf": 0.019707873388938424,
+            "riaa_10nf": -0.01795075943262829,
+            "riaa_3p3nf": -0.017909407662667166,
+            "output_470nf": 0.23757161957038875
+          }
+        },
+        {
+          "absolute_time_s": 0.25,
+          "post_burst_time_s": 0.235,
+          "largest_node_difference": {
+            "node": "p2",
+            "voltage_v": 0.44620807856634315
+          },
+          "largest_capacitor_voltage_difference": {
+            "capacitor": "stage2_grid_plate",
+            "voltage_v": -0.4588617863307718
+          },
+          "node_difference_v": {
+            "g1": -1.625104801975582e-12,
+            "p1": 0.00031584731868861127,
+            "k1": 2.343223581391385e-06,
+            "eq_pre": -0.013608546216275157,
+            "g2": -0.012653707764427695,
+            "eq_low": -0.012682924471307425,
+            "p2": 0.44620807856634315,
+            "k2": -0.005505787511031812,
+            "out": 0.19485229490474484
+          },
+          "capacitor_voltage_difference_v": {
+            "stage1_grid_cathode": -2.3432252065358483e-06,
+            "stage1_grid_plate": -0.0003158473203086487,
+            "stage1_plate_cathode": 0.000313504095117878,
+            "stage2_grid_cathode": -0.007147920253395945,
+            "stage2_grid_plate": -0.4588617863307718,
+            "stage2_plate_cathode": 0.45171386607736963,
+            "interstage_47nf": 0.013924393534949786,
+            "riaa_10nf": -0.012682924471307425,
+            "riaa_3p3nf": -0.012653707764427695,
+            "output_470nf": 0.2513557836616087
+          }
+        }
+      ]
+    }
+  ],
+  "fixed_rtl_scope": "No fixed/RTL equivalence is claimed here. The existing solver is accepted through 0.5 V and has known residual/range failures at 1.0/1.5 V."
+}

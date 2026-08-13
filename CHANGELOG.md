@@ -116,6 +116,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   captured four-point 48 kHz trapezoidal sweep. The regression proves 19,200
   outputs exactly, gates float error and diagnostics, and reports the measured
   51-sample converter delay separately from circuit-attributed phase.
+- Added a gated 250 ms floating trapezoidal overload study with direct sustained
+  recovery timing, exponential-envelope fit quality, projected-versus-measured
+  labels, and complete node/capacitor difference checkpoints.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.

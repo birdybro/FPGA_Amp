@@ -195,6 +195,14 @@ The mono reference and complete 768 kHz circuit solver are operating:
   and RTL trajectories. Solver residual failures begin at 1.0 V; the 1.5 V case
   has 4,046 modeled-tube range clips and 729 safe scale fallbacks but no arithmetic
   saturation.
+- A separate floating trapezoidal run extends physical-model observation to
+  235 ms after the burst. It directly measures the 0.5 V case crossing 10% of
+  nominal output at 146.552 ms. The 1.0/1.5 V cases remain above that threshold;
+  50--240 ms envelope fits identify 110.1/98.2 ms dominant coupled modes and
+  project 297/408 ms crossings. Those projections are not reported as measured
+  recovery. Node/capacitor checkpoints show stage-two plate/output displacement
+  dominates the observed window, rather than the isolated 1.039 s product of
+  470 nF and 2.21 MΩ.
 - A downstream, explicitly non-reference output guard now starts muted, applies
   a configurable sample-qualified linear ramp, bypasses exactly at unity, and
   synchronously clamps held output on a fault. Its warning-free RTL regression
@@ -274,6 +282,7 @@ make wide-rtl-overload              # captured 100 ms overload/recovery sweep
 make wide-stream-rtl-alias          # captured nonlinear decimation-alias test
 make overload-study                 # grid conduction, clipping, recovery
 make overload-trapezoidal           # fixed/float trapezoidal burst comparison
+make overload-long                  # 235 ms floating severe-recovery observation
 make overload-wide                  # same bursts with wide-state candidate
 make overload-iterations            # three-to-six-pass solver trade
 python3 scripts/study_lut_resolution.py

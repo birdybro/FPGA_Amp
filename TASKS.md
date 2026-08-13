@@ -11,8 +11,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
-- [ ] Lengthen severe-overload recovery beyond the new 85 ms post-burst window;
-  neither analytical nor RTL trajectories reach 10% nominal output at >=0.5 V.
+- [ ] Directly measure the projected 0.30--0.77 s severe-overload recovery
+  crossings; the 235 ms floating run measures 0.5 V recovery but the 1.0/1.5 V
+  thresholds remain extrapolations and the fixed solver is invalid there.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
 - [ ] Evaluate overload-specific solver strategies (adaptive Jacobian, parallel
   tube evaluation, or higher-rate schedule); six chord passes still fail at
@@ -62,6 +63,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   diagnostics, and <=0.000111 dB / <=0.001185 degree error against the composed
   floating model. Measure the rate converters independently at exactly 51
   external samples / 1.0625 ms so their phase is not attributed to the circuit.
+- [x] Extend floating trapezoidal overload observation to 235 ms after the
+  burst. Measure 0.5 V 10%-nominal recovery at 146.552 ms, fit the coupled
+  stage-two recovery modes at 98.2--118.1 ms, retain 1.0/1.5 V crossings as
+  labeled projections, and record complete node/capacitor checkpoints.
 - [x] Select, document, and version the Kennedy 1998 two-stage passive-RIAA circuit.
 - [x] Implement AT-VM95E R/L/47.5 kΩ/150 pF cartridge loading.
 - [x] Build ngspice DC, 10 Hz–100 kHz AC, transient, and 1 kHz H1–H10 level sweeps.
