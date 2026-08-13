@@ -76,6 +76,16 @@ LUT-range, request, and deadline counters.
 - Host UART/SPI/USB: separate control domain, synchronized register handshakes,
   with audio parameters applied atomically at a sample boundary.
 
+`rtl/io/async_fifo.sv` implements the fallback CDC primitive rather than
+assuming BCLK is synchronous to fabric. Each domain owns a binary pointer and
+exports only its Gray encoding through two explicitly marked synchronizer
+registers. Full/empty decisions use the locally registered pointer plus the
+synchronized remote pointer; memory data crosses only after the corresponding
+pointer has propagated. Reads are registered. Overflow and underflow are sticky
+in their owning domains. Reset assertion may be asynchronous, but a board-level
+reset conditioner must deassert each reset synchronously to its clock. The FIFO
+is infrastructure outside the historical circuit behavior.
+
 ## Stereo scheduling
 
 Duplicating the accuracy-first tube primitive would consume 32 DSPs and 94

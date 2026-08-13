@@ -26,6 +26,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Implement a device-neutral dual-clock FIFO with Gray pointer crossings,
+  two-flop synchronizers, registered read data, sticky overflow/underflow, and
+  embedded formal invariants. Preserve directed and 128 wrapped words under
+  unrelated clocks; synthesize depth 8×32 to 114 LC / 323 FF with zero
+  structural problems and a documented register-expansion warning.
 - [x] Add nine original, physically scaled PCM24 regressions covering silence,
   nominal/low-level THD, high-frequency intermodulation products, multitone,
   warp, pop, log sweep, and 1.5 V overload. Process 32,448 outputs / 519,168
@@ -321,7 +326,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   four frequencies and large-signal cross-layer coverage is still incomplete.
 - PCM WAV processing, explicit null comparison, and a deterministic distortion/
   IMD-product/overload suite now exist. Standardized IMD procedures, long WAV-
-  level recovery, licensed music, CDC, and formal infrastructure remain absent.
+  level recovery and licensed music remain absent. A first CDC FIFO now exists;
+  serial-port integration and CDC timing constraints remain absent, and embedded
+  assertions cannot be proven until a formal engine is available.
   The cubic and full-tube alias-family tests are captured from RTL; the latter
   is bounded below fixed rounding closure rather than inferred from the
   confounded raw bin.

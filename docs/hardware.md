@@ -136,6 +136,22 @@ stereo. Its exact simulation latency is 127 clocks, but the terminal edge now
 contains constant-multiply current updates. Only named-part place-and-route can
 establish whether that path and the one-clock sample margin meet 98.304 MHz.
 
+The device-neutral asynchronous FIFO has a separately measured depth-8 × 32-bit
+configuration:
+
+| Resource | Count |
+|---|---:|
+| estimated logic cells | 114 |
+| flip-flops | 323 (256 FDRE + 66 FDCE + 1 FDPE) |
+| DSP48E1 / RAMB18E1 | 0 / 0 |
+
+The structural check reports zero problems. Yosys emits one source-level warning
+that it replaces the small dual-clock memory with registers; this is consistent
+with the reported 256 data plus 67 control/synchronizer flip-flops and is retained, not mislabeled as a
+techmap resize warning. Deeper hardware FIFOs need a named-part inference/IP
+comparison before assuming block-RAM mapping. This result has no CDC timing or
+metastability MTBF claim without the placed design and clock constraints.
+
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.
 Time-multiplexing it across triodes/channels is therefore favored over blind

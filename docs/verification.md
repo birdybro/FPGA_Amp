@@ -23,6 +23,13 @@ unity-gain recovery. The standalone output-safety test covers reset, positive/ne
 sample-qualified gain changes, exact-unity bypass, graceful ramp-down, and a
 forced clamp with and without a valid input sample.
 
+The asynchronous FIFO test uses unrelated 10 ns write and 14 ns read clocks. It
+fills exactly, rejects and records a ninth word, drains in order, records an
+empty read, clears both owning-domain sticky flags, and preserves 128 further
+words over repeated pointer wraps. The RTL includes Gray one-bit-transition and
+blocked-pointer formal assertions under `FORMAL`; they are not claimed as proven
+because SymbiYosys/SMT solvers are unavailable in the current environment.
+
 The analog/reference commands are intentionally separate so a missing external
 tool is not reported as a pass:
 
@@ -147,6 +154,8 @@ scripts/run_synthesis.py            XC7 structural resource report
 | factorized stream XC7 synthesis | Yosys 0.66 structural | 14,290 LC, 156 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | output mute/ramp RTL | directed reset/ramp/fault sequence | exact expected samples and gain; warning-free Verilator |
 | output mute/ramp XC7 synthesis | Yosys 0.66 structural | 171 LC, 2 DSP48E1, no RAM; no Fmax claim |
+| asynchronous FIFO RTL | depth 8×32; unrelated 100/71.4 MHz clocks | exact directed full/empty plus 128 wrapped words; sticky faults clear in owning domains |
+| asynchronous FIFO XC7 synthesis | Yosys 0.66 structural | 114 LC / 323 FF / no DSP or RAM; small memory expanded to registers; no Fmax/CDC claim |
 | guarded wide stream RTL | startup plus one state-reset transaction | warning-free; mute precedes reset; phase clean; one ack; unity restored |
 | guarded wide stream synthesis | Yosys 0.66 structural | 17,562 LC, 170 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | fixed vs analytical level sweep | 0.5 mV–5 V, 1 kHz, 20–30 ms | first ≥1 dB compression 1.1 V; residual-limit failure 1.0 V; LUT clip 1.1 V |

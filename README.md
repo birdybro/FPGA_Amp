@@ -79,6 +79,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
 - The nine-node chord corrector is bit-exact for 1,024 randomized/boundary
   vectors, including 18 saturation cases, with ten-clock latency; XC7 synthesis
   uses 9 DSP48E1 blocks and no block RAM.
+- A device-neutral depth-8 dual-clock FIFO now crosses full audio words with
+  binary local/Gray synchronized pointers, two-flop CDC synchronizers, registered
+  reads, and sticky overflow/underflow. Unrelated 100/71.4 MHz test clocks preserve
+  a 128-word wrap sequence after directed full/empty faults. Generic XC7 synthesis
+  uses 114 logic cells / 323 flip-flops / no DSP or RAM; Yosys intentionally
+  expands this small 8×32 memory to registers. Embedded formal invariants exist,
+  but no formal engine is installed in the current environment.
 - Exact RTL RHS and KCL engines stamp all ten capacitor histories and the
   physical conductance network. Each passes 1,024 vectors at 12 and 10 clocks.
 - The integrated solver matches 512 sequential fixed-model samples bit-for-bit
@@ -471,6 +478,7 @@ make stream-trapezoidal-rtl        # complete trapezoidal reference stream
 make stream-trapezoidal-terminal-banked-rtl # 127-clock trap terminal stream
 make guarded-stream-rtl            # mute/reset/warmup model-change sequence
 make mute-rtl                      # reset/ramp/fault output safety primitive
+make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make synth                         # generic XC7 structural estimate
 make synth-factorized              # factorized tube structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
@@ -493,6 +501,7 @@ make synth-halfband                # complete interpolator/decimator estimates
 make synth-stream                  # complete reference-stream estimate
 make synth-stream-factorized       # smooth-tube stream resource estimate
 make synth-mute                    # output ramp structural estimate
+make synth-async-fifo              # depth-8 dual-clock FIFO estimate
 ```
 
 Run a user-supplied 48 kHz integer-PCM WAV through an explicitly selected V1

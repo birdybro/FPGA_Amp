@@ -6,6 +6,12 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a device-neutral asynchronous FIFO with binary/Gray pointers, two-flop
+  pointer synchronization, registered reads, sticky per-domain overflow/
+  underflow, and embedded formal invariants. Unrelated-clock simulation covers
+  exact fill/drain faults and 128 wrapped words; generic XC7 synthesis reports
+  114 logic cells / 323 flip-flops with the small memory explicitly expanded to
+  registers and zero structural problems.
 - Added simultaneous least-squares tone, H2--H10 THD, and explicitly selected
   intermodulation-product measurement plus nine original PCM24 fixtures. The
   accuracy-first fixed stream processes 32,448 outputs / 519,168 internal
