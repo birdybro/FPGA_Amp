@@ -6,6 +6,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Integrated the backward-Euler banked terminal solver into the complete mono
+  48→768→48 kHz stream. The fixed composition and RTL match all 64 external
+  outputs across 1,024 nonlinear updates at the measured 127-clock solver
+  latency, with zero diagnostics.
+- Added a dedicated complete-stream wrapper, reproducible vectors/metadata,
+  regression and synthesis targets. Out-of-context XC7 synthesis measures
+  18,466 logic cells, 168 DSP48E1s, and 8 RAMB18E1s with zero structural
+  problems; timing remains unclaimed without named-part place-and-route.
 - Added an optional backward-Euler terminal-correction contract that reuses the
   final diagnostic residual for one Q40 chord update. Fixed Python and RTL keep
   the preterminal residual semantics explicit, commit four-pass-exact persistent

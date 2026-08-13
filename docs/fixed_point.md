@@ -346,6 +346,11 @@ preterminal state. Integrated RTL measures 127 clocks, leaving one clock at
 candidate because committing its corrected Q4.44 capacitor-current histories
 requires hardware not present in the shared KCL path.
 
+The backward-Euler terminal contract is also integrated in the bit-accurate
+48→768→48 kHz composition. A 64-output regression covers 1,024 internal circuit
+updates and matches RTL exactly at 127 clocks per solve with zero conversion,
+resampler, range, convergence, saturation, or deadline events.
+
 Across 100 ms 1.0/1.5 V backward-Euler bursts, terminal reuse reduces raw burst
 RMS from 10.829/19.251 mV to 4.895/6.817 mV and remains diagnostic-clean. A
 separate 18,432-sample RTL campaign exercises every bank and matches Python at

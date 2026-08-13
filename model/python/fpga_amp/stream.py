@@ -15,6 +15,7 @@ from numpy.typing import NDArray
 
 from .factorized_tube import FixedFactorizedKoren12AX7
 from .fixed_circuit import (
+    FixedWideStateBankedChordV1CircuitModel,
     FixedWideStateTrapezoidalV1CircuitModel,
     FixedWideStateV1CircuitModel,
     round_shift,
@@ -101,8 +102,15 @@ def compose_fixed_wide_stream(
     input_q24: IntArray,
     *,
     trapezoidal: bool = False,
+    banked: bool = False,
+    terminal_correction: bool = False,
 ) -> FixedWideStreamResult:
     """Run the exact fixed arithmetic used by the complete wide RTL stream."""
+
+    if terminal_correction and not banked:
+        raise ValueError("terminal correction requires the banked chord solver")
+    if terminal_correction and trapezoidal:
+        raise ValueError("terminal correction currently supports backward Euler only")
 
     inputs = np.asarray(input_q24, dtype=np.int64)
     interpolated_q24, interpolation_saturations = interpolate_16x_fixed_q24(
@@ -110,12 +118,23 @@ def compose_fixed_wide_stream(
     )
     internal_q24 = _scheduled_internal(interpolated_q24, inputs.size)
     tube = FixedFactorizedKoren12AX7()
-    if trapezoidal:
-        circuit: FixedWideStateV1CircuitModel = (
-            FixedWideStateTrapezoidalV1CircuitModel(tube_lut=tube)
+    circuit: FixedWideStateV1CircuitModel
+    if banked:
+        circuit = FixedWideStateBankedChordV1CircuitModel(
+            tube_lut=tube,
+            integration_method=(
+                "trapezoidal" if trapezoidal else "backward_euler"
+            ),
+            terminal_correction=terminal_correction,
+        )
+    elif trapezoidal:
+        circuit = FixedWideStateTrapezoidalV1CircuitModel(
+            tube_lut=tube, terminal_correction=terminal_correction
         )
     else:
-        circuit = FixedWideStateV1CircuitModel(tube_lut=tube)
+        circuit = FixedWideStateV1CircuitModel(
+            tube_lut=tube, terminal_correction=terminal_correction
+        )
 
     circuit_output_q24 = np.empty(internal_q24.size, dtype=np.int64)
     conversion_saturations = 0

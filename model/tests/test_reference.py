@@ -170,6 +170,25 @@ class ResamplerTests(unittest.TestCase):
         self.assertEqual(converter_saturations, 0)
         self.assertEqual(CONVERTER_GROUP_DELAY_EXTERNAL_SAMPLES, 51.0)
 
+        terminal = compose_fixed_wide_stream(
+            input_q24, banked=True, terminal_correction=True
+        )
+        self.assertEqual(terminal.output_q24.size, input_q24.size)
+        self.assertEqual(sum(terminal.diagnostic_counts.values()), 0)
+        self.assertTrue(terminal.circuit.terminal_correction)
+        self.assertEqual(
+            sum(terminal.circuit.chord_bank_selection_count), 16 * input_q24.size
+        )
+        with self.assertRaisesRegex(ValueError, "requires the banked"):
+            compose_fixed_wide_stream(input_q24, terminal_correction=True)
+        with self.assertRaisesRegex(ValueError, "backward Euler"):
+            compose_fixed_wide_stream(
+                input_q24,
+                trapezoidal=True,
+                banked=True,
+                terminal_correction=True,
+            )
+
     def test_halfband_structure_and_image_rejection(self) -> None:
         for stage in DEFAULT_STAGES:
             coefficients = stage.coefficients

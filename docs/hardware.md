@@ -111,6 +111,15 @@ would require 336 DSPs and therefore cannot be naively duplicated on this part.
 Stereo needs filter/KCL resource sharing, a larger device, or a separately
 measured arithmetic trade; none is silently selected here.
 
+The complete banked terminal-correction stream measures 18,466 logic cells,
+168 DSP48E1s, and 8 RAMB18E1s, with zero structural check problems and 72
+techmap resize warnings. Relative to the nominal wide stream, the coefficient
+selector and terminal control add 974 estimated logic cells but no DSP or block
+RAM. Its 127-clock solver latency leaves one clock between 768 kHz deadlines at
+98.304 MHz. This structural fit does not establish that the one-clock margin
+will close routing on XC7A100T; vendor place-and-route is required before this
+mode can be selected for hardware.
+
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.
 Time-multiplexing it across triodes/channels is therefore favored over blind
@@ -122,7 +131,7 @@ without an end-to-end error/resource comparison.
 
 1. Run Vivado synthesis/place/route on the exact Arty part and record worst slack,
    clocks, utilization, power estimate, and all CDC/timing exceptions.
-2. Establish a stereo resource strategy within the measured 170-DSP mono budget.
+2. Establish a stereo resource strategy within the measured 168-DSP mono budget.
 3. Capture FPGA results and compare bit-for-bit with the fixed model before any
    analog loopback claim.
 

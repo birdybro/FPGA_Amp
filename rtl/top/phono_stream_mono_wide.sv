@@ -11,7 +11,9 @@ module phono_stream_mono_wide #(
     parameter CAP_G_FILE = "model/generated/v1_cap_conductance_q0_47.mem",
     parameter CHORD_COEFFICIENT_FILE =
         "model/generated/v1_chord_inverse_q17_1.mem",
-    parameter bit TRAPEZOIDAL = 1'b0
+    parameter integer CHORD_COEFFICIENT_SETS = 1,
+    parameter bit TRAPEZOIDAL = 1'b0,
+    parameter bit TERMINAL_CORRECTION = 1'b0
 ) (
     input  logic                 clk,
     input  logic                 rst_n,
@@ -64,7 +66,9 @@ module phono_stream_mono_wide #(
         .CAP_CURRENT_INITIAL_FILE(CAP_CURRENT_INITIAL_FILE),
         .CAP_G_FILE(CAP_G_FILE),
         .CHORD_COEFFICIENT_FILE(CHORD_COEFFICIENT_FILE),
-        .TRAPEZOIDAL(TRAPEZOIDAL)
+        .CHORD_COEFFICIENT_SETS(CHORD_COEFFICIENT_SETS),
+        .TRAPEZOIDAL(TRAPEZOIDAL),
+        .TERMINAL_CORRECTION(TERMINAL_CORRECTION)
     ) solver (
         .clk,
         .rst_n,

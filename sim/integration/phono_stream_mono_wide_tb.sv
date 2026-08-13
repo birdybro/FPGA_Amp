@@ -2,9 +2,12 @@
 `default_nettype none
 
 module phono_stream_mono_wide_tb #(
-    parameter bit TRAPEZOIDAL = 1'b0
+    parameter bit TRAPEZOIDAL = 1'b0,
+    parameter bit BANKED = 1'b0,
+    parameter bit TERMINAL_CORRECTION = 1'b0
 );
     localparam int MAX_VECTOR_COUNT = 8192;
+    localparam int EXPECTED_SOLVER_LATENCY = TERMINAL_CORRECTION ? 127 : 116;
 
     logic clk;
     logic rst_n = 1'b0;
@@ -45,11 +48,17 @@ module phono_stream_mono_wide_tb #(
                 : "model/generated/v1_cap_conductance_q0_47.mem"
         ),
         .CHORD_COEFFICIENT_FILE(
-            TRAPEZOIDAL
-                ? "model/generated/v1_chord_inverse_q17_1_trapezoidal.mem"
-                : "model/generated/v1_chord_inverse_q17_1.mem"
+            BANKED
+                ? (TRAPEZOIDAL
+                   ? "model/generated/v1_chord_inverse_banked_q17_1_trapezoidal.mem"
+                   : "model/generated/v1_chord_inverse_banked_q17_1.mem")
+                : (TRAPEZOIDAL
+                   ? "model/generated/v1_chord_inverse_q17_1_trapezoidal.mem"
+                   : "model/generated/v1_chord_inverse_q17_1.mem")
         ),
-        .TRAPEZOIDAL(TRAPEZOIDAL)
+        .CHORD_COEFFICIENT_SETS(BANKED ? (TRAPEZOIDAL ? 5 : 4) : 1),
+        .TRAPEZOIDAL(TRAPEZOIDAL),
+        .TERMINAL_CORRECTION(TERMINAL_CORRECTION)
     ) dut (.*);
     always #5 clk = ~clk;
 
@@ -72,8 +81,14 @@ module phono_stream_mono_wide_tb #(
         if (vector_count <= 0 || vector_count > MAX_VECTOR_COUNT)
             $fatal(1, "invalid vector count %0d", vector_count);
         if (!$value$plusargs("VECTORS=%s", vector_path)) begin
-            if (TRAPEZOIDAL)
+            if (TRAPEZOIDAL && BANKED)
+                vector_path = "sim/vectors/generated/phono_stream_mono_wide_factorized_trapezoidal_banked.txt";
+            else if (TRAPEZOIDAL)
                 vector_path = "sim/vectors/generated/phono_stream_mono_wide_factorized_trapezoidal.txt";
+            else if (BANKED && TERMINAL_CORRECTION)
+                vector_path = "sim/vectors/generated/phono_stream_mono_wide_factorized_banked_terminal.txt";
+            else if (BANKED)
+                vector_path = "sim/vectors/generated/phono_stream_mono_wide_factorized_banked.txt";
             else
                 vector_path =
                     "sim/vectors/generated/phono_stream_mono_wide_factorized.txt";
@@ -148,7 +163,7 @@ module phono_stream_mono_wide_tb #(
             || solver_nonconvergence_count != 0
             || solver_correction_scale_fallback_count != 0
             || solver_minimum_correction_fractional_bits != 0
-            || solver_latency_cycles != 8'd116
+            || solver_latency_cycles != EXPECTED_SOLVER_LATENCY[7:0]
             || solver_last_residual_q44 > 63'd35184372) begin
             $error("diagnostics rsat=%0d rover=%0d phase=%0d convsat=%0d smissed=%0d sdeadline=%0d ssat=%0d sclip=%0d snonconv=%0d fallback=%0d min=%0d latency=%0d residual=%0d",
                    resampler_saturation_count, resampler_overrun_count,
@@ -163,8 +178,8 @@ module phono_stream_mono_wide_tb #(
         end
         if (error_count != 0)
             $fatal(1, "FAIL: %0d wide stream errors", error_count);
-        $display("PASS: %0d exact wide 48 kHz outputs, solver latency=116 clocks",
-                 output_index);
+        $display("PASS: %0d exact wide 48 kHz outputs, solver latency=%0d clocks",
+                 output_index, EXPECTED_SOLVER_LATENCY);
         $finish;
     end
 endmodule

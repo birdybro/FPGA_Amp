@@ -446,6 +446,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | banked correction count | 3--6 passes, 100 ms, 1.0/1.5 V | fourth pass improves burst 5.65--9.02 dB but projects to 145 clocks; recovery error non-monotonic |
 | banked terminal correction vs full Newton | 100 ms, 1.0/1.5 V per mode | output-exact to four-pass; BE burst RMS 4.895/6.817 mV; preterminal residual <=1.772 uA |
 | banked terminal RTL vs fixed | 18,432 BE overload updates | every state/diagnostic exact at 127 clocks; zero events |
+| banked terminal complete stream | 64 outputs / 1,024 nonlinear updates | exact fixed/RTL Q8.24 outputs, zero diagnostics; 18,466 LC / 168 DSP / 8 RAMB18 structural |
 | long fixed state / click recovery | 1 s silence with +/-100 mV single-sample clicks | Q12.20 deadband leaves -5.368 mV late output; must be redesigned |
 | wide-state Python candidate | same 1 s click audit; 5 mV/1 kHz | 38.74 uV late residual; -63.83 dB nominal raw null; complete-RTL proof open |
 | wide chord RTL vs fixed | 1,024 randomized/directed vectors | bit-exact, latency 10; 1,701 LC / 9 DSP / 0 RAMB18 structural |

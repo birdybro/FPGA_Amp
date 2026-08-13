@@ -134,6 +134,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
 - Against full Newton with the same Q8.24 input, banked 1.0 V burst error is
   -76.43 dB backward Euler and -76.79 dB trapezoidal, improving the failing DC
   chord by 22.98 and 23.13 dB. No gain, DC, or delay alignment is applied.
+- The optional backward-Euler terminal correction reuses the final measured
+  residual for a fourth chord update and commits state bit-exact to a
+  conventional four-pass fixed trajectory. Its complete 48→768→48 kHz stream
+  matches 64 external outputs across 1,024 nonlinear updates exactly with zero
+  diagnostics at a measured 127-clock solver latency. Full-hierarchy XC7
+  synthesis reports 18,466 logic cells, 168 DSP48E1s, and 8 RAMB18E1s; the
+  one-clock schedule margin is not a timing-closure claim.
 - Moving only the shallow trapezoidal threshold from -2.50 to -2.75 V prevents
   bank activation at 0.5 V, preserves zero 1.0 V failures, and reduces final
   10 ms mean error from 1.042 to 0.537 mV with the former 128-point grid-current
@@ -410,6 +417,7 @@ make halfband-rtl                  # exact 2x units and complete 16x streams
 make stream-rtl                    # complete 48 kHz reference stream
 make stream-factorized-rtl         # complete smooth-tube reference stream
 make stream-wide-rtl               # complete wide-state reference stream
+make stream-terminal-banked-rtl    # complete banked terminal-correction stream
 make stream-trapezoidal-rtl        # complete trapezoidal reference stream
 make guarded-stream-rtl            # mute/reset/warmup model-change sequence
 make mute-rtl                      # reset/ramp/fault output safety primitive
@@ -426,6 +434,7 @@ make synth-banked-solver           # backward-Euler banked hierarchy estimate
 make synth-terminal-banked-solver  # terminal-correction hierarchy estimate
 make synth-trapezoidal-banked-solver # trapezoidal banked hierarchy estimate
 make synth-stream-wide             # complete wide-state stream estimate
+make synth-stream-terminal-banked  # complete terminal-correction stream estimate
 make synth-stream-trapezoidal      # complete trapezoidal stream estimate
 make synth-stream-guarded          # wide stream plus safety/control guard
 make synth-halfband                # complete interpolator/decimator estimates

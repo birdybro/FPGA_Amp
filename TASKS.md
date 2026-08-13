@@ -29,6 +29,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Completed this milestone
 
+- [x] Carry the banked terminal solver through the complete mono resampling
+  stream. Match 64 external outputs / 1,024 nonlinear updates exactly at the
+  measured 127-clock solver latency with zero diagnostics, and synthesize the
+  full hierarchy to 18,466 LC / 168 DSP48E1 / 8 RAMB18E1.
 - [x] Implement the backward-Euler terminal correction in fixed Python and
   synthesizable RTL. Prove output/state identity to conventional four-pass,
   match 18,432 overload updates exactly at 127 clocks with zero diagnostics,

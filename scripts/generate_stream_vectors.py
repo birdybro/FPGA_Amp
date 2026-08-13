@@ -29,9 +29,17 @@ def main() -> int:
     parser.add_argument("--factorized", action="store_true")
     parser.add_argument("--wide", action="store_true")
     parser.add_argument("--trapezoidal", action="store_true")
+    parser.add_argument("--banked", action="store_true")
+    parser.add_argument("--terminal-correction", action="store_true")
     args = parser.parse_args()
+    if args.trapezoidal and args.terminal_correction:
+        parser.error("terminal correction currently supports backward Euler only")
+    if args.terminal_correction and not args.banked:
+        parser.error("terminal correction requires --banked")
     if args.trapezoidal:
         args.wide = True
+    if (args.banked or args.terminal_correction) and not args.wide:
+        parser.error("banked and terminal modes require --wide")
     if args.wide:
         args.factorized = True
     rng = np.random.default_rng(0xA0D10)
@@ -47,7 +55,10 @@ def main() -> int:
 
     if args.wide:
         composed = compose_fixed_wide_stream(
-            input_q24, trapezoidal=args.trapezoidal
+            input_q24,
+            trapezoidal=args.trapezoidal,
+            banked=args.banked,
+            terminal_correction=args.terminal_correction,
         )
         internal_q24 = composed.internal_input_q24
         model = composed.circuit
@@ -80,8 +91,14 @@ def main() -> int:
 
     vector_directory = REPOSITORY_ROOT / "sim" / "vectors" / "generated"
     vector_directory.mkdir(parents=True, exist_ok=True)
-    if args.trapezoidal:
+    if args.trapezoidal and args.banked:
+        vector_name = "phono_stream_mono_wide_factorized_trapezoidal_banked.txt"
+    elif args.trapezoidal:
         vector_name = "phono_stream_mono_wide_factorized_trapezoidal.txt"
+    elif args.banked and args.terminal_correction:
+        vector_name = "phono_stream_mono_wide_factorized_banked_terminal.txt"
+    elif args.banked:
+        vector_name = "phono_stream_mono_wide_factorized_banked.txt"
     elif args.wide:
         vector_name = "phono_stream_mono_wide_factorized.txt"
     elif args.factorized:
@@ -103,6 +120,16 @@ def main() -> int:
         "integration_method": (
             "trapezoidal" if args.trapezoidal else "backward_euler"
         ),
+        "banked_chord": args.banked,
+        "terminal_correction": args.terminal_correction,
+        "residual_diagnostic_state": (
+            "preterminal_correction"
+            if args.terminal_correction
+            else "committed_output_state"
+        ),
+        "solver_latency_clocks": (
+            127 if args.terminal_correction else (116 if args.wide else 126)
+        ),
         "input_rate_hz": 48_000,
         "circuit_rate_hz": 768_000,
         "vectors": args.vectors,
@@ -118,8 +145,14 @@ def main() -> int:
         "maximum_solver_residual_q44": model.max_residual_q44_observed,
         "output": str(vector_path.relative_to(REPOSITORY_ROOT)),
     }
-    if args.trapezoidal:
+    if args.trapezoidal and args.banked:
+        metadata_name = "phono_stream_wide_factorized_trapezoidal_banked_metadata.json"
+    elif args.trapezoidal:
         metadata_name = "phono_stream_wide_factorized_trapezoidal_metadata.json"
+    elif args.banked and args.terminal_correction:
+        metadata_name = "phono_stream_wide_factorized_banked_terminal_metadata.json"
+    elif args.banked:
+        metadata_name = "phono_stream_wide_factorized_banked_metadata.json"
     elif args.wide:
         metadata_name = "phono_stream_wide_factorized_metadata.json"
     elif args.factorized:
