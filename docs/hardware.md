@@ -62,6 +62,20 @@ an arbitrary runtime binary-point shift used 5,531 cells and was rejected; its
 cost was not used as the selected design result. Complete wide KCL/solver
 resources and 98.304 MHz timing remain unmeasured.
 
+The branch-current wide network has these separate structural results:
+
+| Block | Logic cells | DSP48E1 | RAMB18E1 | Latency |
+|---|---:|---:|---:|---:|
+| `network_rhs_v1_wide` | 31 | 4 | 0 | 2 clocks |
+| `network_kcl_v1_wide` | 7,804 | 72 | 0 | 10 clocks |
+
+The KCL result is after narrowing the generated static Q0.47 matrix to its
+proven signed 41-bit bound and capacitor conductances to signed 47 bits. The
+unbounded-width first pass used 99 DSPs; it was rejected. The selected KCL
+structural check has zero problems and 11 primitive-resize warnings. RHS has
+zero synthesis warnings. Full hierarchy optimization may change non-additive
+logic counts, so no complete-solver resource sum or Fmax is claimed yet.
+
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.
 Time-multiplexing it across triodes/channels is therefore favored over blind

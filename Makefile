@@ -2,7 +2,7 @@ PYTHON ?= python3
 NGSPICE ?= ngspice
 VERILATOR ?= verilator
 
-.PHONY: all reference analysis accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide state-drift state-wide state-wide-audio overload-study overload-wide overload-iterations precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl solver-rtl solver-factorized-rtl halfband-rtl stream-rtl stream-factorized-rtl mute-rtl lint synth synth-factorized synth-chord synth-wide-chord synth-network synth-solver synth-solver-factorized synth-halfband synth-stream synth-stream-factorized synth-mute clean tools
+.PHONY: all reference analysis accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide state-drift state-wide state-wide-audio overload-study overload-wide overload-iterations precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl solver-rtl solver-factorized-rtl halfband-rtl stream-rtl stream-factorized-rtl mute-rtl lint synth synth-factorized synth-chord synth-wide-chord synth-network synth-wide-network synth-solver synth-solver-factorized synth-halfband synth-stream synth-stream-factorized synth-mute clean tools
 
 all: reference test
 
@@ -76,6 +76,9 @@ wide-chord-rtl:
 network-rtl:
 	$(PYTHON) scripts/run_network_rtl.py --verilator $(VERILATOR)
 
+wide-network-rtl:
+	$(PYTHON) scripts/run_wide_network_rtl.py --verilator $(VERILATOR)
+
 solver-rtl:
 	$(PYTHON) scripts/run_solver_rtl.py --verilator $(VERILATOR)
 
@@ -117,6 +120,11 @@ synth-network:
 	$(PYTHON) scripts/run_synthesis.py --top network_rhs_v1
 	$(PYTHON) scripts/run_synthesis.py --top network_kcl_v1
 
+synth-wide-network:
+	$(PYTHON) scripts/generate_wide_network_vectors.py
+	$(PYTHON) scripts/run_synthesis.py --top network_rhs_v1_wide
+	$(PYTHON) scripts/run_synthesis.py --top network_kcl_v1_wide
+
 synth-solver:
 	$(PYTHON) scripts/generate_tube_lut.py
 	$(PYTHON) scripts/generate_network_vectors.py
@@ -154,7 +162,7 @@ synth-mute:
 python-test:
 	$(PYTHON) -m unittest discover -s model/tests -v
 
-test: python-test rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl solver-rtl solver-factorized-rtl halfband-rtl stream-rtl stream-factorized-rtl mute-rtl
+test: python-test rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl solver-rtl solver-factorized-rtl halfband-rtl stream-rtl stream-factorized-rtl mute-rtl
 
 tools:
 	bash scripts/bootstrap_tools.sh

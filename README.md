@@ -118,6 +118,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   and synthesizes structurally to 1,701 XC7 logic cells, 9 DSP48E1s, and no
   block RAM. The constrained three-format shifter avoids the 5,531-cell cost of
   the rejected arbitrary-shift experiment.
+- Wide network RTL now matches 1,024 exact RHS and 1,024 exact KCL vectors. The
+  two-clock RHS omits capacitor history by design; the ten-clock KCL evaluates
+  all ten Q30 branch differences, tests delayed tube-current handshakes, and
+  globally selects correction precision. Structural XC7 results are 31 logic
+  cells / 4 DSPs for RHS and 7,804 logic cells / 72 DSPs for KCL. Full solver
+  integration remains the acceptance boundary.
 - A downstream, explicitly non-reference output guard now starts muted, applies
   a configurable sample-qualified linear ramp, bypasses exactly at unity, and
   synchronously clamps held output on a fault. Its warning-free RTL regression
@@ -189,6 +195,7 @@ make factorized-rtl                # smooth tube RTL + directed clip vectors
 make chord-rtl                     # lint + 1,024 circuit-correction vectors
 make wide-chord-rtl                # exact 40-bit Q28/Q32 correction vectors
 make network-rtl                   # RHS/KCL bit-exact unit tests
+make wide-network-rtl              # branch-current RHS/KCL exact tests
 make solver-rtl                    # 512-sample persistent-state integration
 make solver-factorized-rtl         # exact smooth-tube solver integration
 make halfband-rtl                  # exact 2x units and complete 16x streams
@@ -199,6 +206,7 @@ make synth                         # generic XC7 structural estimate
 make synth-factorized              # factorized tube structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
 make synth-wide-chord              # wide-state corrector structural estimate
+make synth-wide-network            # wide RHS/KCL structural estimates
 make synth-solver                  # hierarchical complete-solver estimate
 make synth-solver-factorized       # smooth-tube hierarchy/resource trade
 make synth-halfband                # complete interpolator/decimator estimates

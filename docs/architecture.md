@@ -104,6 +104,13 @@ simulation-proven schedule, not an Fmax claim; named-part place-and-route at
 98.304 MHz remains required. Stereo therefore needs duplication or a materially
 higher-throughput shared architecture.
 
+The replacement wide-state arithmetic keeps the same ten-clock correction and
+ten-clock ordinary KCL interfaces. Direct capacitor branches reduce RHS setup
+from 12 clocks to 2, so an otherwise unchanged controller has a 116-clock
+projection. This is not yet a measured solver latency: persistent Q30 history
+commit, Q28/Q32 tube-coordinate conversion, and all diagnostic handshakes must
+pass integrated equivalence before the 12-clock margin is accepted.
+
 ## Runtime observability contract
 
 The solver provides counters for rejected sample requests, processing deadline

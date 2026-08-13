@@ -162,7 +162,26 @@ vectors exactly, including 95 vectors with at least one forced output
 saturation, at ten clocks. Generic XC7 synthesis reports 1,701 estimated logic
 cells, 9 DSP48E1s, and no block RAM. An earlier arbitrary runtime shifter
 synthesized to 5,531 cells and was rejected; that experiment did not change the
-numerical formats. Wide KCL/history integration is still open.
+numerical formats. Complete wide-solver integration is still open.
+
+The wide network uses the 41-bit measured bound of the static resistor Q0.47
+matrix rather than carrying unused 48-bit sign extension into every multiply.
+Capacitor Q0.47 conductances require 47 bits. `network_rhs_v1_wide.sv` adds only
+the Q8.24 sampled input to the fixed Q4.44 sources in two clocks. The KCL block
+uses nine parallel static-matrix products and one time-multiplexed capacitor
+product: capacitors 0--8 overlap matrix columns 0--8 and capacitor 9 is included
+in the finish expression. Node voltages are rounded to Q30 before subtracting
+the corresponding Q30 history; the resulting branch difference is multiplied
+and rounded once to Q4.44 exactly as in Python.
+
+RHS and KCL each match 1,024 vectors exactly. KCL coverage includes Q30/Q34/Q40,
+48 global scale fallbacks, 18 true Q30 overflow vectors, and tube currents
+arriving zero through eleven clocks after request. Its ordinary latency is ten
+clocks; a tube current arriving after the ninth calculation clock stalls the
+finish rather than using stale data. Generic XC7 synthesis is 31 logic cells /
+4 DSP48E1s for RHS and 7,804 logic cells / 72 DSP48E1s for KCL, with no block
+RAM. These are isolated structural results; full-solver equivalence and timing
+remain open.
 
 On the same 768,000-sample bipolar-click audit, late raw output residual falls
 from 5.375 mV RMS to 38.74 uV RMS and between-click residual falls from

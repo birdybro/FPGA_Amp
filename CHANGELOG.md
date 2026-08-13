@@ -67,6 +67,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a synthesizable 40-bit Q28/Q32 chord corrector with explicit
   Q30/Q34/Q40 residual scaling, exact randomized/boundary vectors, and a generic
   XC7 structural synthesis path.
+- Added independent wide-state RHS and KCL blocks with direct Q30 capacitor
+  branch stamping, bounded correction-format selection, delayed-current
+  handshaking, exact vectors, and structural synthesis targets.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -174,6 +177,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
   vectors, at ten clocks. Constraining runtime scaling to Q30/Q34/Q40 reduces
   generic XC7 synthesis from a rejected 5,531-cell arbitrary-shift experiment
   to 1,701 logic cells, 9 DSP48E1s, and no block RAM.
+- Wide RHS/KCL RTL each match 1,024 fixed vectors at 2/10 clocks. KCL testing
+  includes 48 scale fallbacks, 18 true overflows, and tube-current delays through
+  11 clocks. Width-bound synthesis reports 31 LC / 4 DSP for RHS and 7,804 LC /
+  72 DSP for KCL; the pre-bound KCL's 99-DSP result was rejected.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.

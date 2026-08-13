@@ -1,0 +1,43 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "algorithm": "static G*v plus ten direct Q30 capacitor branch stamps",
+  "vectors": 1024,
+  "seed": 1464550220,
+  "node_fractional_bits": [
+    32,
+    28,
+    32,
+    28,
+    32,
+    32,
+    28,
+    32,
+    32
+  ],
+  "node_width_bits": 40,
+  "capacitor_state_fractional_bits": 30,
+  "static_matrix_width_bits": 41,
+  "capacitor_conductance_width_bits": 47,
+  "requested_residual_fractional_bits": [
+    30,
+    34,
+    40
+  ],
+  "selected_format_vectors": {
+    "30": 360,
+    "34": 341,
+    "40": 323
+  },
+  "fallback_vectors": 48,
+  "saturation_vectors": 18,
+  "rhs_latency_clocks": 2,
+  "latency_clocks": 10,
+  "outputs": [
+    "model/generated/v1_static_matrix_q0_47.mem",
+    "model/generated/v1_cap_conductance_q0_47.mem",
+    "model/generated/v1_cap_initial_q30_wide.mem",
+    "model/generated/v1_node_initial_wide.mem",
+    "sim/vectors/generated/network_rhs_wide.txt",
+    "sim/vectors/generated/network_kcl_wide.txt"
+  ]
+}
