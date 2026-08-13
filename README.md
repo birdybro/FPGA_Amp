@@ -66,7 +66,7 @@ The mono reference and complete 768 kHz circuit solver are operating:
   value/slope 1-D tables and cubic Hermite interpolation. Its bit-accurate Python
   model measures 51.8 nA worst current error in 100,000 points and 0.0188% THD
   at 5 mV versus 0.0191% analytical, using 233,472 raw table bits (12.67 raw
-  RAMB18 equivalents). Its standalone RTL is exact across 4,107 vectors at the
+  RAMB18 equivalents). Its standalone RTL is exact across 4,110 vectors at the
   existing eight-clock latency; structural synthesis reports 1,597 logic cells,
   37 DSP48E1s, and 8 RAMB18E1s. Solver and complete-stream modes are also
   bit-exact at the unchanged 126-clock solver schedule.
@@ -117,8 +117,15 @@ The mono reference and complete 768 kHz circuit solver are operating:
   retains the 116-clock schedule, and records zero diagnostics. Structural
   synthesis is 12,942 logic cells / 122 DSPs / 8 RAMs for backward Euler and
   13,870 / 122 / 8 for trapezoidal. The 1.5 V characterization still has 72/67
-  residual failures and 4,052/4,052 tube-table clips; the bank is a numerical
-  solver improvement, not a change to the physical circuit or tube domain.
+  residual failures; those are kept separate from tube-domain diagnostics.
+- A fixed-intermediate domain audit proves that all former 1.5 V range events
+  were only `Vgk < -5 V`: measured `Vpk`, transformed coordinate, and `E1`
+  remained inside their tables. The plate-law acceptance bound is now -8 V,
+  covering the measured -7.03 V minimum, while the grid-current lookup still
+  clamps below -5 V at its negative-grid leakage floor. Backward-Euler and
+  trapezoidal 12 ms outputs are bit-exact before/after this diagnostic change.
+  Integrated RTL is full-state exact at both 1.0 and 1.5 V; the 1.5 V cases have
+  zero range/arithmetic/fallback events but retain 57/53 residual-limit misses.
 - Against full Newton with the same Q8.24 input, banked 1.0 V burst error is
   -76.43 dB backward Euler and -76.79 dB trapezoidal, improving the failing DC
   chord by 22.98 and 23.13 dB. No gain, DC, or delay alignment is applied.
@@ -316,6 +323,7 @@ make factorized-study               # smooth 1-D/Hermite tube candidate
 make factorized-frequency           # 20 Hz-20 kHz fixed/analytical sweep
 make factorized-frequency-wide      # same sweep with wide-state candidate
 make factorized-frequency-trapezoidal # explicit-voltage/current-history candidate
+make factorized-domain              # before/after cutoff-domain equivalence audit
 make state-drift                    # one-second silence/click state audit
 make state-wide                     # wide-state candidate on the same audit
 make state-wide-audio               # 5 mV/1 kHz legacy/wide A/B
@@ -352,7 +360,7 @@ make wide-solver-rtl               # exact 40-bit branch-current solver
 make trapezoidal-solver-rtl        # exact selectable integration-mode solver
 make banked-solver-rtl             # exact three-bank cutoff solver
 make trapezoidal-banked-solver-rtl # exact five-bank cutoff solver
-make banked-rtl-overload           # 9,216-sample/mode bank-selection gate
+make banked-rtl-overload           # 1.0/1.5 V full-state bank-selection gate
 make banked-accuracy               # 100 ms banked/full-Newton waveform gate
 make banked-selector               # prove required cutoff-bank partitions
 make banked-threshold              # sweep shallow trapezoidal activation

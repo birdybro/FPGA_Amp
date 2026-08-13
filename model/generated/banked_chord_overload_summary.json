@@ -109,7 +109,7 @@
       "maximum_residual_a": 3.151303246795578e-06,
       "residual_limit_exceedance_count": 72,
       "saturation_count": 0,
-      "range_clip_count": 4052,
+      "range_clip_count": 0,
       "correction_scale_fallback_count": 0,
       "bank_selection_count": [
         1559,
@@ -150,7 +150,7 @@
       "maximum_residual_a": 1.718929235039468e-05,
       "residual_limit_exceedance_count": 1695,
       "saturation_count": 0,
-      "range_clip_count": 4046,
+      "range_clip_count": 0,
       "correction_scale_fallback_count": 729
     },
     {
@@ -200,7 +200,7 @@
       "maximum_residual_a": 3.0817442393527017e-06,
       "residual_limit_exceedance_count": 67,
       "saturation_count": 0,
-      "range_clip_count": 4052,
+      "range_clip_count": 0,
       "correction_scale_fallback_count": 0,
       "bank_selection_count": [
         1321,
@@ -243,7 +243,7 @@
       "maximum_residual_a": 1.665187227217757e-05,
       "residual_limit_exceedance_count": 1690,
       "saturation_count": 0,
-      "range_clip_count": 4048,
+      "range_clip_count": 0,
       "correction_scale_fallback_count": 728
     }
   ]

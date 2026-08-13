@@ -5,15 +5,19 @@
   "stimulus": {
     "frequency_hz": 1000.0,
     "nominal_peak_v": 0.005,
-    "burst_peak_v": 1.0,
+    "burst_peak_v": [
+      1.0,
+      1.5
+    ],
     "burst_start_s": 0.004,
     "burst_end_s": 0.008,
     "duration_s": 0.012,
     "input_format": "Q8.24"
   },
   "gates": {
-    "both_modes_full_state_exact": true,
-    "both_modes_converged_without_diagnostics": true,
+    "all_cases_full_state_exact": true,
+    "one_volt_both_modes_converged_without_diagnostics": true,
+    "one_point_five_volts_has_no_arithmetic_or_range_event": true,
     "every_generated_bank_selected": true,
     "fixed_schedule_preserved": true
   },
@@ -21,6 +25,7 @@
   "measurements": [
     {
       "integration_method": "backward_euler",
+      "burst_input_peak_v": 1.0,
       "samples": 9216,
       "full_state_rtl_fixed_bit_exact": true,
       "latency_clocks": 116,
@@ -39,6 +44,7 @@
     },
     {
       "integration_method": "trapezoidal",
+      "burst_input_peak_v": 1.0,
       "samples": 9216,
       "full_state_rtl_fixed_bit_exact": true,
       "latency_clocks": 116,
@@ -53,6 +59,46 @@
         251,
         122,
         8111
+      ],
+      "all_cutoff_banks_exercised": true,
+      "nominal_bank_exercised": true
+    },
+    {
+      "integration_method": "backward_euler",
+      "burst_input_peak_v": 1.5,
+      "samples": 9216,
+      "full_state_rtl_fixed_bit_exact": true,
+      "latency_clocks": 116,
+      "maximum_residual_a": 3.148763198623783e-06,
+      "residual_limit_exceedance_count": 57,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "bank_selection_count": [
+        1258,
+        141,
+        7817
+      ],
+      "all_cutoff_banks_exercised": true,
+      "nominal_bank_exercised": true
+    },
+    {
+      "integration_method": "trapezoidal",
+      "burst_input_peak_v": 1.5,
+      "samples": 9216,
+      "full_state_rtl_fixed_bit_exact": true,
+      "latency_clocks": 116,
+      "maximum_residual_a": 3.0811247029305378e-06,
+      "residual_limit_exceedance_count": 53,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "bank_selection_count": [
+        1068,
+        124,
+        134,
+        73,
+        7817
       ],
       "all_cutoff_banks_exercised": true,
       "nominal_bank_exercised": true

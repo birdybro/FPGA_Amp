@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prove bank switching and full-state RTL exactness during 1 V overload."""
+"""Prove bank switching and full-state RTL exactness through 1.5 V overload."""
 
 from __future__ import annotations
 
@@ -20,71 +20,97 @@ from wide_solver_rtl_capture import capture_wide_solver_rtl  # noqa: E402
 SAMPLE_RATE_HZ = 768_000.0
 FREQUENCY_HZ = 1_000.0
 NOMINAL_PEAK_V = 0.005
-BURST_PEAK_V = 1.0
+BURST_PEAK_VS = (1.0, 1.5)
 DURATION_S = 0.012
 BURST_START_S = 0.004
 BURST_END_S = 0.008
+
+
+def input_vector(burst_peak_v: float) -> np.ndarray:
+    time_s = np.arange(int(round(DURATION_S * SAMPLE_RATE_HZ))) / SAMPLE_RATE_HZ
+    amplitude = np.full(time_s.size, NOMINAL_PEAK_V)
+    amplitude[(time_s >= BURST_START_S) & (time_s < BURST_END_S)] = burst_peak_v
+    return np.rint(
+        amplitude
+        * np.sin(2.0 * np.pi * FREQUENCY_HZ * time_s)
+        * float(1 << 24)
+    ).astype(np.int64)
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
     args = parser.parse_args()
-    time_s = np.arange(int(round(DURATION_S * SAMPLE_RATE_HZ))) / SAMPLE_RATE_HZ
-    amplitude = np.full(time_s.size, NOMINAL_PEAK_V)
-    amplitude[(time_s >= BURST_START_S) & (time_s < BURST_END_S)] = BURST_PEAK_V
-    input_q24 = np.rint(
-        amplitude
-        * np.sin(2.0 * np.pi * FREQUENCY_HZ * time_s)
-        * float(1 << 24)
-    ).astype(np.int64)
 
     measurements: list[dict[str, object]] = []
-    for trapezoidal in (False, True):
-        method = "trapezoidal" if trapezoidal else "backward_euler"
-        capture = capture_wide_solver_rtl(
-            input_q24,
-            f"banked_solver_rtl_overload_{method}",
-            args.verilator,
-            trapezoidal=trapezoidal,
-            banked=True,
-        )
-        model = capture.fixed_model
-        counts = model.chord_bank_selection_count
-        measurement = {
-            "integration_method": method,
-            "samples": int(input_q24.size),
-            "full_state_rtl_fixed_bit_exact": True,
-            "latency_clocks": 116,
-            "maximum_residual_a": model.max_residual_q44_observed
-            / float(1 << 44),
-            "residual_limit_exceedance_count": model.nonconvergence_count,
-            "saturation_count": model.saturation_count,
-            "range_clip_count": model.lut_clip_count,
-            "correction_scale_fallback_count": (
-                model.correction_scale_fallback_count
-            ),
-            "bank_selection_count": counts,
-            "all_cutoff_banks_exercised": all(count > 0 for count in counts[:-1]),
-            "nominal_bank_exercised": counts[-1] > 0,
-        }
-        measurements.append(measurement)
-        print(
-            f"{method}: residual="
-            f"{float(measurement['maximum_residual_a']) * 1e6:.3f} "
-            f"uA, banks={counts}",
-            flush=True,
-        )
+    for burst_peak_v in BURST_PEAK_VS:
+        input_q24 = input_vector(burst_peak_v)
+        for trapezoidal in (False, True):
+            method = "trapezoidal" if trapezoidal else "backward_euler"
+            level_tag = str(burst_peak_v).replace(".", "p")
+            capture = capture_wide_solver_rtl(
+                input_q24,
+                f"banked_solver_rtl_overload_{level_tag}v_{method}",
+                args.verilator,
+                trapezoidal=trapezoidal,
+                banked=True,
+            )
+            model = capture.fixed_model
+            counts = model.chord_bank_selection_count
+            measurement = {
+                "integration_method": method,
+                "burst_input_peak_v": burst_peak_v,
+                "samples": int(input_q24.size),
+                "full_state_rtl_fixed_bit_exact": True,
+                "latency_clocks": 116,
+                "maximum_residual_a": model.max_residual_q44_observed
+                / float(1 << 44),
+                "residual_limit_exceedance_count": model.nonconvergence_count,
+                "saturation_count": model.saturation_count,
+                "range_clip_count": model.lut_clip_count,
+                "correction_scale_fallback_count": (
+                    model.correction_scale_fallback_count
+                ),
+                "bank_selection_count": counts,
+                "all_cutoff_banks_exercised": all(
+                    count > 0 for count in counts[:-1]
+                ),
+                "nominal_bank_exercised": counts[-1] > 0,
+            }
+            measurements.append(measurement)
+            print(
+                f"{method} {burst_peak_v:.1f} V: residual="
+                f"{float(measurement['maximum_residual_a']) * 1e6:.3f} "
+                f"uA, failures={measurement['residual_limit_exceedance_count']}, "
+                f"range={measurement['range_clip_count']}, banks={counts}",
+                flush=True,
+            )
+
+    one_volt = tuple(
+        item for item in measurements if item["burst_input_peak_v"] == 1.0
+    )
+    severe = tuple(
+        item for item in measurements if item["burst_input_peak_v"] == 1.5
+    )
 
     gates = {
-        "both_modes_full_state_exact": all(
+        "all_cases_full_state_exact": all(
             bool(item["full_state_rtl_fixed_bit_exact"]) for item in measurements
         ),
-        "both_modes_converged_without_diagnostics": all(
+        "one_volt_both_modes_converged_without_diagnostics": all(
             int(item[key]) == 0
-            for item in measurements
+            for item in one_volt
             for key in (
                 "residual_limit_exceedance_count",
+                "saturation_count",
+                "range_clip_count",
+                "correction_scale_fallback_count",
+            )
+        ),
+        "one_point_five_volts_has_no_arithmetic_or_range_event": all(
+            int(item[key]) == 0
+            for item in severe
+            for key in (
                 "saturation_count",
                 "range_clip_count",
                 "correction_scale_fallback_count",
@@ -93,7 +119,7 @@ def main() -> int:
         "every_generated_bank_selected": all(
             bool(item["all_cutoff_banks_exercised"])
             and bool(item["nominal_bank_exercised"])
-            for item in measurements
+            for item in one_volt
         ),
         "fixed_schedule_preserved": all(
             int(item["latency_clocks"]) == 116 for item in measurements
@@ -106,7 +132,7 @@ def main() -> int:
         "stimulus": {
             "frequency_hz": FREQUENCY_HZ,
             "nominal_peak_v": NOMINAL_PEAK_V,
-            "burst_peak_v": BURST_PEAK_V,
+            "burst_peak_v": list(BURST_PEAK_VS),
             "burst_start_s": BURST_START_S,
             "burst_end_s": BURST_END_S,
             "duration_s": DURATION_S,

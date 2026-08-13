@@ -1,0 +1,296 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "study": "factorized plate-law cutoff-domain expansion audit",
+  "sample_rate_hz": 768000.0,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_peak_v": 1.5,
+    "burst_start_s": 0.004,
+    "burst_end_s": 0.008,
+    "duration_s": 0.012,
+    "input_format": "Q8.24"
+  },
+  "factor_table_ranges": {
+    "v_pk_v": [
+      0.0,
+      400.0
+    ],
+    "transformed": [
+      -0.3,
+      0.08
+    ],
+    "e1_v": [
+      0.0,
+      6.0
+    ]
+  },
+  "interpretation": "The plate law evaluates Vgk directly; only grid current uses the -5 V lookup boundary. Below -5 V that lookup clamps to its negative-grid leakage floor. Expanding the accepted plate-law domain to -8 V changes diagnostics only, not current or audio.",
+  "gates": {
+    "reason_classifier_matches_evaluator": true,
+    "all_outputs_finite": true,
+    "baseline_events_are_only_low_plate_domain": true,
+    "expanded_domain_has_no_range_events": true,
+    "grid_current_lower_clamp_is_exercised": true,
+    "domain_expansion_is_output_bit_exact": true
+  },
+  "all_gates_pass": true,
+  "measurements": [
+    {
+      "integration_method": "backward_euler",
+      "baseline_minus_5_v": {
+        "output_finite": true,
+        "solver_range_clip_count": 3294,
+        "residual_limit_exceedance_count": 57,
+        "tube": {
+          "accepted_ranges": {
+            "plate_law_v_gk_v": [
+              -5.0,
+              1.0
+            ],
+            "grid_current_lookup_v_gk_v": [
+              -5.0,
+              1.0
+            ]
+          },
+          "evaluation_count": 74016,
+          "reported_clip_evaluation_count": 3294,
+          "reason_count": {
+            "v_gk_below_plate_domain": 3294,
+            "v_gk_above_plate_domain": 0,
+            "v_pk_below_table": 0,
+            "v_pk_above_table": 0,
+            "transformed_below_table": 0,
+            "transformed_above_table": 0,
+            "e1_below_table": 0,
+            "e1_above_table": 0
+          },
+          "grid_current_lower_clamp_count": 3294,
+          "grid_current_upper_clamp_count": 0,
+          "status_mismatch_count": 0,
+          "all_evaluations": {
+            "minimum": {
+              "v_gk_v": -7.025679588317871,
+              "v_pk_v": 81.39969444274902,
+              "transformed": -0.013745930977165699,
+              "e1_v": 0.00012874603271484375
+            },
+            "maximum": {
+              "v_gk_v": 0.31175100803375244,
+              "v_pk_v": 295.66051483154297,
+              "transformed": 0.013745995238423347,
+              "e1_v": 1.1189632415771484
+            }
+          },
+          "clipped_evaluations": {
+            "minimum": {
+              "v_gk_v": -7.025679588317871,
+              "v_pk_v": 294.79408740997314,
+              "transformed": -0.013745930977165699,
+              "e1_v": 0.00012874603271484375
+            },
+            "maximum": {
+              "v_gk_v": -5.00022029876709,
+              "v_pk_v": 295.66051483154297,
+              "transformed": -0.006890865974128246,
+              "e1_v": 0.007822990417480469
+            }
+          }
+        }
+      },
+      "expanded_minus_8_v": {
+        "output_finite": true,
+        "solver_range_clip_count": 0,
+        "residual_limit_exceedance_count": 57,
+        "tube": {
+          "accepted_ranges": {
+            "plate_law_v_gk_v": [
+              -8.0,
+              1.0
+            ],
+            "grid_current_lookup_v_gk_v": [
+              -5.0,
+              1.0
+            ]
+          },
+          "evaluation_count": 74016,
+          "reported_clip_evaluation_count": 0,
+          "reason_count": {
+            "v_gk_below_plate_domain": 0,
+            "v_gk_above_plate_domain": 0,
+            "v_pk_below_table": 0,
+            "v_pk_above_table": 0,
+            "transformed_below_table": 0,
+            "transformed_above_table": 0,
+            "e1_below_table": 0,
+            "e1_above_table": 0
+          },
+          "grid_current_lower_clamp_count": 3294,
+          "grid_current_upper_clamp_count": 0,
+          "status_mismatch_count": 0,
+          "all_evaluations": {
+            "minimum": {
+              "v_gk_v": -7.025679588317871,
+              "v_pk_v": 81.39969444274902,
+              "transformed": -0.013745930977165699,
+              "e1_v": 0.00012874603271484375
+            },
+            "maximum": {
+              "v_gk_v": 0.31175100803375244,
+              "v_pk_v": 295.66051483154297,
+              "transformed": 0.013745995238423347,
+              "e1_v": 1.1189632415771484
+            }
+          },
+          "clipped_evaluations": {
+            "minimum": {
+              "v_gk_v": null,
+              "v_pk_v": null,
+              "transformed": null,
+              "e1_v": null
+            },
+            "maximum": {
+              "v_gk_v": null,
+              "v_pk_v": null,
+              "transformed": null,
+              "e1_v": null
+            }
+          }
+        }
+      },
+      "output_equivalence": {
+        "bit_exact": true,
+        "maximum_absolute_difference_v": 0.0,
+        "rms_difference_v": 0.0
+      }
+    },
+    {
+      "integration_method": "trapezoidal",
+      "baseline_minus_5_v": {
+        "output_finite": true,
+        "solver_range_clip_count": 3292,
+        "residual_limit_exceedance_count": 53,
+        "tube": {
+          "accepted_ranges": {
+            "plate_law_v_gk_v": [
+              -5.0,
+              1.0
+            ],
+            "grid_current_lookup_v_gk_v": [
+              -5.0,
+              1.0
+            ]
+          },
+          "evaluation_count": 74016,
+          "reported_clip_evaluation_count": 3292,
+          "reason_count": {
+            "v_gk_below_plate_domain": 3292,
+            "v_gk_above_plate_domain": 0,
+            "v_pk_below_table": 0,
+            "v_pk_above_table": 0,
+            "transformed_below_table": 0,
+            "transformed_above_table": 0,
+            "e1_below_table": 0,
+            "e1_above_table": 0
+          },
+          "grid_current_lower_clamp_count": 3292,
+          "grid_current_upper_clamp_count": 0,
+          "status_mismatch_count": 0,
+          "all_evaluations": {
+            "minimum": {
+              "v_gk_v": -7.027202665805817,
+              "v_pk_v": 81.37383365631104,
+              "transformed": -0.013751073740422726,
+              "e1_v": 0.00012874603271484375
+            },
+            "maximum": {
+              "v_gk_v": 0.3121575117111206,
+              "v_pk_v": 295.41111850738525,
+              "transformed": 0.013752036727964878,
+              "e1_v": 1.1190948486328125
+            }
+          },
+          "clipped_evaluations": {
+            "minimum": {
+              "v_gk_v": -7.027202665805817,
+              "v_pk_v": 295.10187435150146,
+              "transformed": -0.013751073740422726,
+              "e1_v": 0.00012874603271484375
+            },
+            "maximum": {
+              "v_gk_v": -5.003391206264496,
+              "v_pk_v": 295.41111850738525,
+              "transformed": -0.006918926723301411,
+              "e1_v": 0.007685661315917969
+            }
+          }
+        }
+      },
+      "expanded_minus_8_v": {
+        "output_finite": true,
+        "solver_range_clip_count": 0,
+        "residual_limit_exceedance_count": 53,
+        "tube": {
+          "accepted_ranges": {
+            "plate_law_v_gk_v": [
+              -8.0,
+              1.0
+            ],
+            "grid_current_lookup_v_gk_v": [
+              -5.0,
+              1.0
+            ]
+          },
+          "evaluation_count": 74016,
+          "reported_clip_evaluation_count": 0,
+          "reason_count": {
+            "v_gk_below_plate_domain": 0,
+            "v_gk_above_plate_domain": 0,
+            "v_pk_below_table": 0,
+            "v_pk_above_table": 0,
+            "transformed_below_table": 0,
+            "transformed_above_table": 0,
+            "e1_below_table": 0,
+            "e1_above_table": 0
+          },
+          "grid_current_lower_clamp_count": 3292,
+          "grid_current_upper_clamp_count": 0,
+          "status_mismatch_count": 0,
+          "all_evaluations": {
+            "minimum": {
+              "v_gk_v": -7.027202665805817,
+              "v_pk_v": 81.37383365631104,
+              "transformed": -0.013751073740422726,
+              "e1_v": 0.00012874603271484375
+            },
+            "maximum": {
+              "v_gk_v": 0.3121575117111206,
+              "v_pk_v": 295.41111850738525,
+              "transformed": 0.013752036727964878,
+              "e1_v": 1.1190948486328125
+            }
+          },
+          "clipped_evaluations": {
+            "minimum": {
+              "v_gk_v": null,
+              "v_pk_v": null,
+              "transformed": null,
+              "e1_v": null
+            },
+            "maximum": {
+              "v_gk_v": null,
+              "v_pk_v": null,
+              "transformed": null,
+              "e1_v": null
+            }
+          }
+        }
+      },
+      "output_equivalence": {
+        "bit_exact": true,
+        "maximum_absolute_difference_v": 0.0,
+        "rms_difference_v": 0.0
+      }
+    }
+  ]
+}

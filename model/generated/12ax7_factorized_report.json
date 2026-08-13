@@ -2,15 +2,38 @@
   "algorithm": "three value/slope 1-D LUTs with fixed cubic Hermite interpolation",
   "seed": 16434945,
   "random_vectors": 4096,
-  "directed_vectors": 11,
-  "total_vectors": 4107,
-  "expected_clip_vectors": 5,
+  "directed_vectors": 14,
+  "total_vectors": 4110,
+  "accuracy_vectors_inside_all_factor_domains": 4066,
+  "ranges": {
+    "plate_law_v_gk_v": [
+      -8.0,
+      1.0
+    ],
+    "grid_current_lookup_v_gk_v": [
+      -5.0,
+      1.0
+    ],
+    "v_pk_v": [
+      0.0,
+      400.0
+    ],
+    "transformed": [
+      -0.3,
+      0.08
+    ],
+    "e1_v": [
+      0.0,
+      6.0
+    ]
+  },
+  "expected_clip_vectors": 44,
   "latency_clocks": 8,
   "raw_table_bits": 233472,
   "raw_ramb18_equivalents": 12.666666666666666,
-  "mean_absolute_error_a": 1.0687152183373225e-08,
-  "rms_error_a": 1.6170846256400152e-08,
-  "worst_absolute_error_a": 5.0412310007019734e-08,
+  "mean_absolute_error_a": 8.311752219114308e-09,
+  "rms_error_a": 1.411444205188831e-08,
+  "worst_absolute_error_a": 5.056106388082182e-08,
   "outputs": [
     "model/generated/12ax7_factor_reciprocal_q32.mem",
     "model/generated/12ax7_factor_softplus_q32.mem",

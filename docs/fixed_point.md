@@ -39,9 +39,14 @@ y  = round(round(round(c3*t) + c2)*t + m0)*t + y0
 
 Each multiply is rounded back to the table format with add-half then arithmetic
 shift. `z` is Q2.30 and `E1` is Q12.20. The 128-entry linear grid-current table
-is unchanged. Total raw table storage is 233,472 bits. These formats are a
-bit-accurate Python contract. The standalone RTL passes 4,107 exact vectors,
-including five directed range clips, at eight clocks. Proven table bounds allow
+is unchanged. Plate-current evaluation accepts `Vgk` from -8 to +1 V; the
+independent grid-current table retains its -5 to +1 V axis and clamps more
+negative inputs to the modeled leakage-floor entry. The transformed-coordinate,
+`Vpk`, and `E1` guards remain independent, so an externally bounded pair can
+still assert `range_clipped` if an internal factor leaves its table. Total raw
+table storage is 233,472 bits. These formats are a bit-accurate Python contract.
+The standalone RTL passes 4,110 exact randomized/directed vectors, including
+independent-coordinate clip cases, at eight clocks. Proven table bounds allow
 the Hermite coefficient and Horner states to remain signed 32-bit with full
 49-bit products. Generic XC7 synthesis reports 1,597 estimated logic cells,
 37 DSP48E1s, and 8 RAMB18E1s. Selectable solver integration is exact for 512
@@ -240,15 +245,21 @@ failures from 1,122 to zero for backward Euler and from 1,107 to zero for
 trapezoidal. Maximum residual becomes 1.887/1.874 uA, below the 2 uA gate, with
 zero arithmetic saturation, tube-range clips, or scale fallbacks. At 1.5 V,
 backward-Euler failures fall from 1,695 to 72 and trapezoidal from 1,690 to 67,
-but both still record 4,052 tube-range clips. This improves the FPGA
-approximation only; it neither changes the physical reference circuit nor
-claims behavior outside the factorized tube table.
+with no arithmetic or correction-scale event. A later exact-intermediate audit
+proved all 4,052 formerly reported range events were solely `Vgk < -5 V` while
+the evaluated `Vpk`, transformed coordinate, and `E1` remained valid. Expanding
+the plate-law acceptance bound to -8 V removes those false diagnostics without
+changing current or audio; the -5 V grid-current lookup clamp is unchanged.
+This improves the FPGA approximation only and does not change the physical
+reference circuit.
 
 The synthesizable solver latches the bank from the previous sample's stage-two
 Vgk and holds it through all three corrections. A 9,216-sample, 1.0 V capture
 per integration mode matches every fixed node, capacitor state, output,
 residual, and cumulative diagnostic word exactly; every generated bank is
-selected and latency remains 116 clocks. Structural synthesis measures 12,942
+selected and latency remains 116 clocks. The expanded 1.5 V RTL capture is also
+full-state exact and records zero range, arithmetic, or scale-fallback events;
+its 57/53 residual misses remain explicit. Structural synthesis measures 12,942
 logic cells / 122 DSP48E1 / 8 RAMB18E1 for backward Euler and 13,870 / 122 / 8
 for trapezoidal. Full-Newton waveform error was therefore the next acceptance
 question before making the bank the default reference implementation.

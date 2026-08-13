@@ -31,8 +31,8 @@ def main() -> int:
     memory_paths = factorized.write_memories(args.output)
     rng = np.random.default_rng(args.seed)
     random_grid = rng.integers(
-        factorized._fixed_limit(-5.0, 24),
-        factorized._fixed_limit(1.0, 24) + 1,
+        factorized._fixed_limit(factorized.v_gk_min_v, 24),
+        factorized._fixed_limit(factorized.v_gk_max_v, 24) + 1,
         args.vectors,
         dtype=np.int64,
     )
@@ -45,6 +45,9 @@ def main() -> int:
     directed = np.asarray(
         [
             (-6 << 24, -1 << 20),
+            (-9 << 24, 300 << 20),
+            (-8 << 24, 300 << 20),
+            (-7 << 24, 295 << 20),
             (-5 << 24, 0),
             (-5 << 24, 400 << 20),
             (-1 << 24, 150 << 20),
@@ -65,6 +68,7 @@ def main() -> int:
     vector_dir.mkdir(parents=True, exist_ok=True)
     vector_path = vector_dir / "triode_factorized_random.txt"
     approximate = np.empty(grid_q24.size)
+    clipped_flags = np.empty(grid_q24.size, dtype=np.bool_)
     clip_count = 0
     with vector_path.open("w", encoding="ascii") as handle:
         handle.write("# vg_q24 vp_q20 ip_q31 ig_q31 clipped\n")
@@ -75,17 +79,19 @@ def main() -> int:
                 int(grid), int(plate)
             )
             approximate[index] = ip_q31 / (1 << 31)
+            clipped_flags[index] = clipped
             clip_count += int(clipped)
             handle.write(
                 f"{grid} {plate} {ip_q31} {ig_q31} {int(clipped)}\n"
             )
 
-    in_range = (
-        (grid_q24 >= (-5 << 24))
-        & (grid_q24 <= (1 << 24))
-        & (plate_q20 >= 0)
-        & (plate_q20 <= (400 << 20))
+    externally_in_range = (
+        (grid_q24 >= factorized._fixed_limit(factorized.v_gk_min_v, 24))
+        & (grid_q24 <= factorized._fixed_limit(factorized.v_gk_max_v, 24))
+        & (plate_q20 >= factorized._fixed_limit(factorized.plate_min_v, 20))
+        & (plate_q20 <= factorized._fixed_limit(factorized.plate_max_v, 20))
     )
+    in_range = externally_in_range & ~clipped_flags
     reference = Koren12AX7().plate_current(
         grid_q24[in_range] / (1 << 24), plate_q20[in_range] / (1 << 20)
     )
@@ -96,6 +102,23 @@ def main() -> int:
         "random_vectors": args.vectors,
         "directed_vectors": int(directed.shape[0]),
         "total_vectors": int(grid_q24.size),
+        "accuracy_vectors_inside_all_factor_domains": int(np.count_nonzero(in_range)),
+        "ranges": {
+            "plate_law_v_gk_v": [
+                factorized.v_gk_min_v,
+                factorized.v_gk_max_v,
+            ],
+            "grid_current_lookup_v_gk_v": [
+                factorized.grid_v_gk_min_v,
+                factorized.v_gk_max_v,
+            ],
+            "v_pk_v": [factorized.plate_min_v, factorized.plate_max_v],
+            "transformed": [
+                factorized.transformed_min,
+                factorized.transformed_max,
+            ],
+            "e1_v": [factorized.e1_min_v, factorized.e1_max_v],
+        },
         "expected_clip_vectors": clip_count,
         "latency_clocks": 8,
         "raw_table_bits": factorized.raw_table_bits,

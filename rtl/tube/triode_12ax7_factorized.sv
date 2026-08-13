@@ -27,8 +27,9 @@ module triode_12ax7_factorized #(
     localparam int SOFTPLUS_POINTS = 1024;
     localparam int POWER_POINTS = 2048;
     localparam int GRID_POINTS = 128;
-    localparam logic signed [31:0] VG_MIN_Q24 = -32'sd83886080;
+    localparam logic signed [31:0] VG_MIN_Q24 = -32'sd134217728;
     localparam logic signed [31:0] VG_MAX_Q24 = 32'sd16777216;
+    localparam logic signed [31:0] GRID_MIN_Q24 = -32'sd83886080;
     localparam logic signed [31:0] VP_MIN_Q20 = 32'sd0;
     localparam logic signed [31:0] VP_MAX_Q20 = 32'sd419430400;
     localparam logic signed [63:0] Z_MIN_Q30 = -64'sd322122547;
@@ -159,13 +160,13 @@ module triode_12ax7_factorized #(
         logic signed [63:0] offset;
         logic signed [63:0] product;
         begin
-            if (value_q24 <= VG_MIN_Q24)
+            if (value_q24 <= GRID_MIN_Q24)
                 map_grid_coordinate = 32'd0;
             else if (value_q24 >= VG_MAX_Q24)
                 map_grid_coordinate = 32'd8323072;
             else begin
                 offset = $signed({{32{value_q24[31]}}, value_q24}) -
-                         $signed({{32{VG_MIN_Q24[31]}}, VG_MIN_Q24});
+                         $signed({{32{GRID_MIN_Q24[31]}}, GRID_MIN_Q24});
                 product = offset * $signed(GRID_SCALE_Q24);
                 map_grid_coordinate =
                     32'(($signed(product) + 64'sd8388608) >>> 24);

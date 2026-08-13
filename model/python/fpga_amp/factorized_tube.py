@@ -163,8 +163,9 @@ class FixedFactorizedKoren12AX7:
     transformed_max: float = 0.08
     e1_min_v: float = 0.0
     e1_max_v: float = 6.0
-    v_gk_min_v: float = -5.0
+    v_gk_min_v: float = -8.0
     v_gk_max_v: float = 1.0
+    grid_v_gk_min_v: float = -5.0
     v_gk_fractional_bits: int = 24
     v_pk_fractional_bits: int = 20
     current_fractional_bits: int = 31
@@ -216,7 +217,9 @@ class FixedFactorizedKoren12AX7:
             floating.power_derivative * power_step,
             self.current_fractional_bits,
         )
-        grid_axis = np.linspace(self.v_gk_min_v, self.v_gk_max_v, self.grid_points)
+        grid_axis = np.linspace(
+            self.grid_v_gk_min_v, self.v_gk_max_v, self.grid_points
+        )
         self.grid_value_q31 = self._quantize(
             self.tube.grid_current(grid_axis), self.current_fractional_bits
         )
@@ -302,6 +305,9 @@ class FixedFactorizedKoren12AX7:
     def evaluate_fixed(self, v_gk_q: int, v_pk_q: int) -> tuple[int, int, bool]:
         vg_low_q = self._fixed_limit(self.v_gk_min_v, self.v_gk_fractional_bits)
         vg_high_q = self._fixed_limit(self.v_gk_max_v, self.v_gk_fractional_bits)
+        grid_low_q = self._fixed_limit(
+            self.grid_v_gk_min_v, self.v_gk_fractional_bits
+        )
         vp_low_q = self._fixed_limit(self.plate_min_v, self.v_pk_fractional_bits)
         vp_high_q = self._fixed_limit(self.plate_max_v, self.v_pk_fractional_bits)
         clipped = not (
@@ -362,7 +368,7 @@ class FixedFactorizedKoren12AX7:
             plate_q31 = 0
 
         grid_coordinate = self._coordinate(
-            v_gk_q, vg_low_q, vg_high_q, self.grid_points
+            v_gk_q, grid_low_q, vg_high_q, self.grid_points
         )
         grid_q31 = self._linear(self.grid_value_q31, grid_coordinate)
         current_min = -(1 << 31)

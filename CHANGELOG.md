@@ -43,7 +43,7 @@ All notable engineering changes are recorded here. The project is pre-release; d
   softplus, and power value/slope 1-D tables with cubic Hermite interpolation,
   plus a reproducible 100,000-point and five-level circuit study.
 - Added a synthesizable eight-clock factorized 12AX7 primitive, reproducible
-  packed ROM generation, and an exact 4,107-vector RTL regression with directed
+  packed ROM generation, and an exact 4,110-vector RTL regression with directed
   endpoint and out-of-range cases.
 - Added an explicit factorized-tube solver mode with independent initialization,
   persistent-state vectors, metadata, regression entry point, and synthesis path.
@@ -185,11 +185,25 @@ All notable engineering changes are recorded here. The project is pre-release; d
   capacitor-delta bits, 34/34
   cathode-sum bits, 57/63 KCL-accumulator bits, and 89/92 capacitor-product
   bits. The proof is now a default regression gate.
+- Added an exact fixed-intermediate domain audit that runs the -5 V and -8 V
+  plate-law acceptance bounds on identical 1.5 V overload trajectories. It
+  classifies every factor coordinate, counts the separate grid-current clamp,
+  and requires bit-exact audio before accepting a diagnostic-domain change.
 - The cutoff-Jacobian bank reduces 100 ms / 1 V residual failures from
   1,122/1,107 to zero for backward-Euler/trapezoidal state at 1.887/1.874 uA
   maximum residual, with zero saturation, tube-range clips, or correction
-  fallbacks. At 1.5 V it leaves 72/67 residual failures but 4,052/4,052 tube-table
-  clips, so tube-domain expansion remains separate from solver convergence.
+  fallbacks. At 1.5 V it leaves 72/67 residual failures. The previously reported
+  4,052/4,052 range events were subsequently proven to be only the conservative
+  negative-grid acceptance boundary, separate from solver convergence.
+- The factorized cutoff-domain audit observes `Vgk` down to -7.027 V while
+  `Vpk`, transformed coordinate, and `E1` remain within their independent
+  ranges. Expanding plate-law acceptance to -8 V removes all 3,294/3,292 false
+  clip evaluations while leaving both integrator outputs bit-exact. The
+  grid-current lookup remains clamped below -5 V at its leakage-floor entry.
+- Banked integrated RTL matches every fixed state across 36,864 total updates
+  at 1.0/1.5 V. The 1.5 V cases have zero arithmetic, range, or correction-scale
+  events and retain explicitly measured 57/53 residual-limit misses in the
+  12 ms backward-Euler/trapezoidal captures.
 - Banked RTL is bit-exact across all 9,216 captured overload states per mode,
   selects every generated bank, retains 116 clocks, and records no diagnostic
   event. XC7 structural synthesis measures 12,942/13,870 logic cells for
@@ -254,7 +268,7 @@ All notable engineering changes are recorded here. The project is pre-release; d
   +0.00026 dB fundamental gain error. At 0.5 V it is 2.2419% versus 2.2417%.
   The unaligned 5 mV waveform residual remains -42.90 dB and is tracked
   separately; the 1.0 V fixed solve still exceeds its residual limit.
-- The standalone factorized RTL is bit-exact to fixed Python for all 4,107 test
+- The standalone factorized RTL is bit-exact to fixed Python for all 4,110 test
   vectors. XC7 structural synthesis reports 1,597 estimated logic cells,
   37 DSP48E1s, and 8 RAMB18E1s; no Fmax is claimed.
 - The complete factorized solver is bit-exact for 512 sequential samples and
@@ -366,6 +380,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Changed
 
+- Split factorized-tube cutoff handling into a -8 V plate-law acceptance bound
+  and the unchanged -5 V grid-current lookup clamp. This changes only range
+  diagnostics on the audited overload trajectory; fixed current, audio, and RTL
+  schedule remain bit-exact.
 - Reused a single interpolation multiply datapath in RTL, reducing generic XC7 synthesis from 24 to 16 DSP48E1 blocks while retaining bit-exact output and eight-clock latency.
 - Reduced each chord-correction multiply from Q17.15 × Q4.44 to DSP-native
   Q17.1 × signed 25-bit Q30. It is -83.63 dB residual from the high-precision

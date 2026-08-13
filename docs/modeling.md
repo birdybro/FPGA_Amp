@@ -99,7 +99,8 @@ reported mean-removed residual is -68.15 dB. Nominal capacitor-current peaks
 remain below 2.25 uA in this sweep. This clears nominal fixed state/rounding,
 not overload range or RTL scheduling.
 
-The matched fixed overload run remains diagnostic-clean at 20 mV and 0.5 V.
+This matched fixed overload run predates the plate-law/grid-table domain split
+and remains diagnostic-clean at 20 mV and 0.5 V.
 At 1.0/1.5 V, it records 1,107/1,690 residual-limit failures; 1.5 V also has
 4,048 factorized-tube range clips and 728 safe correction-scale fallbacks. The
 largest capacitor-current history magnitude is 203.34 uA, with no arithmetic
@@ -279,7 +280,8 @@ difference. No saturation, tube-range clip, residual-limit failure, or
 correction-scale fallback occurs. These are captured simulator values, not
 placed-FPGA or physical-audio measurements.
 
-The captured-RTL overload trajectory runs a 5 ms, 1 kHz burst inside a 100 ms
+This captured-RTL overload trajectory also predates the domain split. It runs a
+5 ms, 1 kHz burst inside a 100 ms
 record, extending observation after the burst from 35 ms to 85 ms. The 5 mV
 control plus 20 mV, 0.5 V, 1.0 V, and 1.5 V cases account for 384,000 exact
 full-state RTL comparisons. At 20 mV the captured trajectory reaches 10%, 1%,
@@ -296,7 +298,8 @@ The last case also records 4,046 factorized-tube range clips and 729 correction-
 scale fallbacks. Adaptive scaling prevents arithmetic saturation. Stage-two
 grid current peaks at 0.0806 uA at 1.0 V and 26.30 uA at 1.5 V. These severe
 cases remain rejected as an accuracy claim even though RTL is exact to its
-fixed numerical contract.
+fixed numerical contract. The later bit-exact domain audit reclassifies the
+4,046 events without changing this recorded audio or its residual failures.
 
 A longer floating trapezoidal study now observes 235 ms after the burst. The
 0.5 V trajectory reaches the sustained 10%-of-nominal threshold at 146.552 ms;
@@ -384,9 +387,11 @@ The 0.5 V burst does not reach even 10% recovery within the 35 ms post-window,
 although its fixed residual remains below 0.631 µA. At 1.0 V, stage-two grid
 current reaches 0.063 µA analytical / 0.081 µA fixed and 1,134 fixed samples
 exceed the 2 µA residual criterion. At 1.5 V, stage-two grid current is 26.29 /
-26.31 µA, 1,698 samples exceed the residual limit, and 4,046 nonlinear
-evaluations clip an internal transformed/table range. The analytical Newton
-model converges throughout. Those clip/failure counts prohibit claiming the
+26.31 µA and 1,698 samples exceed the residual limit. This historical run also
+reported 4,046 range events; the later exact-intermediate audit proved they were
+only the conservative `Vgk < -5 V` acceptance flag, not transformed, `Vpk`, or
+`E1` table exits. The analytical Newton model converges throughout. The residual
+counts prohibit claiming the
 present three-pass fixed result as overload-equivalent above the tested 0.5 V
 case. Koren's grid-current branch is itself only a rough physical estimate.
 
@@ -421,14 +426,15 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | chord vs full Newton | -137.28 dB normalized residual, 3-pass multitone | float architecture candidate |
 | fixed tube LUT | 0.139 µA mean / 9.33 µA worst full range | measured |
 | fixed factorized tube | 10.5 nA mean / 51.8 nA worst; 233,472 raw table bits | measured; standalone RTL passing |
-| factorized RTL vs fixed | 4,107 vectors exact at 8 clocks; 1,597 LC / 37 DSP / 8 RAMB18 | standalone and solver passing |
+| factorized RTL vs fixed | 4,110 vectors exact at 8 clocks; 1,597 LC / 37 DSP / 8 RAMB18 | standalone and solver passing |
 | factorized solver vs fixed | 512 stateful samples exact at 126 clocks; 9,194 LC / 110 DSP / 8 RAMB18 | passing |
 | factorized stream vs fixed | 64 outputs / 1,024 updates exact; 14,366 LC / 158 DSP / 8 RAMB18 | passing; broader stimuli open |
 | factorized frequency response | six 5 mV points, 20 Hz–20 kHz | ≤0.00846 dB gain / ≤0.0729° phase; zero diagnostics |
-| factorized overload/recovery | 5 ms bursts, 20 mV–1.5 V | clean at 20/500 mV; residual failure at 1 V; range clip at 1.5 V |
+| factorized overload/recovery | 5 ms bursts, 20 mV–1.5 V | clean at 20/500 mV; residual failure at 1 V; legacy -5 V flags reclassified without output change |
 | overload iteration count | 3–6 corrections at 1.0/1.5 V | improved but still failing; projected 213 clocks at six |
-| cutoff-Jacobian bank | 100 ms 1 kHz bursts through 1.5 V | zero 1 V failures in both modes; 1.5 V retains tube-domain clips |
-| banked cutoff RTL | 9,216 samples/mode at 1.0 V | fixed full-state exact, all banks selected, 116 clocks, zero diagnostics |
+| cutoff-Jacobian bank | 100 ms 1 kHz bursts through 1.5 V | zero 1 V failures in both modes; 1.5 V retains 72/67 residual misses and zero range events |
+| factorized cutoff-domain audit | 12 ms 1.5 V burst, -5 V vs -8 V bound | 3,294/3,292 false flags removed; output bit-exact; independent factor ranges valid |
+| banked cutoff RTL | 36,864 updates at 1.0/1.5 V | fixed full-state exact, all banks selected, 116 clocks; severe range/arithmetic clean; 57/53 residual misses |
 | banked cutoff vs full Newton | 100 ms, 20 mV/0.5/1.0 V bursts | <=-75.28 dB raw burst error; 1 V improves 22.98/23.13 dB vs DC chord |
 | trapezoidal shallow-bank threshold | -2.50 to -2.90 V, 0.5/1.0 V bursts | select -2.75 V; no 0.5 V activation, zero 1 V failures, 0.537 mV final mean error |
 | long fixed state / click recovery | 1 s silence with +/-100 mV single-sample clicks | Q12.20 deadband leaves -5.368 mV late output; must be redesigned |

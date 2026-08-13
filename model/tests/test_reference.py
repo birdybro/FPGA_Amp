@@ -92,8 +92,8 @@ class TubeModelTests(unittest.TestCase):
         rng = np.random.default_rng(0xFAC701)
         worst = 0.0
         for vg, vp in zip(
-            rng.uniform(-5.0, 1.0, 2000),
-            rng.uniform(0.0, 400.0, 2000),
+            rng.uniform(-8.0, 1.0, 2000),
+            rng.uniform(20.0, 400.0, 2000),
             strict=True,
         ):
             vg_q24 = int(round(vg * (1 << 24)))
@@ -106,6 +106,19 @@ class TubeModelTests(unittest.TestCase):
             worst = max(worst, abs(approximate_q31 / (1 << 31) - reference))
         self.assertLess(worst, 60.0e-9)
         self.assertLess(factorized.raw_table_bits, 0.23 * (128 * 256 * 32))
+
+        for vg, clipped_expected in ((-8.0, False), (-8.01, True)):
+            vg_q24 = int(round(vg * (1 << 24)))
+            _, grid_q31, clipped = factorized.evaluate_fixed(
+                vg_q24, 295 << 20
+            )
+            self.assertEqual(clipped, clipped_expected)
+            self.assertEqual(grid_q31, int(factorized.grid_value_q31[0]))
+
+        # The independent transformed-coordinate guard remains active even
+        # inside the rectangular external voltage bounds.
+        _, _, transformed_clipped = factorized.evaluate_fixed(-8 << 24, 0)
+        self.assertTrue(transformed_clipped)
 
 
 class ResamplerTests(unittest.TestCase):

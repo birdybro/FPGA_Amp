@@ -34,6 +34,7 @@ scripts/compare_spice_python_frequency.py  four-point integrator/SPICE sweep
 scripts/characterize_solver.py      fixed-iteration residual/convergence
 scripts/study_lut_resolution.py     BRAM/error trade study
 scripts/study_factorized_tube.py    factorized current/circuit accuracy
+scripts/analyze_factorized_domain.py  paired cutoff-domain equivalence audit
 scripts/characterize_factorized_frequency.py  six-point audio-band equivalence
 scripts/characterize_state_drift.py           one-second silence/click state audit
 scripts/characterize_wide_state_audio.py      nominal-level state-format A/B
@@ -79,14 +80,14 @@ scripts/run_synthesis.py            XC7 structural resource report
 | factorized fixed circuit vs analytical | 5 mV / 0.5 V, 1 kHz, 20–30 ms | 0.0188% / 2.2419% THD vs 0.0191% / 2.2417% |
 | factorized fixed low-level null | 5 mV, 1 kHz, 20–30 ms | -42.90 dB raw; -59.63 dB mean-removed diagnostic; -2.840 mV mean; 0.00958° phase error |
 | factorized fixed frequency sweep | 5 mV, 20/50/100/1k/10k/20k Hz | ≤0.00846 dB gain, ≤0.0729° phase; zero fixed diagnostics |
-| factorized overload burst | 5 ms at 20 mV / 0.5 / 1.0 / 1.5 V | residual clean through 0.5 V; failures at 1.0 V; internal range clips at 1.5 V |
+| factorized overload burst | 5 ms at 20 mV / 0.5 / 1.0 / 1.5 V | residual clean through 0.5 V; failures at 1.0 V; legacy -5 V flags later proven output-neutral |
 | overload solver iterations | 3–6 chord corrections, 1.0/1.5 V | six still fails; 213-clock serialized projection |
 | long state/click recovery | 1 s, +/-100 mV one-sample clicks | fixed late output -5.368 mV vs 7.2 uV analytical RMS; diagnostics silent |
 | wide-state click recovery | same 1 s stimulus | 38.74 uV late raw residual, 5.01 nA max KCL residual, zero diagnostics |
 | wide-state nominal audio | 5 mV/1 kHz, 20--30 ms | -63.83 dB raw null, -0.000058 dB gain, -0.000187 degree phase error |
 | wide-state frequency sweep | 5 mV, 20/50/100/1k/10k/20k Hz | <=0.000196 dB gain, <=0.000982 degree phase, zero diagnostics |
 | wide-state overload burst | 20 mV / 0.5 / 1.0 / 1.5 V | recovery improved; 1,122/1,695 failures at 1/1.5 V; 729 safe scale fallbacks at 1.5 V |
-| factorized RTL vs fixed tube | 4,107 randomized/directed vectors | bit-exact, 5 clip cases, latency 8 |
+| factorized RTL vs fixed tube | 4,110 randomized/directed vectors | bit-exact including all expected clip flags, latency 8 |
 | RTL vs fixed LUT | 4,096 deterministic vectors | bit-exact, latency 8 |
 | chord RTL vs fixed correction | 1,024 deterministic vectors | bit-exact, latency 10, 18 saturation cases |
 | wide chord RTL vs fixed correction | 1,024 deterministic vectors | bit-exact, latency 10, 95 saturation vectors; Q30/Q34/Q40 |
@@ -95,7 +96,8 @@ scripts/run_synthesis.py            XC7 structural resource report
 | trapezoidal wide KCL RTL vs fixed | 1,024 deterministic vectors | bit-exact residual/current state, latency 10; 1,013 deliberate current-saturation vectors |
 | trapezoidal wide solver RTL vs fixed | 512 sequential samples | bit-exact all 29 state words and diagnostics, latency 116, zero events |
 | trapezoidal wide solver synthesis | Yosys 0.66 structural | 12,543 LC, 122 DSP48E1, 8 RAMB18E1; no Fmax claim |
-| banked wide solver RTL vs fixed | 9,216 overload samples/mode | every state exact, every bank selected, latency 116, zero diagnostics |
+| factorized cutoff-domain audit | paired 12 ms / 1.5 V runs per integrator | -5 V flags classified; -8 V outputs bit-exact; zero expanded-domain events |
+| banked wide solver RTL vs fixed | 36,864 total 1.0/1.5 V updates | every state exact, every bank selected, latency 116; 1.5 V range/arithmetic clean |
 | banked wide solver synthesis | Yosys 0.66 structural | BE 12,942 LC; trap 13,870 LC; both 122 DSP48E1 / 8 RAMB18E1 |
 | banked solver vs full Newton | 100 ms, 20 mV/0.5/1.0 V per mode | raw burst error <=-75.28 dB; no alignment or diagnostics; trapezoidal 1 V final mean error 0.537 mV |
 | trapezoidal 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 116-clock solver |

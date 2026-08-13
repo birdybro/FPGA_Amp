@@ -11,9 +11,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
-- [ ] Expand or explicitly bound the factorized tube domain below -5 V, and
-  continue reducing the remaining 0.537 mV trapezoidal banked post-burst mean
-  error without regressing 1.0 V convergence. Extra chord passes remain rejected.
+- [ ] Reduce the remaining 0.537 mV trapezoidal banked post-burst mean error and
+  1.5 V residual-limit misses without regressing 1.0 V convergence. Extra chord
+  passes remain rejected.
 - [ ] Extend integrated-solver RTL capture beyond nominal frequency response to
   level-dependent harmonics, clipping asymmetry, and recovery metrics.
 - [ ] Separate folded nonlinear harmonics from preexisting in-band solver energy
@@ -22,6 +22,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Completed this milestone
 
+- [x] Separate the factorized plate-law domain from its grid-current lookup.
+  Prove every former 1.5 V range event was only `Vgk < -5 V`, expand plate-law
+  acceptance to -8 V while retaining the -5 V grid leakage-floor clamp, and
+  prove before/after audio bit-exactness. Exact integrated RTL now has zero
+  arithmetic/range/fallback events at 1.5 V; 57/53 residual misses remain.
 - [x] Tighten the shallow trapezoidal bank threshold from -2.50 to -2.75 V.
   Avoid every 0.5 V activation, retain zero 1.0 V failures and exact RTL, and
   reduce the final-window mean error from 1.042 to 0.537 mV.
@@ -35,7 +40,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Derive fixed cutoff-region Jacobian banks from the analytical stage-two
   trajectory. In the 100 ms Python gate, remove all 1.0 V residual failures in
   both integration modes without extra corrections, arithmetic/range events,
-  or fallbacks; retain the 1.5 V tube-domain limitation explicitly.
+  or fallbacks; retain the separate 1.5 V residual limitation explicitly.
 - [x] Prove wide RHS, backward-Euler/trapezoidal KCL, tube-stamp, and chord
   arithmetic bounds with conservative full-interface integer intervals. All 47
   checks pass; directed regressions cover the corrected 44-bit capacitor delta,
@@ -151,7 +156,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Implement and measure a fixed factorized Koren candidate using three
   value/slope 1-D LUTs with cubic Hermite interpolation: 51.8 nA worst current
   error and 0.0188% versus 0.0191% analytical THD at 5 mV.
-- [x] Implement the standalone factorized tube RTL and pass 4,107 bit-exact
+- [x] Implement the standalone factorized tube RTL and pass 4,110 bit-exact
   randomized/boundary vectors at eight clocks, including five clip cases;
   synthesize at 1,597 LC, 37 DSP48E1, and 8 RAMB18E1.
 - [x] Integrate the factorized primitive as a selectable solver mode; match all
