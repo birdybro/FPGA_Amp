@@ -67,26 +67,26 @@ The branch-current wide network has these separate structural results:
 | Block | Logic cells | DSP48E1 | RAMB18E1 | Latency |
 |---|---:|---:|---:|---:|
 | `network_rhs_v1_wide` | 31 | 4 | 0 | 2 clocks |
-| `network_kcl_v1_wide` | 7,804 | 72 | 0 | 10 clocks |
+| `network_kcl_v1_wide` | 8,034 | 72 | 0 | 10 clocks |
 
 The KCL result is after narrowing the generated static Q0.47 matrix to its
 proven signed 41-bit bound and capacitor conductances to signed 47 bits. The
 unbounded-width first pass used 99 DSPs; it was rejected. The selected KCL
-structural check has zero problems and 11 primitive-resize warnings. RHS has
+structural check has zero problems and 12 primitive-resize warnings. RHS has
 zero synthesis warnings. Subsystem counts were not added to form a hierarchy
 claim.
 
-Hierarchical synthesis of the integrated wide factorized solver measures 11,981
+Hierarchical synthesis of the integrated wide factorized solver measures 12,439
 logic cells, 1,366 FDRE plus 282 FDSE, 122 DSP48E1s, and 8 RAMB18E1s. Structural
-check reports zero problems and 55 techmap resize warnings. Its 116-clock
+check reports zero problems and 57 techmap resize warnings. Its 116-clock
 simulation schedule leaves 12 clocks, versus two for the legacy hierarchy, but
 no named-part Fmax or routing closure is claimed. The solver consumes 50.8% of
 the Arty A7-100T's DSP count before resampling; this materially constrains stereo
 duplication and makes a complete-stream resource measurement mandatory.
 
-The complete wide stream measures 16,993 logic cells, 170 DSP48E1s, and 8
+The complete wide stream measures 17,552 logic cells, 170 DSP48E1s, and 8
 RAMB18E1s, with zero structural check problems and 61 techmap resize warnings.
-This is 16.8% of nominal A7-100T logic cells, 70.8% of DSPs, and about 3.3% of
+This is 17.3% of nominal A7-100T logic cells, 70.8% of DSPs, and about 3.3% of
 18 Kib RAM blocks. The mono design fits structurally, but two identical channels
 would require 340 DSPs and therefore cannot be naively duplicated on this part.
 Stereo needs filter/KCL resource sharing, a larger device, or a separately

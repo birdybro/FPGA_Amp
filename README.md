@@ -144,30 +144,30 @@ The mono reference and complete 768 kHz circuit solver are operating:
   two-clock RHS omits capacitor history by design; the ten-clock KCL evaluates
   all ten Q30 branch differences, tests delayed tube-current handshakes, and
   globally selects correction precision. Structural XC7 results are 31 logic
-  cells / 4 DSPs for RHS and 7,804 logic cells / 72 DSPs for KCL.
+  cells / 4 DSPs for RHS and 8,034 logic cells / 72 DSPs for KCL.
 - The same KCL block now has an explicit trapezoidal mode. It remains ten clocks
   and matches 1,024 independent residual/current-history vectors exactly,
-  including 1,015 deliberately extreme Q4.44 current-saturation cases. The
+  including 1,013 deliberately extreme Q4.44 current-saturation cases. The
   original backward-Euler vector set remains exact and warning-free.
 - The integrated wide factorized solver matches Python bit-for-bit for 512
   sequential samples, including every node, capacitor, residual, and diagnostic.
   The measured schedule is 116 clocks, leaving 12 of 128 clocks, with zero test
-  diagnostics. Hierarchical XC7 synthesis is 11,981 logic cells, 122 DSP48E1s,
+  diagnostics. Hierarchical XC7 synthesis is 12,439 logic cells, 122 DSP48E1s,
   and 8 RAMB18E1s; Fmax remains unmeasured.
 - The explicitly selectable trapezoidal solver also matches 512 persistent
   samples exactly, including ten Q4.44 current histories, at the unchanged
   116-clock latency. Its separate chord-inverse ROM is required by the doubled
-  capacitor companions. Structural synthesis measures 12,451 logic cells,
-  122 DSP48E1s, and 8 RAMB18E1s: +470 cells and no DSP/BRAM change versus
+  capacitor companions. Structural synthesis measures 12,543 logic cells,
+  122 DSP48E1s, and 8 RAMB18E1s: +104 cells and no DSP/BRAM change versus
   backward Euler. This is structural evidence only; Fmax remains unmeasured.
 - The corresponding complete 48 kHz stream matches 64 outputs spanning 1,024
   nonlinear updates exactly with zero diagnostics. Structural synthesis is
-  16,993 logic cells, 170 DSP48E1s, and 8 RAMB18E1s, so the mono reference fits
+  17,552 logic cells, 170 DSP48E1s, and 8 RAMB18E1s, so the mono reference fits
   the provisional A7-100T resource envelope but leaves only 70 of 240 DSPs.
 - The selectable trapezoidal 48 kHz stream likewise matches all 64 outputs /
   1,024 nonlinear updates exactly with zero diagnostics and 5.02 nA maximum
-  residual. Structural synthesis is 17,556 logic cells, 170 DSP48E1s, and
-  8 RAMB18E1s: +563 cells with unchanged DSP/BRAM versus backward Euler.
+  residual. Structural synthesis is 17,651 logic cells, 170 DSP48E1s, and
+  8 RAMB18E1s: +99 cells with unchanged DSP/BRAM versus backward Euler.
 - A 23,040-sample captured RTL run at 5 mV / 1 kHz is Q32 bit-exact to fixed
   Python. Measured directly from RTL output, gain/phase error versus analytical
   float is -0.000054 dB / -0.000187 degrees, THD is 0.019371% versus 0.019059%,

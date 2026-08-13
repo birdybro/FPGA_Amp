@@ -262,14 +262,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
   to 1,701 logic cells, 9 DSP48E1s, and no block RAM.
 - Wide RHS/KCL RTL each match 1,024 fixed vectors at 2/10 clocks. KCL testing
   includes 48 scale fallbacks, 18 true overflows, and tube-current delays through
-  11 clocks. Width-bound synthesis reports 31 LC / 4 DSP for RHS and 7,804 LC /
+  11 clocks. Width-bound synthesis reports 31 LC / 4 DSP for RHS and 8,034 LC /
   72 DSP for KCL; the pre-bound KCL's 99-DSP result was rejected.
 - The integrated wide solver matches every node, capacitor history, output,
   residual, and diagnostic across 512 sequential samples. Measured latency is
-  116 clocks with zero test events. XC7 structural synthesis reports 11,981
+  116 clocks with zero test events. XC7 structural synthesis reports 12,439
   logic cells, 122 DSP48E1s, and 8 RAMB18E1s.
 - The complete wide stream matches 64 outputs spanning 1,024 nonlinear updates
-  exactly with zero diagnostics. Structural synthesis reports 16,993 logic
+  exactly with zero diagnostics. Structural synthesis reports 17,552 logic
   cells, 170 DSP48E1s, and 8 RAMB18E1s; mono fits the A7-100T, naive stereo does
   not fit its 240-DSP budget.
 - Captured wide solver RTL is Q32-exact to fixed Python for 23,040 samples at
@@ -312,10 +312,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
   existing backward-Euler KCL's 47-bit coefficient.
 - Trapezoidal solver RTL matches fixed Python at all nine node, ten voltage-
   history, and ten current-history states for 512 samples at 116 clocks.
-  Structural synthesis is 12,451 logic cells, 122 DSP48E1s, and 8 RAMB18E1s,
-  adding 470 cells but no DSP/BRAM versus backward Euler; no Fmax is claimed.
+  Structural synthesis is 12,543 logic cells, 122 DSP48E1s, and 8 RAMB18E1s,
+  adding 104 cells but no DSP/BRAM versus backward Euler; no Fmax is claimed.
 - The complete trapezoidal stream is bit-exact with zero diagnostics and a
-  5.02 nA maximum residual. Structural synthesis is 17,556 logic cells,
+  5.02 nA maximum residual. Structural synthesis is 17,651 logic cells,
   170 DSP48E1s, and 8 RAMB18E1s, adding 563 cells but no DSP/BRAM.
 - Captured trapezoidal RTL at 100 Hz/1/10/20 kHz is state-exact to fixed and
   remains within 0.000128 dB / 0.000784 degrees of floating trapezoidal with

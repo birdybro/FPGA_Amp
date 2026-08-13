@@ -188,7 +188,7 @@ RHS and KCL each match 1,024 vectors exactly. KCL coverage includes Q30/Q34/Q40,
 arriving zero through eleven clocks after request. Its ordinary latency is ten
 clocks; a tube current arriving after the ninth calculation clock stalls the
 finish rather than using stale data. Generic XC7 synthesis is 31 logic cells /
-4 DSP48E1s for RHS and 7,804 logic cells / 72 DSP48E1s for KCL, with no block
+4 DSP48E1s for RHS and 8,034 logic cells / 72 DSP48E1s for KCL, with no block
 RAM.
 
 `make arithmetic-bounds` independently propagates conservative integer
@@ -223,7 +223,7 @@ set covers silence, tone, multitone, bounded noise, and bipolar 100 mV clicks.
 The scheduler passes Q30, Q34, and Q40 in the intended order; a regression found
 and fixed an initial handoff bug that had latched the previous pass's format.
 Measured latency is 116 clocks, leaving 12 clocks at 98.304 MHz / 768 kHz.
-Hierarchical synthesis reports 11,981 logic cells, 122 DSP48E1s, and 8
+Hierarchical synthesis reports 12,439 logic cells, 122 DSP48E1s, and 8
 RAMB18E1s with zero structural check problems. This establishes numerical and
 cycle equivalence, not placed timing closure.
 
@@ -231,7 +231,7 @@ The complete wide stream rounds solver Q8.32 output to external Q8.24 using the
 same add-half/arithmetic-shift rule before the existing bit-accurate decimator.
 It matches 64 fixed-composition outputs spanning 1,024 solver updates exactly,
 with zero rate-converter, numerical, LUT, convergence, deadline, or fallback
-events and a maximum 4.598 nA residual. Generic XC7 synthesis reports 16,993
+events and a maximum 4.598 nA residual. Generic XC7 synthesis reports 17,552
 logic cells, 170 DSP48E1s, and 8 RAMB18E1s. This is now the best-accuracy
 complete RTL path, while the legacy modes remain reproducible for comparison.
 
@@ -283,7 +283,7 @@ subtracts them in the corresponding branch stamps, and returns ten saturated
 Q4.44 currents for commit. The existing column schedule remains ten clocks.
 An independent 1,024-vector regression is exact for residuals, selected
 correction format, maximum residual, all current states, and both saturation
-counts; 1,015 intentionally extreme vectors exercise current saturation. The
+counts; 1,013 intentionally extreme vectors exercise current saturation. The
 default backward-Euler mode still passes its original 1,024 vectors exactly.
 
 The persistent solver selects a separate Q17.1 chord-inverse ROM because the
@@ -292,15 +292,15 @@ that initially reused the backward-Euler inverse failed on sample zero and is
 now prevented by explicit integration-mode assets. With the matched inverse,
 RTL equals fixed Python across 512 sequential samples at all nine nodes, ten
 Q30 voltage histories, ten Q4.44 current histories, and every diagnostic. The
-latency remains 116 clocks. Generic XC7 synthesis is 12,451 estimated logic
-cells, 122 DSP48E1s, and 8 RAMB18E1s, versus 11,981 / 122 / 8 for backward
+latency remains 116 clocks. Generic XC7 synthesis is 12,543 estimated logic
+cells, 122 DSP48E1s, and 8 RAMB18E1s, versus 12,439 / 122 / 8 for backward
 Euler. No Fmax is inferred from structural synthesis.
 
 The complete selectable 48 kHz path retains the established Q8.24 boundary and
 Q8.32-to-Q8.24 output rounding. It matches fixed Python for 64 outputs spanning
 1,024 internal circuit updates with zero diagnostic events and 5.02 nA maximum
-residual. Structural synthesis measures 17,556 logic cells, 170 DSP48E1s, and
-8 RAMB18E1s, versus 16,993 / 170 / 8 for backward Euler. The 563-cell delta is
+residual. Structural synthesis measures 17,651 logic cells, 170 DSP48E1s, and
+8 RAMB18E1s, versus 17,552 / 170 / 8 for backward Euler. The 99-cell delta is
 measured; timing closure remains unproven.
 
 The overload gate passes only through the measured 0.5 V level. At 20 mV, the

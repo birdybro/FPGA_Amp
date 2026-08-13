@@ -248,17 +248,17 @@ and ten-clock KCL blocks each match 1,024 exact vectors. The KCL regression
 covers all three correction formats, 48 deliberate format fallbacks, 18
 minimum-format overflows, and delayed tube-current arrival. Static-matrix and
 capacitor coefficient widths were proven from generated bounds before synthesis;
-the resulting KCL uses 7,804 generic XC7 logic cells and 72 DSP48E1s. The
+the resulting KCL uses 8,034 generic XC7 logic cells and 72 DSP48E1s. The
 integrated persistent-state solver then matches 512 sequential samples exactly
 at 116 clocks, including all node, capacitor, output, residual, and diagnostic
 values. The test has zero saturation, range, convergence, missed-request, or
 deadline events and maximum residual 4.705 nA. Generic XC7 synthesis reports
-11,981 logic cells, 122 DSPs, and 8 RAMB18s. Timing closure remains separate.
+12,439 logic cells, 122 DSPs, and 8 RAMB18s. Timing closure remains separate.
 
 Composition with the existing 16x interpolator and decimator also remains
 bit-exact: 64 external samples exercise 1,024 nonlinear updates with zero
 diagnostics and a 4.598 nA maximum residual. Structural synthesis measures
-16,993 logic cells, 170 DSP48E1s, and 8 RAMB18E1s. These counts fit mono on the
+17,552 logic cells, 170 DSP48E1s, and 8 RAMB18E1s. These counts fit mono on the
 provisional A7-100T but rule out simple stereo duplication on its 240 DSPs.
 
 A longer 23,040-sample solver capture now closes the nominal measurement loop.
@@ -416,8 +416,8 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | fixed trapezoidal state | six 5 mV points, 20 Hz--20 kHz | <=0.000131 dB / <=0.000784 degree vs float trapezoidal; zero diagnostics; RTL open |
 | fixed trapezoidal overload | 20 mV--1.5 V bursts | clean through 0.5 V; 203.34 uA history-current peak; severe solver/range limit unchanged |
 | trapezoidal KCL RTL | 1,024 randomized/directed vectors | exact residual and Q4.44 next current; 10 clocks; integrated |
-| trapezoidal solver RTL | 512 persistent samples | exact 9 node + 20 capacitor states; 116 clocks; 12,451 LC / 122 DSP / 8 RAMB18 structural |
-| trapezoidal 48 kHz RTL stream | 64 outputs / 1,024 updates | exact fixed composition; zero diagnostics; 17,556 LC / 170 DSP / 8 RAMB18 structural |
+| trapezoidal solver RTL | 512 persistent samples | exact 9 node + 20 capacitor states; 116 clocks; 12,543 LC / 122 DSP / 8 RAMB18 structural |
+| trapezoidal 48 kHz RTL stream | 64 outputs / 1,024 updates | exact fixed composition; zero diagnostics; 17,651 LC / 170 DSP / 8 RAMB18 structural |
 | chord vs full Newton | -137.28 dB normalized residual, 3-pass multitone | float architecture candidate |
 | fixed tube LUT | 0.139 µA mean / 9.33 µA worst full range | measured |
 | fixed factorized tube | 10.5 nA mean / 51.8 nA worst; 233,472 raw table bits | measured; standalone RTL passing |
@@ -431,8 +431,8 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | wide-state Python candidate | same 1 s click audit; 5 mV/1 kHz | 38.74 uV late residual; -63.83 dB nominal raw null; complete-RTL proof open |
 | wide chord RTL vs fixed | 1,024 randomized/directed vectors | bit-exact, latency 10; 1,701 LC / 9 DSP / 0 RAMB18 structural |
 | wide RHS/KCL RTL vs fixed | 1,024 vectors each | bit-exact, latency 2/10; KCL fallback/overflow/delayed-current coverage |
-| wide factorized solver RTL vs fixed | 512 persistent samples | bit-exact all state/diagnostics, latency 116; 11,981 LC / 122 DSP / 8 RAMB18 |
-| wide factorized stream vs fixed | 64 outputs / 1,024 updates | bit-exact, zero diagnostics; 16,993 LC / 170 DSP / 8 RAMB18 |
+| wide factorized solver RTL vs fixed | 512 persistent samples | bit-exact all state/diagnostics, latency 116; 12,439 LC / 122 DSP / 8 RAMB18 |
+| wide factorized stream vs fixed | 64 outputs / 1,024 updates | bit-exact, zero diagnostics; 17,552 LC / 170 DSP / 8 RAMB18 |
 | captured wide solver RTL vs analytical | 23,040 samples, 5 mV/1 kHz | Q32 exact to fixed; -0.000054 dB / -0.000187 degree gain/phase error; 0.019371% THD |
 | captured wide solver RTL frequency sweep | 5 mV, 100 Hz/1/10/20 kHz | Q32 exact to fixed; <=0.0001943 dB gain / <=0.0009814 degree phase; zero diagnostics |
 | captured trapezoidal solver RTL frequency | 5 mV, 100 Hz/1/10/20 kHz | all fixed states exact; <=0.000128 dB / <=0.000784 degree vs float; zero diagnostics |

@@ -171,12 +171,12 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   cells / 9 DSP48E1 / no RAMB18. Reject the 5,531-cell arbitrary-shift version.
 - [x] Implement two-clock wide RHS and ten-clock branch-current KCL blocks;
   match 1,024 vectors each with adaptive fallback, true overflow, and delayed
-  tube-current coverage. Synthesize at 31 LC / 4 DSP and 7,804 LC / 72 DSP.
+  tube-current coverage. Synthesize at 31 LC / 4 DSP and 8,034 LC / 72 DSP.
 - [x] Integrate the wide factorized solver; match all 19 persistent states and
   diagnostics across 512 sequential samples at 116 clocks. Synthesize the
-  hierarchy at 11,981 LC / 122 DSP48E1 / 8 RAMB18E1.
+  hierarchy at 12,439 LC / 122 DSP48E1 / 8 RAMB18E1.
 - [x] Integrate the wide solver into 16x interpolation/decimation; match 64
-  outputs / 1,024 solves exactly with zero diagnostics and synthesize at 16,993
+  outputs / 1,024 solves exactly with zero diagnostics and synthesize at 17,552
   LC / 170 DSP48E1 / 8 RAMB18E1.
 - [x] Capture 23,040 wide-solver RTL samples at 5 mV/1 kHz; prove Q32 exactness
   and measure -0.000054 dB gain, -0.000187 degree phase, 0.019371% THD, and

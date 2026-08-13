@@ -92,15 +92,15 @@ scripts/run_synthesis.py            XC7 structural resource report
 | wide chord RTL vs fixed correction | 1,024 deterministic vectors | bit-exact, latency 10, 95 saturation vectors; Q30/Q34/Q40 |
 | wide RHS RTL vs fixed network | 1,024 deterministic vectors | bit-exact, latency 2 |
 | wide KCL RTL vs fixed network | 1,024 deterministic vectors | bit-exact, latency 10; 48 fallback / 18 overflow vectors; delayed tube current |
-| trapezoidal wide KCL RTL vs fixed | 1,024 deterministic vectors | bit-exact residual/current state, latency 10; 1,015 deliberate current-saturation vectors |
+| trapezoidal wide KCL RTL vs fixed | 1,024 deterministic vectors | bit-exact residual/current state, latency 10; 1,013 deliberate current-saturation vectors |
 | trapezoidal wide solver RTL vs fixed | 512 sequential samples | bit-exact all 29 state words and diagnostics, latency 116, zero events |
-| trapezoidal wide solver synthesis | Yosys 0.66 structural | 12,451 LC, 122 DSP48E1, 8 RAMB18E1; no Fmax claim |
+| trapezoidal wide solver synthesis | Yosys 0.66 structural | 12,543 LC, 122 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | trapezoidal 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 116-clock solver |
-| trapezoidal stream synthesis | Yosys 0.66 structural | 17,556 LC, 170 DSP48E1, 8 RAMB18E1; no Fmax claim |
+| trapezoidal stream synthesis | Yosys 0.66 structural | 17,651 LC, 170 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | wide factorized solver RTL vs fixed | 512 sequential samples | bit-exact all 19 states and diagnostics, latency 116, zero events |
-| wide factorized solver synthesis | Yosys 0.66 structural | 11,981 LC, 122 DSP48E1, 8 RAMB18E1; no Fmax claim |
+| wide factorized solver synthesis | Yosys 0.66 structural | 12,439 LC, 122 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | wide 48 kHz stream vs fixed composition | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 116-clock solver |
-| wide stream synthesis | Yosys 0.66 structural | 16,993 LC, 170 DSP48E1, 8 RAMB18E1; no Fmax claim |
+| wide stream synthesis | Yosys 0.66 structural | 17,552 LC, 170 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | captured wide RTL nominal audio | 23,040 samples, 5 mV/1 kHz | Q32 exact; -63.834 dB raw null; 0.019371% THD; zero diagnostics |
 | captured wide RTL frequency sweep | 5 mV, 100 Hz/1/10/20 kHz | Q32 exact; <=0.0001943 dB gain, <=0.0009814 degree phase; zero diagnostics |
 | captured trapezoidal RTL frequency sweep | 5 mV, 100 Hz/1/10/20 kHz | all states exact; <=0.000128 dB / <=0.000784 degree vs float; zero diagnostics |

@@ -128,9 +128,10 @@ margin is insufficient to serialize a second complete solver, so stereo now
 requires a finer-grained shared schedule or a larger reference part.
 
 The guarded hierarchy adds the model-change state machine and output multiplier.
-Generic XC7 synthesis reports 17,142 logic cells, 172 DSP48E1s, and 8 RAMB18s,
-versus 16,993 / 170 / 8 for the reference stream alone. No placed timing result
-is implied by the small structural delta.
+Generic XC7 synthesis reports 17,142 logic cells, 172 DSP48E1s, and 8 RAMB18s.
+The separately synthesized unguarded hierarchy reports 17,552 / 170 / 8;
+out-of-context logic-cell estimates are optimization-dependent and are not
+additive. No placed timing result is implied by their small difference.
 
 ## Runtime observability contract
 
