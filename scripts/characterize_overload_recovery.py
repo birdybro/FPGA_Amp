@@ -41,8 +41,11 @@ def stimulus(level_peak_v: float) -> np.ndarray:
 
 def run_analytical(
     samples: np.ndarray,
+    integration_method: str = "backward_euler",
 ) -> tuple[np.ndarray, np.ndarray, int]:
-    model = V1CircuitModel(SAMPLE_RATE_HZ)
+    model = V1CircuitModel(
+        SAMPLE_RATE_HZ, integration_method=integration_method
+    )
     output = np.empty_like(samples)
     maximum_grid_current = np.zeros(2)
     for index, sample in enumerate(samples):

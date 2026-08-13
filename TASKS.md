@@ -13,8 +13,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 - [ ] Evaluate trapezoidal integration as the next fixed/RTL state contract.
   Floating SPICE error is <=0.00846 dB / <=0.0582 degrees at 10/20 kHz versus
-  backward Euler's 0.0646 dB / 4.72 degrees at 20 kHz, but overload stability,
-  previous-current formats, coefficient bounds, and cycle cost remain open.
+  backward Euler's 0.0646 dB / 4.72 degrees at 20 kHz, and floating overload is
+  stable through 1.5 V. Previous-current ranges/formats, coefficient bounds,
+  reset semantics, fixed equivalence, and cycle cost remain open.
 - [ ] Lengthen severe-overload recovery beyond the new 85 ms post-burst window;
   neither analytical nor RTL trajectories reach 10% nominal output at >=0.5 V.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
@@ -41,6 +42,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Compare 768 kHz backward Euler with SPICE at 100 Hz, 1 kHz, 10 kHz, and
   20 kHz; expose 4.72 degree high-frequency phase error and measure a floating
   trapezoidal candidate at <=0.0582 degrees for 10/20 kHz.
+- [x] Compare 100 ms backward-Euler/trapezoidal overload trajectories through
+  1.5 V; prove finite convergence and matched clean-region recovery.
 - [x] Select, document, and version the Kennedy 1998 two-stage passive-RIAA circuit.
 - [x] Implement AT-VM95E R/L/47.5 kΩ/150 pF cartridge loading.
 - [x] Build ngspice DC, 10 Hz–100 kHz AC, transient, and 1 kHz H1–H10 level sweeps.

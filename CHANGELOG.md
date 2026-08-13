@@ -91,6 +91,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
   ramp-up sequencing.
 - Added a four-frequency ngspice/Python transient sweep, a two-rate refinement
   study, and an explicit floating trapezoidal capacitor-companion candidate.
+- Added a 100 ms floating backward-Euler/trapezoidal overload stability study
+  spanning 20 mV through 1.5 V peak.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -236,6 +238,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   +4.72 degrees at 20 kHz. Quadrupling rate leaves +1.235 degrees. The floating
   trapezoidal candidate measures -0.00846 dB / +0.0582 degrees at 20 kHz and
   +0.00581 dB / +0.0390 degrees at 10 kHz, with no failed solves.
+- Trapezoidal Newton solves remain finite and convergent through 1.5 V / 26.4 uA
+  grid current. At 20 mV, recovery thresholds match backward Euler within
+  2.6 us; both methods preserve overload memory beyond 85 ms above 0.5 V.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.

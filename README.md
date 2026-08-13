@@ -38,6 +38,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   at 20 kHz. An explicit floating-only 768 kHz trapezoidal candidate improves
   10/20 kHz error to at most 0.00846 dB / 0.0582°, but is not yet the fixed or
   RTL contract.
+- A 100 ms floating overload comparison finds the trapezoidal candidate finite
+  and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
+  its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both
+  retain the modeled long recovery above 0.5 V; trapezoidal does not conceal or
+  correct that reference behavior.
 - The 128 × 256 Q0.31 tube LUT has 0.139 µA mean and 9.33 µA worst absolute
   error in a 100,000-point full-range probe.
 - The complete bit-accurate three-pass chord candidate is -57.87 dB normalized
@@ -212,6 +217,7 @@ python3 scripts/spice_level_sweep.py
 python3 scripts/run_reference.py --plots
 python3 scripts/compare_spice_python.py
 make spice-python-frequency          # four SPICE transients + integrator study
+make trapezoidal-overload            # floating integrator overload stability
 python3 scripts/characterize_solver.py
 python3 scripts/study_solver_architecture.py
 python3 scripts/compare_fixed_float.py

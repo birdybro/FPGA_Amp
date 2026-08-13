@@ -75,6 +75,22 @@ downstream change: trapezoidal overload stability, fixed state/current formats,
 coefficient widths, solver residuals, and a 128-clock RTL schedule remain to be
 proven. Backward Euler remains the bit-accurate fixed/RTL behavior.
 
+The first trapezoidal large-signal gate applies 5 ms, 1 kHz bursts inside a
+100 ms trajectory. Both floating methods remain finite and Newton-convergent at
+20 mV, 0.5 V, 1.0 V, and 1.5 V. For 20 mV, backward-Euler versus trapezoidal
+10% / 1% / 1 mV recovery is 8.4648 / 14.9180 / 18.2799 ms versus 8.4648 /
+14.9154 / 18.2773 ms. At 1.5 V their stage-two grid-current peaks are 26.288 /
+26.403 uA. Both remain above the 10%-nominal recovery threshold after 85 ms at
+0.5 V and above, demonstrating that the long memory is shared circuit/model
+behavior rather than a backward-Euler artifact. The two methods differ by
+4.31 mV RMS over the final 10 ms only in the 1.5 V case; lower tested levels
+are within 0.631 mV.
+
+This clears only floating numerical stability. The extra previous capacitor-
+current state needs measured physical range, an explicit fixed format, reset
+semantics, branch-current rounding analysis, and scheduled RTL before the
+candidate can replace backward Euler downstream.
+
 Three nonlinear solution forms have now been measured. Full Newton with a live
 Jacobian is the float reference and needs at most two correction passes for the
 20 mV 1 kHz test. Raw fixed-point iteration around the linear network is rejected:
@@ -320,6 +336,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | SPICE circuit | reproducible DC/AC/transient | golden numerical reference, not hardware truth |
 | 768 kHz backward-Euler integration | four SPICE transients, 100 Hz--20 kHz | <=0.0646 dB gain; phase grows to 4.72 degrees |
 | 768 kHz trapezoidal float candidate | 10/20 kHz SPICE transients | <=0.00846 dB gain / <=0.0582 degree phase; downstream proof open |
+| trapezoidal float overload stability | 20 mV--1.5 V, 100 ms records | finite/convergent; clean recovery matches BE; shared long memory above 0.5 V |
 | chord vs full Newton | -137.28 dB normalized residual, 3-pass multitone | float architecture candidate |
 | fixed tube LUT | 0.139 µA mean / 9.33 µA worst full range | measured |
 | fixed factorized tube | 10.5 nA mean / 51.8 nA worst; 233,472 raw table bits | measured; standalone RTL passing |
