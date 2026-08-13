@@ -1,0 +1,130 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "implementation": "floating nonlinear nodal circuit model",
+  "integration_method": "trapezoidal",
+  "solver_schedule": "full Newton through 850 ms, two-pass DC-chord candidate thereafter, with a simultaneous Newton comparison through 950 ms",
+  "sample_rate_hz": 768000.0,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_start_s": 0.01,
+    "burst_end_s": 0.015,
+    "duration_s": 7.0,
+    "post_burst_observation_s": 6.985,
+    "burst_levels_peak_v": [
+      1.0,
+      1.5
+    ]
+  },
+  "nominal_output_rms_v": 0.40087377398476304,
+  "recovery_thresholds_v_rms": {
+    "ten_percent_nominal_output_rms": 0.04008737739847631,
+    "one_percent_nominal_output_rms": 0.00400873773984763,
+    "one_millivolt_rms": 0.001
+  },
+  "recovery_definition": "last 1 ms sliding-RMS threshold crossing relative to a nominal undisturbed trajectory",
+  "modal_estimate_source": "model/generated/linearized_mode_summary.json",
+  "control_solver_handoff_diagnostics": {
+    "newton_handoff_s": 0.85,
+    "newton_overlap_end_s": 0.95,
+    "newton_nonconvergence_count": 0,
+    "newton_nonconvergence_count_before_handoff": 0,
+    "chord_nonconvergence_count": 0,
+    "chord_max_iterations": 2,
+    "overlap_samples": 76800,
+    "overlap_error_rms_v": 1.1926803968641224e-08,
+    "overlap_error_mean_v": 9.389936419993246e-09,
+    "overlap_error_maximum_absolute_v": 3.1304988920566323e-08,
+    "final_probe_samples": 768,
+    "final_probe_error_rms_v": 7.176174156447363e-09,
+    "final_probe_error_maximum_absolute_v": 1.7114806225015933e-08
+  },
+  "measurements": [
+    {
+      "burst_input_peak_v": 1.0,
+      "measured_recovery_s_after_burst": {
+        "ten_percent_nominal_output_rms": 0.2701119791666667,
+        "one_percent_nominal_output_rms": 3.0539270833333334,
+        "one_millivolt_rms": 4.536427083333334
+      },
+      "modal_estimated_recovery_s_after_burst": {
+        "one_percent_nominal_output_rms": 2.9925362321765783,
+        "one_millivolt_rms": 4.475099435364326
+      },
+      "measured_minus_modal_estimate_s": {
+        "ten_percent_nominal_output_rms": null,
+        "one_percent_nominal_output_rms": 0.06139085115675513,
+        "one_millivolt_rms": 0.06132764796900769
+      },
+      "one_ms_deviation_rms_v_at_absolute_time_s": {
+        "1": 0.027171843163154897,
+        "2": 0.010908136224939986,
+        "3": 0.004276050467550821,
+        "4": 0.0016762111419189028,
+        "5": 0.0006573687508709111,
+        "6": 0.0002589502372509329,
+        "7": 0.0001057159916729051
+      },
+      "final_10ms_deviation_rms_v": 0.00010137835686325263,
+      "solver_handoff_diagnostics": {
+        "newton_handoff_s": 0.85,
+        "newton_overlap_end_s": 0.95,
+        "newton_nonconvergence_count": 0,
+        "newton_nonconvergence_count_before_handoff": 0,
+        "chord_nonconvergence_count": 0,
+        "chord_max_iterations": 2,
+        "overlap_samples": 76800,
+        "overlap_error_rms_v": 1.2123542507323493e-08,
+        "overlap_error_mean_v": 9.624760991451696e-09,
+        "overlap_error_maximum_absolute_v": 3.3186983917909973e-08,
+        "final_probe_samples": 768,
+        "final_probe_error_rms_v": 6.927740478565604e-09,
+        "final_probe_error_maximum_absolute_v": 1.7893578257988096e-08
+      }
+    },
+    {
+      "burst_input_peak_v": 1.5,
+      "measured_recovery_s_after_burst": {
+        "ten_percent_nominal_output_rms": 2.4296731770833335,
+        "one_percent_nominal_output_rms": 4.8882916666666665,
+        "one_millivolt_rms": 6.370790364583334
+      },
+      "modal_estimated_recovery_s_after_burst": {
+        "ten_percent_nominal_output_rms": 2.384588161043813,
+        "one_percent_nominal_output_rms": 4.84320247630222,
+        "one_millivolt_rms": 6.325765679489969
+      },
+      "measured_minus_modal_estimate_s": {
+        "ten_percent_nominal_output_rms": 0.04508501603952064,
+        "one_percent_nominal_output_rms": 0.04508919036444681,
+        "one_millivolt_rms": 0.04502468509336488
+      },
+      "one_ms_deviation_rms_v_at_absolute_time_s": {
+        "1": 0.15231746370770233,
+        "2": 0.060793004967287505,
+        "3": 0.023830846659726734,
+        "4": 0.009341279474875407,
+        "5": 0.003661617272480108,
+        "6": 0.0014352930476024053,
+        "7": 0.0005627163365046928
+      },
+      "final_10ms_deviation_rms_v": 0.0005649884151510427,
+      "solver_handoff_diagnostics": {
+        "newton_handoff_s": 0.85,
+        "newton_overlap_end_s": 0.95,
+        "newton_nonconvergence_count": 0,
+        "newton_nonconvergence_count_before_handoff": 0,
+        "chord_nonconvergence_count": 0,
+        "chord_max_iterations": 2,
+        "overlap_samples": 76800,
+        "overlap_error_rms_v": 1.2256410573897218e-08,
+        "overlap_error_mean_v": 9.796334959070789e-09,
+        "overlap_error_maximum_absolute_v": 3.2043725478603236e-08,
+        "final_probe_samples": 768,
+        "final_probe_error_rms_v": 7.046237859277231e-09,
+        "final_probe_error_maximum_absolute_v": 1.7558977341569637e-08
+      }
+    }
+  ],
+  "scope": "This closes floating physical-model recovery timing. It does not remove the known fixed/RTL severe-overload solver limitation."
+}

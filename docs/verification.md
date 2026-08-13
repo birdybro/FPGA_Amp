@@ -49,6 +49,7 @@ scripts/characterize_overload_recovery.py     grid conduction and recovery
 scripts/characterize_overload_recovery.py --trapezoidal  fixed integrator overload
 scripts/characterize_long_overload_recovery.py  235 ms physical-model tail
 scripts/measure_severe_overload_recovery.py     direct 850 ms multimode tail
+scripts/measure_seven_second_recovery.py        complete severe recovery timing
 scripts/study_overload_iterations.py          pass-count/deadline trade
 scripts/study_trapezoidal_overload.py         floating integrator stability
 scripts/characterize_factorized_frequency.py --trapezoidal  fixed integrator sweep
@@ -69,6 +70,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | long trapezoidal overload recovery | 0.5/1.0/1.5 V, 235 ms post-burst | 0.5 V 10% recovery 146.552 ms; 98.2--118.1 ms fitted modes; severe crossings remain labeled projections |
 | severe trapezoidal overload recovery | 1.0/1.5 V, 835 ms post-burst | 1.0 V sustained 10% 270.112 ms; 1.5 V not 10%; 413--451x cancellation rebound falsifies early fit |
 | linearized physical-circuit modes | 9-node G+sC at tube DC bias | rank 8; all stable; recovery modes 143.936 ms / 1.067763 s; slow mode >99.999999% output-cap energy |
+| complete severe floating recovery | 1.0/1.5 V, 6.985 s post-burst | all 10%/1%/1 mV crossings measured; latest 6.370790 s; chord/Newton overlap <=33.2 nV |
 | fixed trapezoidal vs trapezoidal float | 5 mV, 20/50/100/1k/10k/20k Hz | <=0.000131 dB gain, <=0.000784 degree phase; zero diagnostics |
 | fixed trapezoidal overload | 20 mV/0.5/1.0/1.5 V, 5 ms burst | clean through 0.5 V; 1,107/1,690 failures at 1/1.5 V; 203.34 uA max capacitor current |
 | 2-pass vs converged solver | 20 mV peak, 1 kHz | all samples ≤100 pA residual; -136.84 dB output residual |

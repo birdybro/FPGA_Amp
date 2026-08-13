@@ -11,10 +11,6 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
-- [ ] Extend severe-overload observation beyond 835 ms. The 1.0 V trajectory
-  reaches sustained 10% recovery at 270.112 ms but not 1%; the 1.5 V trajectory
-  remains above 10%, and fixed/RTL accuracy is invalid at both levels. The
-  linearized 1.0678 s mode sets a justified seven-second direct record.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
 - [ ] Evaluate overload-specific solver strategies (adaptive Jacobian, parallel
   tube evaluation, or higher-rate schedule); six chord passes still fail at
@@ -80,6 +76,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   without a generalized-eigenvalue dependency. Verify eight stable finite modes;
   identify 143.936 ms and 1.067763 s output-coupling modes that explain the
   overload cancellation/rebound and bound the next direct record at seven seconds.
+- [x] Run seven-second nominal/1.0 V/1.5 V recovery trajectories. Measure all
+  sustained 10%/1%/1 mV crossings through 6.371 s; validate the late two-pass
+  chord handoff against Newton below 33.2 nV over 100 ms and 17.9 nV at the
+  final-cycle probe, with zero solve failures.
 - [x] Select, document, and version the Kennedy 1998 two-stage passive-RIAA circuit.
 - [x] Implement AT-VM95E R/L/47.5 kΩ/150 pF cartridge loading.
 - [x] Build ngspice DC, 10 Hz–100 kHz AC, transient, and 1 kHz H1–H10 level sweeps.

@@ -128,6 +128,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a dependency-free continuous-time nodal pole extractor with tube
   small-signal linearization, mode shapes, capacitor-energy participation,
   stability gates, and measured-overload interpretation.
+- Added parallel seven-second severe-recovery trajectories with a bounded
+  Newton-to-chord handoff, overlap/final-probe error gates, and direct sustained
+  timing for every 10%, 1%, and 1 mV threshold.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.

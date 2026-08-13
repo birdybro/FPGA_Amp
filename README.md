@@ -222,6 +222,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   failed. Applying the slow mode only after the 835 ms measured endpoint
   estimates the last severe 1 mV crossing near 6.33 s; a seven-second direct
   run is required before turning that estimate into a measurement.
+- The resulting seven-second trajectories now measure the complete tail. At
+  1.0 V, sustained 10%/1%/1 mV recovery occurs at 0.270112/3.053927/4.536427 s;
+  at 1.5 V it occurs at 2.429673/4.888292/6.370790 s. Full Newton covers the
+  first 850 ms; a two-pass floating chord solver covers the near-bias tail only
+  after a 100 ms overlap stays below 33.2 nV maximum error. A final-cycle probe
+  stays below 17.9 nV and all solves converge. The modal estimates were within
+  61.4 ms, but the measured times now supersede them.
 - A downstream, explicitly non-reference output guard now starts muted, applies
   a configurable sample-qualified linear ramp, bypasses exactly at unity, and
   synchronously clamps held output on a fault. Its warning-free RTL regression
@@ -305,6 +312,7 @@ make overload-study                 # grid conduction, clipping, recovery
 make overload-trapezoidal           # fixed/float trapezoidal burst comparison
 make overload-long                  # 235 ms floating severe-recovery observation
 make overload-severe-long           # direct 850 ms multimode recovery test
+make overload-seven-second          # complete severe floating recovery timing
 make overload-wide                  # same bursts with wide-state candidate
 make overload-iterations            # three-to-six-pass solver trade
 python3 scripts/study_lut_resolution.py

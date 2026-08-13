@@ -336,6 +336,16 @@ the actual 835 ms endpoints, the slow mode estimates 1 mV recovery at 4.48 s
 for 1.0 V and 6.33 s for 1.5 V. Those remain estimates; the next direct record
 is set to seven seconds.
 
+That seven-second run is now complete. Full Newton integration covers the
+nonlinear burst and first 850 ms; from 850 ms onward a two-pass floating chord
+update is used only after simultaneous Newton comparison through 950 ms. Across
+nominal, 1.0 V, and 1.5 V trajectories the overlap maximum is 33.2 nV, the
+final-cycle Newton probe maximum is 17.9 nV, and no solve fails. The 1.0 V
+10%/1%/1 mV sustained crossings are 0.270112, 3.053927, and 4.536427 s. The
+1.5 V crossings are 2.429673, 4.888292, and 6.370790 s. Late linear-mode
+estimates differ by 45.0--61.4 ms. These values close floating physical-model
+timing only; known fixed/RTL residual and range failures above 0.5 V remain.
+
 The 0.5 V accepted boundary is also captured through selectable trapezoidal
 RTL for the full 250 ms record. Control and overload account for 384,000 exact
 comparisons of all nine nodes, ten voltage histories, ten current histories,
@@ -402,6 +412,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | long floating overload tail | 0.5--1.5 V, 250 ms records / 235 ms post-burst | 0.5 V 10% recovery 146.552 ms; severe fitted crossings explicitly projected |
 | severe floating overload tail | 1.0/1.5 V, 850 ms records / 835 ms post-burst | early exponential projection falsified; 1.0 V 10% at 270.112 ms; 1.5 V not recovered |
 | linearized continuous-time modes | G+sC at Koren DC bias | 8 stable finite poles; 143.936 ms / 1.067763 s explain recovery rebound |
+| complete severe recovery | 7 s Newton/validated-chord records | 1.0/1.5 V last 1 mV crossings 4.536427/6.370790 s; <=33.2 nV overlap error |
 | fixed trapezoidal state | six 5 mV points, 20 Hz--20 kHz | <=0.000131 dB / <=0.000784 degree vs float trapezoidal; zero diagnostics; RTL open |
 | fixed trapezoidal overload | 20 mV--1.5 V bursts | clean through 0.5 V; 203.34 uA history-current peak; severe solver/range limit unchanged |
 | trapezoidal KCL RTL | 1,024 randomized/directed vectors | exact residual and Q4.44 next current; 10 clocks; integrated |
