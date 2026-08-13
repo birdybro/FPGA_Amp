@@ -112,6 +112,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Extended arbitrary-length solver capture and the four-point frequency sweep
   to trapezoidal state, including all current-history words, separate artifacts,
   gated gain/phase/diagnostics, and a non-combined link to ngspice evidence.
+- Added reusable composed fixed/floating complete-stream references and a
+  captured four-point 48 kHz trapezoidal sweep. The regression proves 19,200
+  outputs exactly, gates float error and diagnostics, and reports the measured
+  51-sample converter delay separately from circuit-attributed phase.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.

@@ -181,6 +181,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   of floating trapezoidal with zero diagnostics. The report links, but does not
   combine, the independent ngspice layer: float trapezoidal differs by at most
   0.00846 dB / 0.0582° at the measured 10/20 kHz points.
+- The complete 48 kHz trapezoidal boundary is captured for 4,800 outputs at
+  each of 100 Hz, 1 kHz, 10 kHz, and 20 kHz. Every RTL output is fixed-model
+  exact, all diagnostics remain zero, and the full chain stays within 0.000111
+  dB / 0.001185° of its composed floating reference. The report measures the
+  causal rate-converter path separately at exactly 51 external samples
+  (1.0625 ms), then subtracts that phase only in the explicitly labeled
+  circuit-attributed view.
 - A captured 100 ms overload campaign matches all fixed nodes, capacitor states,
   outputs, and diagnostics for 384,000 total solver updates. The 20 mV burst
   reaches the 10% / 1% recovery thresholds in 8.47 / 14.92 ms. Bursts at 0.5 V
@@ -262,6 +269,7 @@ make state-wide-audio               # 5 mV/1 kHz legacy/wide A/B
 make wide-rtl-audio                 # capture and measure 23,040 RTL samples
 make wide-rtl-frequency             # captured 100 Hz-20 kHz solver sweep
 make trapezoidal-rtl-frequency      # captured selectable-integrator sweep
+make trapezoidal-stream-rtl-frequency # captured complete 48 kHz sweep
 make wide-rtl-overload              # captured 100 ms overload/recovery sweep
 make wide-stream-rtl-alias          # captured nonlinear decimation-alias test
 make overload-study                 # grid conduction, clipping, recovery

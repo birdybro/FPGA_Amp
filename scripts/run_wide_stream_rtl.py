@@ -21,6 +21,11 @@ def main() -> int:
     parser.add_argument("--vector-count", type=int)
     parser.add_argument("--capture-file")
     parser.add_argument("--trapezoidal", action="store_true")
+    parser.add_argument(
+        "--run-only",
+        action="store_true",
+        help="reuse an already built simulator for another vector file",
+    )
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
@@ -71,44 +76,47 @@ def main() -> int:
         if args.trapezoidal
         else "phono_stream_mono_wide_tb"
     )
-    subprocess.run(
-        [
-            verilator,
-            "--lint-only",
-            "--timing",
-            "-Wall",
-            "-Wno-fatal",
-            "-sv",
-            "--top-module",
-            top,
-            *sources,
-        ],
-        cwd=ROOT,
-        check=True,
-    )
     build = ROOT / "build" / (
         "verilator_phono_stream_wide_trapezoidal"
         if args.trapezoidal
         else "verilator_phono_stream_wide"
     )
-    subprocess.run(
-        [
-            verilator,
-            "--binary",
-            "--timing",
-            "-Wall",
-            "-Wno-fatal",
-            "-sv",
-            "--top-module",
-            top,
-            "--Mdir",
-            str(build),
-            *sources,
-        ],
-        cwd=ROOT,
-        check=True,
-    )
+    if not args.run_only:
+        subprocess.run(
+            [
+                verilator,
+                "--lint-only",
+                "--timing",
+                "-Wall",
+                "-Wno-fatal",
+                "-sv",
+                "--top-module",
+                top,
+                *sources,
+            ],
+            cwd=ROOT,
+            check=True,
+        )
+        subprocess.run(
+            [
+                verilator,
+                "--binary",
+                "--timing",
+                "-Wall",
+                "-Wno-fatal",
+                "-sv",
+                "--top-module",
+                top,
+                "--Mdir",
+                str(build),
+                *sources,
+            ],
+            cwd=ROOT,
+            check=True,
+        )
     simulation = [str(build / f"V{top}")]
+    if args.run_only and not Path(simulation[0]).is_file():
+        parser.error("--run-only requested before the simulator was built")
     if args.vectors_file:
         simulation.extend(
             (

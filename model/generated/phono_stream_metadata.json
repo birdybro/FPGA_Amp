@@ -2,6 +2,7 @@
   "model": "12ax7_passive_riaa_v1",
   "tube_implementation": "surface",
   "state_implementation": "legacy_companion_rhs",
+  "integration_method": "backward_euler",
   "input_rate_hz": 48000,
   "circuit_rate_hz": 768000,
   "vectors": 64,

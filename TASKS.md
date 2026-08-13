@@ -11,20 +11,17 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
-- [ ] Automate complete-stream trapezoidal frequency, phase, and level captures.
-  The integrated solver is captured across 100 Hz--20 kHz, but the 48 kHz
-  interpolation/decimation path only has the 64-output exact regression.
 - [ ] Lengthen severe-overload recovery beyond the new 85 ms post-burst window;
   neither analytical nor RTL trajectories reach 10% nominal output at >=0.5 V.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
 - [ ] Evaluate overload-specific solver strategies (adaptive Jacobian, parallel
   tube evaluation, or higher-rate schedule); six chord passes still fail at
   1.0/1.5 V and cannot meet the present 128-clock budget.
-- [ ] Automate RTL frequency and level comparisons through the integrated solver,
-  including DC, gain, harmonics, clipping asymmetry, and recovery.
-- [ ] Automate complete-stream frequency, phase, and level comparisons. The
-  isolated cubic alias path is now captured; a full-tube 3 kHz bin is confounded
-  by 3 kHz content already present before decimation.
+- [ ] Extend integrated-solver RTL capture beyond nominal frequency response to
+  level-dependent harmonics, clipping asymmetry, and recovery metrics.
+- [ ] Separate folded nonlinear harmonics from preexisting in-band solver energy
+  in the complete stream; the present full-tube 3 kHz bin is intentionally not
+  reported as pure 45 kHz-to-3 kHz aliasing.
 
 ## Completed this milestone
 
@@ -60,6 +57,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Capture trapezoidal solver RTL at 100 Hz, 1 kHz, 10 kHz, and 20 kHz;
   prove complete fixed-state equivalence, nominal diagnostics, and bounded
   gain/phase error while linking the separate ngspice integration layer.
+- [x] Capture the complete 48 kHz trapezoidal stream for 4,800 outputs at each
+  of 100 Hz, 1 kHz, 10 kHz, and 20 kHz; prove exact fixed equivalence, zero
+  diagnostics, and <=0.000111 dB / <=0.001185 degree error against the composed
+  floating model. Measure the rate converters independently at exactly 51
+  external samples / 1.0625 ms so their phase is not attributed to the circuit.
 - [x] Select, document, and version the Kennedy 1998 two-stage passive-RIAA circuit.
 - [x] Implement AT-VM95E R/L/47.5 kΩ/150 pF cartridge loading.
 - [x] Build ngspice DC, 10 Hz–100 kHz AC, transient, and 1 kHz H1–H10 level sweeps.
@@ -172,7 +174,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   100 Hz to -21.50 dB at 20 kHz. The 20 kHz gain error is only -0.0646 dB, but
   phase error is +4.72 degrees. Floating trapezoidal reduces that phase error to
   +0.0582 degrees. The fixed trapezoidal model is now nominally bounded against
-  that floating candidate; large-signal and RTL adoption are not yet justified.
+  that floating candidate and implemented through the complete RTL stream.
+  Severe-overload convergence remains unresolved and the SPICE link is still
+  based on separate, non-sample-identical transient stimuli.
 - The frozen historical circuit is -0.919 dB from ideal RIAA at its worst audio-
   band point. This is reference behavior, not an implementation defect.
 - The explicit 2-D-LUT RTL mode produces 0.0733% THD versus 0.0191% analytical
@@ -207,8 +211,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Verification debt
 
-- The full-phono circuit RTL is bit-exact to fixed Python, but fixed versus float/
-  SPICE still has only the initial multitone and one SPICE transient comparison.
+- The full-phono circuit RTL is bit-exact to fixed Python and now has nominal
+  four-point solver and complete-stream captures. SPICE comparison remains at
+  four frequencies and large-signal cross-layer coverage is still incomplete.
 - WAV/null, CDC, and formal infrastructure remain absent. The cubic alias test
   is captured from RTL, while a full-tube alias decomposition still needs a
   method that separates preexisting in-band energy from folded harmonics.

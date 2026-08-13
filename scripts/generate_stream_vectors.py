@@ -14,18 +14,13 @@ import numpy as np
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPOSITORY_ROOT / "model" / "python"))
 
-from fpga_amp.fixed_circuit import (  # noqa: E402
-    FixedChordV1CircuitModel,
-    FixedWideStateTrapezoidalV1CircuitModel,
-    FixedWideStateV1CircuitModel,
-    round_shift,
-    saturate_signed,
-)
+from fpga_amp.fixed_circuit import FixedChordV1CircuitModel, saturate_signed  # noqa: E402
 from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
 from fpga_amp.resampling import (  # noqa: E402
     decimate_16x_fixed_q24,
     interpolate_16x_fixed_q24,
 )
+from fpga_amp.stream import compose_fixed_wide_stream  # noqa: E402
 
 
 def main() -> int:
@@ -50,35 +45,38 @@ def main() -> int:
     input_v[32] -= 0.010
     input_q24 = np.rint(input_v * (1 << 24)).astype(np.int64)
 
-    interpolated_q24, interpolation_saturations = interpolate_16x_fixed_q24(
-        input_q24
-    )
-    # The scheduled RTL cascade has 18 visible internal-sample pipeline states.
-    internal_q24 = np.concatenate((np.zeros(18, dtype=np.int64), interpolated_q24))[
-        : 16 * args.vectors
-    ]
-    tube = FixedFactorizedKoren12AX7() if args.factorized else None
-    if args.trapezoidal:
-        model = FixedWideStateTrapezoidalV1CircuitModel(tube_lut=tube)
-    elif args.wide:
-        model = FixedWideStateV1CircuitModel(tube_lut=tube)
+    if args.wide:
+        composed = compose_fixed_wide_stream(
+            input_q24, trapezoidal=args.trapezoidal
+        )
+        internal_q24 = composed.internal_input_q24
+        model = composed.circuit
+        output_q24 = composed.output_q24
+        interpolation_saturations = composed.interpolation_saturation_count
+        conversion_saturations = composed.output_conversion_saturation_count
+        decimation_saturations = composed.decimation_saturation_count
     else:
+        interpolated_q24, interpolation_saturations = interpolate_16x_fixed_q24(
+            input_q24
+        )
+        # The scheduled RTL cascade has 18 visible internal-sample pipeline states.
+        internal_q24 = np.concatenate(
+            (np.zeros(18, dtype=np.int64), interpolated_q24)
+        )[: 16 * args.vectors]
+        tube = FixedFactorizedKoren12AX7() if args.factorized else None
         model = FixedChordV1CircuitModel(tube_lut=tube)
-    circuit_output_q24: list[int] = []
-    conversion_saturations = 0
-    for sample_q24 in internal_q24:
-        model.process_sample(int(sample_q24) / float(1 << 24))
-        if args.wide:
-            converted = round_shift(int(model.voltage_q[8]), 8)
-        else:
+        circuit_output_q24: list[int] = []
+        conversion_saturations = 0
+        for sample_q24 in internal_q24:
+            model.process_sample(int(sample_q24) / float(1 << 24))
             converted = int(model.voltage_q[8]) << 4
-        output_q24, clipped = saturate_signed(converted, 32)
-        circuit_output_q24.append(output_q24)
-        conversion_saturations += int(clipped)
-    output_q24, decimation_saturations = decimate_16x_fixed_q24(
-        np.asarray(circuit_output_q24, dtype=np.int64)
-    )
-    output_q24 = output_q24[: args.vectors]
+            converted_q24, clipped = saturate_signed(converted, 32)
+            circuit_output_q24.append(converted_q24)
+            conversion_saturations += int(clipped)
+        output_q24, decimation_saturations = decimate_16x_fixed_q24(
+            np.asarray(circuit_output_q24, dtype=np.int64)
+        )
+        output_q24 = output_q24[: args.vectors]
 
     vector_directory = REPOSITORY_ROOT / "sim" / "vectors" / "generated"
     vector_directory.mkdir(parents=True, exist_ok=True)

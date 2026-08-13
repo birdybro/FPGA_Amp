@@ -27,6 +27,11 @@ from fpga_amp.resampling import (  # noqa: E402
 )
 from fpga_amp.tube import Koren12AX7  # noqa: E402
 from fpga_amp.v1_circuit import V1CircuitModel  # noqa: E402
+from fpga_amp.stream import (  # noqa: E402
+    CONVERTER_GROUP_DELAY_EXTERNAL_SAMPLES,
+    compose_fixed_converter_only,
+    compose_fixed_wide_stream,
+)
 
 
 class RIAAReferenceTests(unittest.TestCase):
@@ -103,6 +108,23 @@ class TubeModelTests(unittest.TestCase):
 
 
 class ResamplerTests(unittest.TestCase):
+    def test_composed_stream_preserves_scheduled_pipeline_contract(self) -> None:
+        index = np.arange(32, dtype=np.float64)
+        input_q24 = np.rint(
+            0.005 * np.sin(2.0 * np.pi * 1_000.0 * index / 48_000.0)
+            * (1 << 24)
+        ).astype(np.int64)
+        result = compose_fixed_wide_stream(input_q24, trapezoidal=True)
+        converter_output, converter_saturations = compose_fixed_converter_only(
+            input_q24
+        )
+        self.assertEqual(result.output_q24.size, input_q24.size)
+        self.assertEqual(converter_output.size, input_q24.size)
+        self.assertTrue(np.all(result.internal_input_q24[:18] == 0))
+        self.assertEqual(sum(result.diagnostic_counts.values()), 0)
+        self.assertEqual(converter_saturations, 0)
+        self.assertEqual(CONVERTER_GROUP_DELAY_EXTERNAL_SAMPLES, 51.0)
+
     def test_halfband_structure_and_image_rejection(self) -> None:
         for stage in DEFAULT_STAGES:
             coefficients = stage.coefficients
