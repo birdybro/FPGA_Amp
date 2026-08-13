@@ -159,6 +159,14 @@ model converges throughout. Those clip/failure counts prohibit claiming the
 present three-pass fixed result as overload-equivalent above the tested 0.5 V
 case. Koren's grid-current branch is itself only a rough physical estimate.
 
+Adding corrections alone is rejected as the overload solution. On a shorter
+controlled burst, increasing from three to six corrections reduces the 1.0 V
+maximum residual from 6.93 to 2.31 µA and failures from 942 to 30. At 1.5 V it
+only reduces 17.34 to 5.83 µA and leaves 960 failures. A serialized extra
+residual-plus-chord pass uses the measured 19 + 10 clocks, so six corrections
+project 213 clocks versus the 128-clock deadline. This projection is not an RTL
+timing measurement, but it is sufficient to reject a simple serial-pass increase.
+
 ## Explicit error budget status
 
 | Layer | Present evidence | Status |
@@ -176,6 +184,7 @@ case. Koren's grid-current branch is itself only a rough physical estimate.
 | factorized stream vs fixed | 64 outputs / 1,024 updates exact; 14,366 LC / 158 DSP / 8 RAMB18 | passing; broader stimuli open |
 | factorized frequency response | six 5 mV points, 20 Hz–20 kHz | ≤0.00846 dB gain / ≤0.0729° phase; zero diagnostics |
 | factorized overload/recovery | 5 ms bursts, 20 mV–1.5 V | clean at 20/500 mV; residual failure at 1 V; range clip at 1.5 V |
+| overload iteration count | 3–6 corrections at 1.0/1.5 V | improved but still failing; projected 213 clocks at six |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |
 | fixed chord/state vs float LUT circuit | -70.33 dB initial multitone; -34.58 dB at 5 mV/1 kHz | signal-dependent; low-level improvement required |
 | low-level complete fixed model | 2-D: 0.0733%; factorized: 0.0188%; analytical: 0.0191% THD | device error improved; RTL/state-phase work open |

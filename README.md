@@ -85,6 +85,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   and recovers below 10% / 1% nominal RMS in 8.67 / 24.6 ms. At 1.0 V the
   residual limit fails; at 1.5 V stage-two grid current reaches 26.3 µA and the
   transformed tube domain clips.
+- Increasing the fixed chord count from three to six reduces the 1.0 V maximum
+  residual from 6.93 to 2.31 µA but still leaves 30 failures and projects a
+  213-clock serialized schedule. At 1.5 V it remains inadequate. Overload needs
+  a different solver/range strategy rather than an unbudgeted extra pass.
 - A four-stage 16× half-band reference provides at least 91.6 dB per-stage image
   rejection and suppresses the measured cubic 45 kHz→3 kHz decimation alias to
   -137.8 dB with bit-accurate Q8.24/Q1.23 MACs. The complete interpolation and
@@ -135,6 +139,7 @@ make accuracy-sweeps                # settled level and low-level LUT studies
 make factorized-study               # smooth 1-D/Hermite tube candidate
 make factorized-frequency           # 20 Hz-20 kHz fixed/analytical sweep
 make overload-study                 # grid conduction, clipping, recovery
+make overload-iterations            # three-to-six-pass solver trade
 python3 scripts/study_lut_resolution.py
 python3 scripts/analyze_frontend.py
 python3 scripts/design_resampler.py

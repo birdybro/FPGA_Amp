@@ -1,0 +1,130 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "tube_implementation": "fixed factorized 1-D cubic-Hermite",
+  "sample_rate_hz": 768000.0,
+  "residual_limit_a": 2e-06,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_start_s": 0.004,
+    "burst_end_s": 0.008,
+    "duration_s": 0.012
+  },
+  "correction_counts": [
+    3,
+    4,
+    5,
+    6
+  ],
+  "latency_projection_note": "one extra serialized residual/correction pass adds the measured 19-clock residual path plus 10-clock chord path; not an RTL timing result",
+  "measurements": [
+    {
+      "burst_input_peak_v": 1.0,
+      "analytical_nonconvergence_count": 0,
+      "cases": [
+        {
+          "chord_corrections": 3,
+          "projected_serial_solver_latency_clocks": 126,
+          "maximum_residual_a": 6.927124559297226e-06,
+          "residual_limit_exceedance_count": 942,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "burst_residual_rms_v": 0.16345001775454882,
+          "burst_max_absolute_error_v": 0.5221313485962327,
+          "post_residual_rms_v": 0.0032280881660872026,
+          "post_max_absolute_error_v": 0.004451505508545672
+        },
+        {
+          "chord_corrections": 4,
+          "projected_serial_solver_latency_clocks": 155,
+          "maximum_residual_a": 4.475874561649107e-06,
+          "residual_limit_exceedance_count": 656,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "burst_residual_rms_v": 0.10251444970909498,
+          "burst_max_absolute_error_v": 0.3378546544433618,
+          "post_residual_rms_v": 0.0037950890503393375,
+          "post_max_absolute_error_v": 0.004697171474482786
+        },
+        {
+          "chord_corrections": 5,
+          "projected_serial_solver_latency_clocks": 184,
+          "maximum_residual_a": 3.0855663908369024e-06,
+          "residual_limit_exceedance_count": 254,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "burst_residual_rms_v": 0.0684246384882512,
+          "burst_max_absolute_error_v": 0.23253246132638594,
+          "post_residual_rms_v": 0.0031064753273373413,
+          "post_max_absolute_error_v": 0.003719715271181201
+        },
+        {
+          "chord_corrections": 6,
+          "projected_serial_solver_latency_clocks": 213,
+          "maximum_residual_a": 2.305828388671216e-06,
+          "residual_limit_exceedance_count": 30,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "burst_residual_rms_v": 0.04749958482005257,
+          "burst_max_absolute_error_v": 0.16636218429157168,
+          "post_residual_rms_v": 0.003266161312546075,
+          "post_max_absolute_error_v": 0.0038135778541317222
+        }
+      ]
+    },
+    {
+      "burst_input_peak_v": 1.5,
+      "analytical_nonconvergence_count": 0,
+      "cases": [
+        {
+          "chord_corrections": 3,
+          "projected_serial_solver_latency_clocks": 126,
+          "maximum_residual_a": 1.7340523129405483e-05,
+          "residual_limit_exceedance_count": 1371,
+          "saturation_count": 0,
+          "range_clip_count": 3289,
+          "burst_residual_rms_v": 0.6523238899810606,
+          "burst_max_absolute_error_v": 1.5692182348008998,
+          "post_residual_rms_v": 0.06274016080619171,
+          "post_max_absolute_error_v": 0.12383232657666099
+        },
+        {
+          "chord_corrections": 4,
+          "projected_serial_solver_latency_clocks": 155,
+          "maximum_residual_a": 1.1405360396565811e-05,
+          "residual_limit_exceedance_count": 1225,
+          "saturation_count": 0,
+          "range_clip_count": 4110,
+          "burst_residual_rms_v": 0.42947212309659855,
+          "burst_max_absolute_error_v": 1.034453637171893,
+          "post_residual_rms_v": 0.060718417363758735,
+          "post_max_absolute_error_v": 0.12012825553173911
+        },
+        {
+          "chord_corrections": 5,
+          "projected_serial_solver_latency_clocks": 184,
+          "maximum_residual_a": 8.142459535065427e-06,
+          "residual_limit_exceedance_count": 1097,
+          "saturation_count": 0,
+          "range_clip_count": 4932,
+          "burst_residual_rms_v": 0.30219254195282075,
+          "burst_max_absolute_error_v": 0.724956668183566,
+          "post_residual_rms_v": 0.06144960381856698,
+          "post_max_absolute_error_v": 0.12193737570996177
+        },
+        {
+          "chord_corrections": 6,
+          "projected_serial_solver_latency_clocks": 213,
+          "maximum_residual_a": 5.832695308072289e-06,
+          "residual_limit_exceedance_count": 960,
+          "saturation_count": 0,
+          "range_clip_count": 5757,
+          "burst_residual_rms_v": 0.22254200653129605,
+          "burst_max_absolute_error_v": 0.5274410158131246,
+          "post_residual_rms_v": 0.06206242565326909,
+          "post_max_absolute_error_v": 0.12163506095166099
+        }
+      ]
+    }
+  ]
+}

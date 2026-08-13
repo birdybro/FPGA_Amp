@@ -18,6 +18,9 @@ RTL, then prove frequency, level, and overload behavior through the complete
 - [ ] Extend factorized-fixed-vs-float comparison across silence, impulses, and
   long-duration capacitor-state drift; lengthen severe-overload recovery windows.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
+- [ ] Evaluate overload-specific solver strategies (adaptive Jacobian, parallel
+  tube evaluation, or higher-rate schedule); six chord passes still fail at
+  1.0/1.5 V and cannot meet the present 128-clock budget.
 - [ ] Automate RTL frequency and level comparisons through the integrated solver,
   including DC, gain, harmonics, clipping asymmetry, and recovery.
 - [ ] Reproduce the nonlinear alias measurement through RTL captures and automate
@@ -96,6 +99,8 @@ RTL, then prove frequency, level, and overload behavior through the complete
 - [x] Characterize 5 ms overload bursts at 20 mV, 0.5 V, 1.0 V, and 1.5 V,
   including peak grid current, clipping asymmetry, residual/range diagnostics,
   and recovery relative to an undisturbed nominal trajectory.
+- [x] Sweep three through six chord corrections at 1.0/1.5 V; quantify residual,
+  output error, range events, and the 126-to-213-clock serialized projection.
 - [x] Quantify flat/partial/full-analog RIAA front-end architectures.
 - [x] Produce initial gain/headroom, MM loading, noise, converter, clock, control,
   safety, stereo schedule, and hardware-verification engineering documents.

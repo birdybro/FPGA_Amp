@@ -2,7 +2,7 @@ PYTHON ?= python3
 NGSPICE ?= ngspice
 VERILATOR ?= verilator
 
-.PHONY: all reference analysis accuracy-sweeps factorized-study factorized-frequency overload-study precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl network-rtl solver-rtl solver-factorized-rtl halfband-rtl stream-rtl stream-factorized-rtl lint synth synth-factorized synth-chord synth-network synth-solver synth-solver-factorized synth-halfband synth-stream synth-stream-factorized clean tools
+.PHONY: all reference analysis accuracy-sweeps factorized-study factorized-frequency overload-study overload-iterations precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl network-rtl solver-rtl solver-factorized-rtl halfband-rtl stream-rtl stream-factorized-rtl lint synth synth-factorized synth-chord synth-network synth-solver synth-solver-factorized synth-halfband synth-stream synth-stream-factorized clean tools
 
 all: reference test
 
@@ -26,6 +26,9 @@ factorized-frequency:
 
 overload-study:
 	$(PYTHON) scripts/characterize_overload_recovery.py
+
+overload-iterations:
+	$(PYTHON) scripts/study_overload_iterations.py
 
 resampler:
 	$(PYTHON) scripts/design_resampler.py
