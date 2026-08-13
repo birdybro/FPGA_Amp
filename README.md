@@ -89,13 +89,20 @@ The mono reference and complete 768 kHz circuit solver are operating:
   residual from 6.93 to 2.31 µA but still leaves 30 failures and projects a
   213-clock serialized schedule. At 1.5 V it remains inadequate. Overload needs
   a different solver/range strategy rather than an unbudgeted extra pass.
+- A downstream, explicitly non-reference output guard now starts muted, applies
+  a configurable sample-qualified linear ramp, bypasses exactly at unity, and
+  synchronously clamps held output on a fault. Its warning-free RTL regression
+  passes signed rounding/reset/control cases; generic XC7 synthesis reports 171
+  logic cells, 2 DSP48E1s, and no block RAM.
 - A four-stage 16× half-band reference provides at least 91.6 dB per-stage image
   rejection and suppresses the measured cubic 45 kHz→3 kHz decimation alias to
   -137.8 dB with bit-accurate Q8.24/Q1.23 MACs. The complete interpolation and
   decimation RTL chains match 2,048 and 128 stream outputs exactly.
 
-There is no serial-audio interface, mute/control wrapper, fabricated analog
-front end, converter board, named-part timing result, or physical measurement yet.
+There is no serial-audio interface, control/sequencing wrapper, fabricated
+analog front end, converter board, named-part timing result, or physical
+measurement yet. The implemented mute primitive is not independent analog
+speaker protection.
 
 ## Verification chain
 
@@ -152,6 +159,7 @@ make solver-factorized-rtl         # exact smooth-tube solver integration
 make halfband-rtl                  # exact 2x units and complete 16x streams
 make stream-rtl                    # complete 48 kHz reference stream
 make stream-factorized-rtl         # complete smooth-tube reference stream
+make mute-rtl                      # reset/ramp/fault output safety primitive
 make synth                         # generic XC7 structural estimate
 make synth-factorized              # factorized tube structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
@@ -160,6 +168,7 @@ make synth-solver-factorized       # smooth-tube hierarchy/resource trade
 make synth-halfband                # complete interpolator/decimator estimates
 make synth-stream                  # complete reference-stream estimate
 make synth-stream-factorized       # smooth-tube stream resource estimate
+make synth-mute                    # output ramp structural estimate
 ```
 
 Generated CSV, plots, logs, ROM images, and reports are intentionally ignored;
@@ -179,8 +188,9 @@ under `model/generated/` as part of the numerical contract.
 - `docs/`: engineering decisions, budgets, known limitations, and hardware path
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
-path is bit-exact RTL and cycle/resource proof for the factorized tube candidate,
-followed by wider frequency and overload equivalence through the complete stream.
+path is resolving overload convergence without breaking the 128-clock deadline,
+then extending fixed/float and captured-RTL equivalence across long state,
+frequency, level, and recovery tests.
 
 ## License
 

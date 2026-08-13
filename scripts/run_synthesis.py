@@ -42,6 +42,7 @@ def main() -> int:
             "decimator_16x",
             "phono_stream_mono",
             "phono_stream_mono_factorized",
+            "output_mute_ramp",
         ),
         default="triode_12ax7",
     )
@@ -113,6 +114,7 @@ def main() -> int:
             "rtl/audio/decimator_16x.sv",
             "rtl/top/phono_stream_mono.sv",
         ],
+        "output_mute_ramp": ["rtl/audio/output_mute_ramp.sv"],
     }[args.top]
     log_path = results / f"yosys_xc7_{args.top}.log"
     factorized_top = args.top.endswith("_factorized")

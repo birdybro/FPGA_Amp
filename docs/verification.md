@@ -15,7 +15,9 @@ and compares every node, capacitor, residual, output, and diagnostic count.
 The complete stream test independently composes the fixed interpolator, 1,024
 fixed nonlinear updates, output format conversion, and decimator, then requires
 64 consecutive 48 kHz RTL outputs to be exactly equal without latency/gain
-alignment.
+alignment. The output-safety test covers reset, positive/negative rounding,
+sample-qualified gain changes, exact-unity bypass, graceful ramp-down, and a
+forced clamp with and without a valid input sample.
 
 The analog/reference commands are intentionally separate so a missing external
 tool is not reported as a pass:
@@ -62,6 +64,8 @@ scripts/run_synthesis.py            XC7 structural resource report
 | full stream XC7 synthesis | Yosys 0.66 structural | 13,170 LC, 137 DSP48E1, 47 RAMB18E1; no Fmax claim |
 | factorized 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics |
 | factorized stream XC7 synthesis | Yosys 0.66 structural | 14,366 LC, 158 DSP48E1, 8 RAMB18E1; no Fmax claim |
+| output mute/ramp RTL | directed reset/ramp/fault sequence | exact expected samples and gain; warning-free Verilator |
+| output mute/ramp XC7 synthesis | Yosys 0.66 structural | 171 LC, 2 DSP48E1, no RAM; no Fmax claim |
 | fixed vs analytical level sweep | 0.5 mV–5 V, 1 kHz, 20–30 ms | first ≥1 dB compression 1.1 V; residual-limit failure 1.0 V; LUT clip 1.1 V |
 | fixed vs analytical at 5 mV | H2–H10 least-squares fit | 0.0733% vs 0.0191% THD; +0.0324 dB gain error |
 | fixed vs analytical at 0.5 V | H2–H10 / waveform | 2.2395% vs 2.2417% THD; -55.98 dB residual |

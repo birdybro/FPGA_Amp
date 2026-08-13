@@ -57,6 +57,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   asymmetry, three recovery thresholds, and solver/range diagnostics.
 - Added a three-through-six-correction overload solver study with analytical
   waveform error and explicit serialized latency projections.
+- Added a standalone downstream output mute/ramp with reset-muted startup,
+  sample-qualified linear transitions, symmetric signed rounding, exact-unity
+  bypass, synchronous fault clamp, and a self-checking RTL regression.
 - Added warning-free Verilator lint and a 4,096-vector bit-exact testbench with checked eight-clock latency.
 - Added non-root ngspice/Yosys bootstrap and a generic XC7 out-of-context synthesis report.
 - Added quantitative cartridge/front-end noise, ADC headroom, and analog-versus-digital RIAA partition analysis.
@@ -140,6 +143,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - At 1.0 V, three-to-six chord corrections reduce maximum residual from 6.93 to
   2.31 µA and failures from 942 to 30, but project 126 to 213 clocks. At 1.5 V,
   six corrections still leave 5.83 µA and 960 failures.
+- The output mute/ramp passes its warning-free directed Verilator regression;
+  generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
+  RAM, and no structural check errors. No placed timing is claimed.
 
 ### Changed
 

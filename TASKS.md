@@ -4,10 +4,10 @@ Last updated: 2026-08-13
 
 ## Current milestone
 
-Replace the inaccurate low-level 2-D tube approximation only if the measured
-factorized 1-D/Hermite candidate remains bit-exact, schedulable, and smaller in
-RTL, then prove frequency, level, and overload behavior through the complete
-48/768 kHz stream. The circuit is frozen at version 0.1.0.
+Close the measured factorized fixed/analytical DC-state and severe-overload
+solver gaps, reproduce waveform metrics from captured integrated RTL, and
+harden the 48/768 kHz stream boundary. The circuit remains frozen at version
+0.1.0; safety processing remains explicitly outside it.
 
 ## Active, highest value first
 
@@ -25,7 +25,8 @@ RTL, then prove frequency, level, and overload behavior through the complete
   including DC, gain, harmonics, clipping asymmetry, and recovery.
 - [ ] Reproduce the nonlinear alias measurement through RTL captures and automate
   complete-stream frequency, phase, and level comparisons.
-- [ ] Add reset/state-initialization and post-model mute ramp regressions.
+- [ ] Integrate mute/model-change sequencing around the stream and prove that
+  state reinitialization cannot escape before a completed ramp-down.
 
 ## Completed this milestone
 
@@ -101,6 +102,9 @@ RTL, then prove frequency, level, and overload behavior through the complete
   and recovery relative to an undisturbed nominal trajectory.
 - [x] Sweep three through six chord corrections at 1.0/1.5 V; quantify residual,
   output error, range events, and the 126-to-213-clock serialized projection.
+- [x] Implement and test a downstream Q0.16 output mute/ramp with reset-muted
+  startup, symmetric rounding, exact-unity bypass, and synchronous fault clamp;
+  synthesize at 171 XC7 logic cells, 2 DSP48E1s, and no block RAM.
 - [x] Quantify flat/partial/full-analog RIAA front-end architectures.
 - [x] Produce initial gain/headroom, MM loading, noise, converter, clock, control,
   safety, stereo schedule, and hardware-verification engineering documents.
