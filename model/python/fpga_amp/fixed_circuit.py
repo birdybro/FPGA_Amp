@@ -102,6 +102,7 @@ class FixedChordV1CircuitModel:
         voltage_width: int | None = None,
         capacitor_state_fractional_bits: int | None = None,
         branch_capacitor_stamp: bool = False,
+        adaptive_correction_scaling: bool = False,
     ):
         self.sample_rate_hz = float(sample_rate_hz)
         self.VOLTAGE_FRACTIONAL_BITS = self.VOLTAGE_FRACTIONAL_BITS.copy()
@@ -120,6 +121,7 @@ class FixedChordV1CircuitModel:
                 capacitor_state_fractional_bits
             )
         self.branch_capacitor_stamp = bool(branch_capacitor_stamp)
+        self.adaptive_correction_scaling = bool(adaptive_correction_scaling)
         self.inverse_fractional_bits = int(inverse_fractional_bits)
         if isinstance(correction_residual_fractional_bits, Sequence):
             self.correction_residual_fractional_bits = tuple(
@@ -205,6 +207,8 @@ class FixedChordV1CircuitModel:
         self.max_iterations_observed = 0
         self.last_residual_q44 = 0
         self.max_residual_q44_observed = 0
+        self.correction_scale_fallback_count = 0
+        self.minimum_correction_residual_fractional_bits: int | None = None
 
     @staticmethod
     def _convert_fraction(value: int, source_fraction: int, target_fraction: int) -> int:
@@ -357,6 +361,32 @@ class FixedChordV1CircuitModel:
             self.saturation_count += int(clipped)
         self.voltage_q = next_voltage
 
+    def _select_correction_fraction(
+        self, residual_q44: list[int], requested_fractional_bits: int
+    ) -> int:
+        if not self.adaptive_correction_scaling:
+            return requested_fractional_bits
+        selected = requested_fractional_bits
+        while selected > 0:
+            shift = self.RESIDUAL_FRACTIONAL_BITS - selected
+            if all(
+                not saturate_signed(
+                    round_shift(value, shift), self.correction_residual_width
+                )[1]
+                for value in residual_q44
+            ):
+                break
+            selected -= 1
+        if selected != requested_fractional_bits:
+            self.correction_scale_fallback_count += 1
+            if self.minimum_correction_residual_fractional_bits is None:
+                self.minimum_correction_residual_fractional_bits = selected
+            else:
+                self.minimum_correction_residual_fractional_bits = min(
+                    self.minimum_correction_residual_fractional_bits, selected
+                )
+        return selected
+
     def _update_capacitors(self) -> None:
         for capacitor in self.capacitors:
             voltage_a = 0
@@ -390,6 +420,9 @@ class FixedChordV1CircuitModel:
             residual_fractional_bits = self.correction_residual_fractional_bits[
                 min(iteration - 1, len(self.correction_residual_fractional_bits) - 1)
             ]
+            residual_fractional_bits = self._select_correction_fraction(
+                residual, residual_fractional_bits
+            )
             self._apply_correction(residual, residual_fractional_bits)
         residual = self._residual_q44(self.voltage_q, rhs)
         self.last_residual_q44 = max(abs(value) for value in residual)
@@ -438,4 +471,5 @@ class FixedWideStateV1CircuitModel(FixedChordV1CircuitModel):
         # removes the large transient, later passes trade range for the current
         # resolution needed by the 2.21 Mohm output node.
         kwargs.setdefault("correction_residual_fractional_bits", (30, 34, 40))
+        kwargs.setdefault("adaptive_correction_scaling", True)
         super().__init__(*args, **kwargs)

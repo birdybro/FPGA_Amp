@@ -62,6 +62,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a 40-bit heterogeneous-node/Q30-history Python candidate with direct
   capacitor branch-current stamping, staged Q30/Q34/Q40 correction residuals,
   a matched one-second audit, and nominal-level legacy A/B report.
+- Added bounded adaptive correction-residual scaling and a wide-state overload
+  comparison with fallback, range, recovery, and convergence counters.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -161,6 +163,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Across six 5 mV frequencies from 20 Hz to 20 kHz, wide-state gain and phase
   error remain within 0.000196 dB and 0.000982 degrees with no diagnostic
   events. Raw null ranges from -95.26 dB at 20 Hz to -44.75 dB at 20 kHz.
+- At 20 mV the wide candidate reaches 1% recovery in 14.918 ms versus 24.612 ms
+  legacy and cuts post-burst residual from 5.80 to 0.258 mV RMS. Adaptive scale
+  removes all 1.5 V operand saturations using 729 fallbacks, but 1.0/1.5 V still
+  have 1,122/1,695 residual failures and 1.5 V keeps 4,046 tube-range clips.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.

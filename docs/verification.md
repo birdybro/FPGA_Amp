@@ -57,6 +57,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | wide-state click recovery | same 1 s stimulus | 38.74 uV late raw residual, 5.01 nA max KCL residual, zero diagnostics |
 | wide-state nominal audio | 5 mV/1 kHz, 20--30 ms | -63.83 dB raw null, -0.000058 dB gain, -0.000187 degree phase error |
 | wide-state frequency sweep | 5 mV, 20/50/100/1k/10k/20k Hz | <=0.000196 dB gain, <=0.000982 degree phase, zero diagnostics |
+| wide-state overload burst | 20 mV / 0.5 / 1.0 / 1.5 V | recovery improved; 1,122/1,695 failures at 1/1.5 V; 729 safe scale fallbacks at 1.5 V |
 | factorized RTL vs fixed tube | 4,107 randomized/directed vectors | bit-exact, 5 clip cases, latency 8 |
 | RTL vs fixed LUT | 4,096 deterministic vectors | bit-exact, latency 8 |
 | chord RTL vs fixed correction | 1,024 deterministic vectors | bit-exact, latency 10, 18 saturation cases |

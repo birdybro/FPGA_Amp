@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import math
 from pathlib import Path
@@ -15,7 +16,10 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPOSITORY_ROOT / "model" / "python"))
 
 from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
-from fpga_amp.fixed_circuit import FixedChordV1CircuitModel  # noqa: E402
+from fpga_amp.fixed_circuit import (  # noqa: E402
+    FixedChordV1CircuitModel,
+    FixedWideStateV1CircuitModel,
+)
 from fpga_amp.v1_circuit import V1CircuitModel  # noqa: E402
 
 
@@ -57,10 +61,15 @@ def run_analytical(
 
 
 def run_fixed(
-    samples: np.ndarray,
+    samples: np.ndarray, wide_candidate: bool = False
 ) -> tuple[np.ndarray, np.ndarray, FixedChordV1CircuitModel]:
     tube = FixedFactorizedKoren12AX7()
-    model = FixedChordV1CircuitModel(SAMPLE_RATE_HZ, tube_lut=tube)
+    fixed_type = (
+        FixedWideStateV1CircuitModel
+        if wide_candidate
+        else FixedChordV1CircuitModel
+    )
+    model = fixed_type(SAMPLE_RATE_HZ, tube_lut=tube)
     output = np.empty_like(samples)
     maximum_grid_current_q31 = np.zeros(2, dtype=np.int64)
     for index, sample in enumerate(samples):
@@ -72,7 +81,11 @@ def run_fixed(
         ):
             grid = model.node[grid_name]
             cathode = model.node[cathode_name]
-            vgk_q24 = int(model.voltage_q[grid]) - model._convert_fraction(
+            vgk_q24 = model._convert_fraction(
+                int(model.voltage_q[grid]),
+                int(model.VOLTAGE_FRACTIONAL_BITS[grid]),
+                24,
+            ) - model._convert_fraction(
                 int(model.voltage_q[cathode]),
                 int(model.VOLTAGE_FRACTIONAL_BITS[cathode]),
                 24,
@@ -121,6 +134,9 @@ def burst_metrics(output: np.ndarray, burst_mask: np.ndarray) -> dict[str, float
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--wide-candidate", action="store_true")
+    args = parser.parse_args()
     levels_peak_v = (0.020, 0.500, 1.000, 1.500)
     time_s = np.arange(int(DURATION_S * SAMPLE_RATE_HZ)) / SAMPLE_RATE_HZ
     burst_mask = (time_s >= BURST_START_S) & (time_s < BURST_END_S)
@@ -128,7 +144,7 @@ def main() -> int:
 
     control_stimulus = stimulus(NOMINAL_PEAK_V)
     analytical_control, _, _ = run_analytical(control_stimulus)
-    fixed_control, _, _ = run_fixed(control_stimulus)
+    fixed_control, _, _ = run_fixed(control_stimulus, args.wide_candidate)
     nominal_output_rms = float(
         np.sqrt(np.mean(np.square(analytical_control[time_s >= 0.040])))
     )
@@ -142,7 +158,7 @@ def main() -> int:
     for level_peak_v in levels_peak_v:
         samples = stimulus(level_peak_v)
         analytical, analytical_grid, analytical_failures = run_analytical(samples)
-        fixed, fixed_grid, fixed_model = run_fixed(samples)
+        fixed, fixed_grid, fixed_model = run_fixed(samples, args.wide_candidate)
         analytical_recovery_residual = analytical - analytical_control
         fixed_recovery_residual = fixed - fixed_control
         fixed_vs_analytical = fixed - analytical
@@ -180,6 +196,8 @@ def main() -> int:
                 "residual_limit_exceedance_count": fixed_model.nonconvergence_count,
                 "saturation_count": fixed_model.saturation_count,
                 "range_clip_count": fixed_model.lut_clip_count,
+                "correction_scale_fallback_count": fixed_model.correction_scale_fallback_count,
+                "minimum_correction_residual_fractional_bits": fixed_model.minimum_correction_residual_fractional_bits,
             },
             "fixed_vs_analytical": {
                 "post_burst_residual_rms_v": float(
@@ -204,6 +222,11 @@ def main() -> int:
     report = {
         "model": "12ax7_passive_riaa_v1",
         "sample_rate_hz": SAMPLE_RATE_HZ,
+        "fixed_implementation": (
+            "40-bit Q28/Q32 nodes, Q30 branch history, staged adaptive Q30/Q34/Q40 corrections"
+            if args.wide_candidate
+            else "legacy 32-bit heterogeneous nodes, Q12.20 matrix/history stamp"
+        ),
         "stimulus": {
             "frequency_hz": FREQUENCY_HZ,
             "nominal_peak_v": NOMINAL_PEAK_V,
@@ -217,9 +240,12 @@ def main() -> int:
         "recovery_definition": "last 1 ms sliding-RMS threshold crossing relative to a nominal undisturbed trajectory",
         "measurements": measurements,
     }
-    result_path = REPOSITORY_ROOT / "reference" / "results" / "overload_recovery.json"
+    report_stem = "overload_recovery_wide" if args.wide_candidate else "overload_recovery"
+    result_path = REPOSITORY_ROOT / "reference" / "results" / f"{report_stem}.json"
     result_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    summary_path = REPOSITORY_ROOT / "model" / "generated" / "overload_recovery_summary.json"
+    summary_path = (
+        REPOSITORY_ROOT / "model" / "generated" / f"{report_stem}_summary.json"
+    )
     summary_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
     return 0

@@ -125,6 +125,8 @@ def main() -> int:
                 "residual_limit_exceedance_count": fixed_model.nonconvergence_count,
                 "saturation_count": fixed_model.saturation_count,
                 "range_clip_count": fixed_model.lut_clip_count,
+                "correction_scale_fallback_count": fixed_model.correction_scale_fallback_count,
+                "minimum_correction_residual_fractional_bits": fixed_model.minimum_correction_residual_fractional_bits,
             },
         }
         measurements.append(entry)
@@ -142,7 +144,7 @@ def main() -> int:
         "stimulus": "5 mV peak sine at the 768 kHz circuit input",
         "tube_implementation": "fixed factorized 1-D cubic-Hermite",
         "state_implementation": (
-            "40-bit Q28/Q32 nodes, Q30 branch history, staged Q30/Q34/Q40 corrections"
+            "40-bit Q28/Q32 nodes, Q30 branch history, adaptive staged Q30/Q34/Q40 corrections"
             if args.wide_candidate
             else "legacy 32-bit heterogeneous nodes, Q12.20 matrix/history stamp"
         ),

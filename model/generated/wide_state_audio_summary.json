@@ -26,6 +26,7 @@
       34,
       40
     ],
+    "adaptive_scale": "finest per-pass format fitting all nine residuals",
     "capacitor_stamp": "single rounded G*(Vnow-Vprevious) branch current"
   },
   "implementations": {
@@ -51,7 +52,9 @@
       "maximum_residual_a": 3.435922621974896e-07,
       "residual_limit_exceedance_count": 0,
       "saturation_count": 0,
-      "range_clip_count": 0
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "minimum_correction_residual_fractional_bits": null
     },
     "wide_state_factorized": {
       "fundamental_peak_v": 0.5667741240112492,
@@ -67,7 +70,9 @@
       "maximum_residual_a": 4.960838850820437e-09,
       "residual_limit_exceedance_count": 0,
       "saturation_count": 0,
-      "range_clip_count": 0
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "minimum_correction_residual_fractional_bits": null
     }
   }
 }

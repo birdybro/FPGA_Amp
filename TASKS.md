@@ -15,9 +15,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   the factorized candidate fixes THD but retains -42.90 dB raw residual at
   5 mV. A -2.840 mV mean offset dominates it; mean-removed residual is -59.63 dB,
   phase error 0.00958°, and fundamental gain error +0.00026 dB.
-- [ ] Sweep the successful 40-bit state candidate through overload, then derive
-  an RTL branch-current/correction schedule and measure whether it can still
-  meet 128 clocks with realistic XC7 resources.
+- [ ] Derive an RTL branch-current/adaptive-correction schedule for the 40-bit
+  candidate and measure whether it can meet 128 clocks with realistic XC7
+  resources.
 - [ ] Lengthen severe-overload recovery windows.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
 - [ ] Evaluate overload-specific solver strategies (adaptive Jacobian, parallel
@@ -113,6 +113,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   from -42.90 to -63.83 dB with zero diagnostics.
 - [x] Sweep the wide-state candidate at 20/50/100 Hz and 1/10/20 kHz: bound
   gain/phase error to 0.000196 dB / 0.000982 degrees with zero diagnostics.
+- [x] Re-run 20 mV--1.5 V overload with adaptive Q30/Q34/Q40 residual scaling:
+  eliminate arithmetic saturation and improve clean-region recovery/error, but
+  retain explicit 1.0/1.5 V convergence and 1.5 V range failures.
 - [x] Implement and test a downstream Q0.16 output mute/ramp with reset-muted
   startup, symmetric rounding, exact-unity bypass, and synchronous fault clamp;
   synthesize at 171 XC7 logic cells, 2 DSP48E1s, and no block RAM.
@@ -139,6 +142,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - The Q12.20 output/capacitor state can freeze after a discontinuity. In the
   one-second bipolar-click audit the final fixed output is -5.368 mV versus
   4.5 uV instantaneous analytical output; no runtime diagnostic fires.
+- The wide candidate fixes that state deadband but not severe nonlinear
+  convergence: 1.0/1.5 V bursts still exceed the residual limit 1,122/1,695
+  times, and the latter clips the transformed tube domain 4,046 times.
 - Yosys reports 204 Xilinx BRAM primitive port-resize warnings on the hierarchical
   solver while `check` reports no structural problem. Track tool-version behavior;
   do not describe synthesis as warning-free.

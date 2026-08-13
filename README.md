@@ -105,6 +105,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   analytical model with zero diagnostics. Raw null spans -95.26 to -44.75 dB;
   high-frequency values remain reported separately from their DC-dominated
   mean-removed residuals.
+- A bounded block-floating correction selector requests Q30/Q34/Q40 but reduces
+  precision when needed to keep all 25-bit residual operands in range. It
+  eliminates arithmetic saturation in the 1.5 V burst (729 recorded fallbacks),
+  while ordinary signals never fall back. At 20 mV, 1% recovery improves from
+  24.61 ms legacy to 14.92 ms, matching analytical; post-burst error falls from
+  5.80 mV to 0.258 mV RMS. Severe overload remains rejected: 1.0/1.5 V still
+  produce 1,122/1,695 convergence failures and 1.5 V retains 4,046 range clips.
 - A downstream, explicitly non-reference output guard now starts muted, applies
   a configurable sample-qualified linear ramp, bypasses exactly at unity, and
   synchronously clamps held output on a fault. Its warning-free RTL regression
@@ -166,6 +173,7 @@ make state-drift                    # one-second silence/click state audit
 make state-wide                     # wide-state candidate on the same audit
 make state-wide-audio               # 5 mV/1 kHz legacy/wide A/B
 make overload-study                 # grid conduction, clipping, recovery
+make overload-wide                  # same bursts with wide-state candidate
 make overload-iterations            # three-to-six-pass solver trade
 python3 scripts/study_lut_resolution.py
 python3 scripts/analyze_frontend.py

@@ -10,7 +10,7 @@
     "click_peak_v": 0.1
   },
   "comparison": "analytical Koren/full Newton versus factorized fixed chord candidate",
-  "fixed_implementation": "40-bit Q28/Q32 nodes, Q30 capacitor history, and explicit branch-current stamps",
+  "fixed_implementation": "40-bit Q28/Q32 nodes, Q30 capacitor history, adaptive staged corrections, and explicit branch-current stamps",
   "fixed_chord_corrections": 3,
   "fixed_correction_residual_fractional_bits": [
     30,

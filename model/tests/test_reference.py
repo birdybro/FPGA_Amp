@@ -264,7 +264,15 @@ class V1CircuitTests(unittest.TestCase):
         self.assertEqual(model.VOLTAGE_WIDTH, 40)
         self.assertEqual(model.CAPACITOR_STATE_FRACTIONAL_BITS, 30)
         self.assertTrue(model.branch_capacitor_stamp)
+        self.assertTrue(model.adaptive_correction_scaling)
         self.assertEqual(model.correction_residual_fractional_bits, (30, 34, 40))
+        selected = model._select_correction_fraction(
+            [int(100.0e-6 * (1 << model.RESIDUAL_FRACTIONAL_BITS))] + [0] * 8,
+            40,
+        )
+        self.assertLess(selected, 40)
+        self.assertEqual(model.correction_scale_fallback_count, 1)
+        self.assertEqual(model.minimum_correction_residual_fractional_bits, selected)
         for capacitor in model.capacitors:
             voltage_a = 0
             voltage_b = 0

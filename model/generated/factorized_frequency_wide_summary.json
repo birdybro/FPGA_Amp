@@ -2,7 +2,7 @@
   "model": "12ax7_passive_riaa_v1",
   "stimulus": "5 mV peak sine at the 768 kHz circuit input",
   "tube_implementation": "fixed factorized 1-D cubic-Hermite",
-  "state_implementation": "40-bit Q28/Q32 nodes, Q30 branch history, staged Q30/Q34/Q40 corrections",
+  "state_implementation": "40-bit Q28/Q32 nodes, Q30 branch history, adaptive staged Q30/Q34/Q40 corrections",
   "frequencies_hz": [
     20.0,
     50.0,

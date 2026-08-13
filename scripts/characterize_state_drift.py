@@ -215,7 +215,7 @@ def main() -> int:
         },
         "comparison": "analytical Koren/full Newton versus factorized fixed chord candidate",
         "fixed_implementation": (
-            "40-bit Q28/Q32 nodes, Q30 capacitor history, and explicit branch-current stamps"
+            "40-bit Q28/Q32 nodes, Q30 capacitor history, adaptive staged corrections, and explicit branch-current stamps"
             if args.wide_candidate
             else "legacy Q12.20 output/history with matrix-plus-history stamps"
         ),
@@ -223,6 +223,7 @@ def main() -> int:
         "fixed_correction_residual_fractional_bits": list(
             fixed_model.correction_residual_fractional_bits
         ),
+        "fixed_adaptive_correction_scaling": fixed_model.adaptive_correction_scaling,
         "baseline_residual_mean_v": baseline_residual_v,
         "baseline_note": "baseline correction is reported separately and never applied to raw output",
         "late_residual_linear_slope_v_per_s": residual_slope_v_per_s,
@@ -234,6 +235,8 @@ def main() -> int:
             "maximum_residual_a": fixed_model.max_residual_q44_observed / (1 << 44),
             "saturation_count": fixed_model.saturation_count,
             "range_clip_count": fixed_model.lut_clip_count,
+            "correction_scale_fallback_count": fixed_model.correction_scale_fallback_count,
+            "minimum_correction_residual_fractional_bits": fixed_model.minimum_correction_residual_fractional_bits,
         },
         "windows": window_report,
         "state_snapshots": snapshots,

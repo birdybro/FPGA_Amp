@@ -124,6 +124,8 @@ def main() -> int:
             "residual_limit_exceedance_count": model.nonconvergence_count,
             "saturation_count": model.saturation_count,
             "range_clip_count": model.lut_clip_count,
+            "correction_scale_fallback_count": model.correction_scale_fallback_count,
+            "minimum_correction_residual_fractional_bits": model.minimum_correction_residual_fractional_bits,
         }
     report = {
         "model": "12ax7_passive_riaa_v1",
@@ -139,6 +141,7 @@ def main() -> int:
             "node_width_bits": 40,
             "capacitor_state_fractional_bits": 30,
             "correction_residual_fractional_bits_by_pass": [30, 34, 40],
+            "adaptive_scale": "finest per-pass format fitting all nine residuals",
             "capacitor_stamp": "single rounded G*(Vnow-Vprevious) branch current",
         },
         "implementations": implementations,

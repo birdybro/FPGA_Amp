@@ -146,6 +146,15 @@ first pass's +/-3.906 mA range while resolving late sub-nanoampere corrections.
 Tube lookup interfaces remain Q8.24/Q12.20, so this changes the numerical state
 layer rather than the tube device approximation.
 
+Each late-pass format is a requested maximum rather than an unsafe fixed shift.
+The candidate selects the finest fractional count that keeps all nine signed
+25-bit residual operands in range, recording every fallback and its minimum
+format. Ordinary signals use the requested Q30/Q34/Q40 sequence. The 1.5 V
+burst falls back 729 times to no less than Q30, eliminating the 1,429 operand
+saturations observed with a fixed scale. This bounded block-floating choice is
+still only a Python candidate; its compare/leading-zero hardware and timing cost
+are not claimed.
+
 On the same 768,000-sample bipolar-click audit, late raw output residual falls
 from 5.375 mV RMS to 38.74 uV RMS and between-click residual falls from
 36.09 mV to 0.358 mV. Maximum fixed KCL residual falls from 0.334 uA to
@@ -162,3 +171,11 @@ saturation, or tube-range events across 683,520 samples. Raw residual is
 -0.234 mV mean difference relative to the small RIAA-attenuated output, while
 the 20 kHz mean-removed null is -68.37 dB. Frequency behavior passes the Python
 gate; overload and hardware scheduling remain open.
+
+The overload gate passes only through the measured 0.5 V level. At 20 mV, the
+candidate matches analytical 10%/1% recovery within about 0.002/0.000 ms and
+reduces post-burst fixed/analytical RMS from 5.80 mV legacy to 0.258 mV. At
+0.5 V its maximum residual is 0.351 uA with zero diagnostics. At 1.0/1.5 V it
+still records 1,122/1,695 residual-limit failures; the latter retains 4,046 tube
+range clips. Adaptive scaling prevents arithmetic saturation but is not a
+nonlinear solver fix.
