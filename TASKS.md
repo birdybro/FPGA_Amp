@@ -26,8 +26,6 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [ ] Automate complete-stream frequency, phase, and level comparisons. The
   isolated cubic alias path is now captured; a full-tube 3 kHz bin is confounded
   by 3 kHz content already present before decimation.
-- [ ] Integrate mute/model-change sequencing around the stream and prove that
-  state reinitialization cannot escape before a completed ramp-down.
 
 ## Completed this milestone
 
@@ -38,6 +36,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   state exactly and extend post-burst observation to 85 ms.
 - [x] Capture the 16× decimator's cubic nonlinear alias trajectory; match 8,192
   outputs exactly and measure -137.814 dBc with zero saturation.
+- [x] Integrate frame-aligned reset/warmup and the mute ramp around the wide
+  stream; prove no state-reset sample escapes and synthesize the guarded top.
 - [x] Select, document, and version the Kennedy 1998 two-stage passive-RIAA circuit.
 - [x] Implement AT-VM95E R/L/47.5 kΩ/150 pF cartridge loading.
 - [x] Build ngspice DC, 10 Hz–100 kHz AC, transient, and 1 kHz H1–H10 level sweeps.

@@ -152,6 +152,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   synchronously clamps held output on a fault. Its warning-free RTL regression
   passes signed rounding/reset/control cases; generic XC7 synthesis reports 171
   logic cells, 2 DSP48E1s, and no block RAM.
+- The guarded wide-stream top now enforces model-change sequencing: linear
+  ramp-down, frame-aligned core reset, 64-output muted warmup, acknowledgment,
+  and ramp-up. A warning-free integration regression proves no reset or warmup
+  sample escapes before mute. Structural synthesis reports 17,142 logic cells,
+  172 DSP48E1s, and 8 RAMB18s; this remains an unplaced estimate.
 - A four-stage 16× half-band reference provides at least 91.6 dB per-stage image
   rejection and suppresses the measured cubic 45 kHz→3 kHz decimation alias to
   -137.8 dB with bit-accurate Q8.24/Q1.23 MACs. An 8,192-output RTL capture now
@@ -233,6 +238,7 @@ make halfband-rtl                  # exact 2x units and complete 16x streams
 make stream-rtl                    # complete 48 kHz reference stream
 make stream-factorized-rtl         # complete smooth-tube reference stream
 make stream-wide-rtl               # complete wide-state reference stream
+make guarded-stream-rtl            # mute/reset/warmup model-change sequence
 make mute-rtl                      # reset/ramp/fault output safety primitive
 make synth                         # generic XC7 structural estimate
 make synth-factorized              # factorized tube structural estimate
@@ -243,6 +249,7 @@ make synth-solver                  # hierarchical complete-solver estimate
 make synth-solver-factorized       # smooth-tube hierarchy/resource trade
 make synth-wide-solver             # wide-state hierarchy estimate
 make synth-stream-wide             # complete wide-state stream estimate
+make synth-stream-guarded          # wide stream plus safety/control guard
 make synth-halfband                # complete interpolator/decimator estimates
 make synth-stream                  # complete reference-stream estimate
 make synth-stream-factorized       # smooth-tube stream resource estimate

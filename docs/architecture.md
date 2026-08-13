@@ -33,6 +33,15 @@ solver, saturating Q12.20-to-Q8.24 line-voltage conversion, and anti-alias
 decimation. Volume, muting, converter serialization, and enhancements remain
 outside the circuit reference.
 
+`phono_stream_mono_wide_guarded.sv` composes the accepted wide reference core
+with a downstream, explicitly non-reference safety/control boundary. A model
+change is accepted only in the ready state. The guard ramps the 48 kHz output to
+zero, waits for an input enable, holds the core reset for 2,047 fabric clocks,
+and releases it in time for the following 48 kHz enable at phase zero. It then
+discards 64 output samples while muted, acknowledges the initialized state, and
+ramps up. The reference core remains a separate module and its behavior is not
+changed by this policy.
+
 ## Solver shape
 
 The floating reference has nine dynamic nodes and ten capacitor branches
@@ -117,6 +126,11 @@ outputs and 1,024 internal solves. Its 170-DSP structural result leaves no room
 for full channel duplication on the 240-DSP A7-100T. The 12-clock-per-solve
 margin is insufficient to serialize a second complete solver, so stereo now
 requires a finer-grained shared schedule or a larger reference part.
+
+The guarded hierarchy adds the model-change state machine and output multiplier.
+Generic XC7 synthesis reports 17,142 logic cells, 172 DSP48E1s, and 8 RAMB18s,
+versus 16,993 / 170 / 8 for the reference stream alone. No placed timing result
+is implied by the small structural delta.
 
 ## Runtime observability contract
 

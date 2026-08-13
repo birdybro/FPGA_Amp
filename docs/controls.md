@@ -5,6 +5,14 @@ boundary. Host protocol parsing never writes datapath registers directly. A
 shadow bank, commit sequence number, and acknowledge bit make multiregister
 changes atomic; model changes invoke mute/state initialization before commit.
 
+The datapath-side reset transaction is now implemented by `model_change_guard`.
+Software asserts a level request only after `output_ready`, holds it until the
+one-cycle acknowledgment, then deasserts it to re-arm the next transaction.
+Acknowledgment follows muted core reset plus 64 valid warmup outputs; it does not
+claim that ramp-up has reached unity. `change_busy` remains asserted during
+ramp-up and `output_ready` identifies the eventual full-gain state. The shadow
+register bank and host protocol that supply the parameter snapshot remain open.
+
 ## Initial register groups
 
 | Group | Examples | Update rule |

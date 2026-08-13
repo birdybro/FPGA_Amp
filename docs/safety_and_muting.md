@@ -20,8 +20,22 @@ independent analog protection.
 
 Normal control sequencing ramps down before sample-rate, model, calibration,
 or large parameter changes, reinitializes the affected state, then ramps up.
-The control wrapper that enforces that sequence is not implemented yet. A
-raised-cosine alternative remains a possible modern feature only after its
+`rtl/control/model_change_guard.sv` now enforces that sequence around the wide
+stream. With the 98.304 MHz / 48 kHz clock plan it waits for a sample boundary,
+holds reset through 2,047 clocks, and releases the core for the next boundary.
+The default 64 valid-output warmup is 1.333 ms and remains at zero gain. The
+acknowledgment means reset and warmup are complete and ramp-up has begun; the
+separate `output_ready` flag means unity gain has actually been restored.
+Requests are accepted only while ready and must return low before another
+transaction. `force_mute` remains an independent immediate clamp and does not
+implicitly change circuit state.
+
+The integration regression uses four-sample ramps/warmup for tractable directed
+coverage and proves that reset never becomes active before mute, held output
+stays zero through reset/warmup, input phase diagnostics remain clear, exactly
+one acknowledgment occurs, and unity output returns. Default parameter timing
+is elaborated and structurally synthesized but has not been tested with physical
+converters. A raised-cosine alternative remains a possible modern feature only after its
 spectral residue and hardware cost are measured; the present linear behavior is
 the explicit implementation contract.
 
