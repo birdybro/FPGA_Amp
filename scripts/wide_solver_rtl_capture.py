@@ -16,7 +16,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "model" / "python"))
 
 from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
-from fpga_amp.fixed_circuit import FixedWideStateV1CircuitModel  # noqa: E402
+from fpga_amp.fixed_circuit import (  # noqa: E402
+    FixedWideStateTrapezoidalV1CircuitModel,
+    FixedWideStateV1CircuitModel,
+)
 
 
 @dataclass
@@ -30,13 +33,17 @@ class WideSolverRTLCapture:
 
 
 def capture_wide_solver_rtl(
-    input_q24: NDArray[np.int64], run_stem: str, verilator: str = "verilator"
+    input_q24: NDArray[np.int64],
+    run_stem: str,
+    verilator: str = "verilator",
+    trapezoidal: bool = False,
 ) -> WideSolverRTLCapture:
     """Run one persistent input trajectory through fixed Python and RTL.
 
-    The vector contains all nine nodes, ten capacitor histories, and cumulative
-    diagnostics after every sample. The self-checking testbench therefore proves
-    more than the two-column output capture returned here.
+    The vector contains all nine nodes, ten capacitor voltage histories, the ten
+    current histories in trapezoidal mode, and cumulative diagnostics after
+    every sample. The self-checking testbench therefore proves more than the
+    two-column output capture returned here.
     """
 
     allowed = "abcdefghijklmnopqrstuvwxyz0123456789_"
@@ -49,7 +56,12 @@ def capture_wide_solver_rtl(
         raise ValueError("input_q24 must be a non-empty one-dimensional array")
 
     tube = FixedFactorizedKoren12AX7()
-    fixed = FixedWideStateV1CircuitModel(tube_lut=tube)
+    model_type = (
+        FixedWideStateTrapezoidalV1CircuitModel
+        if trapezoidal
+        else FixedWideStateV1CircuitModel
+    )
+    fixed = model_type(tube_lut=tube)
     output_q32 = np.empty(samples.size, dtype=np.int64)
     maximum_grid_current_q31 = np.zeros(2, dtype=np.int64)
     vector_path = ROOT / "sim" / "vectors" / "generated" / f"{run_stem}.txt"
@@ -80,6 +92,11 @@ def capture_wide_solver_rtl(
                 int(sample),
                 *[int(value) for value in fixed.voltage_q],
                 *[int(cap.previous_voltage_q20) for cap in fixed.capacitors],
+                *(
+                    [int(cap.previous_current_q44) for cap in fixed.capacitors]
+                    if trapezoidal
+                    else []
+                ),
                 fixed.last_residual_q44,
                 fixed.saturation_count,
                 fixed.lut_clip_count,
@@ -91,18 +108,21 @@ def capture_wide_solver_rtl(
 
     capture_path = ROOT / "build" / f"{run_stem}_capture.txt"
     capture_path.parent.mkdir(parents=True, exist_ok=True)
+    command = [
+        sys.executable,
+        "scripts/run_wide_solver_rtl.py",
+        "--verilator",
+        verilator,
+        "--skip-generate",
+        "--vectors-file",
+        str(vector_path.relative_to(ROOT)),
+        "--capture-file",
+        str(capture_path.relative_to(ROOT)),
+    ]
+    if trapezoidal:
+        command.append("--trapezoidal")
     subprocess.run(
-        [
-            sys.executable,
-            "scripts/run_wide_solver_rtl.py",
-            "--verilator",
-            verilator,
-            "--skip-generate",
-            "--vectors-file",
-            str(vector_path.relative_to(ROOT)),
-            "--capture-file",
-            str(capture_path.relative_to(ROOT)),
-        ],
+        command,
         cwd=ROOT,
         check=True,
     )

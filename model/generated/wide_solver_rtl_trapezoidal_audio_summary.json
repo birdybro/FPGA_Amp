@@ -1,0 +1,38 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "implementation": "captured SystemVerilog wide factorized trapezoidal solver",
+  "integration_method": "trapezoidal",
+  "sample_rate_hz": 768000.0,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "input_peak_v": 0.005,
+    "duration_s": 0.03,
+    "analysis_start_s": 0.02,
+    "quantized_input": "Q8.24"
+  },
+  "captured_samples": 23040,
+  "rtl_fixed_bit_exact": true,
+  "analytical": {
+    "fundamental_peak_v": 0.5669224879216231,
+    "phase_deg": -48.63505313603238,
+    "mean_v": -0.005073909643772261,
+    "thd_percent_h2_to_h10": 0.019050232361802512
+  },
+  "rtl": {
+    "fundamental_peak_v": 0.5669147017014399,
+    "phase_deg": -48.63516529743387,
+    "mean_v": -0.005349888617214123,
+    "thd_percent_h2_to_h10": 0.019387416084396005,
+    "gain_db": 41.09095430570161,
+    "gain_error_db": -0.00011929446278497075,
+    "phase_error_deg": -0.00011216140148917475,
+    "raw_normalized_residual_db": -63.22623665193866,
+    "mean_removed_normalized_residual_db": -87.27934854315487,
+    "residual_mean_v": -0.0002759789734417961,
+    "maximum_residual_a": 5.661888735630782e-09,
+    "saturation_count": 0,
+    "range_clip_count": 0,
+    "residual_limit_exceedance_count": 0,
+    "correction_scale_fallback_count": 0
+  }
+}

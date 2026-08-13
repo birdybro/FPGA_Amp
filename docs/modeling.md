@@ -375,6 +375,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | wide factorized stream vs fixed | 64 outputs / 1,024 updates | bit-exact, zero diagnostics; 16,993 LC / 170 DSP / 8 RAMB18 |
 | captured wide solver RTL vs analytical | 23,040 samples, 5 mV/1 kHz | Q32 exact to fixed; -0.000054 dB / -0.000187 degree gain/phase error; 0.019371% THD |
 | captured wide solver RTL frequency sweep | 5 mV, 100 Hz/1/10/20 kHz | Q32 exact to fixed; <=0.0001943 dB gain / <=0.0009814 degree phase; zero diagnostics |
+| captured trapezoidal solver RTL frequency | 5 mV, 100 Hz/1/10/20 kHz | all fixed states exact; <=0.000128 dB / <=0.000784 degree vs float; zero diagnostics |
 | captured wide solver RTL overload | 384,000 updates, 5 ms bursts, 85 ms observation | full state exact to fixed; clean through 0.5 V; failures at 1 V; range clips at 1.5 V |
 | captured nonlinear decimation alias | 131,072 internal / 8,192 external samples | exact to fixed; 45 kHz to 3 kHz alias -137.814 dBc; zero saturation |
 | wide-state frequency response | 5 mV, 20 Hz--20 kHz | <=0.000196 dB gain / <=0.000982 degree phase; zero diagnostics |

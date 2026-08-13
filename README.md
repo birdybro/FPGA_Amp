@@ -176,6 +176,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   bit-exact to fixed Python. Against analytical float, maximum gain/phase error
   is 0.000194 dB / 0.000982 degrees with zero runtime diagnostics. This is an
   RTL-simulation result, not an FPGA or analog measurement.
+- The same four-point captured sweep in trapezoidal mode is exact to fixed at
+  every output and persistent state, and stays within 0.000128 dB / 0.000784°
+  of floating trapezoidal with zero diagnostics. The report links, but does not
+  combine, the independent ngspice layer: float trapezoidal differs by at most
+  0.00846 dB / 0.0582° at the measured 10/20 kHz points.
 - A captured 100 ms overload campaign matches all fixed nodes, capacitor states,
   outputs, and diagnostics for 384,000 total solver updates. The 20 mV burst
   reaches the 10% / 1% recovery thresholds in 8.47 / 14.92 ms. Bursts at 0.5 V
@@ -256,6 +261,7 @@ make state-wide                     # wide-state candidate on the same audit
 make state-wide-audio               # 5 mV/1 kHz legacy/wide A/B
 make wide-rtl-audio                 # capture and measure 23,040 RTL samples
 make wide-rtl-frequency             # captured 100 Hz-20 kHz solver sweep
+make trapezoidal-rtl-frequency      # captured selectable-integrator sweep
 make wide-rtl-overload              # captured 100 ms overload/recovery sweep
 make wide-stream-rtl-alias          # captured nonlinear decimation-alias test
 make overload-study                 # grid conduction, clipping, recovery

@@ -109,6 +109,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added selectable trapezoidal state to the complete 48 kHz stream, an exact
   64-output/1,024-update integration regression, and an explicit full-stream
   synthesis wrapper/target.
+- Extended arbitrary-length solver capture and the four-point frequency sweep
+  to trapezoidal state, including all current-history words, separate artifacts,
+  gated gain/phase/diagnostics, and a non-combined link to ngspice evidence.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -273,6 +276,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - The complete trapezoidal stream is bit-exact with zero diagnostics and a
   5.02 nA maximum residual. Structural synthesis is 17,556 logic cells,
   170 DSP48E1s, and 8 RAMB18E1s, adding 563 cells but no DSP/BRAM.
+- Captured trapezoidal RTL at 100 Hz/1/10/20 kHz is state-exact to fixed and
+  remains within 0.000128 dB / 0.000784 degrees of floating trapezoidal with
+  zero diagnostics. The separate float/SPICE layer remains within 0.00846 dB /
+  0.0582 degrees at the measured 10/20 kHz points.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.

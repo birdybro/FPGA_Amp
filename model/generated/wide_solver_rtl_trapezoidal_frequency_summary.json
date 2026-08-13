@@ -1,0 +1,199 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "implementation": "captured SystemVerilog wide factorized trapezoidal solver",
+  "integration_method": "trapezoidal",
+  "frequencies_hz": [
+    100.0,
+    1000.0,
+    10000.0,
+    20000.0
+  ],
+  "input_peak_v": 0.005,
+  "all_rtl_fixed_bit_exact": true,
+  "maximum_absolute_gain_error_db": 0.00012772146297366864,
+  "maximum_absolute_phase_error_deg": 0.0007840509291270337,
+  "worst_raw_normalized_residual_db": -43.98954348250011,
+  "worst_mean_removed_normalized_residual_db": -68.14443625535452,
+  "total_saturation_count": 0,
+  "total_range_clip_count": 0,
+  "total_residual_limit_exceedance_count": 0,
+  "total_correction_scale_fallback_count": 0,
+  "measurements": [
+    {
+      "model": "12ax7_passive_riaa_v1",
+      "implementation": "captured SystemVerilog wide factorized trapezoidal solver",
+      "integration_method": "trapezoidal",
+      "sample_rate_hz": 768000.0,
+      "stimulus": {
+        "frequency_hz": 100.0,
+        "input_peak_v": 0.005,
+        "duration_s": 0.1,
+        "analysis_start_s": 0.05,
+        "quantized_input": "Q8.24"
+      },
+      "captured_samples": 76800,
+      "rtl_fixed_bit_exact": true,
+      "analytical": {
+        "fundamental_peak_v": 2.445676494987048,
+        "phase_deg": -51.63470514998632,
+        "mean_v": -0.03982181998945043,
+        "thd_percent_h2_to_h10": 0.08421667711085304
+      },
+      "rtl": {
+        "fundamental_peak_v": 2.4456464948220598,
+        "phase_deg": -51.63505136141365,
+        "mean_v": -0.039998393837802154,
+        "thd_percent_h2_to_h10": 0.08422394290283322,
+        "gain_db": 53.788473558918604,
+        "gain_error_db": -0.00010654709278310181,
+        "phase_error_deg": -0.00034621142733470833,
+        "raw_normalized_residual_db": -79.6280202246063,
+        "mean_removed_normalized_residual_db": -93.23635249384027,
+        "residual_mean_v": -0.000176573848351771,
+        "maximum_residual_a": 7.1360091169481166e-09,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "residual_limit_exceedance_count": 0,
+        "correction_scale_fallback_count": 0
+      }
+    },
+    {
+      "model": "12ax7_passive_riaa_v1",
+      "implementation": "captured SystemVerilog wide factorized trapezoidal solver",
+      "integration_method": "trapezoidal",
+      "sample_rate_hz": 768000.0,
+      "stimulus": {
+        "frequency_hz": 1000.0,
+        "input_peak_v": 0.005,
+        "duration_s": 0.03,
+        "analysis_start_s": 0.02,
+        "quantized_input": "Q8.24"
+      },
+      "captured_samples": 23040,
+      "rtl_fixed_bit_exact": true,
+      "analytical": {
+        "fundamental_peak_v": 0.5669224879216231,
+        "phase_deg": -48.63505313603238,
+        "mean_v": -0.005073909643772261,
+        "thd_percent_h2_to_h10": 0.019050232361802512
+      },
+      "rtl": {
+        "fundamental_peak_v": 0.5669147017014399,
+        "phase_deg": -48.63516529743387,
+        "mean_v": -0.005349888617214123,
+        "thd_percent_h2_to_h10": 0.019387416084396005,
+        "gain_db": 41.09095430570161,
+        "gain_error_db": -0.00011929446278497075,
+        "phase_error_deg": -0.00011216140148917475,
+        "raw_normalized_residual_db": -63.22623665193866,
+        "mean_removed_normalized_residual_db": -87.27934854315487,
+        "residual_mean_v": -0.0002759789734417961,
+        "maximum_residual_a": 5.661888735630782e-09,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "residual_limit_exceedance_count": 0,
+        "correction_scale_fallback_count": 0
+      }
+    },
+    {
+      "model": "12ax7_passive_riaa_v1",
+      "implementation": "captured SystemVerilog wide factorized trapezoidal solver",
+      "integration_method": "trapezoidal",
+      "sample_rate_hz": 768000.0,
+      "stimulus": {
+        "frequency_hz": 10000.0,
+        "input_peak_v": 0.005,
+        "duration_s": 0.03,
+        "analysis_start_s": 0.02,
+        "quantized_input": "Q8.24"
+      },
+      "captured_samples": 23040,
+      "rtl_fixed_bit_exact": true,
+      "analytical": {
+        "fundamental_peak_v": 0.11403838734975509,
+        "phase_deg": -82.06388932321408,
+        "mean_v": -0.00019557580844664556,
+        "thd_percent_h2_to_h10": 0.005408036558411975
+      },
+      "rtl": {
+        "fundamental_peak_v": 0.11403671048725873,
+        "phase_deg": -82.0631641482023,
+        "mean_v": -0.0004806333942724451,
+        "thd_percent_h2_to_h10": 0.005537948306081062,
+        "gain_db": 27.16149353572353,
+        "gain_error_db": -0.00012772146297366864,
+        "phase_error_deg": 0.0007251750117802658,
+        "raw_normalized_residual_db": -49.017065708071456,
+        "mean_removed_normalized_residual_db": -73.63306419347714,
+        "residual_mean_v": -0.0002850575858257993,
+        "maximum_residual_a": 5.797232915938366e-09,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "residual_limit_exceedance_count": 0,
+        "correction_scale_fallback_count": 0
+      }
+    },
+    {
+      "model": "12ax7_passive_riaa_v1",
+      "implementation": "captured SystemVerilog wide factorized trapezoidal solver",
+      "integration_method": "trapezoidal",
+      "sample_rate_hz": 768000.0,
+      "stimulus": {
+        "frequency_hz": 20000.0,
+        "input_peak_v": 0.005,
+        "duration_s": 0.03,
+        "analysis_start_s": 0.02,
+        "quantized_input": "Q8.24"
+      },
+      "captured_samples": 23040,
+      "rtl_fixed_bit_exact": true,
+      "analytical": {
+        "fundamental_peak_v": 0.05773056292004774,
+        "phase_deg": -87.73531439906984,
+        "mean_v": 7.270748448008475e-05,
+        "thd_percent_h2_to_h10": 0.0043674448408068155
+      },
+      "rtl": {
+        "fundamental_peak_v": 0.05773058788865914,
+        "phase_deg": -87.73609844999896,
+        "mean_v": -0.0001846747204278304,
+        "thd_percent_h2_to_h10": 0.014201218674364082,
+        "gain_db": 21.248719514837433,
+        "gain_error_db": 3.7566679628231928e-06,
+        "phase_error_deg": -0.0007840509291270337,
+        "raw_normalized_residual_db": -43.98954348250011,
+        "mean_removed_normalized_residual_db": -68.14443625535452,
+        "residual_mean_v": -0.0002573822049079144,
+        "maximum_residual_a": 5.4747033573221415e-09,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "residual_limit_exceedance_count": 0,
+        "correction_scale_fallback_count": 0
+      }
+    }
+  ],
+  "upstream_float_trapezoidal_vs_spice": {
+    "source": "model/generated/python_spice_frequency_summary.json",
+    "note": "Independent upstream transient comparison; errors are not arithmetically combined because the SPICE-input waveform and captured Q8.24 sine stimuli are not sample-identical.",
+    "measurements": [
+      {
+        "frequency_hz": 10000.0,
+        "fundamental_gain_error_db": 0.005806367121769899,
+        "fundamental_phase_error_deg": 0.03899974349721447,
+        "raw_normalized_residual_db": -46.83319856656533,
+        "mean_removed_normalized_residual_db": -60.347762625143005,
+        "residual_mean_v": 0.00039940641058731907,
+        "maximum_absolute_error_v": 0.0005394688009029286
+      },
+      {
+        "frequency_hz": 20000.0,
+        "fundamental_gain_error_db": -0.00845533967575772,
+        "fundamental_phase_error_deg": 0.058170343325656404,
+        "raw_normalized_residual_db": -35.183031740433705,
+        "mean_removed_normalized_residual_db": -56.691387413739974,
+        "residual_mean_v": 0.00039860558326910967,
+        "maximum_absolute_error_v": 0.00046081501867256333
+      }
+    ]
+  }
+}

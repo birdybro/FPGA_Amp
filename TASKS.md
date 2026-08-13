@@ -11,9 +11,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
-- [ ] Capture the selectable trapezoidal RTL against SPICE at 100 Hz, 1 kHz,
-  10 kHz, and 20 kHz. The complete 64-output stream is exact and structurally
-  measured, but long waveform evidence still uses the backward-Euler solver.
+- [ ] Automate complete-stream trapezoidal frequency, phase, and level captures.
+  The integrated solver is captured across 100 Hz--20 kHz, but the 48 kHz
+  interpolation/decimation path only has the 64-output exact regression.
 - [ ] Lengthen severe-overload recovery beyond the new 85 ms post-burst window;
   neither analytical nor RTL trajectories reach 10% nominal output at >=0.5 V.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
@@ -57,6 +57,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Carry trapezoidal state through the complete interpolator/solver/
   decimator stream; match 64 outputs / 1,024 internal updates with zero
   diagnostics and synthesize the selectable hierarchy.
+- [x] Capture trapezoidal solver RTL at 100 Hz, 1 kHz, 10 kHz, and 20 kHz;
+  prove complete fixed-state equivalence, nominal diagnostics, and bounded
+  gain/phase error while linking the separate ngspice integration layer.
 - [x] Select, document, and version the Kennedy 1998 two-stage passive-RIAA circuit.
 - [x] Implement AT-VM95E R/L/47.5 kΩ/150 pF cartridge loading.
 - [x] Build ngspice DC, 10 Hz–100 kHz AC, transient, and 1 kHz H1–H10 level sweeps.

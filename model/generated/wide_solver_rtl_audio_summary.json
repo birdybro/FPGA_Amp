@@ -1,6 +1,7 @@
 {
   "model": "12ax7_passive_riaa_v1",
   "implementation": "captured SystemVerilog wide factorized solver",
+  "integration_method": "backward_euler",
   "sample_rate_hz": 768000.0,
   "stimulus": {
     "frequency_hz": 1000.0,

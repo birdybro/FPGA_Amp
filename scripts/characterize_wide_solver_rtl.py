@@ -24,6 +24,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
     parser.add_argument("--frequency-hz", type=float, default=1_000.0)
+    parser.add_argument("--trapezoidal", action="store_true")
     args = parser.parse_args()
     sample_rate_hz = 768_000.0
     frequency_hz = args.frequency_hz
@@ -41,13 +42,24 @@ def main() -> int:
     ).astype(np.int64)
     stimulus = input_q24.astype(np.float64) / float(1 << 24)
 
-    analytical = V1CircuitModel(sample_rate_hz)
+    integration_method = "trapezoidal" if args.trapezoidal else "backward_euler"
+    analytical = V1CircuitModel(
+        sample_rate_hz, integration_method=integration_method
+    )
     analytical_output = analytical.process(
         stimulus, max_iterations=8, tolerance_a=1.0e-12
     )
     frequency_tag = f"{frequency_hz:g}".replace(".", "p")
+    stem_prefix = (
+        "wide_solver_rtl_trapezoidal"
+        if args.trapezoidal
+        else "wide_solver_rtl"
+    )
     capture = capture_wide_solver_rtl(
-        input_q24, f"wide_solver_rtl_{frequency_tag}hz", args.verilator
+        input_q24,
+        f"{stem_prefix}_{frequency_tag}hz",
+        args.verilator,
+        trapezoidal=args.trapezoidal,
     )
     fixed = capture.fixed_model
     rtl_output = capture.rtl_output_q32.astype(np.float64) / float(1 << 32)
@@ -63,7 +75,12 @@ def main() -> int:
     residual_mean = float(np.mean(residual))
     report = {
         "model": "12ax7_passive_riaa_v1",
-        "implementation": "captured SystemVerilog wide factorized solver",
+        "implementation": (
+            "captured SystemVerilog wide factorized trapezoidal solver"
+            if args.trapezoidal
+            else "captured SystemVerilog wide factorized solver"
+        ),
+        "integration_method": integration_method,
         "sample_rate_hz": sample_rate_hz,
         "stimulus": {
             "frequency_hz": frequency_hz,
@@ -108,13 +125,18 @@ def main() -> int:
             "correction_scale_fallback_count": fixed.correction_scale_fallback_count,
         },
     }
-    run_report = ROOT / "build" / f"wide_solver_rtl_{frequency_tag}hz_report.json"
+    run_report = ROOT / "build" / f"{stem_prefix}_{frequency_tag}hz_report.json"
     run_report.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     if frequency_hz == 1_000.0:
-        summary = ROOT / "model" / "generated" / "wide_solver_rtl_audio_summary.json"
+        summary_name = (
+            "wide_solver_rtl_trapezoidal_audio_summary.json"
+            if args.trapezoidal
+            else "wide_solver_rtl_audio_summary.json"
+        )
+        summary = ROOT / "model" / "generated" / summary_name
         summary.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     result = (
-        ROOT / "reference" / "results" / f"wide_solver_rtl_{frequency_tag}hz.json"
+        ROOT / "reference" / "results" / f"{stem_prefix}_{frequency_tag}hz.json"
     )
     result.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
