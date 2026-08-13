@@ -29,7 +29,7 @@ logic uses enables, not derived fabric clocks.
 
 ## Solver shape
 
-The floating reference has nine dynamic nodes and 13 physical capacitors
+The floating reference has nine dynamic nodes and ten capacitor branches
 (including six tube parasitics). Each sample stamps capacitor companions,
 evaluates both triodes, solves the coupled system, and commits state only after
 the nonlinear solve. Previous-sample node voltages seed Newton iteration.
@@ -44,8 +44,9 @@ Jacobian at the quiescent point, precompute its inverse, and apply a constant
 matrix-vector correction to the exact nonlinear residual. For a deterministic
 50 Hz + 1 kHz + 10 kHz multitone, three unrelaxed passes converge every sample
 and are -137.28 dB normalized residual from full Newton. Full Newton remains the
-floating reference; three-pass chord becomes eligible for fixed-point work, with
-residual/deadline counters. Fixed coefficient quantization is not yet included.
+floating reference. The implemented fixed/RTL path uses exactly three Q17.1
+chord corrections and a fourth residual-only pass, with residual, saturation,
+LUT-range, request, and deadline counters.
 
 ## Clock and interface plan
 
@@ -63,24 +64,36 @@ residual/deadline counters. Fixed coefficient quantization is not yet included.
 ## Stereo scheduling
 
 Duplicating the accuracy-first tube primitive would consume 32 DSPs and 94
-RAMB18s before circuit arithmetic. A mono three-pass chord solve needs six tube
-requests, consuming 48 of 128 clocks with the serialized eight-clock primitive
-and leaving 80 for residual/matrix/state work. Stereo on one such engine would
-consume 96 clocks for tube requests alone and is not a credible closed schedule.
+RAMB18s before circuit arithmetic. A mono solve requires eight tube requests:
+two for each of three corrections plus two for the final diagnostic residual.
+Stereo on one serialized engine cannot meet the present schedule.
 The current direction is mono completion followed by either duplicated L/R table
 engines, a higher-throughput ROM pipeline, or a measured smaller-table trade.
 Deadline counters remain mandatory; no full stereo budget is claimed yet.
 
-The chord matrix correction is now a measured ten-clock RTL block with nine
-parallel row multipliers. Three corrections add 30 clocks to the mono sample.
-Together with six serialized tube requests (48 clocks), 78 of 128 clocks are
-accounted for, leaving 50 for KCL residual construction, capacitor state, and
-control. This is materially tighter than the table-only budget and is why a
-full mono scheduler must precede stereo duplication.
+The complete mono scheduler now has a measured 126-clock latency:
+
+```text
+RHS/history stamping                12 clocks
+4 overlapped KCL + two-tube passes  84 clocks
+3 chord corrections                 30 clocks
+total                              126 clocks
+```
+
+The KCL engine evaluates nine matrix rows in parallel while the single tube ROM
+engine serializes the two device evaluations. Completed RHS and chord results
+launch the following residual pass on the same edge, eliminating control
+bubbles. This leaves two clocks before the 128-clock/768 kHz deadline. It is a
+simulation-proven schedule, not an Fmax claim; named-part place-and-route at
+98.304 MHz remains required. Stereo therefore needs duplication or a materially
+higher-throughput shared architecture.
 
 ## Runtime observability contract
 
-The integrated stream will provide saturating counters for input/ADC clipping,
+The solver provides counters for rejected sample requests, processing deadline
+misses, node/residual saturation, LUT range clipping, and residual-limit
+failures, plus the last residual and measured sample latency. The wider stream
+will additionally provide saturating counters for input/ADC clipping,
 LUT range clipping, arithmetic saturation by node type, solver residual failure,
 maximum/average iteration count, missed 768 kHz deadlines, serial FIFO overrun
 or underrun, and DAC clipping. Counters are sticky until software clears them.

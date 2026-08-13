@@ -21,6 +21,7 @@ module chord_corrector_v1 #(
     input  logic [224:0]            residual_q30,
     output logic [287:0]            corrected_voltage,
     output logic                    saturation_any,
+    output logic [3:0]              saturation_count,
     output logic                    busy,
     output logic                    valid
 );
@@ -94,9 +95,11 @@ module chord_corrector_v1 #(
     logic signed [47:0] correction_by_row [0:8];
     logic signed [48:0] updated_by_row [0:8];
     logic saturation_combined;
+    logic [3:0] saturation_count_combined;
 
     always_comb begin
         saturation_combined = 1'b0;
+        saturation_count_combined = '0;
         for (int comb_row = 0; comb_row < 9; comb_row = comb_row + 1) begin
             product_by_row[comb_row] =
                 coefficient[comb_row * 9 + int'(column)] *
@@ -109,6 +112,8 @@ module chord_corrector_v1 #(
             );
             saturation_combined = saturation_combined ||
                                   exceeds_32(updated_by_row[comb_row]);
+            if (exceeds_32(updated_by_row[comb_row]))
+                saturation_count_combined = saturation_count_combined + 1'b1;
         end
     end
 
@@ -117,6 +122,7 @@ module chord_corrector_v1 #(
             busy           <= 1'b0;
             valid          <= 1'b0;
             saturation_any <= 1'b0;
+            saturation_count <= '0;
             column         <= '0;
             apply_pending  <= 1'b0;
             for (row = 0; row < 9; row = row + 1) begin
@@ -133,6 +139,7 @@ module chord_corrector_v1 #(
                     column         <= 4'd0;
                     apply_pending  <= 1'b0;
                     saturation_any <= 1'b0;
+                    saturation_count <= '0;
                     for (row = 0; row < 9; row = row + 1) begin
                         accumulator[row]      <= '0;
                         residual_latched[row] <= $signed(
@@ -160,6 +167,7 @@ module chord_corrector_v1 #(
                         saturate_32(updated_by_row[row]);
                 end
                 saturation_any <= saturation_combined;
+                saturation_count <= saturation_count_combined;
                 busy          <= 1'b0;
                 valid         <= 1'b1;
                 apply_pending <= 1'b0;

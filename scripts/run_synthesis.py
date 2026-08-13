@@ -27,7 +27,15 @@ def locate(name: str) -> Path | None:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--top", choices=("triode_12ax7", "chord_corrector_v1"), default="triode_12ax7"
+        "--top",
+        choices=(
+            "triode_12ax7",
+            "chord_corrector_v1",
+            "network_rhs_v1",
+            "network_kcl_v1",
+            "v1_solver_mono",
+        ),
+        default="triode_12ax7",
     )
     args = parser.parse_args()
     yosys = locate("yosys")
@@ -37,9 +45,18 @@ def main() -> int:
         return 2
     results = REPOSITORY_ROOT / "reference" / "results"
     results.mkdir(parents=True, exist_ok=True)
-    source = {
-        "triode_12ax7": "rtl/tube/triode_12ax7.sv",
-        "chord_corrector_v1": "rtl/circuit/chord_corrector_v1.sv",
+    sources = {
+        "triode_12ax7": ["rtl/tube/triode_12ax7.sv"],
+        "chord_corrector_v1": ["rtl/circuit/chord_corrector_v1.sv"],
+        "network_rhs_v1": ["rtl/circuit/network_rhs_v1.sv"],
+        "network_kcl_v1": ["rtl/circuit/network_kcl_v1.sv"],
+        "v1_solver_mono": [
+            "rtl/tube/triode_12ax7.sv",
+            "rtl/circuit/network_rhs_v1.sv",
+            "rtl/circuit/network_kcl_v1.sv",
+            "rtl/circuit/chord_corrector_v1.sv",
+            "rtl/phono/v1_solver_mono.sv",
+        ],
     }[args.top]
     log_path = results / f"yosys_xc7_{args.top}.log"
 
@@ -48,7 +65,7 @@ def main() -> int:
     # non-root bootstrap reproducible.
     script = "; ".join(
         [
-            f"read_verilog -sv {source}",
+            f"read_verilog -sv {' '.join(sources)}",
             f"synth_xilinx -family xc7 -top {args.top} -noiopad -noclkbuf -run begin:map_luts",
             "opt_expr -mux_undef -noclkinv",
             f"abc -exe {abc} -luts 2:2,3,6:5,10,20",
@@ -82,9 +99,17 @@ def main() -> int:
         print(completed.stdout, file=sys.stderr)
         return completed.returncode
 
-    section = completed.stdout.split(f"=== {args.top} ===", 1)[1].split(
+    local_section = completed.stdout.split(f"=== {args.top} ===", 1)[1].split(
         "=== design hierarchy ===", 1
     )[0]
+    hierarchy_section = completed.stdout.split("=== design hierarchy ===", 1)[1].split(
+        "Executing CHECK", 1
+    )[0]
+    section = (
+        hierarchy_section
+        if "Count including submodules" in hierarchy_section
+        else local_section
+    )
 
     def count(cell: str) -> int:
         match = re.search(rf"^\s*(\d+)\s+{re.escape(cell)}\s*$", section, re.MULTILINE)

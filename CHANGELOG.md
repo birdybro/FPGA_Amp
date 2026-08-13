@@ -24,6 +24,13 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added GitHub Actions model/RTL/generated-asset and ngspice cross-model jobs.
 - Added a synthesizable nine-row V1 chord corrector, reproducible coefficient/
   vector generation, exact boundary testbench, and generic XC7 synthesis flow.
+- Added bit-exact capacitor-history RHS and heterogeneous-format KCL engines,
+  each verified against 1,024 generated vectors with explicit saturation counts.
+- Added the complete mono V1 solver scheduler: both serialized 12AX7 evaluations,
+  three chord corrections, final residual, ten capacitor-state commits, and
+  request/deadline/saturation/LUT/convergence diagnostics.
+- Added a 512-sample persistent-state integration regression covering silence,
+  tones, multitone, noise, and ±100 mV clicks.
 - Added warning-free Verilator lint and a 4,096-vector bit-exact testbench with checked eight-clock latency.
 - Added non-root ngspice/Yosys bootstrap and a generic XC7 out-of-context synthesis report.
 - Added quantitative cartridge/front-end noise, ADC headroom, and analog-versus-digital RIAA partition analysis.
@@ -59,6 +66,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - The chord corrector passes 1,024 bit-exact vectors at ten-clock latency,
   including 18 saturation cases. XC7 synthesis reports 9 DSP48E1, no block RAM,
   and 1,109 estimated logic cells with no structural check errors.
+- The complete mono RTL matches all fixed-model nodes, capacitor histories,
+  output, residual, and diagnostics for 512 sequential samples. Scheduling takes
+  126 clocks, leaving two clocks at the 98.304 MHz/768 kHz target.
+- Complete hierarchical XC7 synthesis reports 8,024 estimated logic cells,
+  89 DSP48E1s, and 47 RAMB18E1s. Structural checks pass; Fmax is not claimed.
 
 ### Changed
 
@@ -66,3 +78,6 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Reduced each chord-correction multiply from Q17.15 × Q4.44 to DSP-native
   Q17.1 × signed 25-bit Q30. It is -83.63 dB residual from the high-precision
   correction on the initial multitone with 0.492 mV worst output difference.
+- Overlapped KCL matrix evaluation with tube lookup and launched completed RHS/
+  chord results without scheduler bubbles, reducing mono latency from 130 to
+  126 clocks and meeting the 128-clock simulation deadline.

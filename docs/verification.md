@@ -9,6 +9,9 @@ checks 4,096 deterministic randomized tuples including range boundaries and
 requires exact `Ip`, `Ig`, clipping, valid timing, and eight-clock latency.
 The chord-corrector test requires exact nine-node outputs and saturation status
 for 1,024 vectors, including forced positive/negative limits, at ten clocks.
+The network tests require 1,024 exact RHS and 1,024 exact KCL vectors. The
+integration test then carries one persistent circuit state through 512 samples
+and compares every node, capacitor, residual, output, and diagnostic count.
 
 The analog/reference commands are intentionally separate so a missing external
 tool is not reported as a pass:
@@ -34,6 +37,10 @@ scripts/run_synthesis.py            XC7 structural resource report
 | LUT vs analytical tube | 100,000 random full-range points | 0.139 µA mean, 9.33 µA worst |
 | RTL vs fixed LUT | 4,096 deterministic vectors | bit-exact, latency 8 |
 | chord RTL vs fixed correction | 1,024 deterministic vectors | bit-exact, latency 10, 18 saturation cases |
+| RHS RTL vs fixed network | 1,024 deterministic vectors | bit-exact, latency 12 |
+| KCL RTL vs fixed residual | 1,024 deterministic vectors | bit-exact, latency 10, 18 saturation vectors |
+| full mono RTL vs fixed circuit | 512 sequential samples | bit-exact all state/diagnostics, latency 126 |
+| full mono XC7 synthesis | Yosys 0.66 structural | 8,024 LC, 89 DSP48E1, 47 RAMB18E1; no Fmax claim |
 | synthesized RTL vs hardware | none | not validated |
 
 ## A/B and null methodology

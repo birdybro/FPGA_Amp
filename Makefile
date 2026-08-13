@@ -2,7 +2,7 @@ PYTHON ?= python3
 NGSPICE ?= ngspice
 VERILATOR ?= verilator
 
-.PHONY: all reference analysis precision-study resampler test python-test plots spice spice-all rtl chord-rtl lint synth synth-chord clean tools
+.PHONY: all reference analysis precision-study resampler test python-test plots spice spice-all rtl chord-rtl network-rtl solver-rtl lint synth synth-chord synth-network synth-solver clean tools
 
 all: reference test
 
@@ -36,6 +36,12 @@ rtl:
 chord-rtl:
 	$(PYTHON) scripts/run_chord_rtl.py --verilator $(VERILATOR)
 
+network-rtl:
+	$(PYTHON) scripts/run_network_rtl.py --verilator $(VERILATOR)
+
+solver-rtl:
+	$(PYTHON) scripts/run_solver_rtl.py --verilator $(VERILATOR)
+
 lint:
 	$(PYTHON) scripts/run_rtl.py --verilator $(VERILATOR) --lint-only
 
@@ -46,10 +52,21 @@ synth-chord:
 	$(PYTHON) scripts/generate_chord_vectors.py
 	$(PYTHON) scripts/run_synthesis.py --top chord_corrector_v1
 
+synth-network:
+	$(PYTHON) scripts/generate_network_vectors.py
+	$(PYTHON) scripts/run_synthesis.py --top network_rhs_v1
+	$(PYTHON) scripts/run_synthesis.py --top network_kcl_v1
+
+synth-solver:
+	$(PYTHON) scripts/generate_tube_lut.py
+	$(PYTHON) scripts/generate_network_vectors.py
+	$(PYTHON) scripts/generate_chord_vectors.py
+	$(PYTHON) scripts/run_synthesis.py --top v1_solver_mono
+
 python-test:
 	$(PYTHON) -m unittest discover -s model/tests -v
 
-test: python-test rtl chord-rtl
+test: python-test rtl chord-rtl network-rtl solver-rtl
 
 tools:
 	bash scripts/bootstrap_tools.sh

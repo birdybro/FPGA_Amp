@@ -22,7 +22,7 @@ The project keeps three categories separate:
 
 ## Current measured milestone
 
-The mono reference and first synthesizable primitive are operating:
+The mono reference and complete 768 kHz circuit solver are operating:
 
 - ngspice DC: stage 1 is 180.0 V / 0.992 mA and stage 2 is 192.8 V /
   1.072 mA at a 300 V supply.
@@ -42,15 +42,20 @@ The mono reference and first synthesizable primitive are operating:
 - The nine-node chord corrector is bit-exact for 1,024 randomized/boundary
   vectors, including 18 saturation cases, with ten-clock latency; XC7 synthesis
   uses 9 DSP48E1 blocks and no block RAM.
-- Out-of-context XC7 synthesis reports 16 DSP48E1 and 47 RAMB18E1 blocks plus
-  414 estimated logic cells. This is an accuracy-first baseline; no Fmax is
-  claimed before place-and-route.
+- Exact RTL RHS and KCL engines stamp all ten capacitor histories and the
+  physical conductance network. Each passes 1,024 vectors at 12 and 10 clocks.
+- The integrated solver matches 512 sequential fixed-model samples bit-for-bit
+  at every node and capacitor, completes three corrections plus its diagnostic
+  residual in 126 of 128 available clocks, and reports no deadline misses.
+- Hierarchical out-of-context XC7 synthesis of that complete solver reports
+  8,024 estimated logic cells, 89 DSP48E1, and 47 RAMB18E1 blocks. This is an
+  accuracy-first baseline; no Fmax is claimed before place-and-route.
 - A four-stage 16× half-band reference provides at least 91.6 dB per-stage image
   rejection and suppresses the measured cubic 45 kHz→3 kHz decimation alias to
   -137.8 dB with bit-accurate Q8.24/Q1.23 MACs; polyphase RTL is not implemented yet.
 
-There is no fabricated analog front end, converter board, complete streaming
-phono RTL, or physical audio measurement yet.
+There is no 48/768 kHz resampler RTL, serial-audio wrapper, fabricated analog
+front end, converter board, or physical audio measurement yet.
 
 ## Verification chain
 
@@ -95,8 +100,11 @@ python3 scripts/analyze_frontend.py
 python3 scripts/design_resampler.py
 make rtl                           # lint + 4,096 bit-exact vectors
 make chord-rtl                     # lint + 1,024 circuit-correction vectors
+make network-rtl                   # RHS/KCL bit-exact unit tests
+make solver-rtl                    # 512-sample persistent-state integration
 make synth                         # generic XC7 structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
+make synth-solver                  # hierarchical complete-solver estimate
 ```
 
 Generated CSV, plots, logs, ROM images, and reports are intentionally ignored;
@@ -110,14 +118,14 @@ under `model/generated/` as part of the numerical contract.
 - `model/python/fpga_amp/`: mathematical, nonlinear circuit, and fixed models
 - `model/configurations/`: circuit and simulation values
 - `models/phono/`: versioned model asset metadata
-- `rtl/tube/`: synthesizable tube primitive
-- `sim/unit/`: self-checking RTL testbench
+- `rtl/tube/`, `rtl/circuit/`, `rtl/phono/`: synthesizable tube and V1 solver
+- `sim/unit/`, `sim/integration/`: self-checking RTL testbenches
 - `scripts/`: all reproduction, comparison, analysis, and synthesis entry points
 - `docs/`: engineering decisions, budgets, known limitations, and hardware path
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
-path is wider fixed-point circuit sweeps, a synthesizable common-cathode/chord
-stage, then the complete passive-RIAA stream and 16× sample-rate chain.
+path is wider frequency/overload equivalence, then bit-exact 16× interpolation
+and decimation around the now-complete mono circuit solver.
 
 ## License
 

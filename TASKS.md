@@ -1,12 +1,12 @@
 # Engineering task ledger
 
-Last updated: 2026-08-12
+Last updated: 2026-08-13
 
 ## Current milestone
 
-Turn the verified 12AX7 device primitive and floating V1 nodal circuit into a
-bit-accurate, synthesizable mono 768 kHz circuit stream without losing the
-measured SPICE behavior. The reference circuit is frozen at model version 0.1.0.
+Surround the bit-exact, synthesizable 126-clock mono V1 circuit solver with the
+48/768 kHz sample-rate chain, then prove frequency, level, and overload behavior
+against the floating and SPICE references. The circuit is frozen at version 0.1.0.
 
 ## Active, highest value first
 
@@ -14,12 +14,8 @@ measured SPICE behavior. The reference circuit is frozen at model version 0.1.0.
   grid conduction, overload/recovery, and long-duration capacitor-state drift.
 - [ ] Prove fixed residual/overflow bounds and determine whether tube LUT
   resolution must increase before circuit RTL is frozen.
-- [ ] Implement a bit-accurate fixed nonlinear common-cathode stage and compare
-  DC, gain, harmonics, clipping, and recovery with float/SPICE.
-- [ ] Implement synthesizable common-cathode/network state updates with solver
-  residual, saturation, LUT-range, and deadline diagnostics.
-- [ ] Extend the fixed/RTL path to both triodes and the physical passive-RIAA
-  network; automate 20 Hz–20 kHz and level comparisons.
+- [ ] Automate RTL frequency and level comparisons through the integrated solver,
+  including DC, gain, harmonics, clipping asymmetry, and recovery.
 - [ ] Implement polyphase half-band RTL against the bit-accurate Q8.24/Q1.23
   model; prove sample timing, alias rejection, latency, and synthesis resources.
 - [ ] Add reset/state-initialization and post-model mute ramp regressions.
@@ -58,6 +54,14 @@ measured SPICE behavior. The reference circuit is frozen at model version 0.1.0.
 - [x] Implement synthesizable eight-clock 12AX7 RTL with range diagnostics.
 - [x] Pass warning-free Verilator lint and 4,096 bit-exact randomized vectors.
 - [x] Run generic XC7 synthesis and record actual structural resource use.
+- [x] Implement exact capacitor-history RHS and heterogeneous-format KCL RTL;
+  pass 1,024 vectors per block including residual saturation boundaries.
+- [x] Integrate both 12AX7 halves, all ten capacitor branches, three corrections,
+  final residual, state commit, and runtime diagnostics in a mono scheduler.
+- [x] Match all nodes, capacitor states, output, residual, and counters for 512
+  sequential fixed-model/RTL samples at a measured 126-clock latency.
+- [x] Synthesize the complete hierarchy: 8,024 estimated XC7 logic cells,
+  89 DSP48E1s, and 47 RAMB18E1s, with no structural check problems.
 - [x] Quantify flat/partial/full-analog RIAA front-end architectures.
 - [x] Produce initial gain/headroom, MM loading, noise, converter, clock, control,
   safety, stereo schedule, and hardware-verification engineering documents.
@@ -70,9 +74,9 @@ measured SPICE behavior. The reference circuit is frozen at model version 0.1.0.
   an acceptance bound.
 - The frozen historical circuit is -0.919 dB from ideal RIAA at its worst audio-
   band point. This is reference behavior, not an implementation defect.
-- Yosys reports 188 Xilinx-techmap port-resize warnings while `check` reports no
-  structural problem. Track tool-version behavior; do not describe synthesis as
-  warning-free.
+- Yosys reports 204 Xilinx BRAM primitive port-resize warnings on the hierarchical
+  solver while `check` reports no structural problem. Track tool-version behavior;
+  do not describe synthesis as warning-free.
 
 ## Research and hardware questions
 
@@ -81,16 +85,16 @@ measured SPICE behavior. The reference circuit is frozen at model version 0.1.0.
   the 47-RAMB18 primitive to be the dominant capacity constraint.
 - Measure Architecture A with a real JFET front end and at least two ADCs before
   freezing converter/gain/anti-alias parts.
-- Confirm whether shared stereo solver/network arithmetic closes the 128-cycle
-  internal deadline after named-part place-and-route.
+- Determine a credible stereo architecture; one solver uses 126/128 clocks and
+  cannot be time-multiplexed across two channels at the present throughput.
 - Select a first full integrated-amplifier topology only after V1 phono equivalence.
 
 ## Verification debt
 
-- The fixed full-phono candidate has only an initial multitone comparison; no
-  common-cathode/full-phono circuit RTL exists yet.
-- No oversampling, decimator, alias measurement, WAV/null tool, CDC, or formal
-  infrastructure exists yet.
+- The full-phono circuit RTL is bit-exact to fixed Python, but fixed versus float/
+  SPICE still has only the initial multitone and one SPICE transient comparison.
+- No oversampling/decimator RTL, WAV/null tool, CDC, or formal infrastructure
+  exists yet; aliasing is measured only in the bit-accurate Python resampler.
 - No vendor place-and-route/Fmax, FPGA capture, analog converter, or physical tube
   measurement exists.
 - GE curve digitization has ±0.05 mA visual uncertainty; production tube spread

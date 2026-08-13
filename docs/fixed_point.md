@@ -48,8 +48,16 @@ DSP48E1's 25×18 multiplier. Broader overload proof remains required.
 `chord_corrector_v1.sv` implements this correction with nine parallel row
 multipliers and one column per clock. It matches 1,024 generated vectors exactly,
 including 18 forced-saturation vectors, and produces results ten clocks after an
-idle start. This proves only the correction/update block; KCL residual formation
-and the three-pass solver controller remain outside the module.
+idle start. `network_rhs_v1.sv` and `network_kcl_v1.sv` separately match 1,024
+vectors each at 12 and 10 clocks; the KCL test contains 18 deliberate Q30
+residual saturation cases. The KCL block accepts tube current later than its
+start so matrix multiplication overlaps the serialized tube ROM work.
+
+`v1_solver_mono.sv` composes those blocks with the tube primitive. It matches
+512 sequential samples bit-for-bit for all nine node voltages, all ten capacitor
+states, output, final residual, and cumulative diagnostic counters. Silence,
+tones, multitone, bounded noise, and ±100 mV click stimuli are included. Measured
+latency is 126 fabric clocks per 768 kHz sample.
 
 Exactly three chord corrections execute per sample; the fixed model does not
 exit early based on quantized residual. A 2 µA residual diagnostic limit is a
@@ -63,3 +71,9 @@ Newton float. Error decomposition shows the floating LUT circuit itself at
 -56.14 dB versus analytical float, while Q-format plus three-pass chord is
 -70.33 dB versus the floating LUT circuit. Thus LUT device resolution—not fixed
 state arithmetic—is the dominant measured downstream approximation in this test.
+
+Generic hierarchical XC7 synthesis of the complete solver reports 8,024
+estimated logic cells, 89 DSP48E1s, and 47 RAMB18E1s. The RHS and KCL engines
+account for 10 and 54 DSP48E1s respectively; the correction uses nine and the
+tube primitive 16. These are structural results only. No named-device timing,
+routing, or 98.304 MHz closure is claimed.

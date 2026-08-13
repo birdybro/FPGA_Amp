@@ -54,6 +54,7 @@ def main() -> int:
                 residual[row] = -(1 << 23) if index % 2 == 0 else (1 << 23) - 1
             expected: list[int] = []
             saturation = False
+            saturation_count = 0
             for row, fractional_bits in enumerate(NODE_FRACTIONAL_BITS):
                 accumulator = sum(
                     int(coefficient[row, column]) * int(residual[column])
@@ -63,8 +64,15 @@ def main() -> int:
                 result, clipped = saturate_signed(int(voltage[row]) - correction, 32)
                 expected.append(result)
                 saturation = saturation or clipped
+                saturation_count += int(clipped)
             saturation_vectors += int(saturation)
-            fields = [*map(int, voltage), *map(int, residual), *expected, int(saturation)]
+            fields = [
+                *map(int, voltage),
+                *map(int, residual),
+                *expected,
+                int(saturation),
+                saturation_count,
+            ]
             handle.write(" ".join(str(value) for value in fields) + "\n")
 
     report = {

@@ -1,0 +1,113 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "sample_rate_hz": 768000,
+  "nodes": [
+    "g1",
+    "p1",
+    "k1",
+    "eq_pre",
+    "g2",
+    "eq_low",
+    "p2",
+    "k2",
+    "out"
+  ],
+  "node_fractional_bits": [
+    24,
+    20,
+    24,
+    20,
+    24,
+    24,
+    20,
+    24,
+    20
+  ],
+  "capacitors": [
+    {
+      "index": 0,
+      "node_a": 0,
+      "node_b": 2,
+      "conductance_q0_47": 248598699,
+      "initial_voltage_q12_20": -1258424
+    },
+    {
+      "index": 1,
+      "node_a": 0,
+      "node_b": 1,
+      "conductance_q0_47": 259407339,
+      "initial_voltage_q12_20": -188730272
+    },
+    {
+      "index": 2,
+      "node_a": 1,
+      "node_b": 2,
+      "conductance_q0_47": 97277752,
+      "initial_voltage_q12_20": 187471848
+    },
+    {
+      "index": 3,
+      "node_a": 4,
+      "node_b": 7,
+      "conductance_q0_47": 248598699,
+      "initial_voltage_q12_20": -1357864
+    },
+    {
+      "index": 4,
+      "node_a": 4,
+      "node_b": 6,
+      "conductance_q0_47": 259407339,
+      "initial_voltage_q12_20": -202172029
+    },
+    {
+      "index": 5,
+      "node_a": 6,
+      "node_b": 7,
+      "conductance_q0_47": 97277752,
+      "initial_voltage_q12_20": 200814165
+    },
+    {
+      "index": 6,
+      "node_a": 1,
+      "node_b": 3,
+      "conductance_q0_47": 5080060379674,
+      "initial_voltage_q12_20": 188728114
+    },
+    {
+      "index": 7,
+      "node_a": 5,
+      "node_b": null,
+      "conductance_q0_47": 1080863910569,
+      "initial_voltage_q12_20": 2158
+    },
+    {
+      "index": 8,
+      "node_a": 4,
+      "node_b": null,
+      "conductance_q0_47": 356685090488,
+      "initial_voltage_q12_20": 2158
+    },
+    {
+      "index": 9,
+      "node_a": 6,
+      "node_b": 8,
+      "conductance_q0_47": 50800603796739,
+      "initial_voltage_q12_20": 202174187
+    }
+  ],
+  "input_conductance_q0_47": 636821214278,
+  "rhs_vectors": 1024,
+  "kcl_vectors": 1024,
+  "kcl_saturation_vectors": 18,
+  "rhs_latency_clocks": 12,
+  "kcl_latency_clocks": 10,
+  "outputs": [
+    "model/generated/v1_dynamic_matrix_q0_47.mem",
+    "model/generated/v1_fixed_rhs_q4_44.mem",
+    "model/generated/v1_cap_conductance_q0_47.mem",
+    "model/generated/v1_cap_initial_q12_20.mem",
+    "model/generated/v1_node_initial.mem",
+    "sim/vectors/generated/network_rhs_random.txt",
+    "sim/vectors/generated/network_kcl_random.txt"
+  ]
+}
