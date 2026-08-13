@@ -131,6 +131,15 @@ slow output coupling network preserves small operating-point discrepancies.
 The raw result remains the primary unaligned metric while fixed-domain DC
 initialization and coefficient error are investigated.
 
+The same comparison now spans 20 Hz, 50 Hz, 100 Hz, 1 kHz, 10 kHz, and 20 kHz
+at 5 mV peak, using at least ten stimulus cycles and analyzing at least the last
+five. Maximum fundamental gain and phase errors are 0.00846 dB and 0.0729°.
+No fixed residual-limit, arithmetic-saturation, or tube-range event occurs in
+683,520 processed samples. At 10 and 20 kHz the raw residual is only about
+-23.5 dB because a few-millivolt mean difference is large relative to the RIAA-
+attenuated AC output; direct gain errors remain 0.00056 and -0.00033 dB. This is
+why the report retains raw null, mean-removed null, gain, phase, and DC separately.
+
 ## Explicit error budget status
 
 | Layer | Present evidence | Status |
@@ -146,6 +155,7 @@ initialization and coefficient error are investigated.
 | factorized RTL vs fixed | 4,107 vectors exact at 8 clocks; 1,597 LC / 37 DSP / 8 RAMB18 | standalone and solver passing |
 | factorized solver vs fixed | 512 stateful samples exact at 126 clocks; 9,194 LC / 110 DSP / 8 RAMB18 | passing |
 | factorized stream vs fixed | 64 outputs / 1,024 updates exact; 14,366 LC / 158 DSP / 8 RAMB18 | passing; broader stimuli open |
+| factorized frequency response | six 5 mV points, 20 Hz–20 kHz | ≤0.00846 dB gain / ≤0.0729° phase; zero diagnostics |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |
 | fixed chord/state vs float LUT circuit | -70.33 dB initial multitone; -34.58 dB at 5 mV/1 kHz | signal-dependent; low-level improvement required |
 | low-level complete fixed model | 2-D: 0.0733%; factorized: 0.0188%; analytical: 0.0191% THD | device error improved; RTL/state-phase work open |

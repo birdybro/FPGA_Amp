@@ -49,6 +49,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   persistent-state vectors, metadata, regression entry point, and synthesis path.
 - Added factorized mode to the complete interpolator/circuit/decimator stream,
   including independent exact output vectors, metadata, and structural synthesis.
+- Added a reproducible six-frequency, cycle-counted factorized fixed-versus-
+  analytical circuit sweep with gain, phase, THD, raw/mean-removed residual,
+  DC difference, range, saturation, and convergence reporting.
 - Added warning-free Verilator lint and a 4,096-vector bit-exact testbench with checked eight-clock latency.
 - Added non-root ngspice/Yosys bootstrap and a generic XC7 out-of-context synthesis report.
 - Added quantitative cartridge/front-end noise, ADC headroom, and analog-versus-digital RIAA partition analysis.
@@ -122,6 +125,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   reporting (not correcting) its -2.840 mV mean difference, with 0.00958°
   fundamental phase error. This prevents the DC/state discrepancy from being
   misidentified as low-level harmonic error.
+- Across 20 Hz, 50 Hz, 100 Hz, 1 kHz, 10 kHz, and 20 kHz at 5 mV peak, the
+  factorized fixed model stays within 0.00846 dB fundamental gain and 0.0729°
+  phase of analytical float with zero residual-limit, saturation, or range events.
 
 ### Changed
 

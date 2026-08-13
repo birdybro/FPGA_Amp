@@ -27,6 +27,7 @@ scripts/compare_spice_python.py     transient residual
 scripts/characterize_solver.py      fixed-iteration residual/convergence
 scripts/study_lut_resolution.py     BRAM/error trade study
 scripts/study_factorized_tube.py    factorized current/circuit accuracy
+scripts/characterize_factorized_frequency.py  six-point audio-band equivalence
 scripts/run_synthesis.py            XC7 structural resource report
 ```
 
@@ -43,6 +44,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | factorized fixed vs analytical tube | 100,000 quantized full-range points | 10.5 nA mean, 51.8 nA worst; 12.67 raw RAMB18 equivalents |
 | factorized fixed circuit vs analytical | 5 mV / 0.5 V, 1 kHz, 20–30 ms | 0.0188% / 2.2419% THD vs 0.0191% / 2.2417% |
 | factorized fixed low-level null | 5 mV, 1 kHz, 20–30 ms | -42.90 dB raw; -59.63 dB mean-removed diagnostic; -2.840 mV mean; 0.00958° phase error |
+| factorized fixed frequency sweep | 5 mV, 20/50/100/1k/10k/20k Hz | ≤0.00846 dB gain, ≤0.0729° phase; zero fixed diagnostics |
 | factorized RTL vs fixed tube | 4,107 randomized/directed vectors | bit-exact, 5 clip cases, latency 8 |
 | RTL vs fixed LUT | 4,096 deterministic vectors | bit-exact, latency 8 |
 | chord RTL vs fixed correction | 1,024 deterministic vectors | bit-exact, latency 10, 18 saturation cases |

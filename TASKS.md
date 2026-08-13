@@ -15,8 +15,8 @@ RTL, then prove frequency, level, and overload behavior through the complete
   the factorized candidate fixes THD but retains -42.90 dB raw residual at
   5 mV. A -2.840 mV mean offset dominates it; mean-removed residual is -59.63 dB,
   phase error 0.00958°, and fundamental gain error +0.00026 dB.
-- [ ] Extend factorized-fixed-vs-float comparison across frequency, silence,
-  impulse, grid conduction, overload/recovery, and capacitor-state drift.
+- [ ] Extend factorized-fixed-vs-float comparison across silence, impulse, grid
+  conduction, overload/recovery, and long-duration capacitor-state drift.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
 - [ ] Automate RTL frequency and level comparisons through the integrated solver,
   including DC, gain, harmonics, clipping asymmetry, and recovery.
@@ -90,6 +90,9 @@ RTL, then prove frequency, level, and overload behavior through the complete
 - [x] Propagate factorized mode through the complete stream; match 64 outputs /
   1,024 circuit updates exactly with zero diagnostics and synthesize at 14,366
   LC, 158 DSP48E1, and 8 RAMB18E1.
+- [x] Sweep 5 mV factorized fixed vs analytical at 20/50/100 Hz and
+  1/10/20 kHz: ≤0.00846 dB gain error, ≤0.0729° phase error, and no diagnostic
+  failures across 683,520 nonlinear samples.
 - [x] Quantify flat/partial/full-analog RIAA front-end architectures.
 - [x] Produce initial gain/headroom, MM loading, noise, converter, clock, control,
   safety, stereo schedule, and hardware-verification engineering documents.

@@ -76,6 +76,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   is -59.63 dB: a -2.840 mV DC difference dominates the raw result. Fundamental
   phase error is 0.00958°. These are reported separately; no DC/gain alignment
   is used to conceal implementation error.
+- A 5 mV fixed-vs-analytical sweep at 20, 50, 100 Hz and 1, 10, 20 kHz bounds
+  fundamental gain error to 0.00846 dB and phase error to 0.0729°, with no
+  residual-limit failures, saturations, or tube-range clips. Raw high-frequency
+  nulls remain DC-offset dominated and are not substituted for gain/phase error.
 - A four-stage 16× half-band reference provides at least 91.6 dB per-stage image
   rejection and suppresses the measured cubic 45 kHz→3 kHz decimation alias to
   -137.8 dB with bit-accurate Q8.24/Q1.23 MACs. The complete interpolation and
@@ -124,6 +128,7 @@ python3 scripts/study_solver_architecture.py
 python3 scripts/compare_fixed_float.py
 make accuracy-sweeps                # settled level and low-level LUT studies
 make factorized-study               # smooth 1-D/Hermite tube candidate
+make factorized-frequency           # 20 Hz-20 kHz fixed/analytical sweep
 python3 scripts/study_lut_resolution.py
 python3 scripts/analyze_frontend.py
 python3 scripts/design_resampler.py
