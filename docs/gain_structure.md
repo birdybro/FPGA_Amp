@@ -45,7 +45,16 @@ The Koren SPICE level sweep reaches its first tested 1 dB compression point only
 at 1.1 V peak cartridge source, so ordinary 1 kHz MM overload is dominated by
 the physical front end/ADC unless gain is planned carefully. Low-frequency warp,
 record pops, and the RIAA bass boost are more relevant headroom cases and remain
-required multitone/transient regressions.
+required multitone/transient regressions. The deterministic PCM suite now gives
+finite-window evidence for that warning: a 5 mV-peak 11 Hz warp plus 1 mV-peak
+1 kHz tone reaches 5.359 V peak, and the 5 mV log sweep reaches 4.136 V peak.
+Those explicit capture mappings had to increase from 2 V to 8 V; the initially
+clipped run was rejected rather than normalized. A deliberately nonphysical
+1.5 V-peak, 5 ms input burst reaches 109.14 V at the virtual output and remains
+at 1.720 V RMS over the final 1,024 samples of the 85.3 ms record. These are
+virtual-node verification values, not DAC requirements or ordinary cartridge
+claims, but they show why Q8.24's +/-128 V boundary and every downstream scaling/
+clip counter must remain explicit.
 
 ## Digital representation
 

@@ -50,6 +50,8 @@ scripts/characterize_wide_stream_rtl_alias.py     captured cubic alias/full stre
 scripts/process_wav.py                         explicit-voltage fixed V1 WAV path
 scripts/compare_wav.py                         latency/gain/residual WAV comparison
 scripts/run_wav_null_regression.py             synthetic end-to-end audio gate
+scripts/generate_audio_regression_vectors.py   original physical-level fixtures
+scripts/run_audio_regression.py                fixed distortion/IMD/overload gate
 scripts/characterize_overload_recovery.py     grid conduction and recovery
 scripts/characterize_overload_recovery.py --trapezoidal  fixed integrator overload
 scripts/characterize_long_overload_recovery.py  235 ms physical-model tail
@@ -119,6 +121,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | trapezoidal banked terminal stream | 64 outputs / 1,024 circuit samples plus synthesis | bit-exact, zero diagnostics, 127 clocks; 20,241 LC / 222 DSP48E1 / 8 RAMB18E1; no Fmax claim |
 | captured trapezoidal banked terminal stream frequency | 4,800 outputs each at 100 Hz/1/10/20 kHz | Q24 exact; <=0.000134 dB / <=0.000444 degree vs float; -74.79 dB worst linear-detrended null; zero diagnostics |
 | fixed V1 WAV/null regression | 1,024 frames; 11/73/997/7013 Hz plus synthetic pop | trapezoidal terminal path zero diagnostics/clips; injected 23-sample delay recovered; raw/latency-only/gain-aligned residual +2.405/-30.462/-100.810 dB |
+| deterministic PCM audio suite | 9 vectors / 32,448 outputs / 519,168 internal updates | zero diagnostics/clips; 5/0.5 mV H2–H10 THD 0.019826%/0.011559%; explicit 1/18/21 kHz two-tone products |
 | trapezoidal 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 116-clock solver |
 | trapezoidal stream synthesis | Yosys 0.66 structural | 17,735 LC, 168 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | wide factorized solver RTL vs fixed | 512 sequential samples | bit-exact all 19 states and diagnostics, latency 116, zero events |
@@ -181,16 +184,28 @@ It does not normalize. Stereo files are scheduled as independent model instances
 and each channel receives its own diagnostic report. This is an offline software
 path, not evidence of stereo RTL scheduling or an I²S implementation.
 
+The generated audio suite is original repository content, not licensed music.
+Each manifest entry states input/output peak volts at PCM full scale. Harmonic
+and arbitrary-tone amplitudes are simultaneous least-squares fits, so a
+non-coherent analysis interval does not leak a fundamental into the reported
+harmonics. The 19/20 kHz fixture reports selected 1/18/21 kHz spectral products
+relative to the combined fundamentals; it is deliberately named `ccif_like`
+and is not presented as a standards-compliant CCIF/ITU scalar. Silence produces
+174.6 uV RMS of deterministic initialized fixed-model offset over the first
+1,024 outputs; that is numerical/startup behavior, not stochastic circuit noise.
+
 The complete-stream frequency report performs no alignment. It fits the raw
 48 kHz input/output with absolute sample indices. A separate identity-path
 interpolator/decimator measurement establishes the 51-sample causal converter
 delay; only the field named `circuit_attributed_after_converter_removal`
 subtracts that converter phase. End-to-end fields retain the physical latency.
 
-Future audio regressions include silence, impulse, log sweep, low-level sine,
-20/50/100 Hz and 1/10/20 kHz levels, multitone, SMPTE/CCIF IMD, synthetic pops,
-5–20 Hz warp, grid-conduction overload, recovery, and licensed/locally supplied
-music. Every found numerical bug gets the smallest durable regression vector.
+Implemented audio fixtures now cover silence, log sweep, low-level/nominal sine,
+multitone, selected high-frequency intermodulation products, synthetic pops,
+11 Hz warp, and grid-conduction overload. Still missing are a separately gated
+impulse response, standardized SMPTE/CCIF measurement procedures, long WAV-level
+recovery, and licensed/locally supplied music. Every found numerical bug gets
+the smallest durable regression vector.
 
 ## Physical verification plan
 

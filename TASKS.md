@@ -26,6 +26,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Add nine original, physically scaled PCM24 regressions covering silence,
+  nominal/low-level THD, high-frequency intermodulation products, multitone,
+  warp, pop, log sweep, and 1.5 V overload. Process 32,448 outputs / 519,168
+  nonlinear updates with zero model diagnostics or WAV clips; measure
+  0.019826%/0.011559% H2--H10 THD at 5/0.5 mV peak.
 - [x] Add dependency-free 16/24/32-bit PCM WAV I/O, explicit peak-voltage
   scaling through the exact fixed V1 stream, and transparent latency/gain/
   fractional-delay null tooling. Run a 1,024-frame terminal-trapezoidal audio
@@ -314,10 +319,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - The full-phono circuit RTL is bit-exact to fixed Python and now has nominal
   four-point solver and complete-stream captures. SPICE comparison remains at
   four frequencies and large-signal cross-layer coverage is still incomplete.
-- PCM WAV processing and explicit null comparison now exist. The broader audio
-  distortion/IMD/overload vector library, CDC, and formal infrastructure remain
-  absent. The cubic and full-tube alias-family tests are captured from RTL; the
-  latter is bounded below fixed rounding closure rather than inferred from the
+- PCM WAV processing, explicit null comparison, and a deterministic distortion/
+  IMD-product/overload suite now exist. Standardized IMD procedures, long WAV-
+  level recovery, licensed music, CDC, and formal infrastructure remain absent.
+  The cubic and full-tube alias-family tests are captured from RTL; the latter
+  is bounded below fixed rounding closure rather than inferred from the
   confounded raw bin.
 - No vendor place-and-route/Fmax, FPGA capture, analog converter, or physical tube
   measurement exists.
@@ -330,7 +336,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 - [ ] Stereo scheduling and converter interface on Arty A7-100T reference platform.
 - [x] PCM WAV processing and latency/gain/fractional-delay null comparison.
-- [ ] Expanded WAV distortion/IMD/overload regression vector library.
+- [x] Deterministic WAV distortion/IMD-product/overload regression library.
+- [ ] Standardized IMD, long recovery, impulse, and licensed-music WAV gates.
 - [ ] Fabricated MM front end, ADC/FPGA/DAC loopback, and calibrated line output.
 - [ ] Validated phase inverter, power tubes, transformer, dynamic supply, feedback,
   and speaker interaction for one selected integrated-amplifier circuit.

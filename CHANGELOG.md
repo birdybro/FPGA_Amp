@@ -6,6 +6,12 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added simultaneous least-squares tone, H2--H10 THD, and explicitly selected
+  intermodulation-product measurement plus nine original PCM24 fixtures. The
+  accuracy-first fixed stream processes 32,448 outputs / 519,168 internal
+  updates with zero diagnostics or clips; measured WAV-boundary THD is
+  0.019826% at 5 mV peak and 0.011559% at 0.5 mV peak. High-frequency product
+  bins are retained without mislabeling them as a standards-compliant scalar.
 - Added dependency-free 16/24/32-bit integer PCM WAV I/O, an offline 48 kHz
   fixed-V1 processor with mandatory peak-voltage mappings and per-channel
   diagnostics, and explicit latency/gain/fractional-delay null comparison with

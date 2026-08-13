@@ -173,6 +173,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   latency-aligned, and -100.810 dB opt-in gain-aligned residuals as separate
   fields. Optional fractional alignment is labeled with its interpolation
   method; it is never enabled by default.
+- A separate nine-vector PCM24 library exercises silence, 5/0.5 mV 1 kHz,
+  19/20 kHz products, 100 Hz/1/10 kHz multitone, 11 Hz warp, a synthetic pop,
+  a 20 Hz–20 kHz log sweep, and a 1.5 V/5 ms overload burst. All 32,448 external
+  frames / 519,168 nonlinear updates pass with zero model diagnostics or WAV
+  clips. Measured at the WAV boundary, H2–H10 THD is 0.019826% at 5 mV peak and
+  0.011559% at 0.5 mV peak. The 19/20 kHz report retains the 1/18/21 kHz product
+  amplitudes and explicitly does not claim a standards-compliant CCIF scalar.
 - Moving only the shallow trapezoidal threshold from -2.50 to -2.75 V prevents
   bank activation at 0.5 V, preserves zero 1.0 V failures, and reduces final
   10 ms mean error from 1.042 to 0.537 mV with the former 128-point grid-current
@@ -418,6 +425,7 @@ make wide-rtl-overload              # captured 100 ms overload/recovery sweep
 make terminal-banked-rtl-metrics    # terminal H1-H10/clipping/recovery capture
 make wide-stream-rtl-alias          # captured nonlinear decimation-alias test
 make wav-null-regression            # fixed V1 PCM WAV + explicit null fixture
+make audio-regression               # nine-vector distortion/IMD/overload suite
 make overload-study                 # grid conduction, clipping, recovery
 make overload-trapezoidal           # fixed/float trapezoidal burst comparison
 make overload-long                  # 235 ms floating severe-recovery observation
