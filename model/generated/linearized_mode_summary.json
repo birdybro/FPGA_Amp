@@ -1,0 +1,585 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "analysis": "continuous-time small-signal nodal modes at DC bias",
+  "equation": "det(G + s*C)=0 via nonzero eigenvalues of inverse(G)*C",
+  "node_count": 9,
+  "capacitance_matrix_rank": 8,
+  "conductance_matrix_rank": 9,
+  "conductance_matrix_condition_number": 772665.3278302223,
+  "dc_nodes_v": {
+    "g1": 2.21e-07,
+    "p1": 179.99771388950012,
+    "k1": 1.2000216511049988,
+    "eq_pre": 0.0022099999999999806,
+    "g2": 0.0022099999999999806,
+    "eq_low": 0.0022099999999999806,
+    "p2": 192.81200601181973,
+    "k2": 1.2969735172569812,
+    "out": 0.0
+  },
+  "tube_small_signal_parameters": [
+    {
+      "stage": 1,
+      "v_gk_v": -1.2000214301049987,
+      "v_pk_v": 178.79769223839511,
+      "transconductance_s": 0.001925163798808995,
+      "plate_conductance_s": 2.0566349524017008e-05,
+      "plate_resistance_ohm": 48623.116067935065,
+      "grid_conductance_s": 0.0
+    },
+    {
+      "stage": 2,
+      "v_gk_v": -1.2947635172569811,
+      "v_pk_v": 191.51503249456275,
+      "transconductance_s": 0.0019619687355657,
+      "plate_conductance_s": 2.0992129172101023e-05,
+      "plate_resistance_ohm": 47636.901993201376,
+      "grid_conductance_s": 0.0
+    }
+  ],
+  "finite_dynamic_modes": 8,
+  "all_finite_poles_stable": true,
+  "modes": [
+    {
+      "mode": 1,
+      "time_matrix_eigenvalue_s": {
+        "real": 1.067762630245068,
+        "imaginary": 0.0
+      },
+      "pole_per_s": {
+        "real": -0.9365377394510281,
+        "imaginary": 0.0
+      },
+      "decay_time_constant_s": 1.067762630245068,
+      "oscillation_frequency_hz": 0.0,
+      "normalized_node_voltage": {
+        "g1": {
+          "magnitude": 2.651795108716543e-19,
+          "phase_deg": -0.0
+        },
+        "p1": {
+          "magnitude": 4.958390090108265e-10,
+          "phase_deg": -180.0
+        },
+        "k1": {
+          "magnitude": 3.678553105983689e-12,
+          "phase_deg": -180.0
+        },
+        "eq_pre": {
+          "magnitude": 1.6166704938411132e-07,
+          "phase_deg": -0.0
+        },
+        "g2": {
+          "magnitude": 1.6016807605130263e-07,
+          "phase_deg": -0.0
+        },
+        "eq_low": {
+          "magnitude": 1.6021789268817082e-07,
+          "phase_deg": -0.0
+        },
+        "p2": {
+          "magnitude": 0.02797981153852609,
+          "phase_deg": -180.0
+        },
+        "k2": {
+          "magnitude": 0.00020895566924335107,
+          "phase_deg": -180.0
+        },
+        "out": {
+          "magnitude": 0.9999999999999999,
+          "phase_deg": -0.0
+        }
+      },
+      "capacitor_energy_fraction": {
+        "stage1_grid_cathode": 6.266354029321559e-29,
+        "stage1_grid_plate": 1.1880250349397787e-24,
+        "stage1_plate_cathode": 4.389235773177809e-25,
+        "stage2_grid_cathode": 2.025044890566988e-13,
+        "stage2_grid_plate": 3.783021000900035e-09,
+        "stage2_plate_cathode": 1.3975070482076129e-09,
+        "interstage_47nf": 2.4884777901597926e-15,
+        "riaa_10nf": 5.16838668575408e-16,
+        "riaa_3p3nf": 1.7045071450549114e-16,
+        "output_470nf": 0.9999999948192663
+      }
+    },
+    {
+      "mode": 2,
+      "time_matrix_eigenvalue_s": {
+        "real": 0.14393601650081295,
+        "imaginary": 0.0
+      },
+      "pole_per_s": {
+        "real": -6.9475314400850605,
+        "imaginary": 0.0
+      },
+      "decay_time_constant_s": 0.14393601650081295,
+      "oscillation_frequency_hz": 0.0,
+      "normalized_node_voltage": {
+        "g1": {
+          "magnitude": 2.3089809284046635e-12,
+          "phase_deg": 180.0
+        },
+        "p1": {
+          "magnitude": 0.0006221708119925916,
+          "phase_deg": 0.0
+        },
+        "k1": {
+          "magnitude": 4.6157863601785e-06,
+          "phase_deg": 0.0
+        },
+        "eq_pre": {
+          "magnitude": 0.02680712344988577,
+          "phase_deg": 180.0
+        },
+        "g2": {
+          "magnitude": 0.02492623817220259,
+          "phase_deg": 180.0
+        },
+        "eq_low": {
+          "magnitude": 0.024983865467558385,
+          "phase_deg": 180.0
+        },
+        "p2": {
+          "magnitude": 0.8614267675933259,
+          "phase_deg": 0.0
+        },
+        "k2": {
+          "magnitude": 0.01097075704753604,
+          "phase_deg": 180.0
+        },
+        "out": {
+          "magnitude": 0.9999999999999999,
+          "phase_deg": 0.0
+        }
+      },
+      "capacitor_energy_fraction": {
+        "stage1_grid_cathode": 5.4018741731288326e-15,
+        "stage1_grid_plate": 1.0241305126733305e-10,
+        "stage1_plate_cathode": 3.783716810755563e-11,
+        "stage2_grid_cathode": 4.9378996274308815e-08,
+        "stage2_grid_plate": 0.00020784973719830234,
+        "stage2_plate_cathode": 7.550855392617782e-05,
+        "interstage_47nf": 0.003898090517211667,
+        "riaa_10nf": 0.0006880881200026186,
+        "riaa_3p3nf": 0.0002260227814852992,
+        "output_470nf": 0.9949043907709241
+      }
+    },
+    {
+      "mode": 3,
+      "time_matrix_eigenvalue_s": {
+        "real": 0.0029073958462833473,
+        "imaginary": 0.0
+      },
+      "pole_per_s": {
+        "real": -343.95041228333054,
+        "imaginary": 0.0
+      },
+      "decay_time_constant_s": 0.0029073958462833473,
+      "oscillation_frequency_hz": 0.0,
+      "normalized_node_voltage": {
+        "g1": {
+          "magnitude": 1.6851023662581634e-09,
+          "phase_deg": 0.0
+        },
+        "p1": {
+          "magnitude": 0.009171705159052843,
+          "phase_deg": 180.0
+        },
+        "k1": {
+          "magnitude": 6.804129912827581e-05,
+          "phase_deg": 180.0
+        },
+        "eq_pre": {
+          "magnitude": 0.001004764042485675,
+          "phase_deg": 180.0
+        },
+        "g2": {
+          "magnitude": 0.028729818724516465,
+          "phase_deg": 180.0
+        },
+        "eq_low": {
+          "magnitude": 0.03243344348197077,
+          "phase_deg": 180.0
+        },
+        "p2": {
+          "magnitude": 0.9972009282311717,
+          "phase_deg": 0.0
+        },
+        "k2": {
+          "magnitude": 0.012612602383732163,
+          "phase_deg": 180.0
+        },
+        "out": {
+          "magnitude": 0.9999999999999999,
+          "phase_deg": 0.0
+        }
+      },
+      "capacitor_energy_fraction": {
+        "stage1_grid_cathode": 4.530371775603987e-10,
+        "stage1_grid_plate": 8.589163564335983e-06,
+        "stage1_plate_cathode": 3.1733226993844183e-06,
+        "stage2_grid_cathode": 2.5418341403898532e-05,
+        "stage2_grid_plate": 0.10746984804452618,
+        "stage2_plate_cathode": 0.03904488807172976,
+        "interstage_47nf": 0.13336934192217031,
+        "riaa_10nf": 0.4475333688376019,
+        "riaa_3p3nf": 0.11588280874457765,
+        "output_470nf": 0.15666256309868928
+      }
+    },
+    {
+      "mode": 4,
+      "time_matrix_eigenvalue_s": {
+        "real": 7.80077120423884e-05,
+        "imaginary": 0.0
+      },
+      "pole_per_s": {
+        "real": -12819.245351749487,
+        "imaginary": 0.0
+      },
+      "decay_time_constant_s": 7.80077120423884e-05,
+      "oscillation_frequency_hz": 0.0,
+      "normalized_node_voltage": {
+        "g1": {
+          "magnitude": 4.931976223282444e-08,
+          "phase_deg": 0.0
+        },
+        "p1": {
+          "magnitude": 0.007202380449102552,
+          "phase_deg": 180.0
+        },
+        "k1": {
+          "magnitude": 5.336991462279438e-05,
+          "phase_deg": 180.0
+        },
+        "eq_pre": {
+          "magnitude": 0.007030750193773003,
+          "phase_deg": 180.0
+        },
+        "g2": {
+          "magnitude": 0.028746431576391437,
+          "phase_deg": 180.0
+        },
+        "eq_low": {
+          "magnitude": 0.008828785215054487,
+          "phase_deg": 0.0
+        },
+        "p2": {
+          "magnitude": 0.9999248987079606,
+          "phase_deg": 0.0
+        },
+        "k2": {
+          "magnitude": 0.012607732384344227,
+          "phase_deg": 180.0
+        },
+        "out": {
+          "magnitude": 1.0,
+          "phase_deg": 0.0
+        }
+      },
+      "capacitor_energy_fraction": {
+        "stage1_grid_cathode": 9.41171976048351e-10,
+        "stage1_grid_plate": 1.7853161706042918e-05,
+        "stage1_plate_cathode": 6.595993456288045e-06,
+        "stage2_grid_cathode": 8.590347302016504e-05,
+        "stage2_grid_plate": 0.3641751822430407,
+        "stage2_plate_cathode": 0.1323141826897829,
+        "interstage_47nf": 0.00019853239773223657,
+        "riaa_10nf": 0.11177578681985802,
+        "riaa_3p3nf": 0.3910458267114433,
+        "output_470nf": 0.00038013556878829303
+      }
+    },
+    {
+      "mode": 5,
+      "time_matrix_eigenvalue_s": {
+        "real": 1.5667562850555322e-07,
+        "imaginary": 0.0
+      },
+      "pole_per_s": {
+        "real": -6382613.617309063,
+        "imaginary": 0.0
+      },
+      "decay_time_constant_s": 1.5667562850555322e-07,
+      "oscillation_frequency_hz": 0.0,
+      "normalized_node_voltage": {
+        "g1": {
+          "magnitude": 0.00022477196766717793,
+          "phase_deg": 180.0
+        },
+        "p1": {
+          "magnitude": 0.06576561352591373,
+          "phase_deg": 0.0
+        },
+        "k1": {
+          "magnitude": 0.00019818444099330195,
+          "phase_deg": 0.0
+        },
+        "eq_pre": {
+          "magnitude": 0.0657666461230885,
+          "phase_deg": 0.0
+        },
+        "g2": {
+          "magnitude": 0.0007167451946736953,
+          "phase_deg": 0.0
+        },
+        "eq_low": {
+          "magnitude": 3.3840217510516874e-07,
+          "phase_deg": 180.0
+        },
+        "p2": {
+          "magnitude": 0.9999998491618071,
+          "phase_deg": 0.0
+        },
+        "k2": {
+          "magnitude": 0.005967582354665751,
+          "phase_deg": 0.0
+        },
+        "out": {
+          "magnitude": 1.0,
+          "phase_deg": 0.0
+        }
+      },
+      "capacitor_energy_fraction": {
+        "stage1_grid_cathode": 1.246095124905443e-07,
+        "stage1_grid_plate": 0.0031652259219348195,
+        "stage1_plate_cathode": 0.0011717931668916914,
+        "stage2_grid_cathode": 1.920512231466236e-05,
+        "stage2_grid_plate": 0.7258058624337399,
+        "stage2_plate_cathode": 0.26932434657979004,
+        "interstage_47nf": 1.517720723481581e-08,
+        "riaa_10nf": 3.4681544737932803e-10,
+        "riaa_3p3nf": 0.0005134234032285576,
+        "output_470nf": 3.238565170902591e-09
+      }
+    },
+    {
+      "mode": 6,
+      "time_matrix_eigenvalue_s": {
+        "real": 1.561626578826491e-07,
+        "imaginary": 0.0
+      },
+      "pole_per_s": {
+        "real": -6403579.534048825,
+        "imaginary": 0.0
+      },
+      "decay_time_constant_s": 1.561626578826491e-07,
+      "oscillation_frequency_hz": 0.0,
+      "normalized_node_voltage": {
+        "g1": {
+          "magnitude": 0.0011985439909173847,
+          "phase_deg": -0.0
+        },
+        "p1": {
+          "magnitude": 0.3495287998715244,
+          "phase_deg": -180.0
+        },
+        "k1": {
+          "magnitude": 0.001048222120041624,
+          "phase_deg": -180.0
+        },
+        "eq_pre": {
+          "magnitude": 0.34953434300955727,
+          "phase_deg": -180.0
+        },
+        "g2": {
+          "magnitude": 0.0008104393402805118,
+          "phase_deg": -0.0
+        },
+        "eq_low": {
+          "magnitude": 3.813853048368626e-07,
+          "phase_deg": -180.0
+        },
+        "p2": {
+          "magnitude": 0.9999998496556867,
+          "phase_deg": -0.0
+        },
+        "k2": {
+          "magnitude": 0.006026365621969568,
+          "phase_deg": -0.0
+        },
+        "out": {
+          "magnitude": 1.0,
+          "phase_deg": -0.0
+        }
+      },
+      "capacitor_energy_fraction": {
+        "stage1_grid_cathode": 3.1446707622638937e-06,
+        "stage1_grid_plate": 0.0799617171387526,
+        "stage1_plate_cathode": 0.029602697226844103,
+        "stage2_grid_cathode": 1.694815171950765e-05,
+        "stage2_grid_plate": 0.6489907465429949,
+        "stage2_plate_cathode": 0.24083728631298737,
+        "interstage_47nf": 3.911477732852137e-07,
+        "riaa_10nf": 3.9396671215848067e-10,
+        "riaa_3p3nf": 0.0005870655367774133,
+        "output_470nf": 2.8774215197228076e-09
+      }
+    },
+    {
+      "mode": 7,
+      "time_matrix_eigenvalue_s": {
+        "real": 1.3929111474204555e-09,
+        "imaginary": 0.0
+      },
+      "pole_per_s": {
+        "real": -717920882.3562858,
+        "imaginary": 0.0
+      },
+      "decay_time_constant_s": 1.3929111474204557e-09,
+      "oscillation_frequency_hz": 0.0,
+      "normalized_node_voltage": {
+        "g1": {
+          "magnitude": 0.18023222685020163,
+          "phase_deg": -180.0
+        },
+        "p1": {
+          "magnitude": 0.837970841459647,
+          "phase_deg": -180.0
+        },
+        "k1": {
+          "magnitude": 1.0,
+          "phase_deg": -0.0
+        },
+        "eq_pre": {
+          "magnitude": 0.8379709597191632,
+          "phase_deg": -180.0
+        },
+        "g2": {
+          "magnitude": 1.681806724880733e-06,
+          "phase_deg": -0.0
+        },
+        "eq_low": {
+          "magnitude": 7.0710194348712616e-12,
+          "phase_deg": -180.0
+        },
+        "p2": {
+          "magnitude": 6.82956073370728e-06,
+          "phase_deg": -0.0
+        },
+        "k2": {
+          "magnitude": 7.301428291952958e-06,
+          "phase_deg": -180.0
+        },
+        "out": {
+          "magnitude": 6.829560699024427e-06,
+          "phase_deg": -0.0
+        }
+      },
+      "capacitor_energy_fraction": {
+        "stage1_grid_cathode": 0.4399352097367485,
+        "stage1_grid_plate": 0.14257515999223333,
+        "stage1_plate_cathode": 0.4174896288401428,
+        "stage2_grid_cathode": 2.5487034504053626e-11,
+        "stage2_grid_plate": 8.73318700989394e-12,
+        "stage2_plate_cathode": 2.4678205428716558e-11,
+        "interstage_47nf": 9.026013982682413e-11,
+        "riaa_10nf": 6.865781992581428e-20,
+        "riaa_3p3nf": 1.2817167407422835e-09,
+        "output_470nf": 7.763426081948065e-23
+      }
+    },
+    {
+      "mode": 8,
+      "time_matrix_eigenvalue_s": {
+        "real": 1.2985592805839428e-09,
+        "imaginary": 0.0
+      },
+      "pole_per_s": {
+        "real": -770084211.7506679,
+        "imaginary": 0.0
+      },
+      "decay_time_constant_s": 1.2985592805839428e-09,
+      "oscillation_frequency_hz": 0.0,
+      "normalized_node_voltage": {
+        "g1": {
+          "magnitude": 4.52271937835153e-07,
+          "phase_deg": -0.0
+        },
+        "p1": {
+          "magnitude": 3.761375333610551e-07,
+          "phase_deg": -0.0
+        },
+        "k1": {
+          "magnitude": 6.237556047929965e-07,
+          "phase_deg": -180.0
+        },
+        "eq_pre": {
+          "magnitude": 3.760950734144971e-07,
+          "phase_deg": -0.0
+        },
+        "g2": {
+          "magnitude": 0.0003231015974466803,
+          "phase_deg": -0.0
+        },
+        "eq_low": {
+          "magnitude": 1.2637607095674456e-09,
+          "phase_deg": -180.0
+        },
+        "p2": {
+          "magnitude": 0.5134420724967336,
+          "phase_deg": -180.0
+        },
+        "k2": {
+          "magnitude": 1.0,
+          "phase_deg": -0.0
+        },
+        "out": {
+          "magnitude": 0.513442073138627,
+          "phase_deg": -180.0
+        }
+      },
+      "capacitor_energy_fraction": {
+        "stage1_grid_cathode": 5.33264848658753e-13,
+        "stage1_grid_plate": 2.7857458808196737e-15,
+        "stage1_plate_cathode": 1.801847496652987e-13,
+        "stage2_grid_cathode": 0.4602729935249989,
+        "stage2_grid_plate": 0.12685538595057755,
+        "stage2_plate_cathode": 0.412802634598084,
+        "interstage_47nf": 1.6967782540488717e-17,
+        "riaa_10nf": 3.1981442120034448e-15,
+        "riaa_3p3nf": 6.898592558130541e-05,
+        "output_470nf": 3.877859416895639e-14
+      }
+    }
+  ],
+  "overload_recovery_interpretation": {
+    "slow_time_constant_s": 1.067762630245068,
+    "slow_output_capacitor_energy_fraction": 0.9999999948192663,
+    "medium_time_constant_s": 0.14393601650081295,
+    "medium_output_capacitor_energy_fraction": 0.9949043907709241,
+    "empirical_50_to_240ms_fit_time_constants_s": [
+      0.1180866502855728,
+      0.11007484416938661,
+      0.09824205386689905
+    ],
+    "interpretation": "The early overload envelope follows the 143.9 ms mode while an oppositely signed 1.068 s output-coupling mode later emerges, causing the measured cancellation and rebound.",
+    "linearization_limit": "Modes predict late recovery near the DC operating point; they do not validate the large-signal tube/grid-current model.",
+    "modal_late_recovery_estimates": [
+      {
+        "burst_input_peak_v": 1.0,
+        "starting_post_burst_time_s": 0.835,
+        "starting_deviation_rms_v": 0.03023773042988702,
+        "estimated_recovery_s_after_burst": {
+          "one_percent_nominal_output_rms": 2.9925362321765783,
+          "one_millivolt_rms": 4.475099435364326
+        }
+      },
+      {
+        "burst_input_peak_v": 1.5,
+        "starting_post_burst_time_s": 0.835,
+        "starting_deviation_rms_v": 0.17111045391794946,
+        "estimated_recovery_s_after_burst": {
+          "ten_percent_nominal_output_rms": 2.384588161043813,
+          "one_percent_nominal_output_rms": 4.84320247630222,
+          "one_millivolt_rms": 6.325765679489969
+        }
+      }
+    ],
+    "estimate_source": "model/generated/severe_overload_recovery_summary.json",
+    "recommended_direct_record_duration_s": 7.0,
+    "duration_rationale": "The slow-mode estimate places the latest 1 mV crossing near 6.33 s after the burst; seven seconds directly tests it with margin. Estimates remain non-acceptance evidence."
+  }
+}

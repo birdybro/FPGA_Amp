@@ -37,6 +37,7 @@ scripts/study_factorized_tube.py    factorized current/circuit accuracy
 scripts/characterize_factorized_frequency.py  six-point audio-band equivalence
 scripts/characterize_state_drift.py           one-second silence/click state audit
 scripts/characterize_wide_state_audio.py      nominal-level state-format A/B
+scripts/analyze_linearized_modes.py           physical G+sC pole extraction
 scripts/characterize_wide_solver_rtl.py       captured 1 kHz RTL metrics/null
 scripts/sweep_wide_solver_rtl.py              captured four-point RTL sweep
 scripts/sweep_wide_solver_rtl.py --trapezoidal  captured integrator sweep
@@ -67,6 +68,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | trapezoidal overload stability | 20 mV/0.5/1.0/1.5 V, 85 ms post-burst | finite/convergent; 20 mV recovery within 2.6 us of BE |
 | long trapezoidal overload recovery | 0.5/1.0/1.5 V, 235 ms post-burst | 0.5 V 10% recovery 146.552 ms; 98.2--118.1 ms fitted modes; severe crossings remain labeled projections |
 | severe trapezoidal overload recovery | 1.0/1.5 V, 835 ms post-burst | 1.0 V sustained 10% 270.112 ms; 1.5 V not 10%; 413--451x cancellation rebound falsifies early fit |
+| linearized physical-circuit modes | 9-node G+sC at tube DC bias | rank 8; all stable; recovery modes 143.936 ms / 1.067763 s; slow mode >99.999999% output-cap energy |
 | fixed trapezoidal vs trapezoidal float | 5 mV, 20/50/100/1k/10k/20k Hz | <=0.000131 dB gain, <=0.000784 degree phase; zero diagnostics |
 | fixed trapezoidal overload | 20 mV/0.5/1.0/1.5 V, 5 ms burst | clean through 0.5 V; 1,107/1,690 failures at 1/1.5 V; 203.34 uA max capacitor current |
 | 2-pass vs converged solver | 20 mV peak, 1 kHz | all samples ≤100 pA residual; -136.84 dB output residual |

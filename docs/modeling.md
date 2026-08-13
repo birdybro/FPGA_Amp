@@ -323,6 +323,19 @@ recovery. At least two opposing state modes temporarily cancel. A first
 threshold crossing would therefore be physically misleading; all recovery
 claims continue to use the last 1 ms RMS crossing.
 
+Linearizing both Koren triodes at their solved DC points and forming the
+continuous-time nodal matrices explains the behavior without inventing an EQ
+or envelope model. For nonsingular conductance matrix `G`, every nonzero
+eigenvalue `mu` of `inverse(G)*C` maps to a physical pole `s=-1/mu`. The
+9×9 capacitance matrix has rank eight and all eight finite poles are stable.
+The relevant time constants are 143.936 ms and 1.067763 s. Their normalized
+capacitor energy is 99.49% and >99.999999% in the 470 nF output branch. The
+first matches the early empirical 98--118 ms fits; the second eventually
+dominates with opposite sign and produces the measured rebound. Starting from
+the actual 835 ms endpoints, the slow mode estimates 1 mV recovery at 4.48 s
+for 1.0 V and 6.33 s for 1.5 V. Those remain estimates; the next direct record
+is set to seven seconds.
+
 The 0.5 V accepted boundary is also captured through selectable trapezoidal
 RTL for the full 250 ms record. Control and overload account for 384,000 exact
 comparisons of all nine nodes, ten voltage histories, ten current histories,
@@ -388,6 +401,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | trapezoidal float overload stability | 20 mV--1.5 V, 100 ms records | finite/convergent; clean recovery matches BE; shared long memory above 0.5 V |
 | long floating overload tail | 0.5--1.5 V, 250 ms records / 235 ms post-burst | 0.5 V 10% recovery 146.552 ms; severe fitted crossings explicitly projected |
 | severe floating overload tail | 1.0/1.5 V, 850 ms records / 835 ms post-burst | early exponential projection falsified; 1.0 V 10% at 270.112 ms; 1.5 V not recovered |
+| linearized continuous-time modes | G+sC at Koren DC bias | 8 stable finite poles; 143.936 ms / 1.067763 s explain recovery rebound |
 | fixed trapezoidal state | six 5 mV points, 20 Hz--20 kHz | <=0.000131 dB / <=0.000784 degree vs float trapezoidal; zero diagnostics; RTL open |
 | fixed trapezoidal overload | 20 mV--1.5 V bursts | clean through 0.5 V; 203.34 uA history-current peak; severe solver/range limit unchanged |
 | trapezoidal KCL RTL | 1,024 randomized/directed vectors | exact residual and Q4.44 next current; 10 clocks; integrated |

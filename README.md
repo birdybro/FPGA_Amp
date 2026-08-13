@@ -214,6 +214,14 @@ The mono reference and complete 768 kHz circuit solver are operating:
   voltage/current histories for all ten capacitors are fixed-model exact, all
   diagnostics are zero, and sustained 10% recovery is 146.570 ms—18.23 µs from
   the independent floating result. The 1% threshold remains outside 235 ms.
+- A continuous-time small-signal linearization of the frozen nodal circuit now
+  solves `det(G+sC)=0` at the tube DC bias. All eight finite modes are stable.
+  The two recovery-relevant time constants are 143.936 ms and 1.067763 s, with
+  99.49% and >99.999999% of their normalized capacitor energy in the 470 nF
+  output branch. Their opposing signs explain why an early exponential fit
+  failed. Applying the slow mode only after the 835 ms measured endpoint
+  estimates the last severe 1 mV crossing near 6.33 s; a seven-second direct
+  run is required before turning that estimate into a measurement.
 - A downstream, explicitly non-reference output guard now starts muted, applies
   a configurable sample-qualified linear ramp, bypasses exactly at unity, and
   synchronously clamps held output on a fault. Its warning-free RTL regression
@@ -285,6 +293,7 @@ make factorized-frequency-trapezoidal # explicit-voltage/current-history candida
 make state-drift                    # one-second silence/click state audit
 make state-wide                     # wide-state candidate on the same audit
 make state-wide-audio               # 5 mV/1 kHz legacy/wide A/B
+make linear-modes                   # physical G+sC poles at tube DC bias
 make wide-rtl-audio                 # capture and measure 23,040 RTL samples
 make wide-rtl-frequency             # captured 100 Hz-20 kHz solver sweep
 make trapezoidal-rtl-frequency      # captured selectable-integrator sweep

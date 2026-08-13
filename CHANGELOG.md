@@ -125,6 +125,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a 384,000-update selectable-trapezoidal RTL recovery capture at the
   accepted 0.5 V boundary, with full-state exactness, zero-diagnostic gates,
   and an explicitly non-sample-identical floating recovery comparison.
+- Added a dependency-free continuous-time nodal pole extractor with tube
+  small-signal linearization, mode shapes, capacitor-energy participation,
+  stability gates, and measured-overload interpretation.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
