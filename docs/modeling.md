@@ -313,6 +313,16 @@ mV, -64.0 mV, and +194.9 mV. The standalone 470 nF × 2.21 MΩ product is 1.039 
 but it is not the fitted pole of this coupled nonlinear trajectory. Full nodal
 interaction, including the stage-two grid/RIAA state, determines recovery.
 
+Direct 850 ms floating trajectories invalidate the early single-exponential
+projection as a long-term model. The 1.0 V case reaches sustained 10% recovery
+at 270.112 ms (27.23 ms earlier than projected), but neither 1% nor 1 mV by
+835 ms. Its deviation falls to 70.0 µV RMS at 362.055 ms after the burst, then
+rebounds 451× to 31.581 mV at 695.273 ms. The 1.5 V trajectory falls to 444.7
+µV at 316.033 ms, rebounds 413× to 183.754 mV, and never sustains even 10%
+recovery. At least two opposing state modes temporarily cancel. A first
+threshold crossing would therefore be physically misleading; all recovery
+claims continue to use the last 1 ms RMS crossing.
+
 At 20 mV, fixed 10%/1%/1 mV recovery becomes 8.466/14.918/18.297 ms versus
 analytical 8.465/14.918/18.280 ms. Legacy fixed needed 8.668/24.612/34.643 ms.
 Post-burst wide fixed/analytical RMS is 0.258 mV at both 20 mV and 0.5 V,
@@ -369,6 +379,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | 768 kHz trapezoidal float candidate | 10/20 kHz SPICE transients | <=0.00846 dB gain / <=0.0582 degree phase; downstream proof open |
 | trapezoidal float overload stability | 20 mV--1.5 V, 100 ms records | finite/convergent; clean recovery matches BE; shared long memory above 0.5 V |
 | long floating overload tail | 0.5--1.5 V, 250 ms records / 235 ms post-burst | 0.5 V 10% recovery 146.552 ms; severe fitted crossings explicitly projected |
+| severe floating overload tail | 1.0/1.5 V, 850 ms records / 835 ms post-burst | early exponential projection falsified; 1.0 V 10% at 270.112 ms; 1.5 V not recovered |
 | fixed trapezoidal state | six 5 mV points, 20 Hz--20 kHz | <=0.000131 dB / <=0.000784 degree vs float trapezoidal; zero diagnostics; RTL open |
 | fixed trapezoidal overload | 20 mV--1.5 V bursts | clean through 0.5 V; 203.34 uA history-current peak; severe solver/range limit unchanged |
 | trapezoidal KCL RTL | 1,024 randomized/directed vectors | exact residual and Q4.44 next current; 10 clocks; integrated |

@@ -119,6 +119,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a gated 250 ms floating trapezoidal overload study with direct sustained
   recovery timing, exponential-envelope fit quality, projected-versus-measured
   labels, and complete node/capacitor difference checkpoints.
+- Added parallel 850 ms floating severe-overload trajectories and a regression
+  that preserves their non-monotonic cancellation/rebound. This falsifies the
+  earlier one-exponential projection instead of converting it into a claim.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.

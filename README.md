@@ -203,6 +203,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   recovery. Node/capacitor checkpoints show stage-two plate/output displacement
   dominates the observed window, rather than the isolated 1.039 s product of
   470 nF and 2.21 MΩ.
+- Direct 850 ms trajectories then falsify those early single-exponential
+  projections. The 1.0 V case reaches sustained 10% recovery at 270.112 ms but
+  never reaches 1%; the 1.5 V case remains above 10% after 835 ms. More
+  importantly, deviation nearly cancels at 362/316 ms and then rebounds by
+  451×/413× to 31.6/183.8 mV RMS. Recovery is therefore gated on the last
+  sliding-RMS threshold crossing, and no severe fixed/RTL accuracy is claimed.
 - A downstream, explicitly non-reference output guard now starts muted, applies
   a configurable sample-qualified linear ramp, bypasses exactly at unity, and
   synchronously clamps held output on a fault. Its warning-free RTL regression
@@ -283,6 +289,7 @@ make wide-stream-rtl-alias          # captured nonlinear decimation-alias test
 make overload-study                 # grid conduction, clipping, recovery
 make overload-trapezoidal           # fixed/float trapezoidal burst comparison
 make overload-long                  # 235 ms floating severe-recovery observation
+make overload-severe-long           # direct 850 ms multimode recovery test
 make overload-wide                  # same bursts with wide-state candidate
 make overload-iterations            # three-to-six-pass solver trade
 python3 scripts/study_lut_resolution.py

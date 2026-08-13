@@ -1,0 +1,115 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "implementation": "floating nonlinear nodal circuit model",
+  "integration_method": "trapezoidal",
+  "sample_rate_hz": 768000.0,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_start_s": 0.01,
+    "burst_end_s": 0.015,
+    "duration_s": 0.85,
+    "post_burst_observation_s": 0.835,
+    "burst_levels_peak_v": [
+      1.0,
+      1.5
+    ]
+  },
+  "nominal_output_rms_v": 0.40087376485852483,
+  "recovery_thresholds_v_rms": {
+    "ten_percent_nominal_output_rms": 0.040087376485852484,
+    "one_percent_nominal_output_rms": 0.004008737648585248,
+    "one_millivolt_rms": 0.001
+  },
+  "recovery_definition": "last 1 ms sliding-RMS threshold crossing relative to a nominal undisturbed trajectory",
+  "prior_projection_source": "model/generated/long_overload_recovery_summary.json",
+  "control_nonconvergence_count": 0,
+  "measurements": [
+    {
+      "burst_input_peak_v": 1.0,
+      "nonconvergence_count": 0,
+      "peak_post_burst_deviation_v": 66.44401915412341,
+      "measured_recovery_s_after_burst": {
+        "ten_percent_nominal_output_rms": 0.2701119791666667,
+        "one_percent_nominal_output_rms": null,
+        "one_millivolt_rms": null
+      },
+      "prior_projected_recovery_s_after_burst": {
+        "ten_percent_nominal_output_rms": 0.29734486160584744,
+        "one_percent_nominal_output_rms": 0.5508015569039196,
+        "one_millivolt_rms": 0.7036382063578641
+      },
+      "measured_minus_projected_s": {
+        "ten_percent_nominal_output_rms": -0.02723288243918076,
+        "one_percent_nominal_output_rms": null,
+        "one_millivolt_rms": null
+      },
+      "one_ms_deviation_rms_v_at_absolute_time_s": {
+        "0.25": 0.06436533085661923,
+        "0.3": 0.03155885929470954,
+        "0.4": 0.0063015677564909845,
+        "0.5": 0.023228186676585962,
+        "0.6": 0.029882427235947605,
+        "0.7": 0.03156927176378032,
+        "0.8": 0.03092260247839531,
+        "0.85": 0.0301619344216949
+      },
+      "final_10ms_deviation_rms_v": 0.03023773042988702,
+      "late_time_behavior": {
+        "search_start_s_absolute": 0.25,
+        "minimum_time_s_absolute": 0.3770546875,
+        "minimum_time_s_after_burst": 0.36205468749999997,
+        "minimum_deviation_rms_v": 6.999389111594078e-05,
+        "subsequent_maximum_time_s_absolute": 0.7102734375,
+        "subsequent_maximum_time_s_after_burst": 0.6952734375,
+        "subsequent_maximum_deviation_rms_v": 0.03158065629806696,
+        "rebound_ratio": 451.1916082184294,
+        "interpretation": "non-monotonic cancellation between at least two circuit-state modes"
+      }
+    },
+    {
+      "burst_input_peak_v": 1.5,
+      "nonconvergence_count": 0,
+      "peak_post_burst_deviation_v": 73.10011898047729,
+      "measured_recovery_s_after_burst": {
+        "ten_percent_nominal_output_rms": null,
+        "one_percent_nominal_output_rms": null,
+        "one_millivolt_rms": null
+      },
+      "prior_projected_recovery_s_after_burst": {
+        "ten_percent_nominal_output_rms": 0.40816960133947117,
+        "one_percent_nominal_output_rms": 0.6343802900785109,
+        "one_millivolt_rms": 0.7707873543972689
+      },
+      "measured_minus_projected_s": {
+        "ten_percent_nominal_output_rms": null,
+        "one_percent_nominal_output_rms": null,
+        "one_millivolt_rms": null
+      },
+      "one_ms_deviation_rms_v_at_absolute_time_s": {
+        "0.25": 0.1961573210862182,
+        "0.3": 0.06107605453987737,
+        "0.4": 0.09239999065326411,
+        "0.5": 0.15804102929751737,
+        "0.6": 0.18080711618603174,
+        "0.7": 0.18306152631072017,
+        "0.8": 0.17589036693139318,
+        "0.85": 0.17060765302106767
+      },
+      "final_10ms_deviation_rms_v": 0.17111045391794946,
+      "late_time_behavior": {
+        "search_start_s_absolute": 0.25,
+        "minimum_time_s_absolute": 0.3310325520833333,
+        "minimum_time_s_after_burst": 0.3160325520833333,
+        "minimum_deviation_rms_v": 0.0004446972872810178,
+        "subsequent_maximum_time_s_absolute": 0.6642591145833333,
+        "subsequent_maximum_time_s_after_burst": 0.6492591145833333,
+        "subsequent_maximum_deviation_rms_v": 0.18375403933701526,
+        "rebound_ratio": 413.21151397286457,
+        "interpretation": "non-monotonic cancellation between at least two circuit-state modes"
+      }
+    }
+  ],
+  "fixed_rtl_scope": "This directly measures the floating physical-model trajectory. Known fixed-solver residual/range failures prohibit an RTL accuracy claim at these input levels.",
+  "prior_projection_assessment": "The 50--240 ms single-exponential fit is falsified at late time: several projected crossings occur within this record but are not measured. The envelope falls and then rebounds, demonstrating opposing modes rather than one dominant recovery exponential."
+}
