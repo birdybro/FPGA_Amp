@@ -40,20 +40,23 @@ def input_vector(burst_peak_v: float) -> np.ndarray:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
+    parser.add_argument("--terminal-correction", action="store_true")
     args = parser.parse_args()
 
     measurements: list[dict[str, object]] = []
     for burst_peak_v in BURST_PEAK_VS:
         input_q24 = input_vector(burst_peak_v)
-        for trapezoidal in (False, True):
+        for trapezoidal in ((False,) if args.terminal_correction else (False, True)):
             method = "trapezoidal" if trapezoidal else "backward_euler"
             level_tag = str(burst_peak_v).replace(".", "p")
             capture = capture_wide_solver_rtl(
                 input_q24,
-                f"banked_solver_rtl_overload_{level_tag}v_{method}",
+                f"banked_solver_rtl_overload_{level_tag}v_{method}"
+                + ("_terminal" if args.terminal_correction else ""),
                 args.verilator,
                 trapezoidal=trapezoidal,
                 banked=True,
+                terminal_correction=args.terminal_correction,
             )
             model = capture.fixed_model
             counts = model.chord_bank_selection_count
@@ -62,7 +65,12 @@ def main() -> int:
                 "burst_input_peak_v": burst_peak_v,
                 "samples": int(input_q24.size),
                 "full_state_rtl_fixed_bit_exact": True,
-                "latency_clocks": 116,
+                "latency_clocks": 127 if args.terminal_correction else 116,
+                "residual_diagnostic_state": (
+                    "preterminal_correction"
+                    if args.terminal_correction
+                    else "committed_output_state"
+                ),
                 "maximum_residual_a": model.max_residual_q44_observed
                 / float(1 << 44),
                 "residual_limit_exceedance_count": model.nonconvergence_count,
@@ -138,15 +146,26 @@ def main() -> int:
                     )
                 )
             )
-            for method in ("backward_euler", "trapezoidal")
+            for method in (
+                ("backward_euler",)
+                if args.terminal_correction
+                else ("backward_euler", "trapezoidal")
+            )
         ),
         "fixed_schedule_preserved": all(
-            int(item["latency_clocks"]) == 116 for item in measurements
+            int(item["latency_clocks"])
+            == (127 if args.terminal_correction else 116)
+            for item in measurements
         ),
     }
     report = {
         "model": "12ax7_passive_riaa_v1",
-        "implementation": "banked wide SystemVerilog solver",
+        "implementation": (
+            "banked wide SystemVerilog solver with terminal correction"
+            if args.terminal_correction
+            else "banked wide SystemVerilog solver"
+        ),
+        "terminal_correction": args.terminal_correction,
         "sample_rate_hz": SAMPLE_RATE_HZ,
         "stimulus": {
             "frequency_hz": FREQUENCY_HZ,
@@ -161,9 +180,20 @@ def main() -> int:
         "all_gates_pass": all(gates.values()),
         "measurements": measurements,
     }
-    generated = ROOT / "model" / "generated" / "banked_solver_rtl_overload.json"
+    suffix = "_terminal" if args.terminal_correction else ""
+    generated = (
+        ROOT
+        / "model"
+        / "generated"
+        / f"banked_solver_rtl_overload{suffix}.json"
+    )
     generated.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    reference = ROOT / "reference" / "results" / "banked_solver_rtl_overload.json"
+    reference = (
+        ROOT
+        / "reference"
+        / "results"
+        / f"banked_solver_rtl_overload{suffix}.json"
+    )
     reference.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
     if not report["all_gates_pass"]:

@@ -239,6 +239,28 @@ class ResamplerTests(unittest.TestCase):
 
 
 class V1CircuitTests(unittest.TestCase):
+    def test_terminal_correction_matches_four_pass_persistent_state(self) -> None:
+        terminal = FixedWideStateBankedChordV1CircuitModel(
+            tube_lut=FixedFactorizedKoren12AX7(), terminal_correction=True
+        )
+        four_pass = FixedWideStateBankedChordV1CircuitModel(
+            tube_lut=FixedFactorizedKoren12AX7()
+        )
+        samples = (0.0, 0.005, 0.5, 1.5, -1.5, -0.5, -0.005, 0.0)
+        for sample in samples:
+            terminal_output = terminal.process_sample(sample)
+            four_pass_output = four_pass.process_sample(sample, max_iterations=4)
+            self.assertEqual(terminal_output, four_pass_output)
+            np.testing.assert_array_equal(terminal.voltage_q, four_pass.voltage_q)
+            self.assertEqual(
+                [item.previous_voltage_q20 for item in terminal.capacitors],
+                [item.previous_voltage_q20 for item in four_pass.capacitors],
+            )
+        self.assertEqual(
+            terminal.chord_bank_selection_count,
+            four_pass.chord_bank_selection_count,
+        )
+
     def test_banked_chord_selection_uses_previous_stage_two_vgk(self) -> None:
         model = FixedWideStateBankedChordV1CircuitModel(
             tube_lut=FixedFactorizedKoren12AX7()

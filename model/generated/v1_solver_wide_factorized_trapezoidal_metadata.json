@@ -14,6 +14,8 @@
   "correction_scale_fallback_count": 0,
   "minimum_correction_residual_fractional_bits": null,
   "banked_chord": false,
+  "terminal_correction": false,
+  "residual_diagnostic_state": "committed_output_state",
   "chord_bank_selection_count": null,
   "slew_qualified_selection_count": null,
   "latency_clocks": 116,

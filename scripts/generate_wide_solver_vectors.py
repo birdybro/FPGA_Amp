@@ -28,13 +28,17 @@ def main() -> int:
     parser.add_argument("--vectors", type=int, default=512)
     parser.add_argument("--trapezoidal", action="store_true")
     parser.add_argument("--banked", action="store_true")
+    parser.add_argument("--terminal-correction", action="store_true")
     args = parser.parse_args()
+    if args.trapezoidal and args.terminal_correction:
+        parser.error("terminal correction currently supports backward Euler only")
     if args.banked:
         model = FixedWideStateBankedChordV1CircuitModel(
             tube_lut=FixedFactorizedKoren12AX7(),
             integration_method=(
                 "trapezoidal" if args.trapezoidal else "backward_euler"
             ),
+            terminal_correction=args.terminal_correction,
         )
     else:
         model_type = (
@@ -42,11 +46,18 @@ def main() -> int:
             if args.trapezoidal
             else FixedWideStateV1CircuitModel
         )
-        model = model_type(tube_lut=FixedFactorizedKoren12AX7())
+        model = model_type(
+            tube_lut=FixedFactorizedKoren12AX7(),
+            terminal_correction=args.terminal_correction,
+        )
     generated = REPOSITORY_ROOT / "model" / "generated"
     generated.mkdir(parents=True, exist_ok=True)
     asset_suffix = "_trapezoidal" if args.trapezoidal else ""
-    vector_suffix = asset_suffix + ("_banked" if args.banked else "")
+    vector_suffix = (
+        asset_suffix
+        + ("_banked" if args.banked else "")
+        + ("_terminal" if args.terminal_correction else "")
+    )
     write_memory(
         generated / f"v1_node_initial_wide{asset_suffix}.mem",
         [int(value) for value in model.voltage_q],
@@ -105,7 +116,11 @@ def main() -> int:
         "algorithm": (
             "wide trapezoidal Q30-voltage/Q4.44-current state, three adaptive Q30/Q34/Q40 chord corrections"
             if args.trapezoidal
-            else "wide branch-current state, three adaptive Q30/Q34/Q40 chord corrections"
+            else (
+                "wide branch-current state, three adaptive Q30/Q34/Q40 chord corrections plus terminal Q40 correction with preterminal residual diagnostic"
+                if args.terminal_correction
+                else "wide branch-current state, three adaptive Q30/Q34/Q40 chord corrections"
+            )
         ),
         "integration_method": (
             "trapezoidal" if args.trapezoidal else "backward_euler"
@@ -122,13 +137,19 @@ def main() -> int:
         "correction_scale_fallback_count": model.correction_scale_fallback_count,
         "minimum_correction_residual_fractional_bits": model.minimum_correction_residual_fractional_bits,
         "banked_chord": args.banked,
+        "terminal_correction": args.terminal_correction,
+        "residual_diagnostic_state": (
+            "preterminal_correction"
+            if args.terminal_correction
+            else "committed_output_state"
+        ),
         "chord_bank_selection_count": (
             model.chord_bank_selection_count if args.banked else None
         ),
         "slew_qualified_selection_count": (
             model.slew_qualified_selection_count if args.banked else None
         ),
-        "latency_clocks": 116,
+        "latency_clocks": 127 if args.terminal_correction else 116,
         "output": str(vector_path.relative_to(REPOSITORY_ROOT)),
     }
     metadata = generated / f"v1_solver_wide_factorized{vector_suffix}_metadata.json"

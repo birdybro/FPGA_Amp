@@ -38,6 +38,7 @@ INTEGRATION_METHODS = ("backward_euler", "trapezoidal")
 CORRECTION_COUNTS = (3, 4, 5, 6)
 BASE_LATENCY_CLOCKS = 116
 EXTRA_SERIAL_PASS_CLOCKS = 29
+TERMINAL_REUSE_MEASURED_CLOCKS = 127
 DEADLINE_CLOCKS = 128
 
 
@@ -59,6 +60,7 @@ def run_case(integration_method: str, level_peak_v: float) -> dict[str, object]:
     )
 
     cases: list[dict[str, object]] = []
+    correction_outputs: dict[int, np.ndarray] = {}
     for correction_count in CORRECTION_COUNTS:
         model = FixedWideStateBankedChordV1CircuitModel(
             SAMPLE_RATE_HZ,
@@ -70,6 +72,7 @@ def run_case(integration_method: str, level_peak_v: float) -> dict[str, object]:
             max_iterations=correction_count,
             residual_limit_a=2.0e-6,
         )
+        correction_outputs[correction_count] = candidate
         latency = BASE_LATENCY_CLOCKS + (
             correction_count - CORRECTION_COUNTS[0]
         ) * EXTRA_SERIAL_PASS_CLOCKS
@@ -96,11 +99,65 @@ def run_case(integration_method: str, level_peak_v: float) -> dict[str, object]:
                 ),
             }
         )
+    terminal_model = FixedWideStateBankedChordV1CircuitModel(
+        SAMPLE_RATE_HZ,
+        tube_lut=FixedFactorizedKoren12AX7(),
+        integration_method=integration_method,
+        terminal_correction=True,
+    )
+    terminal_candidate = terminal_model.process(
+        stimulus,
+        max_iterations=3,
+        residual_limit_a=2.0e-6,
+    )
+    terminal_case = {
+        "ordinary_chord_corrections": 3,
+        "terminal_chord_correction": True,
+        "residual_diagnostic_state": "preterminal_correction",
+        "rtl_status": (
+            "implemented_and_measured"
+            if integration_method == "backward_euler"
+            else "not_implemented_requires_corrected_current_history_commit"
+        ),
+        "measured_solver_latency_clocks": (
+            TERMINAL_REUSE_MEASURED_CLOCKS
+            if integration_method == "backward_euler"
+            else None
+        ),
+        "meets_128_clock_deadline": (
+            TERMINAL_REUSE_MEASURED_CLOCKS <= DEADLINE_CLOCKS
+            if integration_method == "backward_euler"
+            else None
+        ),
+        "output_q32_exact_to_conventional_four_pass": bool(
+            np.array_equal(terminal_candidate, correction_outputs[4])
+        ),
+        "maximum_output_difference_from_four_pass_v": float(
+            np.max(np.abs(terminal_candidate - correction_outputs[4]))
+        ),
+        "windows": {
+            name: waveform_metrics(terminal_candidate, reference, mask)
+            for name, mask in masks.items()
+        },
+        "maximum_preterminal_residual_a": terminal_model.max_residual_q44_observed
+        / float(1 << 44),
+        "residual_limit_exceedance_count": terminal_model.nonconvergence_count,
+        "saturation_count": terminal_model.saturation_count,
+        "range_clip_count": terminal_model.lut_clip_count,
+        "correction_scale_fallback_count": (
+            terminal_model.correction_scale_fallback_count
+        ),
+        "bank_selection_count": terminal_model.chord_bank_selection_count,
+        "slew_qualified_selection_count": (
+            terminal_model.slew_qualified_selection_count
+        ),
+    }
     return {
         "integration_method": integration_method,
         "burst_input_peak_v": level_peak_v,
         "analytical_nonconvergence_count": reference_model.nonconvergence_count,
         "cases": cases,
+        "terminal_reuse_case": terminal_case,
     }
 
 
@@ -158,6 +215,29 @@ def main() -> int:
             not bool(item["cases"][1]["meets_128_clock_deadline"])
             for item in measurements
         ),
+        "terminal_reuse_is_output_exact_to_four_pass": all(
+            bool(
+                item["terminal_reuse_case"][
+                    "output_q32_exact_to_conventional_four_pass"
+                ]
+            )
+            for item in measurements
+        ),
+        "backward_euler_terminal_rtl_meets_current_deadline": all(
+            bool(item["terminal_reuse_case"]["meets_128_clock_deadline"])
+            for item in measurements
+            if item["integration_method"] == "backward_euler"
+        ),
+        "terminal_candidates_diagnostic_clean": all(
+            int(item["terminal_reuse_case"][key]) == 0
+            for item in measurements
+            for key in (
+                "residual_limit_exceedance_count",
+                "saturation_count",
+                "range_clip_count",
+                "correction_scale_fallback_count",
+            )
+        ),
     }
     report = {
         "model": "12ax7_passive_riaa_v1",
@@ -176,10 +256,15 @@ def main() -> int:
         "latency_projection": {
             "three_pass_measured_clocks": BASE_LATENCY_CLOCKS,
             "additional_serial_pass_clocks": EXTRA_SERIAL_PASS_CLOCKS,
+            "backward_euler_terminal_reuse_measured_clocks": (
+                TERMINAL_REUSE_MEASURED_CLOCKS
+            ),
             "deadline_clocks": DEADLINE_CLOCKS,
             "note": (
-                "Each added pass serializes the measured 19-clock residual path "
-                "and 10-clock chord path; only the three-pass value is RTL-measured."
+                "A conventional added pass serializes the 19-clock residual and "
+                "10-clock chord paths. The backward-Euler terminal-reuse RTL "
+                "instead applies a chord update to the diagnostic residual already "
+                "available at clock 116 and is measured end-to-end at 127 clocks."
             ),
         },
         "alignment": {"gain": False, "dc": False, "delay": False},

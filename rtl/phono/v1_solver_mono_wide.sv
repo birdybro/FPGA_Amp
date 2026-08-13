@@ -12,7 +12,11 @@ module v1_solver_mono_wide #(
     parameter CHORD_COEFFICIENT_FILE =
         "model/generated/v1_chord_inverse_q17_1.mem",
     parameter integer CHORD_COEFFICIENT_SETS = 1,
-    parameter bit TRAPEZOIDAL = 1'b0
+    parameter bit TRAPEZOIDAL = 1'b0,
+    // Reuse the final diagnostic residual for a fourth chord update.  The
+    // reported residual remains the explicitly documented pre-update value.
+    // Trapezoidal history-current commit is not implemented for this mode.
+    parameter bit TERMINAL_CORRECTION = 1'b0
 ) (
     input  logic                  clk,
     input  logic                  rst_n,
@@ -61,6 +65,8 @@ module v1_solver_mono_wide #(
     logic signed [47:0] capacitor_current_state [0:9];
 
     initial begin
+        if (TRAPEZOIDAL && TERMINAL_CORRECTION)
+            $fatal(1, "terminal correction currently supports backward Euler only");
         $readmemh(NODE_INITIAL_FILE, node_initial);
         $readmemh(CAP_INITIAL_FILE, capacitor_initial);
         if (TRAPEZOIDAL)
@@ -278,11 +284,22 @@ module v1_solver_mono_wide #(
     logic signed [41:0] capacitor_voltage_b [0:9];
     logic signed [42:0] capacitor_difference [0:9];
     logic [3:0] capacitor_saturation_count;
+    logic [359:0] corrected_voltage;
+    logic signed [39:0] corrected_node_voltage [0:8];
+    logic signed [39:0] terminal_capacitor_next [0:9];
+    logic signed [41:0] terminal_capacitor_voltage_a [0:9];
+    logic signed [41:0] terminal_capacitor_voltage_b [0:9];
+    logic signed [42:0] terminal_capacitor_difference [0:9];
+    logic [3:0] terminal_capacitor_saturation_count;
     always_comb begin
         capacitor_saturation_count = '0;
+        terminal_capacitor_saturation_count = '0;
         for (int lane = 0; lane < 9; lane = lane + 1) begin
             voltage_flat[lane * 40 +: 40] = node_voltage[lane];
             node_voltage_debug[lane * 40 +: 40] = node_voltage[lane];
+            corrected_node_voltage[lane] = $signed(
+                corrected_voltage[lane * 40 +: 40]
+            );
         end
         for (int lane = 0; lane < 10; lane = lane + 1) begin
             capacitor_flat[lane * 40 +: 40] = capacitor_state[lane];
@@ -307,6 +324,28 @@ module v1_solver_mono_wide #(
             capacitor_next[lane] = saturate_40(capacitor_difference[lane]);
             if (exceeds_40(capacitor_difference[lane]))
                 capacitor_saturation_count = capacitor_saturation_count + 1'b1;
+
+            terminal_capacitor_voltage_a[lane] = '0;
+            terminal_capacitor_voltage_b[lane] = '0;
+            if (cap_node_a(lane) >= 0)
+                terminal_capacitor_voltage_a[lane] = node_to_q30(
+                    corrected_node_voltage[cap_node_a(lane)], cap_node_a(lane)
+                );
+            if (cap_node_b(lane) >= 0)
+                terminal_capacitor_voltage_b[lane] = node_to_q30(
+                    corrected_node_voltage[cap_node_b(lane)], cap_node_b(lane)
+                );
+            terminal_capacitor_difference[lane] =
+                $signed({terminal_capacitor_voltage_a[lane][41],
+                         terminal_capacitor_voltage_a[lane]})
+                - $signed({terminal_capacitor_voltage_b[lane][41],
+                           terminal_capacitor_voltage_b[lane]});
+            terminal_capacitor_next[lane] = saturate_40(
+                terminal_capacitor_difference[lane]
+            );
+            if (exceeds_40(terminal_capacitor_difference[lane]))
+                terminal_capacitor_saturation_count =
+                    terminal_capacitor_saturation_count + 1'b1;
         end
     end
 
@@ -344,7 +383,8 @@ module v1_solver_mono_wide #(
     logic kcl_valid;
     always_comb begin
         residual_launch = ((state == WAIT_RHS) && rhs_valid)
-                          || ((state == WAIT_CHORD) && chord_valid);
+                          || ((state == WAIT_CHORD) && chord_valid
+                              && !final_pass);
         if ((state == WAIT_CHORD) && chord_valid)
             residual_voltage_flat = corrected_voltage;
         else
@@ -360,7 +400,8 @@ module v1_solver_mono_wide #(
         if ((state == WAIT_CHORD) && chord_valid) begin
             if (correction_index == 2'd0)
                 requested_residual_fractional_bits = 6'd34;
-            else if (correction_index == 2'd1)
+            else if ((correction_index == 2'd1)
+                     || ((correction_index == 2'd2) && TERMINAL_CORRECTION))
                 requested_residual_fractional_bits = 6'd40;
         end
         kcl_start = residual_launch;
@@ -444,7 +485,6 @@ module v1_solver_mono_wide #(
     );
 
     logic chord_start;
-    logic [359:0] corrected_voltage;
     logic chord_saturation_any;
     logic [3:0] chord_saturation_count;
     logic chord_busy;
@@ -452,7 +492,8 @@ module v1_solver_mono_wide #(
     logic signed [40:0] previous_v_gk2_q32;
     logic signed [40:0] selector_prior_v_gk2_q32;
     logic [2:0] chord_coefficient_set;
-    assign chord_start = (state == WAIT_KCL) && kcl_valid && !final_pass;
+    assign chord_start = (state == WAIT_KCL) && kcl_valid
+                         && (!final_pass || TERMINAL_CORRECTION);
     assign previous_v_gk2_q32 =
         $signed({node_voltage[4][39], node_voltage[4]})
         - $signed({node_voltage[7][39], node_voltage[7]});
@@ -570,23 +611,38 @@ module v1_solver_mono_wide #(
                             last_residual_q44 <= kcl_max_abs_q44;
                             if (kcl_max_abs_q44 > RESIDUAL_LIMIT_Q44)
                                 nonconvergence_count <= nonconvergence_count + 1'b1;
-                            saturation_count <= saturation_count
-                                + {28'd0, capacitor_saturation_count}
-                                + {28'd0, capacitor_current_saturation_unused};
-                            for (lane = 0; lane < 10; lane = lane + 1) begin
-                                capacitor_state[lane] <= capacitor_next[lane];
-                                if (TRAPEZOIDAL)
-                                    capacitor_current_state[lane] <= $signed(
-                                        capacitor_current_next_unused[
-                                            lane * 48 +: 48
-                                        ]
-                                    );
+                            if (TERMINAL_CORRECTION) begin
+                                saturation_count <= saturation_count
+                                    + {28'd0, kcl_saturation_count};
+                                if (kcl_scale_fallback) begin
+                                    correction_scale_fallback_count <=
+                                        correction_scale_fallback_count + 1'b1;
+                                    if (minimum_correction_fractional_bits == 0
+                                        || residual_fractional_bits
+                                           < minimum_correction_fractional_bits)
+                                        minimum_correction_fractional_bits <=
+                                            residual_fractional_bits;
+                                end
+                                state <= WAIT_CHORD;
+                            end else begin
+                                saturation_count <= saturation_count
+                                    + {28'd0, capacitor_saturation_count}
+                                    + {28'd0, capacitor_current_saturation_unused};
+                                for (lane = 0; lane < 10; lane = lane + 1) begin
+                                    capacitor_state[lane] <= capacitor_next[lane];
+                                    if (TRAPEZOIDAL)
+                                        capacitor_current_state[lane] <= $signed(
+                                            capacitor_current_next_unused[
+                                                lane * 48 +: 48
+                                            ]
+                                        );
+                                end
+                                output_q32 <= node_voltage[8];
+                                sample_latency_cycles <= cycle_count + 1'b1;
+                                output_valid <= 1'b1;
+                                busy <= 1'b0;
+                                state <= IDLE;
                             end
-                            output_q32 <= node_voltage[8];
-                            sample_latency_cycles <= cycle_count + 1'b1;
-                            output_valid <= 1'b1;
-                            busy <= 1'b0;
-                            state <= IDLE;
                         end else begin
                             saturation_count <= saturation_count
                                 + {28'd0, kcl_saturation_count};
@@ -606,18 +662,32 @@ module v1_solver_mono_wide #(
 
                 WAIT_CHORD: begin
                     if (chord_valid) begin
-                        saturation_count <= saturation_count
-                            + {28'd0, chord_saturation_count};
-                        for (lane = 0; lane < 9; lane = lane + 1)
-                            node_voltage[lane] <= $signed(
-                                corrected_voltage[lane * 40 +: 40]
-                            );
-                        if (correction_index == 2'd2)
-                            final_pass <= 1'b1;
-                        else
-                            correction_index <= correction_index + 1'b1;
-                        tube1_range_clipped <= 1'b0;
-                        state <= WAIT_TUBE_1;
+                        if (final_pass) begin
+                            saturation_count <= saturation_count
+                                + {28'd0, chord_saturation_count}
+                                + {28'd0, terminal_capacitor_saturation_count};
+                            for (lane = 0; lane < 9; lane = lane + 1)
+                                node_voltage[lane] <= corrected_node_voltage[lane];
+                            for (lane = 0; lane < 10; lane = lane + 1)
+                                capacitor_state[lane] <=
+                                    terminal_capacitor_next[lane];
+                            output_q32 <= corrected_node_voltage[8];
+                            sample_latency_cycles <= cycle_count + 1'b1;
+                            output_valid <= 1'b1;
+                            busy <= 1'b0;
+                            state <= IDLE;
+                        end else begin
+                            saturation_count <= saturation_count
+                                + {28'd0, chord_saturation_count};
+                            for (lane = 0; lane < 9; lane = lane + 1)
+                                node_voltage[lane] <= corrected_node_voltage[lane];
+                            if (correction_index == 2'd2)
+                                final_pass <= 1'b1;
+                            else
+                                correction_index <= correction_index + 1'b1;
+                            tube1_range_clipped <= 1'b0;
+                            state <= WAIT_TUBE_1;
+                        end
                     end
                 end
 

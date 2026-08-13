@@ -106,6 +106,7 @@ class FixedChordV1CircuitModel:
         branch_capacitor_stamp: bool = False,
         adaptive_correction_scaling: bool = False,
         integration_method: str = "backward_euler",
+        terminal_correction: bool = False,
     ):
         self.sample_rate_hz = float(sample_rate_hz)
         self.integration_method = integration_method
@@ -130,6 +131,7 @@ class FixedChordV1CircuitModel:
                 "fixed trapezoidal integration requires explicit capacitor branches"
             )
         self.adaptive_correction_scaling = bool(adaptive_correction_scaling)
+        self.terminal_correction = bool(terminal_correction)
         self.inverse_fractional_bits = int(inverse_fractional_bits)
         if isinstance(correction_residual_fractional_bits, Sequence):
             self.correction_residual_fractional_bits = tuple(
@@ -482,6 +484,23 @@ class FixedChordV1CircuitModel:
         if self.last_residual_q44 > tolerance_q44:
             self.nonconvergence_count += 1
         self.max_iterations_observed = max(self.max_iterations_observed, iteration)
+        # The RTL can reuse this already-computed diagnostic residual for one
+        # terminal chord update.  Deliberately do not recompute the residual:
+        # last_residual_q44 and nonconvergence_count describe the state before
+        # the terminal update, while the output and capacitor histories commit
+        # the corrected state.  A conventional N+1-pass solver produces the
+        # same persistent state but serializes another nonlinear residual pass.
+        if self.terminal_correction:
+            residual_fractional_bits = self.correction_residual_fractional_bits[
+                min(
+                    max_iterations,
+                    len(self.correction_residual_fractional_bits) - 1,
+                )
+            ]
+            residual_fractional_bits = self._select_correction_fraction(
+                residual, residual_fractional_bits
+            )
+            self._apply_correction(residual, residual_fractional_bits)
         self._update_capacitors()
         out = self.node["out"]
         return float(self.voltage_q[out]) / (1 << int(self.VOLTAGE_FRACTIONAL_BITS[out]))

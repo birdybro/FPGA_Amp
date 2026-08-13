@@ -164,8 +164,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   is material: a fourth pass improves 1.0/1.5 V burst error by 5.65–9.02 dB,
   and six passes reduce maximum residual below 0.207 µA and burst RMS to
   2.35–2.94 mV. Recovery-state error is not monotonic with pass count, however,
-  and the first extra serialized pass projects to 145 clocks versus the
-  128-clock deadline. Extra passes remain a diagnostic, not an RTL selection.
+  and a conventional extra serialized pass projects to 145 clocks versus the
+  128-clock deadline. An optional backward-Euler terminal path instead reuses
+  the already-computed diagnostic residual: it is output-exact to four-pass,
+  completes in 127 measured clocks, and explicitly reports the preterminal
+  residual. Trapezoidal terminal history commit is not yet implemented.
 - Removing the shallowest cutoff matrix is not a valid optimization: the 100 ms
   selector study leaves 289 backward-Euler or 119 trapezoidal 1.0 V residual
   failures. All generated matrices remain required; activation thresholds are
@@ -396,8 +399,10 @@ make solver-factorized-rtl         # exact smooth-tube solver integration
 make wide-solver-rtl               # exact 40-bit branch-current solver
 make trapezoidal-solver-rtl        # exact selectable integration-mode solver
 make banked-solver-rtl             # exact four-bank cutoff solver
+make terminal-banked-solver-rtl    # exact 127-clock terminal correction
 make trapezoidal-banked-solver-rtl # exact five-bank cutoff solver
 make banked-rtl-overload           # 1.0/1.5 V full-state bank-selection gate
+make terminal-banked-rtl-overload  # terminal full-state overload gate
 make banked-accuracy               # 100 ms banked/full-Newton waveform gate
 make banked-selector               # prove required cutoff-bank partitions
 make banked-threshold              # sweep shallow trapezoidal activation
@@ -418,6 +423,7 @@ make synth-solver-factorized       # smooth-tube hierarchy/resource trade
 make synth-wide-solver             # wide-state hierarchy estimate
 make synth-trapezoidal-solver      # trapezoidal hierarchy estimate
 make synth-banked-solver           # backward-Euler banked hierarchy estimate
+make synth-terminal-banked-solver  # terminal-correction hierarchy estimate
 make synth-trapezoidal-banked-solver # trapezoidal banked hierarchy estimate
 make synth-stream-wide             # complete wide-state stream estimate
 make synth-stream-trapezoidal      # complete trapezoidal stream estimate

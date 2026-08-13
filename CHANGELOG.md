@@ -6,6 +6,12 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added an optional backward-Euler terminal-correction contract that reuses the
+  final diagnostic residual for one Q40 chord update. Fixed Python and RTL keep
+  the preterminal residual semantics explicit, commit four-pass-exact persistent
+  state, and reject the unsupported trapezoidal hardware combination.
+- Added exact sequential and 1.0/1.5 V overload RTL regressions for the terminal
+  path, plus a dedicated synthesis wrapper and reproducible Make targets.
 - Added a full 100 ms banked correction-count study for both integrators at
   1.0/1.5 V, including unaligned burst/recovery metrics, diagnostics, bank use,
   and explicit measured-versus-projected latency labeling.
@@ -192,8 +198,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 - A fourth banked correction improves burst RMS by 5.65--9.02 dB, while six
   corrections reduce maximum residual to 0.111--0.207 uA and burst error to
-  2.35--2.94 mV. Final recovery error is non-monotonic. The first added serial
-  pass projects to 145 clocks, so pass-count growth remains rejected for RTL.
+  2.35--2.94 mV. Final recovery error is non-monotonic. A conventional added
+  serial pass projects to 145 clocks, but residual reuse produces the identical
+  fourth-correction output in 127 measured backward-Euler clocks. It reduces
+  1.0/1.5 V burst RMS to 4.895/6.817 mV, matches 18,432 overload states exactly,
+  and synthesizes to 13,296 LC / 120 DSP48E1 / 8 RAMB18E1.
 - Split the post-grid-resolution fixed error at the exact Q24/Q20 and Q31 tube
   interfaces. Integer Hermite evaluation contributes at most 0.168 mV burst RMS
   across the 1.0/1.5 V banked campaigns, while node/capacitor/chord arithmetic

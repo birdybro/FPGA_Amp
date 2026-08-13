@@ -91,10 +91,15 @@ or block RAM; measured structural resources are:
 | Solver | Logic cells | DSP48E1 | RAMB18E1 | Delta logic vs nominal |
 |---|---:|---:|---:|---:|
 | backward Euler, banked | 13,302 | 120 | 8 | +758 |
+| backward Euler, banked terminal correction | 13,296 | 120 | 8 | +752 |
 | trapezoidal, banked | 13,840 | 120 | 8 | +1,054 |
 
 Both checks report zero structural problems and 61 primitive-resize warnings.
 The selector includes a previous-Vgk slew comparison but adds no DSP or RAM.
+The terminal wrapper reuses the existing chord datapath and adds no DSP or RAM;
+its six-cell reduction relative to the ordinary banked wrapper is a synthesis-
+optimization artifact, not an architectural saving. It measures 127 clocks and
+therefore has only one scheduling clock of margin before place-and-route.
 Full-Newton waveform error remains reported separately; no Fmax claim is
 inferred from Yosys.
 

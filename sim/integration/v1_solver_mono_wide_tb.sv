@@ -3,8 +3,10 @@
 
 module v1_solver_mono_wide_tb #(
     parameter bit TRAPEZOIDAL = 1'b0,
-    parameter bit BANKED = 1'b0
+    parameter bit BANKED = 1'b0,
+    parameter bit TERMINAL_CORRECTION = 1'b0
 );
+    localparam integer EXPECTED_LATENCY = TERMINAL_CORRECTION ? 127 : 116;
     logic clk;
     logic rst_n = 1'b0;
     logic ce_sample = 1'b0;
@@ -51,7 +53,8 @@ module v1_solver_mono_wide_tb #(
                    : "model/generated/v1_chord_inverse_q17_1.mem")
         ),
         .CHORD_COEFFICIENT_SETS(BANKED ? (TRAPEZOIDAL ? 5 : 4) : 1),
-        .TRAPEZOIDAL(TRAPEZOIDAL)
+        .TRAPEZOIDAL(TRAPEZOIDAL),
+        .TERMINAL_CORRECTION(TERMINAL_CORRECTION)
     ) dut (.*);
     always #5 clk = ~clk;
 
@@ -81,8 +84,12 @@ module v1_solver_mono_wide_tb #(
                 vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_trapezoidal_banked.txt";
             else if (TRAPEZOIDAL)
                 vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_trapezoidal.txt";
+            else if (BANKED && TERMINAL_CORRECTION)
+                vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_banked_terminal.txt";
             else if (BANKED)
                 vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_banked.txt";
+            else if (TERMINAL_CORRECTION)
+                vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_terminal.txt";
             else
                 vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream.txt";
         end
@@ -137,9 +144,9 @@ module v1_solver_mono_wide_tb #(
                 if (timeout > 140)
                     $fatal(1, "sample %0d timed out", vector_count);
             end
-            if (sample_latency_cycles != 8'd116) begin
-                $error("sample %0d latency got=%0d expected=116",
-                       vector_count, sample_latency_cycles);
+            if (sample_latency_cycles != EXPECTED_LATENCY[7:0]) begin
+                $error("sample %0d latency got=%0d expected=%0d",
+                       vector_count, sample_latency_cycles, EXPECTED_LATENCY);
                 errors = errors + 1;
             end
             for (integer lane = 0; lane < 9; lane = lane + 1) begin
@@ -207,7 +214,8 @@ module v1_solver_mono_wide_tb #(
         end
         if (errors != 0)
             $fatal(1, "FAIL: %0d wide solver errors", errors);
-        $display("PASS: %0d wide solver vectors, latency=116 clocks", vector_count);
+        $display("PASS: %0d wide solver vectors, latency=%0d clocks",
+                 vector_count, EXPECTED_LATENCY);
         $finish;
     end
 endmodule

@@ -1,0 +1,72 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "implementation": "banked wide SystemVerilog solver with terminal correction",
+  "terminal_correction": true,
+  "sample_rate_hz": 768000.0,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_peak_v": [
+      1.0,
+      1.5
+    ],
+    "burst_start_s": 0.004,
+    "burst_end_s": 0.008,
+    "duration_s": 0.012,
+    "input_format": "Q8.24"
+  },
+  "gates": {
+    "all_cases_full_state_exact": true,
+    "one_volt_both_modes_converged_without_diagnostics": true,
+    "one_point_five_volts_converges_without_diagnostics": true,
+    "every_generated_bank_selected": true,
+    "fixed_schedule_preserved": true
+  },
+  "all_gates_pass": true,
+  "measurements": [
+    {
+      "integration_method": "backward_euler",
+      "burst_input_peak_v": 1.0,
+      "samples": 9216,
+      "full_state_rtl_fixed_bit_exact": true,
+      "latency_clocks": 127,
+      "residual_diagnostic_state": "preterminal_correction",
+      "maximum_residual_a": 1.7747660763234308e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "bank_selection_count": [
+        859,
+        245,
+        0,
+        8112
+      ],
+      "slew_qualified_selection_count": 0,
+      "all_cutoff_banks_exercised": false,
+      "nominal_bank_exercised": true
+    },
+    {
+      "integration_method": "backward_euler",
+      "burst_input_peak_v": 1.5,
+      "samples": 9216,
+      "full_state_rtl_fixed_bit_exact": true,
+      "latency_clocks": 127,
+      "residual_diagnostic_state": "preterminal_correction",
+      "maximum_residual_a": 1.7227984017154085e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "bank_selection_count": [
+        1258,
+        141,
+        78,
+        7739
+      ],
+      "slew_qualified_selection_count": 78,
+      "all_cutoff_banks_exercised": true,
+      "nominal_bank_exercised": true
+    }
+  ]
+}

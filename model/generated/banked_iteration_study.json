@@ -23,8 +23,9 @@
   "latency_projection": {
     "three_pass_measured_clocks": 116,
     "additional_serial_pass_clocks": 29,
+    "backward_euler_terminal_reuse_measured_clocks": 127,
     "deadline_clocks": 128,
-    "note": "Each added pass serializes the measured 19-clock residual path and 10-clock chord path; only the three-pass value is RTL-measured."
+    "note": "A conventional added pass serializes the 19-clock residual and 10-clock chord paths. The backward-Euler terminal-reuse RTL instead applies a chord update to the diagnostic residual already available at clock 116 and is measured end-to-end at 127 clocks."
   },
   "alignment": {
     "gain": false,
@@ -35,7 +36,10 @@
     "analytical_newton_converged": true,
     "all_fixed_outputs_diagnostic_clean": true,
     "three_pass_meets_current_deadline": true,
-    "fourth_serial_pass_misses_current_deadline": true
+    "fourth_serial_pass_misses_current_deadline": true,
+    "terminal_reuse_is_output_exact_to_four_pass": true,
+    "backward_euler_terminal_rtl_meets_current_deadline": true,
+    "terminal_candidates_diagnostic_clean": true
   },
   "all_gates_pass": true,
   "measurements": [
@@ -240,7 +244,61 @@
           ],
           "slew_qualified_selection_count": 0
         }
-      ]
+      ],
+      "terminal_reuse_case": {
+        "ordinary_chord_corrections": 3,
+        "terminal_chord_correction": true,
+        "residual_diagnostic_state": "preterminal_correction",
+        "rtl_status": "implemented_and_measured",
+        "measured_solver_latency_clocks": 127,
+        "meets_128_clock_deadline": true,
+        "output_q32_exact_to_conventional_four_pass": true,
+        "maximum_output_difference_from_four_pass_v": 0.0,
+        "windows": {
+          "burst": {
+            "reference_rms_v": 71.92743922943026,
+            "candidate_rms_v": 71.92567864514555,
+            "raw_error_rms_v": 0.004895244417302423,
+            "raw_normalized_error_db": -83.34240435919929,
+            "error_mean_v": -0.001366922783287898,
+            "mean_removed_error_rms_v": 0.004700525503564362,
+            "mean_removed_normalized_error_db": -83.6949637078875,
+            "maximum_absolute_error_v": 0.028629563449513284
+          },
+          "complete_post_burst": {
+            "reference_rms_v": 4.305844226520843,
+            "candidate_rms_v": 4.305868741990415,
+            "raw_error_rms_v": 0.0001297451865919546,
+            "raw_normalized_error_db": -90.41934118493697,
+            "error_mean_v": -0.00012108853209289853,
+            "mean_removed_error_rms_v": 4.659807763597339e-05,
+            "mean_removed_normalized_error_db": -99.31380627187438,
+            "maximum_absolute_error_v": 0.0005573945116168488
+          },
+          "final_10ms": {
+            "reference_rms_v": 0.4951931302179847,
+            "candidate_rms_v": 0.4952223913418593,
+            "raw_error_rms_v": 6.109835268663068e-05,
+            "raw_normalized_error_db": -78.17490220034233,
+            "error_mean_v": -5.8562476723916066e-05,
+            "mean_removed_error_rms_v": 1.7419673389036268e-05,
+            "mean_removed_normalized_error_db": -89.07469206382214,
+            "maximum_absolute_error_v": 0.00011707045668396532
+          }
+        },
+        "maximum_preterminal_residual_a": 1.7724580061440065e-06,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "correction_scale_fallback_count": 0,
+        "bank_selection_count": [
+          1038,
+          312,
+          0,
+          75450
+        ],
+        "slew_qualified_selection_count": 0
+      }
     },
     {
       "integration_method": "backward_euler",
@@ -443,7 +501,61 @@
           ],
           "slew_qualified_selection_count": 96
         }
-      ]
+      ],
+      "terminal_reuse_case": {
+        "ordinary_chord_corrections": 3,
+        "terminal_chord_correction": true,
+        "residual_diagnostic_state": "preterminal_correction",
+        "rtl_status": "implemented_and_measured",
+        "measured_solver_latency_clocks": 127,
+        "meets_128_clock_deadline": true,
+        "output_q32_exact_to_conventional_four_pass": true,
+        "maximum_output_difference_from_four_pass_v": 0.0,
+        "windows": {
+          "burst": {
+            "reference_rms_v": 84.7569532698624,
+            "candidate_rms_v": 84.75560350042215,
+            "raw_error_rms_v": 0.0068169418996452185,
+            "raw_normalized_error_db": -81.89171488657857,
+            "error_mean_v": -0.0028272062272047082,
+            "mean_removed_error_rms_v": 0.006203031662984921,
+            "mean_removed_normalized_error_db": -82.71142677759798,
+            "maximum_absolute_error_v": 0.01980015549621328
+          },
+          "complete_post_burst": {
+            "reference_rms_v": 3.584857347756908,
+            "candidate_rms_v": 3.5849874009456664,
+            "raw_error_rms_v": 0.0010214727106704403,
+            "raw_normalized_error_db": -70.9049021962181,
+            "error_mean_v": -0.000944355596509269,
+            "mean_removed_error_rms_v": 0.0003893571701998561,
+            "mean_removed_normalized_error_db": -79.28247403235315,
+            "maximum_absolute_error_v": 0.0036007944856422114
+          },
+          "final_10ms": {
+            "reference_rms_v": 1.189854462196492,
+            "candidate_rms_v": 1.1892956442207807,
+            "raw_error_rms_v": 0.0005909848248510397,
+            "raw_normalized_error_db": -66.07835028616154,
+            "error_mean_v": -0.0005900306177057925,
+            "mean_removed_error_rms_v": 3.3569828327459226e-05,
+            "mean_removed_normalized_error_db": -90.99089446636265,
+            "maximum_absolute_error_v": 0.0006863709876601121
+          }
+        },
+        "maximum_preterminal_residual_a": 1.7271677847929823e-06,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "correction_scale_fallback_count": 0,
+        "bank_selection_count": [
+          1559,
+          176,
+          96,
+          74969
+        ],
+        "slew_qualified_selection_count": 96
+      }
     },
     {
       "integration_method": "trapezoidal",
@@ -650,7 +762,62 @@
           ],
           "slew_qualified_selection_count": 0
         }
-      ]
+      ],
+      "terminal_reuse_case": {
+        "ordinary_chord_corrections": 3,
+        "terminal_chord_correction": true,
+        "residual_diagnostic_state": "preterminal_correction",
+        "rtl_status": "not_implemented_requires_corrected_current_history_commit",
+        "measured_solver_latency_clocks": null,
+        "meets_128_clock_deadline": null,
+        "output_q32_exact_to_conventional_four_pass": true,
+        "maximum_output_difference_from_four_pass_v": 0.0,
+        "windows": {
+          "burst": {
+            "reference_rms_v": 71.93512514908701,
+            "candidate_rms_v": 71.93336025862533,
+            "raw_error_rms_v": 0.004708913462304587,
+            "raw_normalized_error_db": -83.68040588404699,
+            "error_mean_v": -0.0013074136289610032,
+            "mean_removed_error_rms_v": 0.0045237744857895374,
+            "mean_removed_normalized_error_db": -84.0288011336171,
+            "maximum_absolute_error_v": 0.031269546687241245
+          },
+          "complete_post_burst": {
+            "reference_rms_v": 4.306639184163982,
+            "candidate_rms_v": 4.306630545371748,
+            "raw_error_rms_v": 7.022242178747736e-05,
+            "raw_normalized_error_db": -95.75325368925087,
+            "error_mean_v": -5.7108819899285024e-05,
+            "mean_removed_error_rms_v": 4.086283410887455e-05,
+            "mean_removed_normalized_error_db": -100.45620005965476,
+            "maximum_absolute_error_v": 0.0006824689835553954
+          },
+          "final_10ms": {
+            "reference_rms_v": 0.49525448915365206,
+            "candidate_rms_v": 0.4952667695380253,
+            "raw_error_rms_v": 3.6348301783756023e-05,
+            "raw_normalized_error_db": -82.68688591341947,
+            "error_mean_v": -3.0571052970945226e-05,
+            "mean_removed_error_rms_v": 1.9662394635716743e-05,
+            "mean_removed_normalized_error_db": -88.02384024846462,
+            "maximum_absolute_error_v": 9.107571401228975e-05
+          }
+        },
+        "maximum_preterminal_residual_a": 1.767239098171558e-06,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "correction_scale_fallback_count": 0,
+        "bank_selection_count": [
+          417,
+          456,
+          323,
+          154,
+          75450
+        ],
+        "slew_qualified_selection_count": 0
+      }
     },
     {
       "integration_method": "trapezoidal",
@@ -857,7 +1024,62 @@
           ],
           "slew_qualified_selection_count": 97
         }
-      ]
+      ],
+      "terminal_reuse_case": {
+        "ordinary_chord_corrections": 3,
+        "terminal_chord_correction": true,
+        "residual_diagnostic_state": "preterminal_correction",
+        "rtl_status": "not_implemented_requires_corrected_current_history_commit",
+        "measured_solver_latency_clocks": null,
+        "meets_128_clock_deadline": null,
+        "output_q32_exact_to_conventional_four_pass": true,
+        "maximum_output_difference_from_four_pass_v": 0.0,
+        "windows": {
+          "burst": {
+            "reference_rms_v": 84.75709631105285,
+            "candidate_rms_v": 84.75561053447291,
+            "raw_error_rms_v": 0.0036038886140944016,
+            "raw_normalized_error_db": -87.4280942021874,
+            "error_mean_v": -0.0025690043143121333,
+            "mean_removed_error_rms_v": 0.0025274948023378623,
+            "mean_removed_normalized_error_db": -90.50971597323459,
+            "maximum_absolute_error_v": 0.018903509622880676
+          },
+          "complete_post_burst": {
+            "reference_rms_v": 3.584257832240068,
+            "candidate_rms_v": 3.584352504290422,
+            "raw_error_rms_v": 0.0008273251811531069,
+            "raw_normalized_error_db": -72.73445999699449,
+            "error_mean_v": -0.0007650851652443679,
+            "mean_removed_error_rms_v": 0.00031482002047681073,
+            "mean_removed_normalized_error_db": -81.12673800188722,
+            "maximum_absolute_error_v": 0.002840014711765093
+          },
+          "final_10ms": {
+            "reference_rms_v": 1.1939089140035901,
+            "candidate_rms_v": 1.1934722079419902,
+            "raw_error_rms_v": 0.00046061802379914824,
+            "raw_normalized_error_db": -68.27260534048338,
+            "error_mean_v": -0.00045966714589061873,
+            "mean_removed_error_rms_v": 2.9581731480854312e-05,
+            "mean_removed_normalized_error_db": -92.11895208363222,
+            "maximum_absolute_error_v": 0.0005525282660674424
+          }
+        },
+        "maximum_preterminal_residual_a": 1.7060969526028202e-06,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "correction_scale_fallback_count": 0,
+        "bank_selection_count": [
+          1321,
+          156,
+          167,
+          188,
+          74968
+        ],
+        "slew_qualified_selection_count": 97
+      }
     }
   ]
 }

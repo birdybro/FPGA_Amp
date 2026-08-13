@@ -39,6 +39,7 @@ def capture_wide_solver_rtl(
     verilator: str = "verilator",
     trapezoidal: bool = False,
     banked: bool = False,
+    terminal_correction: bool = False,
 ) -> WideSolverRTLCapture:
     """Run one persistent input trajectory through fixed Python and RTL.
 
@@ -56,6 +57,8 @@ def capture_wide_solver_rtl(
     samples = np.asarray(input_q24, dtype=np.int64)
     if samples.ndim != 1 or samples.size == 0:
         raise ValueError("input_q24 must be a non-empty one-dimensional array")
+    if trapezoidal and terminal_correction:
+        raise ValueError("terminal correction currently supports backward Euler only")
 
     tube = FixedFactorizedKoren12AX7()
     if banked:
@@ -64,6 +67,7 @@ def capture_wide_solver_rtl(
             integration_method=(
                 "trapezoidal" if trapezoidal else "backward_euler"
             ),
+            terminal_correction=terminal_correction,
         )
     else:
         model_type = (
@@ -71,7 +75,7 @@ def capture_wide_solver_rtl(
             if trapezoidal
             else FixedWideStateV1CircuitModel
         )
-        fixed = model_type(tube_lut=tube)
+        fixed = model_type(tube_lut=tube, terminal_correction=terminal_correction)
     output_q32 = np.empty(samples.size, dtype=np.int64)
     maximum_grid_current_q31 = np.zeros(2, dtype=np.int64)
     vector_path = ROOT / "sim" / "vectors" / "generated" / f"{run_stem}.txt"
@@ -133,6 +137,8 @@ def capture_wide_solver_rtl(
         command.append("--trapezoidal")
     if banked:
         command.append("--banked")
+    if terminal_correction:
+        command.append("--terminal-correction")
     subprocess.run(
         command,
         cwd=ROOT,

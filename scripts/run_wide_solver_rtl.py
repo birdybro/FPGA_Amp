@@ -22,7 +22,10 @@ def main() -> int:
     parser.add_argument("--capture-file")
     parser.add_argument("--trapezoidal", action="store_true")
     parser.add_argument("--banked", action="store_true")
+    parser.add_argument("--terminal-correction", action="store_true")
     args = parser.parse_args()
+    if args.trapezoidal and args.terminal_correction:
+        parser.error("terminal correction currently supports backward Euler only")
     verilator = shutil.which(args.verilator)
     if verilator is None:
         print("ERROR: verilator unavailable", file=sys.stderr)
@@ -44,6 +47,8 @@ def main() -> int:
         if args.banked:
             generators[1 if not args.trapezoidal else 2].append("--banked")
             generators[-1].append("--banked")
+        if args.terminal_correction:
+            generators[-1].append("--terminal-correction")
         for command in generators:
             subprocess.run(command, cwd=ROOT, check=True)
     sources = [
@@ -62,6 +67,8 @@ def main() -> int:
         else "v1_solver_mono_wide_tb"
     )
     parameter_args = ["-GBANKED=1"] if args.banked else []
+    if args.terminal_correction:
+        parameter_args.append("-GTERMINAL_CORRECTION=1")
     subprocess.run(
         [
             verilator,
@@ -84,6 +91,7 @@ def main() -> int:
         "verilator_v1_solver_wide"
         + ("_trapezoidal" if args.trapezoidal else "")
         + ("_banked" if args.banked else "")
+        + ("_terminal" if args.terminal_correction else "")
     )
     subprocess.run(
         [

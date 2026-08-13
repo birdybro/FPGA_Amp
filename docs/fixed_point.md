@@ -336,8 +336,22 @@ only 0.111--0.207 uA maximum residual and 2.35--2.94 mV burst RMS, but final
 10 ms error is non-monotonic with pass count because each trajectory commits a
 different capacitor state. The measured three-pass solver is 116 clocks; one
 serialized 19-clock residual plus ten-clock correction projects the fourth pass
-to 145 clocks. This rejects a direct pass-count increase while motivating a
-more contractive bank or a safely overlapped/parallelized correction path.
+to 145 clocks. The backward-Euler terminal-correction mode avoids that extra
+residual evaluation: it applies one Q40 chord correction to the diagnostic
+residual already available after the third correction. The committed output and
+capacitor voltage state are bit-exact to a conventional four-pass trajectory,
+while `last_residual_q44` and `nonconvergence_count` deliberately describe the
+preterminal state. Integrated RTL measures 127 clocks, leaving one clock at
+98.304 MHz / 768 kHz. Trapezoidal terminal correction remains a Python-only
+candidate because committing its corrected Q4.44 capacitor-current histories
+requires hardware not present in the shared KCL path.
+
+Across 100 ms 1.0/1.5 V backward-Euler bursts, terminal reuse reduces raw burst
+RMS from 10.829/19.251 mV to 4.895/6.817 mV and remains diagnostic-clean. A
+separate 18,432-sample RTL campaign exercises every bank and matches Python at
+every persistent state and diagnostic word. This is an optional FPGA numerical
+implementation choice; it changes neither the frozen physical circuit nor the
+analytical tube equations.
 
 `v1_solver_mono_wide.sv` composes those blocks with the factorized tube and
 matches 512 sequential fixed-Python samples exactly across all nine nodes, ten

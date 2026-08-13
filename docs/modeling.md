@@ -444,6 +444,8 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | grid-current error decomposition | 100 ms, 1.0/1.5 V bursts | 128-entry grid branch dominated old severe recovery; at 1,024 points fixed circuit/state/chord contributes 6.40--19.07 mV burst RMS vs <=0.168 mV integer tube evaluation |
 | grid-current resolution | 128--1,024 entries, linear interpolation | implemented 1,024 points: 1.5 V burst -72.87/-81.77 dB, final 0.631/0.321 mV |
 | banked correction count | 3--6 passes, 100 ms, 1.0/1.5 V | fourth pass improves burst 5.65--9.02 dB but projects to 145 clocks; recovery error non-monotonic |
+| banked terminal correction vs full Newton | 100 ms, 1.0/1.5 V per mode | output-exact to four-pass; BE burst RMS 4.895/6.817 mV; preterminal residual <=1.772 uA |
+| banked terminal RTL vs fixed | 18,432 BE overload updates | every state/diagnostic exact at 127 clocks; zero events |
 | long fixed state / click recovery | 1 s silence with +/-100 mV single-sample clicks | Q12.20 deadband leaves -5.368 mV late output; must be redesigned |
 | wide-state Python candidate | same 1 s click audit; 5 mV/1 kHz | 38.74 uV late residual; -63.83 dB nominal raw null; complete-RTL proof open |
 | wide chord RTL vs fixed | 1,024 randomized/directed vectors | bit-exact, latency 10; 1,701 LC / 9 DSP / 0 RAMB18 structural |

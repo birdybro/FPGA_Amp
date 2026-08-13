@@ -42,6 +42,7 @@ def main() -> int:
             "v1_solver_mono_wide",
             "v1_solver_mono_wide_trapezoidal",
             "v1_solver_mono_wide_banked",
+            "v1_solver_mono_wide_banked_terminal",
             "v1_solver_mono_wide_trapezoidal_banked",
             "halfband_interpolator_2x",
             "halfband_decimator_2x",
@@ -111,6 +112,14 @@ def main() -> int:
             "rtl/circuit/chord_corrector_v1_wide.sv",
             "rtl/phono/v1_solver_mono_wide.sv",
             "rtl/phono/v1_solver_mono_wide_banked.sv",
+        ],
+        "v1_solver_mono_wide_banked_terminal": [
+            "rtl/tube/triode_12ax7_factorized.sv",
+            "rtl/circuit/network_rhs_v1_wide.sv",
+            "rtl/circuit/network_kcl_v1_wide.sv",
+            "rtl/circuit/chord_corrector_v1_wide.sv",
+            "rtl/phono/v1_solver_mono_wide.sv",
+            "rtl/phono/v1_solver_mono_wide_banked_terminal.sv",
         ],
         "v1_solver_mono_wide_trapezoidal_banked": [
             "rtl/tube/triode_12ax7_factorized.sv",
