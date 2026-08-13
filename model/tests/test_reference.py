@@ -194,6 +194,40 @@ class ResamplerTests(unittest.TestCase):
 
 
 class V1CircuitTests(unittest.TestCase):
+    def test_wide_tube_pin_conversion_saturates_instead_of_wrapping(self) -> None:
+        model = FixedWideStateV1CircuitModel(
+            tube_lut=FixedFactorizedKoren12AX7()
+        )
+
+        class CapturingTube:
+            def __init__(self) -> None:
+                self.calls: list[tuple[int, int]] = []
+
+            def evaluate_fixed(
+                self, v_gk_q: int, v_pk_q: int
+            ) -> tuple[int, int, bool]:
+                self.calls.append((v_gk_q, v_pk_q))
+                return 0, 0, False
+
+        capture = CapturingTube()
+        model.tube_lut = capture  # type: ignore[assignment]
+        voltage = np.zeros(model.node_count, dtype=np.int64)
+        voltage[model.node["g1"]] = (1 << 39) - 1
+        voltage[model.node["p1"]] = (1 << 39) - 1
+        voltage[model.node["k1"]] = -(1 << 39)
+        voltage[model.node["g2"]] = -(1 << 39)
+        voltage[model.node["p2"]] = -(1 << 39)
+        voltage[model.node["k2"]] = (1 << 39) - 1
+        _, clipped = model._tube_current_q44(voltage)
+        self.assertEqual(
+            capture.calls,
+            [
+                ((1 << 31) - 1, (1 << 31) - 1),
+                (-(1 << 31), -(1 << 31)),
+            ],
+        )
+        self.assertTrue(clipped)
+
     def test_dc_nodes_match_spice_baseline(self) -> None:
         model = V1CircuitModel()
         expected = {

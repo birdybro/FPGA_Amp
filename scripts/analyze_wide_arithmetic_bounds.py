@@ -150,6 +150,33 @@ def tube_stamp_bounds() -> list[Interval]:
     return [direct, direct, cathode, zero, direct, zero, direct, cathode, zero]
 
 
+def solver_tube_pin_bounds(checks: list[dict[str, object]]) -> None:
+    node = signed_interval(40)
+    q32_to_q24 = rounded_shift(node, 8)
+    q28_to_q20 = rounded_shift(node, 8)
+    q32_to_q20 = rounded_shift(node, 12)
+    grid_cathode = q32_to_q24 - q32_to_q24
+    plate_cathode = q28_to_q20 - q32_to_q20
+    add_check(
+        checks,
+        "solver node conversion before tube-pin subtraction",
+        enclosing([q32_to_q24, q28_to_q20, q32_to_q20]),
+        40,
+    )
+    add_check(
+        checks, "solver Vgk wide difference before saturation", grid_cathode, 41
+    )
+    add_check(
+        checks, "solver Vpk wide difference before saturation", plate_cathode, 41
+    )
+    add_check(
+        checks,
+        "solver saturated tube-pin interface storage",
+        signed_interval(32),
+        32,
+    )
+
+
 def network_bounds(
     model: FixedWideStateV1CircuitModel,
     name: str,
@@ -350,6 +377,7 @@ def main() -> int:
     )
 
     reachable_rhs = rhs_bounds(backward_euler, checks)
+    solver_tube_pin_bounds(checks)
     modes = {
         "backward_euler": network_bounds(backward_euler, "backward-Euler", checks),
         "trapezoidal": network_bounds(trapezoidal, "trapezoidal", checks),
@@ -367,12 +395,14 @@ def main() -> int:
             "backward-Euler and trapezoidal wide KCL engines",
             "tube-current KCL stamps",
             "wide chord corrector",
+            "wide solver tube-pin conversions",
         ],
         "deliberate_saturators_excluded_from_no_wrap_claim": [
             "signed-25 residual operand conversion",
             "signed-40 corrected node commit",
             "signed-40 capacitor voltage-history commit",
             "signed-48 trapezoidal current-history commit",
+            "signed-32 tube-pin voltage interface",
         ],
         "all_checks_pass": not failures,
         "failures": failures,

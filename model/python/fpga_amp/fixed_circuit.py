@@ -285,8 +285,12 @@ class FixedChordV1CircuitModel:
                 int(self.VOLTAGE_FRACTIONAL_BITS[cathode]),
                 20,
             )
+            vgk_q24, vgk_saturated = saturate_signed(vgk_q24, 32)
+            vpk_q20, vpk_saturated = saturate_signed(vpk_q20, 32)
             plate_q31, grid_q31, clipped = self.tube_lut.evaluate_fixed(vgk_q24, vpk_q20)
-            clipped_any = clipped_any or clipped
+            clipped_any = (
+                clipped_any or vgk_saturated or vpk_saturated or clipped
+            )
             plate_q44 = plate_q31 << 13
             grid_q44 = grid_q31 << 13
             current[plate] += plate_q44

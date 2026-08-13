@@ -193,8 +193,9 @@ RAM.
 
 `make arithmetic-bounds` independently propagates conservative integer
 intervals over every declared input/state bit pattern and the frozen V1
-constants. All 33 storage, product, rounding-bias, branch-current, serialized
-sum, and chord-correction checks pass. Tight cases consume all 44 capacitor
+constants. All 37 storage, product, rounding-bias, branch-current, serialized
+sum, chord-correction, and tube-pin conversion checks pass. Tight cases consume
+all 44 capacitor
 difference bits and all 34 pre-shift cathode-sum bits. The worst conservative
 trapezoidal KCL partial sum requires 57 of 63 bits, while its capacitor product
 requires 89 of 92 bits. The report is regenerated at
@@ -204,6 +205,16 @@ reruns the proof so coefficient changes cannot silently invalidate it.
 The tube cathode stamp also widens each signed-32 Q31 operand to 34 bits before
 negation. The exact boundary `(-INT32_MIN) + (-INT32_MIN) = 2^32` needs all 34
 bits; directed vectors exercise the boundary independently for both triodes.
+
+Tube-pin voltage formation also keeps each rounded node conversion in 40 bits,
+subtracts in 41 bits, and only then saturates to the signed-32 Q8.24/Q12.20
+device interface. Full-range Vgk and Vpk differences do not fit that interface;
+the old 32-bit subtraction could wrap a large positive differential negative.
+Fixed Python applies the identical saturation and classifies it with tube-range
+clipping. Since either saturated endpoint is far outside the frozen -5..+1 V
+grid or 0..400 V plate domain, RTL exposes the event through the existing LUT
+clip counter. A unit regression forces both positive and negative full-range
+node combinations.
 
 `v1_solver_mono_wide.sv` composes those blocks with the factorized tube and
 matches 512 sequential fixed-Python samples exactly across all nine nodes, ten

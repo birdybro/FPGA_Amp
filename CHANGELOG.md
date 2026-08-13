@@ -149,6 +149,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Widened signed Q31 tube currents before cathode-stamp negation so the legal
   `INT32_MIN` pair produces positive `2^32` instead of wrapping in a 33-bit
   expression; both triodes now have directed boundary vectors.
+- Replaced 32-bit tube-pin subtraction in the wide solver with 40-bit node
+  conversion, 41-bit subtraction, and explicit signed-32 saturation. Fixed
+  Python now defines the same boundary behavior, and a regression forces both
+  polarities instead of permitting extreme Vgk/Vpk values to wrap.
 
 ### Reference decisions
 
@@ -160,8 +164,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 ### Measured
 
 - Added a conservative full-interface integer interval proof for wide RHS,
-  backward-Euler/trapezoidal KCL, tube stamps, and chord correction. All 33
-  checks pass; the tightest cases require 44/44 capacitor-delta bits, 34/34
+  backward-Euler/trapezoidal KCL, tube stamps, chord correction, and solver
+  tube-pin conversion. All 37 checks pass; the tightest cases require 44/44
+  capacitor-delta bits, 34/34
   cathode-sum bits, 57/63 KCL-accumulator bits, and 89/92 capacitor-product
   bits. The proof is now a default regression gate.
 

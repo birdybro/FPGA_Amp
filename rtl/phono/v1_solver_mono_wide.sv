@@ -108,7 +108,7 @@ module v1_solver_mono_wide #(
         end
     endfunction
 
-    function automatic logic signed [31:0] node_to_q24(
+    function automatic logic signed [39:0] node_to_q24_wide(
         input logic signed [39:0] value,
         input int index
     );
@@ -117,15 +117,15 @@ module v1_solver_mono_wide #(
             biased = $signed({value[39], value});
             if (node_is_q28(index)) begin
                 biased = biased + 41'sd8;
-                node_to_q24 = 32'($signed(biased) >>> 4);
+                node_to_q24_wide = 40'($signed(biased) >>> 4);
             end else begin
                 biased = biased + 41'sd128;
-                node_to_q24 = 32'($signed(biased) >>> 8);
+                node_to_q24_wide = 40'($signed(biased) >>> 8);
             end
         end
     endfunction
 
-    function automatic logic signed [31:0] node_to_q20(
+    function automatic logic signed [39:0] node_to_q20_wide(
         input logic signed [39:0] value,
         input int index
     );
@@ -134,11 +134,60 @@ module v1_solver_mono_wide #(
             biased = $signed({value[39], value});
             if (node_is_q28(index)) begin
                 biased = biased + 41'sd128;
-                node_to_q20 = 32'($signed(biased) >>> 8);
+                node_to_q20_wide = 40'($signed(biased) >>> 8);
             end else begin
                 biased = biased + 41'sd2048;
-                node_to_q20 = 32'($signed(biased) >>> 12);
+                node_to_q20_wide = 40'($signed(biased) >>> 12);
             end
+        end
+    endfunction
+
+    function automatic logic signed [31:0] saturate_32(
+        input logic signed [40:0] value
+    );
+        begin
+            if (value > 41'sd2147483647)
+                saturate_32 = 32'sh7fffffff;
+            else if (value < -41'sd2147483648)
+                saturate_32 = 32'sh80000000;
+            else
+                saturate_32 = value[31:0];
+        end
+    endfunction
+
+    function automatic logic signed [31:0] node_difference_q24(
+        input logic signed [39:0] left_value,
+        input int left_index,
+        input logic signed [39:0] right_value,
+        input int right_index
+    );
+        logic signed [39:0] left_converted;
+        logic signed [39:0] right_converted;
+        logic signed [40:0] difference;
+        begin
+            left_converted = node_to_q24_wide(left_value, left_index);
+            right_converted = node_to_q24_wide(right_value, right_index);
+            difference = $signed({left_converted[39], left_converted})
+                         - $signed({right_converted[39], right_converted});
+            node_difference_q24 = saturate_32(difference);
+        end
+    endfunction
+
+    function automatic logic signed [31:0] node_difference_q20(
+        input logic signed [39:0] left_value,
+        input int left_index,
+        input logic signed [39:0] right_value,
+        input int right_index
+    );
+        logic signed [39:0] left_converted;
+        logic signed [39:0] right_converted;
+        logic signed [40:0] difference;
+        begin
+            left_converted = node_to_q20_wide(left_value, left_index);
+            right_converted = node_to_q20_wide(right_value, right_index);
+            difference = $signed({left_converted[39], left_converted})
+                         - $signed({right_converted[39], right_converted});
+            node_difference_q20 = saturate_32(difference);
         end
     endfunction
 
@@ -153,15 +202,6 @@ module v1_solver_mono_wide #(
                 node_to_q30 = extended <<< 2;
             else
                 node_to_q30 = (extended + 42'sd2) >>> 2;
-        end
-    endfunction
-
-    function automatic logic signed [31:0] subtract_32(
-        input logic signed [31:0] left,
-        input logic signed [31:0] right
-    );
-        begin
-            subtract_32 = left - right;
         end
     endfunction
 
@@ -322,22 +362,22 @@ module v1_solver_mono_wide #(
     always_comb begin
         triode_ce = residual_launch || ((state == WAIT_TUBE_1) && triode_valid);
         if (state == WAIT_TUBE_1) begin
-            triode_v_gk = subtract_32(
-                node_to_q24(node_voltage[4], 4),
-                node_to_q24(node_voltage[7], 7)
+            triode_v_gk = node_difference_q24(
+                node_voltage[4], 4,
+                node_voltage[7], 7
             );
-            triode_v_pk = subtract_32(
-                node_to_q20(node_voltage[6], 6),
-                node_to_q20(node_voltage[7], 7)
+            triode_v_pk = node_difference_q20(
+                node_voltage[6], 6,
+                node_voltage[7], 7
             );
         end else begin
-            triode_v_gk = subtract_32(
-                node_to_q24($signed(residual_voltage_flat[0 * 40 +: 40]), 0),
-                node_to_q24($signed(residual_voltage_flat[2 * 40 +: 40]), 2)
+            triode_v_gk = node_difference_q24(
+                $signed(residual_voltage_flat[0 * 40 +: 40]), 0,
+                $signed(residual_voltage_flat[2 * 40 +: 40]), 2
             );
-            triode_v_pk = subtract_32(
-                node_to_q20($signed(residual_voltage_flat[1 * 40 +: 40]), 1),
-                node_to_q20($signed(residual_voltage_flat[2 * 40 +: 40]), 2)
+            triode_v_pk = node_difference_q20(
+                $signed(residual_voltage_flat[1 * 40 +: 40]), 1,
+                $signed(residual_voltage_flat[2 * 40 +: 40]), 2
             );
         end
         kcl_tube_current_valid = (state == WAIT_TUBE_2) && triode_valid;

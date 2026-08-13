@@ -23,9 +23,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 ## Completed this milestone
 
 - [x] Prove wide RHS, backward-Euler/trapezoidal KCL, tube-stamp, and chord
-  arithmetic bounds with conservative full-interface integer intervals. All 33
-  checks pass; directed regressions cover the corrected 44-bit capacitor delta
-  and 34-bit `INT32_MIN` cathode-current sum.
+  arithmetic bounds with conservative full-interface integer intervals. All 37
+  checks pass; directed regressions cover the corrected 44-bit capacitor delta,
+  34-bit `INT32_MIN` cathode-current sum, and saturating tube-pin conversion.
 - [x] Establish repository engineering instructions and reproducible tool bootstrap.
 - [x] Capture wide-solver RTL at 100 Hz, 1 kHz, 10 kHz, and 20 kHz; prove Q32
   fixed equivalence and <=0.0001943 dB / <=0.0009814 degree analytical error.
