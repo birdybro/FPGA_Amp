@@ -14,7 +14,12 @@ import numpy as np
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPOSITORY_ROOT / "model" / "python"))
 
-from fpga_amp.fixed_circuit import FixedChordV1CircuitModel, saturate_signed  # noqa: E402
+from fpga_amp.fixed_circuit import (  # noqa: E402
+    FixedChordV1CircuitModel,
+    FixedWideStateV1CircuitModel,
+    round_shift,
+    saturate_signed,
+)
 from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
 from fpga_amp.resampling import (  # noqa: E402
     decimate_16x_fixed_q24,
@@ -26,7 +31,10 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--vectors", type=int, default=64)
     parser.add_argument("--factorized", action="store_true")
+    parser.add_argument("--wide", action="store_true")
     args = parser.parse_args()
+    if args.wide:
+        args.factorized = True
     rng = np.random.default_rng(0xA0D10)
     index = np.arange(args.vectors, dtype=np.float64)
     input_v = (
@@ -46,12 +54,20 @@ def main() -> int:
         : 16 * args.vectors
     ]
     tube = FixedFactorizedKoren12AX7() if args.factorized else None
-    model = FixedChordV1CircuitModel(tube_lut=tube)
+    model = (
+        FixedWideStateV1CircuitModel(tube_lut=tube)
+        if args.wide
+        else FixedChordV1CircuitModel(tube_lut=tube)
+    )
     circuit_output_q24: list[int] = []
     conversion_saturations = 0
     for sample_q24 in internal_q24:
         model.process_sample(int(sample_q24) / float(1 << 24))
-        output_q24, clipped = saturate_signed(int(model.voltage_q[8]) << 4, 32)
+        if args.wide:
+            converted = round_shift(int(model.voltage_q[8]), 8)
+        else:
+            converted = int(model.voltage_q[8]) << 4
+        output_q24, clipped = saturate_signed(converted, 32)
         circuit_output_q24.append(output_q24)
         conversion_saturations += int(clipped)
     output_q24, decimation_saturations = decimate_16x_fixed_q24(
@@ -61,11 +77,13 @@ def main() -> int:
 
     vector_directory = REPOSITORY_ROOT / "sim" / "vectors" / "generated"
     vector_directory.mkdir(parents=True, exist_ok=True)
-    vector_path = vector_directory / (
-        "phono_stream_mono_factorized.txt"
-        if args.factorized
-        else "phono_stream_mono.txt"
-    )
+    if args.wide:
+        vector_name = "phono_stream_mono_wide_factorized.txt"
+    elif args.factorized:
+        vector_name = "phono_stream_mono_factorized.txt"
+    else:
+        vector_name = "phono_stream_mono.txt"
+    vector_path = vector_directory / vector_name
     with vector_path.open("w", encoding="ascii") as handle:
         for value in input_q24:
             handle.write(f"{int(value)}\n")
@@ -76,6 +94,7 @@ def main() -> int:
     metadata = {
         "model": "12ax7_passive_riaa_v1",
         "tube_implementation": "factorized" if args.factorized else "surface",
+        "state_implementation": "wide_branch_current" if args.wide else "legacy_companion_rhs",
         "input_rate_hz": 48_000,
         "circuit_rate_hz": 768_000,
         "vectors": args.vectors,
@@ -87,14 +106,17 @@ def main() -> int:
         "solver_saturations": model.saturation_count,
         "solver_lut_clips": model.lut_clip_count,
         "solver_nonconvergence": model.nonconvergence_count,
+        "solver_correction_scale_fallbacks": model.correction_scale_fallback_count,
         "maximum_solver_residual_q44": model.max_residual_q44_observed,
         "output": str(vector_path.relative_to(REPOSITORY_ROOT)),
     }
-    metadata_path = REPOSITORY_ROOT / "model" / "generated" / (
-        "phono_stream_factorized_metadata.json"
-        if args.factorized
-        else "phono_stream_metadata.json"
-    )
+    if args.wide:
+        metadata_name = "phono_stream_wide_factorized_metadata.json"
+    elif args.factorized:
+        metadata_name = "phono_stream_factorized_metadata.json"
+    else:
+        metadata_name = "phono_stream_metadata.json"
+    metadata_path = REPOSITORY_ROOT / "model" / "generated" / metadata_name
     metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(metadata, indent=2))
     return 0

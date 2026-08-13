@@ -84,6 +84,14 @@ no named-part Fmax or routing closure is claimed. The solver consumes 50.8% of
 the Arty A7-100T's DSP count before resampling; this materially constrains stereo
 duplication and makes a complete-stream resource measurement mandatory.
 
+The complete wide stream measures 16,993 logic cells, 170 DSP48E1s, and 8
+RAMB18E1s, with zero structural check problems and 61 techmap resize warnings.
+This is 16.8% of nominal A7-100T logic cells, 70.8% of DSPs, and about 3.3% of
+18 Kib RAM blocks. The mono design fits structurally, but two identical channels
+would require 340 DSPs and therefore cannot be naively duplicated on this part.
+Stereo needs filter/KCL resource sharing, a larger device, or a separately
+measured arithmetic trade; none is silently selected here.
+
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.
 Time-multiplexing it across triodes/channels is therefore favored over blind
@@ -93,11 +101,10 @@ without an end-to-end error/resource comparison.
 
 ## Required next implementation evidence
 
-1. Integrate and synthesize the complete wide solver plus rate-conversion stream.
-2. Run Vivado synthesis/place/route on the exact Arty part and record worst slack,
+1. Run Vivado synthesis/place/route on the exact Arty part and record worst slack,
    clocks, utilization, power estimate, and all CDC/timing exceptions.
-3. Add stereo time-multiplexing only if the measured 128-clock deadline closes.
-4. Capture FPGA results and compare bit-for-bit with the fixed model before any
+2. Establish a stereo resource strategy within the measured 170-DSP mono budget.
+3. Capture FPGA results and compare bit-for-bit with the fixed model before any
    analog loopback claim.
 
 The Arty is a development reference, not a production platform selection. A

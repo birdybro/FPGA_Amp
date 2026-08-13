@@ -128,6 +128,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   The measured schedule is 116 clocks, leaving 12 of 128 clocks, with zero test
   diagnostics. Hierarchical XC7 synthesis is 11,981 logic cells, 122 DSP48E1s,
   and 8 RAMB18E1s; Fmax remains unmeasured.
+- The corresponding complete 48 kHz stream matches 64 outputs spanning 1,024
+  nonlinear updates exactly with zero diagnostics. Structural synthesis is
+  16,993 logic cells, 170 DSP48E1s, and 8 RAMB18E1s, so the mono reference fits
+  the provisional A7-100T resource envelope but leaves only 70 of 240 DSPs.
 - A downstream, explicitly non-reference output guard now starts muted, applies
   a configurable sample-qualified linear ramp, bypasses exactly at unity, and
   synchronously clamps held output on a fault. Its warning-free RTL regression
@@ -206,6 +210,7 @@ make wide-solver-rtl               # exact 40-bit branch-current solver
 make halfband-rtl                  # exact 2x units and complete 16x streams
 make stream-rtl                    # complete 48 kHz reference stream
 make stream-factorized-rtl         # complete smooth-tube reference stream
+make stream-wide-rtl               # complete wide-state reference stream
 make mute-rtl                      # reset/ramp/fault output safety primitive
 make synth                         # generic XC7 structural estimate
 make synth-factorized              # factorized tube structural estimate
@@ -215,6 +220,7 @@ make synth-wide-network            # wide RHS/KCL structural estimates
 make synth-solver                  # hierarchical complete-solver estimate
 make synth-solver-factorized       # smooth-tube hierarchy/resource trade
 make synth-wide-solver             # wide-state hierarchy estimate
+make synth-stream-wide             # complete wide-state stream estimate
 make synth-halfband                # complete interpolator/decimator estimates
 make synth-stream                  # complete reference-stream estimate
 make synth-stream-factorized       # smooth-tube stream resource estimate

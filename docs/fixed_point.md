@@ -193,6 +193,14 @@ Hierarchical synthesis reports 11,981 logic cells, 122 DSP48E1s, and 8
 RAMB18E1s with zero structural check problems. This establishes numerical and
 cycle equivalence, not placed timing closure.
 
+The complete wide stream rounds solver Q8.32 output to external Q8.24 using the
+same add-half/arithmetic-shift rule before the existing bit-accurate decimator.
+It matches 64 fixed-composition outputs spanning 1,024 solver updates exactly,
+with zero rate-converter, numerical, LUT, convergence, deadline, or fallback
+events and a maximum 4.598 nA residual. Generic XC7 synthesis reports 16,993
+logic cells, 170 DSP48E1s, and 8 RAMB18E1s. This is now the best-accuracy
+complete RTL path, while the legacy modes remain reproducible for comparison.
+
 On the same 768,000-sample bipolar-click audit, late raw output residual falls
 from 5.375 mV RMS to 38.74 uV RMS and between-click residual falls from
 36.09 mV to 0.358 mV. Maximum fixed KCL residual falls from 0.334 uA to

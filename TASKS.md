@@ -15,9 +15,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   the factorized candidate fixes THD but retains -42.90 dB raw residual at
   5 mV. A -2.840 mV mean offset dominates it; mean-removed residual is -59.63 dB,
   phase error 0.00958°, and fundamental gain error +0.00026 dB.
-- [ ] Integrate the verified 116-clock wide solver into the complete 48 kHz
-  interpolation/decimation stream and measure exact outputs, alias behavior,
-  and hierarchical XC7 resources.
+- [ ] Capture longer wide-stream RTL sweeps and automate frequency, phase,
+  distortion, overload, and nonlinear alias measurements from RTL output.
 - [ ] Lengthen severe-overload recovery windows.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
 - [ ] Evaluate overload-specific solver strategies (adaptive Jacobian, parallel
@@ -125,6 +124,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Integrate the wide factorized solver; match all 19 persistent states and
   diagnostics across 512 sequential samples at 116 clocks. Synthesize the
   hierarchy at 11,981 LC / 122 DSP48E1 / 8 RAMB18E1.
+- [x] Integrate the wide solver into 16x interpolation/decimation; match 64
+  outputs / 1,024 solves exactly with zero diagnostics and synthesize at 16,993
+  LC / 170 DSP48E1 / 8 RAMB18E1.
 - [x] Implement and test a downstream Q0.16 output mute/ramp with reset-muted
   startup, symmetric rounding, exact-unity bypass, and synchronous fault clamp;
   synthesize at 171 XC7 logic cells, 2 DSP48E1s, and no block RAM.
@@ -166,7 +168,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - Measure Architecture A with a real JFET front end and at least two ADCs before
   freezing converter/gain/anti-alias parts.
 - Determine a credible stereo architecture; one solver uses 126/128 clocks and
-  cannot be time-multiplexed across two channels at the present throughput.
+  cannot be time-multiplexed across two channels at the present throughput. The
+  best-accuracy mono stream now uses 170/240 A7-100T DSPs, preventing duplication.
 - Select a first full integrated-amplifier topology only after V1 phono equivalence.
 
 ## Verification debt

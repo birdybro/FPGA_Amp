@@ -73,6 +73,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added the complete persistent wide factorized solver, exact 512-sample
   integration vectors, fallback/minimum-format diagnostics, and hierarchical
   synthesis support.
+- Added a complete wide 48 kHz reference stream with explicit Q8.32-to-Q8.24
+  conversion, exact end-to-end vectors, diagnostics, and synthesis target.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -188,6 +190,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
   residual, and diagnostic across 512 sequential samples. Measured latency is
   116 clocks with zero test events. XC7 structural synthesis reports 11,981
   logic cells, 122 DSP48E1s, and 8 RAMB18E1s.
+- The complete wide stream matches 64 outputs spanning 1,024 nonlinear updates
+  exactly with zero diagnostics. Structural synthesis reports 16,993 logic
+  cells, 170 DSP48E1s, and 8 RAMB18E1s; mono fits the A7-100T, naive stereo does
+  not fit its 240-DSP budget.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.

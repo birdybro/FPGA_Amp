@@ -112,6 +112,12 @@ and diagnostic handshakes. It matches 512 sequential fixed-model samples and
 therefore has a simulation-proven 12-clock margin. Named-part timing closure is
 still required before that margin is a hardware claim.
 
+The complete wide stream is also simulation-proven exact for 64 external
+outputs and 1,024 internal solves. Its 170-DSP structural result leaves no room
+for full channel duplication on the 240-DSP A7-100T. The 12-clock-per-solve
+margin is insufficient to serialize a second complete solver, so stereo now
+requires a finer-grained shared schedule or a larger reference part.
+
 ## Runtime observability contract
 
 The solver provides counters for rejected sample requests, processing deadline

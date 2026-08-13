@@ -192,6 +192,12 @@ values. The test has zero saturation, range, convergence, missed-request, or
 deadline events and maximum residual 4.705 nA. Generic XC7 synthesis reports
 11,981 logic cells, 122 DSPs, and 8 RAMB18s. Timing closure remains separate.
 
+Composition with the existing 16x interpolator and decimator also remains
+bit-exact: 64 external samples exercise 1,024 nonlinear updates with zero
+diagnostics and a 4.598 nA maximum residual. Structural synthesis measures
+16,993 logic cells, 170 DSP48E1s, and 8 RAMB18E1s. These counts fit mono on the
+provisional A7-100T but rule out simple stereo duplication on its 240 DSPs.
+
 At 20 mV, fixed 10%/1%/1 mV recovery becomes 8.466/14.918/18.297 ms versus
 analytical 8.465/14.918/18.280 ms. Legacy fixed needed 8.668/24.612/34.643 ms.
 Post-burst wide fixed/analytical RMS is 0.258 mV at both 20 mV and 0.5 V,
@@ -259,6 +265,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | wide chord RTL vs fixed | 1,024 randomized/directed vectors | bit-exact, latency 10; 1,701 LC / 9 DSP / 0 RAMB18 structural |
 | wide RHS/KCL RTL vs fixed | 1,024 vectors each | bit-exact, latency 2/10; KCL fallback/overflow/delayed-current coverage |
 | wide factorized solver RTL vs fixed | 512 persistent samples | bit-exact all state/diagnostics, latency 116; 11,981 LC / 122 DSP / 8 RAMB18 |
+| wide factorized stream vs fixed | 64 outputs / 1,024 updates | bit-exact, zero diagnostics; 16,993 LC / 170 DSP / 8 RAMB18 |
 | wide-state frequency response | 5 mV, 20 Hz--20 kHz | <=0.000196 dB gain / <=0.000982 degree phase; zero diagnostics |
 | wide-state overload/recovery | 20 mV--1.5 V bursts | clean through 0.5 V; convergence fails at 1 V; adaptive scale prevents arithmetic saturation |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |
