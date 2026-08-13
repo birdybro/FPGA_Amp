@@ -15,6 +15,7 @@ from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
 from fpga_amp.fixed_circuit import (  # noqa: E402
     FixedChordV1CircuitModel,
     FixedWideStateV1CircuitModel,
+    FixedWideStateTrapezoidalV1CircuitModel,
 )
 from fpga_amp.riaa import riaa_db  # noqa: E402
 from fpga_amp.resampling import (  # noqa: E402
@@ -305,6 +306,28 @@ class V1CircuitTests(unittest.TestCase):
             self.assertEqual(
                 capacitor.previous_voltage_q20, voltage_a - voltage_b
             )
+
+    def test_fixed_trapezoidal_current_history_is_explicit(self) -> None:
+        with self.assertRaisesRegex(ValueError, "explicit capacitor branches"):
+            FixedChordV1CircuitModel(integration_method="trapezoidal")
+        model = FixedWideStateTrapezoidalV1CircuitModel(
+            tube_lut=FixedFactorizedKoren12AX7()
+        )
+        self.assertEqual(model.integration_method, "trapezoidal")
+        self.assertTrue(
+            all(capacitor.previous_current_q44 == 0 for capacitor in model.capacitors)
+        )
+        for sample in (0.0, 0.005, -0.005, 0.0):
+            model.process_sample(sample)
+        self.assertTrue(any(model.max_abs_capacitor_current_q44))
+        self.assertEqual(model.saturation_count, 0)
+        self.assertEqual(model.nonconvergence_count, 0)
+        self.assertTrue(
+            all(
+                -(1 << 47) <= capacitor.previous_current_q44 < (1 << 47)
+                for capacitor in model.capacitors
+            )
+        )
 
 
 if __name__ == "__main__":

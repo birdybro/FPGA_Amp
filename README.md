@@ -35,14 +35,19 @@ The mono reference and complete 768 kHz circuit solver are operating:
 - A four-frequency SPICE transient sweep exposes backward-Euler's audio-band
   phase cost: at 100 Hz it is +0.00131 dB / +0.0244°, while at 20 kHz it is
   -0.0646 dB / +4.72°. Raising backward-Euler to 3.072 MHz still leaves 1.24°
-  at 20 kHz. An explicit floating-only 768 kHz trapezoidal candidate improves
-  10/20 kHz error to at most 0.00846 dB / 0.0582°, but is not yet the fixed or
-  RTL contract.
+  at 20 kHz. An explicit 768 kHz trapezoidal candidate improves 10/20 kHz
+  floating error to at most 0.00846 dB / 0.0582°.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both
   retain the modeled long recovery above 0.5 V; trapezoidal does not conceal or
   correct that reference behavior.
+- The bit-accurate trapezoidal candidate uses the wide Q28/Q32 node contract,
+  Q30 previous capacitor voltage, and explicit signed Q4.44 previous capacitor
+  current. Across six 5 mV points from 20 Hz through 20 kHz it stays within
+  0.000131 dB / 0.000784° of floating trapezoidal, with zero convergence,
+  saturation, range, or correction-fallback events. RTL and large-signal fixed
+  proof remain open; backward Euler is still the implemented RTL contract.
 - The 128 × 256 Q0.31 tube LUT has 0.139 µA mean and 9.33 µA worst absolute
   error in a 100,000-point full-range probe.
 - The complete bit-accurate three-pass chord candidate is -57.87 dB normalized
@@ -225,6 +230,7 @@ make accuracy-sweeps                # settled level and low-level LUT studies
 make factorized-study               # smooth 1-D/Hermite tube candidate
 make factorized-frequency           # 20 Hz-20 kHz fixed/analytical sweep
 make factorized-frequency-wide      # same sweep with wide-state candidate
+make factorized-frequency-trapezoidal # explicit-voltage/current-history candidate
 make state-drift                    # one-second silence/click state audit
 make state-wide                     # wide-state candidate on the same audit
 make state-wide-audio               # 5 mV/1 kHz legacy/wide A/B

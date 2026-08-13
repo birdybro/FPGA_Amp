@@ -219,6 +219,22 @@ saturation, or tube-range events across 683,520 samples. Raw residual is
 the 20 kHz mean-removed null is -68.37 dB. Frequency behavior passes the Python
 gate; overload and hardware scheduling remain open.
 
+The trapezoidal extension preserves the same node and Q30 voltage-history
+formats and adds one signed 48-bit Q4.44 current-history word per capacitor.
+For each branch it evaluates and commits exactly
+
+```text
+i[n] = round_Q4.44((2*C/dt) * (v[n] - v[n-1])) - i[n-1]
+```
+
+The same rounded expression is stamped into KCL, avoiding a model/commit
+mismatch. All current histories reset to zero at the quantized DC operating
+point. In the six-point 5 mV sweep, the largest stored-current magnitude is
+2.25 uA, and fixed-versus-floating trapezoidal gain/phase error remains within
+0.000131 dB / 0.000784 degrees with zero fixed diagnostics. Q4.44 deliberately
+retains the existing residual-current resolution; large-signal range and RTL
+storage/schedule costs are not yet accepted.
+
 The overload gate passes only through the measured 0.5 V level. At 20 mV, the
 candidate matches analytical 10%/1% recovery within about 0.002/0.000 ms and
 reduces post-burst fixed/analytical RMS from 5.80 mV legacy to 0.258 mV. At

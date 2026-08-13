@@ -71,9 +71,7 @@ icap[n] = Gc*(vcap[n] - vcap[n-1]) - icap[n-1]
 
 At 768 kHz it measures +0.005806 dB / +0.03900° at 10 kHz and -0.008455 dB /
 +0.05817° at 20 kHz, with no failed solve. It is a candidate rather than a
-downstream change: trapezoidal overload stability, fixed state/current formats,
-coefficient widths, solver residuals, and a 128-clock RTL schedule remain to be
-proven. Backward Euler remains the bit-accurate fixed/RTL behavior.
+reference-circuit change. Backward Euler remains the implemented RTL behavior.
 
 The first trapezoidal large-signal gate applies 5 ms, 1 kHz bursts inside a
 100 ms trajectory. Both floating methods remain finite and Newton-convergent at
@@ -86,10 +84,20 @@ behavior rather than a backward-Euler artifact. The two methods differ by
 4.31 mV RMS over the final 10 ms only in the 1.5 V case; lower tested levels
 are within 0.631 mV.
 
-This clears only floating numerical stability. The extra previous capacitor-
-current state needs measured physical range, an explicit fixed format, reset
-semantics, branch-current rounding analysis, and scheduled RTL before the
-candidate can replace backward Euler downstream.
+The first downstream fixed candidate retains Q30 previous branch voltage and
+adds a signed Q4.44 previous-current state for every capacitor. Conductance is
+`2*C/dt`; KCL and state commit use the identical rounded Q4.44 branch product.
+Current history initializes to zero at the quantized DC operating point, and
+the implementation rejects trapezoidal selection through the legacy implicit-
+history path.
+
+Across the six-frequency 5 mV sweep, fixed trapezoidal differs from floating
+trapezoidal by at most 0.000131 dB and 0.000784 degrees. It records no residual-
+limit, saturation, tube-range, or correction-fallback events. Raw residual at
+20 kHz is -43.99 dB because of a -0.257 mV DC difference; the explicitly
+reported mean-removed residual is -68.15 dB. Nominal capacitor-current peaks
+remain below 2.25 uA in this sweep. This clears nominal fixed state/rounding,
+not overload range or RTL scheduling.
 
 Three nonlinear solution forms have now been measured. Full Newton with a live
 Jacobian is the float reference and needs at most two correction passes for the
@@ -337,6 +345,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | 768 kHz backward-Euler integration | four SPICE transients, 100 Hz--20 kHz | <=0.0646 dB gain; phase grows to 4.72 degrees |
 | 768 kHz trapezoidal float candidate | 10/20 kHz SPICE transients | <=0.00846 dB gain / <=0.0582 degree phase; downstream proof open |
 | trapezoidal float overload stability | 20 mV--1.5 V, 100 ms records | finite/convergent; clean recovery matches BE; shared long memory above 0.5 V |
+| fixed trapezoidal state | six 5 mV points, 20 Hz--20 kHz | <=0.000131 dB / <=0.000784 degree vs float trapezoidal; zero diagnostics; RTL open |
 | chord vs full Newton | -137.28 dB normalized residual, 3-pass multitone | float architecture candidate |
 | fixed tube LUT | 0.139 µA mean / 9.33 µA worst full range | measured |
 | fixed factorized tube | 10.5 nA mean / 51.8 nA worst; 233,472 raw table bits | measured; standalone RTL passing |

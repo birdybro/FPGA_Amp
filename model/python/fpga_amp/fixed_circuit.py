@@ -72,6 +72,7 @@ class FixedCapacitor:
     node_b: int | None
     conductance_q47: int
     previous_voltage_q20: int
+    previous_current_q44: int = 0
 
 
 class FixedChordV1CircuitModel:
@@ -89,6 +90,7 @@ class FixedChordV1CircuitModel:
     CONDUCTANCE_FRACTIONAL_BITS = 47
     RESIDUAL_FRACTIONAL_BITS = 44
     CAPACITOR_STATE_FRACTIONAL_BITS = 20
+    CAPACITOR_CURRENT_WIDTH = 48
 
     def __init__(
         self,
@@ -103,8 +105,10 @@ class FixedChordV1CircuitModel:
         capacitor_state_fractional_bits: int | None = None,
         branch_capacitor_stamp: bool = False,
         adaptive_correction_scaling: bool = False,
+        integration_method: str = "backward_euler",
     ):
         self.sample_rate_hz = float(sample_rate_hz)
+        self.integration_method = integration_method
         self.VOLTAGE_FRACTIONAL_BITS = self.VOLTAGE_FRACTIONAL_BITS.copy()
         if voltage_fractional_bits is not None:
             if len(voltage_fractional_bits) != len(self.VOLTAGE_FRACTIONAL_BITS):
@@ -121,6 +125,10 @@ class FixedChordV1CircuitModel:
                 capacitor_state_fractional_bits
             )
         self.branch_capacitor_stamp = bool(branch_capacitor_stamp)
+        if integration_method == "trapezoidal" and not self.branch_capacitor_stamp:
+            raise ValueError(
+                "fixed trapezoidal integration requires explicit capacitor branches"
+            )
         self.adaptive_correction_scaling = bool(adaptive_correction_scaling)
         self.inverse_fractional_bits = int(inverse_fractional_bits)
         if isinstance(correction_residual_fractional_bits, Sequence):
@@ -134,7 +142,9 @@ class FixedChordV1CircuitModel:
                 int(correction_residual_fractional_bits),
             )
         self.correction_residual_width = int(correction_residual_width)
-        self.reference = V1CircuitModel(sample_rate_hz)
+        self.reference = V1CircuitModel(
+            sample_rate_hz, integration_method=integration_method
+        )
         self.node = self.reference.node
         self.node_count = self.reference.node_count
         if tube_lut is None:
@@ -147,6 +157,7 @@ class FixedChordV1CircuitModel:
             sample_rate_hz,
             tube=LUTTubeAdapter(self.tube_lut),  # type: ignore[arg-type]
             dc_tolerance_a=1.1e-9,
+            integration_method=integration_method,
         )
 
         dynamic_matrix, _ = self.reference._linear_system(0.0, dynamic=True)
@@ -180,6 +191,7 @@ class FixedChordV1CircuitModel:
                 round(
                     branch.capacitance_f
                     * self.sample_rate_hz
+                    * (2.0 if integration_method == "trapezoidal" else 1.0)
                     * (1 << self.CONDUCTANCE_FRACTIONAL_BITS)
                 )
             )
@@ -197,11 +209,14 @@ class FixedChordV1CircuitModel:
                     previous_q20,
                 )
             )
+        self.max_abs_capacitor_current_q44 = [0] * len(self.capacitors)
         self.saturation_count = 0
         if self.branch_capacitor_stamp:
             # Make every companion branch initially quiescent in the candidate
             # fixed domain.  This avoids importing float-state subtraction error.
             self._update_capacitors()
+            for capacitor in self.capacitors:
+                capacitor.previous_current_q44 = 0
         self.nonconvergence_count = 0
         self.lut_clip_count = 0
         self.max_iterations_observed = 0
@@ -314,6 +329,8 @@ class FixedChordV1CircuitModel:
                     delta_voltage,
                     self.CAPACITOR_STATE_FRACTIONAL_BITS,
                 )
+                if self.integration_method == "trapezoidal":
+                    branch_current -= capacitor.previous_current_q44
                 if capacitor.node_a is not None:
                     residual[capacitor.node_a] += branch_current
                 if capacitor.node_b is not None:
@@ -398,7 +415,7 @@ class FixedChordV1CircuitModel:
         return selected
 
     def _update_capacitors(self) -> None:
-        for capacitor in self.capacitors:
+        for capacitor_index, capacitor in enumerate(self.capacitors):
             voltage_a = 0
             voltage_b = 0
             if capacitor.node_a is not None:
@@ -416,6 +433,21 @@ class FixedChordV1CircuitModel:
             updated, clipped = saturate_signed(
                 voltage_a - voltage_b, self.VOLTAGE_WIDTH
             )
+            if self.integration_method == "trapezoidal":
+                branch_current = self._linear_product_current_q44(
+                    capacitor.conductance_q47,
+                    updated - capacitor.previous_voltage_q20,
+                    self.CAPACITOR_STATE_FRACTIONAL_BITS,
+                ) - capacitor.previous_current_q44
+                branch_current, current_clipped = saturate_signed(
+                    branch_current, self.CAPACITOR_CURRENT_WIDTH
+                )
+                capacitor.previous_current_q44 = branch_current
+                self.max_abs_capacitor_current_q44[capacitor_index] = max(
+                    self.max_abs_capacitor_current_q44[capacitor_index],
+                    abs(branch_current),
+                )
+                self.saturation_count += int(current_clipped)
             capacitor.previous_voltage_q20 = updated
             self.saturation_count += int(clipped)
 
@@ -486,4 +518,12 @@ class FixedWideStateV1CircuitModel(FixedChordV1CircuitModel):
         # resolution needed by the 2.21 Mohm output node.
         kwargs.setdefault("correction_residual_fractional_bits", (30, 34, 40))
         kwargs.setdefault("adaptive_correction_scaling", True)
+        super().__init__(*args, **kwargs)
+
+
+class FixedWideStateTrapezoidalV1CircuitModel(FixedWideStateV1CircuitModel):
+    """Wide factorized candidate with Q4.44 trapezoidal current history."""
+
+    def __init__(self, *args: object, **kwargs: object):
+        kwargs.setdefault("integration_method", "trapezoidal")
         super().__init__(*args, **kwargs)

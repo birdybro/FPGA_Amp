@@ -11,11 +11,12 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
-- [ ] Evaluate trapezoidal integration as the next fixed/RTL state contract.
-  Floating SPICE error is <=0.00846 dB / <=0.0582 degrees at 10/20 kHz versus
-  backward Euler's 0.0646 dB / 4.72 degrees at 20 kHz, and floating overload is
-  stable through 1.5 V. Previous-current ranges/formats, coefficient bounds,
-  reset semantics, fixed equivalence, and cycle cost remain open.
+- [ ] Implement and schedule trapezoidal integration as the next RTL state
+  contract. Floating SPICE error is <=0.00846 dB / <=0.0582 degrees at 10/20
+  kHz, and the Q30-voltage/Q4.44-current bit-accurate candidate is within
+  0.000131 dB / 0.000784 degrees of floating trapezoidal across 20 Hz--20 kHz.
+  Large-signal fixed ranges, reset vectors, coefficient bounds, and cycle cost
+  remain open before RTL adoption.
 - [ ] Lengthen severe-overload recovery beyond the new 85 ms post-burst window;
   neither analytical nor RTL trajectories reach 10% nominal output at >=0.5 V.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
@@ -44,6 +45,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   trapezoidal candidate at <=0.0582 degrees for 10/20 kHz.
 - [x] Compare 100 ms backward-Euler/trapezoidal overload trajectories through
   1.5 V; prove finite convergence and matched clean-region recovery.
+- [x] Implement explicit fixed trapezoidal capacitor branches with Q30 voltage
+  and signed Q4.44 previous-current history; pass the six-frequency nominal
+  sweep with zero diagnostics.
 - [x] Select, document, and version the Kennedy 1998 two-stage passive-RIAA circuit.
 - [x] Implement AT-VM95E R/L/47.5 kΩ/150 pF cartridge loading.
 - [x] Build ngspice DC, 10 Hz–100 kHz AC, transient, and 1 kHz H1–H10 level sweeps.
@@ -155,7 +159,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - Python backward-Euler MNA versus ngspice ranges from -66.42 dB raw residual at
   100 Hz to -21.50 dB at 20 kHz. The 20 kHz gain error is only -0.0646 dB, but
   phase error is +4.72 degrees. Floating trapezoidal reduces that phase error to
-  +0.0582 degrees; fixed/RTL adoption is not yet justified.
+  +0.0582 degrees. The fixed trapezoidal model is now nominally bounded against
+  that floating candidate; large-signal and RTL adoption are not yet justified.
 - The frozen historical circuit is -0.919 dB from ideal RIAA at its worst audio-
   band point. This is reference behavior, not an implementation defect.
 - The explicit 2-D-LUT RTL mode produces 0.0733% THD versus 0.0191% analytical

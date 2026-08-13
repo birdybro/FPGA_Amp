@@ -93,6 +93,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
   study, and an explicit floating trapezoidal capacitor-companion candidate.
 - Added a 100 ms floating backward-Euler/trapezoidal overload stability study
   spanning 20 mV through 1.5 V peak.
+- Added an explicit bit-accurate trapezoidal circuit candidate with Q30 previous
+  capacitor voltage, signed Q4.44 previous current, identical rounded KCL/state
+  branch arithmetic, nominal-range instrumentation, and a gated six-frequency
+  comparison against floating trapezoidal.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -241,6 +245,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Trapezoidal Newton solves remain finite and convergent through 1.5 V / 26.4 uA
   grid current. At 20 mV, recovery thresholds match backward Euler within
   2.6 us; both methods preserve overload memory beyond 85 ms above 0.5 V.
+- Fixed trapezoidal gain/phase error against its floating counterpart is at most
+  0.000131 dB / 0.000784 degrees across six 5 mV points from 20 Hz to 20 kHz.
+  No convergence, saturation, range, or correction-fallback diagnostics occur;
+  maximum observed nominal capacitor history current is 2.25 uA.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.
