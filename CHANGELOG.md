@@ -6,6 +6,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Extended overload capture to the banked terminal RTL and added coherent
+  H1--H10, clipping-asymmetry, grid-current, recovery, and direct analytical
+  null metrics. The 384,000-update campaign is full-state bit-exact with zero
+  diagnostics through 1.5 V peak.
 - Integrated the backward-Euler banked terminal solver into the complete mono
   48→768→48 kHz stream. The fixed composition and RTL match all 64 external
   outputs across 1,024 nonlinear updates at the measured 127-clock solver

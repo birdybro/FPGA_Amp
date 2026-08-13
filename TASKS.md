@@ -21,14 +21,17 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   cuts 1.0/1.5 V burst RMS to 4.895/6.817 mV at 127 clocks. Seek further
   contraction without consuming the final schedule clock; trapezoidal terminal
   current-history commit remains open.
-- [ ] Extend integrated-solver RTL capture beyond nominal frequency response to
-  level-dependent harmonics, clipping asymmetry, and recovery metrics.
 - [ ] Separate folded nonlinear harmonics from preexisting in-band solver energy
   in the complete stream; the present full-tube 3 kHz bin is intentionally not
   reported as pure 45 kHz-to-3 kHz aliasing.
 
 ## Completed this milestone
 
+- [x] Capture the banked terminal RTL through 384,000 control/overload updates
+  at 20 mV, 0.5 V, 1.0 V, and 1.5 V. Preserve H1--H10, clipping asymmetry,
+  grid current, recovery, and null metrics; prove full-state fixed equivalence
+  and zero diagnostics while matching analytical burst THD within 0.00122
+  percentage points and phase within 0.00221 degrees.
 - [x] Carry the banked terminal solver through the complete mono resampling
   stream. Match 64 external outputs / 1,024 nonlinear updates exactly at the
   measured 127-clock solver latency with zero diagnostics, and synthesize the

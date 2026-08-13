@@ -141,6 +141,15 @@ The mono reference and complete 768 kHz circuit solver are operating:
   diagnostics at a measured 127-clock solver latency. Full-hierarchy XC7
   synthesis reports 18,466 logic cells, 168 DSP48E1s, and 8 RAMB18E1s; the
   one-clock schedule margin is not a timing-closure claim.
+- A captured 100 ms RTL campaign now covers 20 mV, 0.5 V, 1.0 V, and 1.5 V
+  overload bursts—384,000 updates including the control trajectory. All fixed
+  state is exact and all diagnostics remain zero. Over the final three burst
+  cycles, H2--H10 content grows from 0.903% to 25.213%, stage-two grid current
+  reaches 26.267 µA, and peak asymmetry changes from +2.659 to -0.541 dB.
+  Against analytical Newton, terminal-RTL burst RMS error is 0.288, 1.237,
+  4.895, and 6.817 mV; harmonic-window phase error stays within 0.00221° and
+  H2--H10 ratio within 0.00122 percentage points. This transient-window
+  spectral fit is not mislabeled as settled continuous-drive THD.
 - Moving only the shallow trapezoidal threshold from -2.50 to -2.75 V prevents
   bank activation at 0.5 V, preserves zero 1.0 V failures, and reduces final
   10 ms mean error from 1.042 to 0.537 mV with the former 128-point grid-current
@@ -377,6 +386,7 @@ make trapezoidal-rtl-frequency      # captured selectable-integrator sweep
 make trapezoidal-rtl-recovery       # accepted 0.5 V long-recovery capture
 make trapezoidal-stream-rtl-frequency # captured complete 48 kHz sweep
 make wide-rtl-overload              # captured 100 ms overload/recovery sweep
+make terminal-banked-rtl-metrics    # terminal H1-H10/clipping/recovery capture
 make wide-stream-rtl-alias          # captured nonlinear decimation-alias test
 make overload-study                 # grid conduction, clipping, recovery
 make overload-trapezoidal           # fixed/float trapezoidal burst comparison

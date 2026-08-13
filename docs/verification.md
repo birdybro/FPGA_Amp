@@ -45,6 +45,7 @@ scripts/sweep_wide_solver_rtl.py --trapezoidal  captured integrator sweep
 scripts/characterize_trapezoidal_solver_rtl_recovery.py  accepted long recovery
 scripts/sweep_wide_stream_rtl.py --trapezoidal  captured complete 48 kHz sweep
 scripts/characterize_wide_solver_rtl_overload.py  captured 100 ms burst/recovery
+scripts/characterize_wide_solver_rtl_overload.py --banked --terminal-correction  terminal H1-H10/clipping/recovery
 scripts/characterize_wide_stream_rtl_alias.py     captured cubic alias/full stream
 scripts/characterize_overload_recovery.py     grid conduction and recovery
 scripts/characterize_overload_recovery.py --trapezoidal  fixed integrator overload
@@ -107,6 +108,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | banked correction-count study | 3--6 passes, 100 ms, 1.0/1.5 V | fourth improves burst 5.65--9.02 dB; six-pass residual <=0.207 uA; fourth projects to 145 clocks |
 | backward-Euler terminal correction RTL | 512 sequential plus 18,432 overload updates | every state/diagnostic exact, constant 127 clocks, zero events; output-exact to four-pass |
 | backward-Euler terminal correction synthesis | Yosys 0.66 structural | 13,296 LC, 120 DSP48E1, 8 RAMB18E1; no Fmax claim |
+| captured banked terminal RTL overload | 384,000 updates; 20 mV/0.5/1.0/1.5 V bursts | full state exact, zero diagnostics; burst RMS error 0.288/1.237/4.895/6.817 mV; H2--H10 ratio error <=0.00122 percentage points |
 | banked terminal 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 127-clock solver |
 | banked terminal stream synthesis | Yosys 0.66 structural | 18,466 LC, 168 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | trapezoidal 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 116-clock solver |

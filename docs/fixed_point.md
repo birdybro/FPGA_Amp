@@ -358,6 +358,15 @@ every persistent state and diagnostic word. This is an optional FPGA numerical
 implementation choice; it changes neither the frozen physical circuit nor the
 analytical tube equations.
 
+A longer captured RTL campaign covers a nominal control plus 20 mV, 0.5 V,
+1.0 V, and 1.5 V five-cycle bursts, totaling 384,000 updates. Every node,
+capacitor state, output, and diagnostic matches fixed Python. Direct analytical
+burst RMS errors are 0.288, 1.237, 4.895, and 6.817 mV. The final-three-cycle
+H2--H10 ratios are 0.903%, 3.274%, 10.928%, and 25.213%; their RTL/analytical
+difference stays within 0.00122 percentage points and fundamental phase within
+0.00221 degrees. The window includes physical burst transients and is therefore
+not claimed as settled continuous-drive THD.
+
 `v1_solver_mono_wide.sv` composes those blocks with the factorized tube and
 matches 512 sequential fixed-Python samples exactly across all nine nodes, ten
 capacitor histories, output, residual, and cumulative diagnostics. The vector
