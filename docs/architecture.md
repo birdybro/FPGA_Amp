@@ -106,10 +106,11 @@ higher-throughput shared architecture.
 
 The replacement wide-state arithmetic keeps the same ten-clock correction and
 ten-clock ordinary KCL interfaces. Direct capacitor branches reduce RHS setup
-from 12 clocks to 2, so an otherwise unchanged controller has a 116-clock
-projection. This is not yet a measured solver latency: persistent Q30 history
-commit, Q28/Q32 tube-coordinate conversion, and all diagnostic handshakes must
-pass integrated equivalence before the 12-clock margin is accepted.
+from 12 clocks to 2. The integrated factorized controller measures 116 clocks,
+including persistent Q30 history commit, Q28/Q32 tube-coordinate conversion,
+and diagnostic handshakes. It matches 512 sequential fixed-model samples and
+therefore has a simulation-proven 12-clock margin. Named-part timing closure is
+still required before that margin is a hardware claim.
 
 ## Runtime observability contract
 

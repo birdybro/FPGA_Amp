@@ -162,7 +162,7 @@ vectors exactly, including 95 vectors with at least one forced output
 saturation, at ten clocks. Generic XC7 synthesis reports 1,701 estimated logic
 cells, 9 DSP48E1s, and no block RAM. An earlier arbitrary runtime shifter
 synthesized to 5,531 cells and was rejected; that experiment did not change the
-numerical formats. Complete wide-solver integration is still open.
+numerical formats.
 
 The wide network uses the 41-bit measured bound of the static resistor Q0.47
 matrix rather than carrying unused 48-bit sign extension into every multiply.
@@ -180,8 +180,18 @@ arriving zero through eleven clocks after request. Its ordinary latency is ten
 clocks; a tube current arriving after the ninth calculation clock stalls the
 finish rather than using stale data. Generic XC7 synthesis is 31 logic cells /
 4 DSP48E1s for RHS and 7,804 logic cells / 72 DSP48E1s for KCL, with no block
-RAM. These are isolated structural results; full-solver equivalence and timing
-remain open.
+RAM.
+
+`v1_solver_mono_wide.sv` composes those blocks with the factorized tube and
+matches 512 sequential fixed-Python samples exactly across all nine nodes, ten
+capacitor histories, output, residual, and cumulative diagnostics. The vector
+set covers silence, tone, multitone, bounded noise, and bipolar 100 mV clicks.
+The scheduler passes Q30, Q34, and Q40 in the intended order; a regression found
+and fixed an initial handoff bug that had latched the previous pass's format.
+Measured latency is 116 clocks, leaving 12 clocks at 98.304 MHz / 768 kHz.
+Hierarchical synthesis reports 11,981 logic cells, 122 DSP48E1s, and 8
+RAMB18E1s with zero structural check problems. This establishes numerical and
+cycle equivalence, not placed timing closure.
 
 On the same 768,000-sample bipolar-click audit, late raw output residual falls
 from 5.375 mV RMS to 38.74 uV RMS and between-click residual falls from
@@ -189,10 +199,9 @@ from 5.375 mV RMS to 38.74 uV RMS and between-click residual falls from
 5.01 nA with zero diagnostic events. At 5 mV/1 kHz, raw null improves from
 -42.90 to -63.83 dB, phase error from +0.00958 to -0.00019 degrees, and gain
 error from +0.000257 to -0.000058 dB. Candidate THD is 0.01937% versus
-0.01906% analytical. This is a successful Python architecture candidate. Only
-its chord-correction subsystem currently has bit-exact RTL and a structural
-resource measurement; the complete wide solver has no synthesis/cycle-cost
-claim.
+0.01906% analytical. This is a successful architecture candidate whose complete
+factorized solver now has bit-exact RTL and structural resource and cycle
+measurements. Float/SPICE error remains separately characterized above.
 
 The six-point 5 mV sweep bounds the wide candidate to 0.000196 dB gain error
 and 0.000982 degrees phase error from 20 Hz through 20 kHz, with zero residual,

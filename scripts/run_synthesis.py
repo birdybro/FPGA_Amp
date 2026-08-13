@@ -39,6 +39,7 @@ def main() -> int:
             "network_kcl_v1_wide",
             "v1_solver_mono",
             "v1_solver_mono_factorized",
+            "v1_solver_mono_wide",
             "halfband_interpolator_2x",
             "halfband_decimator_2x",
             "interpolator_16x",
@@ -81,6 +82,13 @@ def main() -> int:
             "rtl/circuit/network_kcl_v1.sv",
             "rtl/circuit/chord_corrector_v1.sv",
             "rtl/phono/v1_solver_mono.sv",
+        ],
+        "v1_solver_mono_wide": [
+            "rtl/tube/triode_12ax7_factorized.sv",
+            "rtl/circuit/network_rhs_v1_wide.sv",
+            "rtl/circuit/network_kcl_v1_wide.sv",
+            "rtl/circuit/chord_corrector_v1_wide.sv",
+            "rtl/phono/v1_solver_mono_wide.sv",
         ],
         "halfband_interpolator_2x": [
             "rtl/filters/halfband_interpolator_2x.sv"

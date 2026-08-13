@@ -73,8 +73,16 @@ The KCL result is after narrowing the generated static Q0.47 matrix to its
 proven signed 41-bit bound and capacitor conductances to signed 47 bits. The
 unbounded-width first pass used 99 DSPs; it was rejected. The selected KCL
 structural check has zero problems and 11 primitive-resize warnings. RHS has
-zero synthesis warnings. Full hierarchy optimization may change non-additive
-logic counts, so no complete-solver resource sum or Fmax is claimed yet.
+zero synthesis warnings. Subsystem counts were not added to form a hierarchy
+claim.
+
+Hierarchical synthesis of the integrated wide factorized solver measures 11,981
+logic cells, 1,366 FDRE plus 282 FDSE, 122 DSP48E1s, and 8 RAMB18E1s. Structural
+check reports zero problems and 55 techmap resize warnings. Its 116-clock
+simulation schedule leaves 12 clocks, versus two for the legacy hierarchy, but
+no named-part Fmax or routing closure is claimed. The solver consumes 50.8% of
+the Arty A7-100T's DSP count before resampling; this materially constrains stereo
+duplication and makes a complete-stream resource measurement mandatory.
 
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.
@@ -85,12 +93,11 @@ without an end-to-end error/resource comparison.
 
 ## Required next implementation evidence
 
-1. Synthesize KCL/network arithmetic and integrate the measured three-pass chord controller.
-2. Demonstrate the complete mono 768 kHz cycle schedule at 98.304 MHz.
-3. Run Vivado synthesis/place/route on the exact Arty part and record worst slack,
+1. Integrate and synthesize the complete wide solver plus rate-conversion stream.
+2. Run Vivado synthesis/place/route on the exact Arty part and record worst slack,
    clocks, utilization, power estimate, and all CDC/timing exceptions.
-4. Add stereo time-multiplexing only if the measured 128-clock deadline closes.
-5. Capture FPGA results and compare bit-for-bit with the fixed model before any
+3. Add stereo time-multiplexing only if the measured 128-clock deadline closes.
+4. Capture FPGA results and compare bit-for-bit with the fixed model before any
    analog loopback claim.
 
 The Arty is a development reference, not a production platform selection. A

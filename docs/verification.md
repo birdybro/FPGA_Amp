@@ -64,6 +64,8 @@ scripts/run_synthesis.py            XC7 structural resource report
 | wide chord RTL vs fixed correction | 1,024 deterministic vectors | bit-exact, latency 10, 95 saturation vectors; Q30/Q34/Q40 |
 | wide RHS RTL vs fixed network | 1,024 deterministic vectors | bit-exact, latency 2 |
 | wide KCL RTL vs fixed network | 1,024 deterministic vectors | bit-exact, latency 10; 48 fallback / 18 overflow vectors; delayed tube current |
+| wide factorized solver RTL vs fixed | 512 sequential samples | bit-exact all 19 states and diagnostics, latency 116, zero events |
+| wide factorized solver synthesis | Yosys 0.66 structural | 11,981 LC, 122 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | RHS RTL vs fixed network | 1,024 deterministic vectors | bit-exact, latency 12 |
 | KCL RTL vs fixed residual | 1,024 deterministic vectors | bit-exact, latency 10, 18 saturation vectors |
 | full mono RTL vs fixed circuit | 512 sequential samples | bit-exact all state/diagnostics, latency 126 |

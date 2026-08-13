@@ -2,7 +2,7 @@ PYTHON ?= python3
 NGSPICE ?= ngspice
 VERILATOR ?= verilator
 
-.PHONY: all reference analysis accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide state-drift state-wide state-wide-audio overload-study overload-wide overload-iterations precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl solver-rtl solver-factorized-rtl halfband-rtl stream-rtl stream-factorized-rtl mute-rtl lint synth synth-factorized synth-chord synth-wide-chord synth-network synth-wide-network synth-solver synth-solver-factorized synth-halfband synth-stream synth-stream-factorized synth-mute clean tools
+.PHONY: all reference analysis accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide state-drift state-wide state-wide-audio overload-study overload-wide overload-iterations precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl mute-rtl lint synth synth-factorized synth-chord synth-wide-chord synth-network synth-wide-network synth-solver synth-solver-factorized synth-wide-solver synth-halfband synth-stream synth-stream-factorized synth-mute clean tools
 
 all: reference test
 
@@ -85,6 +85,9 @@ solver-rtl:
 solver-factorized-rtl:
 	$(PYTHON) scripts/run_solver_rtl.py --verilator $(VERILATOR) --factorized
 
+wide-solver-rtl:
+	$(PYTHON) scripts/run_wide_solver_rtl.py --verilator $(VERILATOR)
+
 halfband-rtl:
 	$(PYTHON) scripts/run_halfband_rtl.py --verilator $(VERILATOR)
 
@@ -137,6 +140,13 @@ synth-solver-factorized:
 	$(PYTHON) scripts/generate_chord_vectors.py
 	$(PYTHON) scripts/run_synthesis.py --top v1_solver_mono_factorized
 
+synth-wide-solver:
+	$(PYTHON) scripts/generate_wide_network_vectors.py
+	$(PYTHON) scripts/generate_wide_chord_vectors.py
+	$(PYTHON) scripts/generate_factorized_tube.py
+	$(PYTHON) scripts/generate_wide_solver_vectors.py
+	$(PYTHON) scripts/run_synthesis.py --top v1_solver_mono_wide
+
 synth-halfband:
 	$(PYTHON) scripts/generate_halfband_rtl_vectors.py
 	$(PYTHON) scripts/run_synthesis.py --top interpolator_16x
@@ -162,7 +172,7 @@ synth-mute:
 python-test:
 	$(PYTHON) -m unittest discover -s model/tests -v
 
-test: python-test rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl solver-rtl solver-factorized-rtl halfband-rtl stream-rtl stream-factorized-rtl mute-rtl
+test: python-test rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl mute-rtl
 
 tools:
 	bash scripts/bootstrap_tools.sh

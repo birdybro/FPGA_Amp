@@ -178,17 +178,19 @@ The standalone wide correction block matches 1,024 exact vectors at ten clocks,
 including 95 output-saturation vectors. Its constant-format Q30/Q34/Q40 scaling
 synthesizes to 1,701 generic XC7 logic cells and nine DSP48E1s. A fully variable
 shift version required 5,531 cells and was rejected. The branch-current KCL and
-complete scheduler remain to be implemented before this is an accepted RTL
-state contract.
+complete scheduler are integrated and verified below.
 
 The branch-current network is now independently implemented. Its two-clock RHS
 and ten-clock KCL blocks each match 1,024 exact vectors. The KCL regression
 covers all three correction formats, 48 deliberate format fallbacks, 18
 minimum-format overflows, and delayed tube-current arrival. Static-matrix and
 capacitor coefficient widths were proven from generated bounds before synthesis;
-the resulting KCL uses 7,804 generic XC7 logic cells and 72 DSP48E1s. This
-closes the individual arithmetic block but not persistent-state solver
-equivalence.
+the resulting KCL uses 7,804 generic XC7 logic cells and 72 DSP48E1s. The
+integrated persistent-state solver then matches 512 sequential samples exactly
+at 116 clocks, including all node, capacitor, output, residual, and diagnostic
+values. The test has zero saturation, range, convergence, missed-request, or
+deadline events and maximum residual 4.705 nA. Generic XC7 synthesis reports
+11,981 logic cells, 122 DSPs, and 8 RAMB18s. Timing closure remains separate.
 
 At 20 mV, fixed 10%/1%/1 mV recovery becomes 8.466/14.918/18.297 ms versus
 analytical 8.465/14.918/18.280 ms. Legacy fixed needed 8.668/24.612/34.643 ms.
@@ -256,6 +258,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | wide-state Python candidate | same 1 s click audit; 5 mV/1 kHz | 38.74 uV late residual; -63.83 dB nominal raw null; complete-RTL proof open |
 | wide chord RTL vs fixed | 1,024 randomized/directed vectors | bit-exact, latency 10; 1,701 LC / 9 DSP / 0 RAMB18 structural |
 | wide RHS/KCL RTL vs fixed | 1,024 vectors each | bit-exact, latency 2/10; KCL fallback/overflow/delayed-current coverage |
+| wide factorized solver RTL vs fixed | 512 persistent samples | bit-exact all state/diagnostics, latency 116; 11,981 LC / 122 DSP / 8 RAMB18 |
 | wide-state frequency response | 5 mV, 20 Hz--20 kHz | <=0.000196 dB gain / <=0.000982 degree phase; zero diagnostics |
 | wide-state overload/recovery | 20 mV--1.5 V bursts | clean through 0.5 V; convergence fails at 1 V; adaptive scale prevents arithmetic saturation |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |

@@ -122,8 +122,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   two-clock RHS omits capacitor history by design; the ten-clock KCL evaluates
   all ten Q30 branch differences, tests delayed tube-current handshakes, and
   globally selects correction precision. Structural XC7 results are 31 logic
-  cells / 4 DSPs for RHS and 7,804 logic cells / 72 DSPs for KCL. Full solver
-  integration remains the acceptance boundary.
+  cells / 4 DSPs for RHS and 7,804 logic cells / 72 DSPs for KCL.
+- The integrated wide factorized solver matches Python bit-for-bit for 512
+  sequential samples, including every node, capacitor, residual, and diagnostic.
+  The measured schedule is 116 clocks, leaving 12 of 128 clocks, with zero test
+  diagnostics. Hierarchical XC7 synthesis is 11,981 logic cells, 122 DSP48E1s,
+  and 8 RAMB18E1s; Fmax remains unmeasured.
 - A downstream, explicitly non-reference output guard now starts muted, applies
   a configurable sample-qualified linear ramp, bypasses exactly at unity, and
   synchronously clamps held output on a fault. Its warning-free RTL regression
@@ -198,6 +202,7 @@ make network-rtl                   # RHS/KCL bit-exact unit tests
 make wide-network-rtl              # branch-current RHS/KCL exact tests
 make solver-rtl                    # 512-sample persistent-state integration
 make solver-factorized-rtl         # exact smooth-tube solver integration
+make wide-solver-rtl               # exact 40-bit branch-current solver
 make halfband-rtl                  # exact 2x units and complete 16x streams
 make stream-rtl                    # complete 48 kHz reference stream
 make stream-factorized-rtl         # complete smooth-tube reference stream
@@ -209,6 +214,7 @@ make synth-wide-chord              # wide-state corrector structural estimate
 make synth-wide-network            # wide RHS/KCL structural estimates
 make synth-solver                  # hierarchical complete-solver estimate
 make synth-solver-factorized       # smooth-tube hierarchy/resource trade
+make synth-wide-solver             # wide-state hierarchy estimate
 make synth-halfband                # complete interpolator/decimator estimates
 make synth-stream                  # complete reference-stream estimate
 make synth-stream-factorized       # smooth-tube stream resource estimate

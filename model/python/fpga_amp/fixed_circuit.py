@@ -197,12 +197,12 @@ class FixedChordV1CircuitModel:
                     previous_q20,
                 )
             )
+        self.saturation_count = 0
         if self.branch_capacitor_stamp:
             # Make every companion branch initially quiescent in the candidate
             # fixed domain.  This avoids importing float-state subtraction error.
             self._update_capacitors()
         self.nonconvergence_count = 0
-        self.saturation_count = 0
         self.lut_clip_count = 0
         self.max_iterations_observed = 0
         self.last_residual_q44 = 0
@@ -413,7 +413,11 @@ class FixedChordV1CircuitModel:
                     int(self.VOLTAGE_FRACTIONAL_BITS[capacitor.node_b]),
                     self.CAPACITOR_STATE_FRACTIONAL_BITS,
                 )
-            capacitor.previous_voltage_q20 = voltage_a - voltage_b
+            updated, clipped = saturate_signed(
+                voltage_a - voltage_b, self.VOLTAGE_WIDTH
+            )
+            capacitor.previous_voltage_q20 = updated
+            self.saturation_count += int(clipped)
 
     def process_sample(
         self,

@@ -70,6 +70,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added independent wide-state RHS and KCL blocks with direct Q30 capacitor
   branch stamping, bounded correction-format selection, delayed-current
   handshaking, exact vectors, and structural synthesis targets.
+- Added the complete persistent wide factorized solver, exact 512-sample
+  integration vectors, fallback/minimum-format diagnostics, and hierarchical
+  synthesis support.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -181,6 +184,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
   includes 48 scale fallbacks, 18 true overflows, and tube-current delays through
   11 clocks. Width-bound synthesis reports 31 LC / 4 DSP for RHS and 7,804 LC /
   72 DSP for KCL; the pre-bound KCL's 99-DSP result was rejected.
+- The integrated wide solver matches every node, capacitor history, output,
+  residual, and diagnostic across 512 sequential samples. Measured latency is
+  116 clocks with zero test events. XC7 structural synthesis reports 11,981
+  logic cells, 122 DSP48E1s, and 8 RAMB18E1s.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.
@@ -197,3 +204,5 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Time-multiplexed the three mutually exclusive Hermite interpolations through
   one arithmetic datapath, reducing factorized-tube synthesis from 65 to 37
   DSP48E1s while preserving exact output and eight-clock latency.
+- Saturated capacitor-history commits to their declared state width in fixed
+  Python and wide RTL; all existing characterized vectors remain in range.
