@@ -52,6 +52,7 @@ scripts/characterize_long_overload_recovery.py  235 ms physical-model tail
 scripts/measure_severe_overload_recovery.py     direct 850 ms multimode tail
 scripts/measure_seven_second_recovery.py        complete severe recovery timing
 scripts/study_overload_iterations.py          pass-count/deadline trade
+scripts/study_banked_chord_iterations.py      banked pass-count waveform trade
 scripts/study_trapezoidal_overload.py         floating integrator stability
 scripts/characterize_factorized_frequency.py --trapezoidal  fixed integrator sweep
 scripts/run_synthesis.py            XC7 structural resource report
@@ -103,6 +104,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | Vgk-slew-qualified bank selector | 100 ms, 0.5/1.0/1.5 V per mode | <=1 V bit-exact to prior selector; zero 1.5 V residual failures; pre-resolution severe baseline -61.80/-62.12 dB |
 | banked error decomposition | 100 ms, 1.0/1.5 V per mode | all intermediate layers converge; fixed circuit/state/chord burst error 6.40--19.07 mV vs <=0.168 mV integer tube evaluation |
 | grid-current resolution study | 128/256/512/1,024 entries | implemented 1,024: 12.55 nA exact-mapping worst; 1.5 V burst -72.87/-81.77 dB and final 0.631/0.321 mV |
+| banked correction-count study | 3--6 passes, 100 ms, 1.0/1.5 V | fourth improves burst 5.65--9.02 dB; six-pass residual <=0.207 uA; fourth projects to 145 clocks |
 | trapezoidal 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 116-clock solver |
 | trapezoidal stream synthesis | Yosys 0.66 structural | 17,735 LC, 168 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | wide factorized solver RTL vs fixed | 512 sequential samples | bit-exact all 19 states and diagnostics, latency 116, zero events |

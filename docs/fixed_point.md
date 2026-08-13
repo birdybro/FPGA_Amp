@@ -329,6 +329,16 @@ trapezoidal. All intermediate runs have zero residual-limit, saturation, range,
 or correction-fallback events. The next numerical investigation therefore
 targets circuit/state/chord arithmetic rather than the tube primitive.
 
+Sweeping three through six banked corrections on the same 100 ms records shows
+that pass truncation is a large part of the burst term. The fourth pass reduces
+raw burst error by 5.65--9.02 dB across both modes and levels. Six passes leave
+only 0.111--0.207 uA maximum residual and 2.35--2.94 mV burst RMS, but final
+10 ms error is non-monotonic with pass count because each trajectory commits a
+different capacitor state. The measured three-pass solver is 116 clocks; one
+serialized 19-clock residual plus ten-clock correction projects the fourth pass
+to 145 clocks. This rejects a direct pass-count increase while motivating a
+more contractive bank or a safely overlapped/parallelized correction path.
+
 `v1_solver_mono_wide.sv` composes those blocks with the factorized tube and
 matches 512 sequential fixed-Python samples exactly across all nine nodes, ten
 capacitor histories, output, residual, and cumulative diagnostics. The vector

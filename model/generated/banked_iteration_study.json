@@ -1,0 +1,863 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "study": "banked fixed chord-pass waveform sensitivity",
+  "sample_rate_hz": 768000.0,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_start_s": 0.01,
+    "burst_end_s": 0.015,
+    "duration_s": 0.1,
+    "burst_levels_peak_v": [
+      1.0,
+      1.5
+    ],
+    "input_format": "Q8.24"
+  },
+  "correction_counts": [
+    3,
+    4,
+    5,
+    6
+  ],
+  "latency_projection": {
+    "three_pass_measured_clocks": 116,
+    "additional_serial_pass_clocks": 29,
+    "deadline_clocks": 128,
+    "note": "Each added pass serializes the measured 19-clock residual path and 10-clock chord path; only the three-pass value is RTL-measured."
+  },
+  "alignment": {
+    "gain": false,
+    "dc": false,
+    "delay": false
+  },
+  "gates": {
+    "analytical_newton_converged": true,
+    "all_fixed_outputs_diagnostic_clean": true,
+    "three_pass_meets_current_deadline": true,
+    "fourth_serial_pass_misses_current_deadline": true
+  },
+  "all_gates_pass": true,
+  "measurements": [
+    {
+      "integration_method": "backward_euler",
+      "burst_input_peak_v": 1.0,
+      "analytical_nonconvergence_count": 0,
+      "cases": [
+        {
+          "chord_corrections": 3,
+          "projected_serial_solver_latency_clocks": 116,
+          "meets_128_clock_deadline": true,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.92743922943026,
+              "candidate_rms_v": 71.92563790983684,
+              "raw_error_rms_v": 0.010828576736253138,
+              "raw_normalized_error_db": -76.44646440549478,
+              "error_mean_v": -0.0014935659458966655,
+              "mean_removed_error_rms_v": 0.010725079715236641,
+              "mean_removed_normalized_error_db": -76.52988139915865,
+              "maximum_absolute_error_v": 0.06362818267997739
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.305844226520843,
+              "candidate_rms_v": 4.305906080489728,
+              "raw_error_rms_v": 0.0002885030129987062,
+              "raw_normalized_error_db": -83.47815922215855,
+              "error_mean_v": -0.00027775711768406394,
+              "mean_removed_error_rms_v": 7.800623106632375e-05,
+              "mean_removed_normalized_error_db": -94.83858038164782,
+              "maximum_absolute_error_v": 0.0014516076016803936
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.4951931302179847,
+              "candidate_rms_v": 0.4954074246515623,
+              "raw_error_rms_v": 0.0003721809397853738,
+              "raw_normalized_error_db": -62.48040965875994,
+              "error_mean_v": -0.0003717940902126193,
+              "mean_removed_error_rms_v": 1.6964858457847376e-05,
+              "mean_removed_normalized_error_db": -89.30448741096981,
+              "maximum_absolute_error_v": 0.0004264209974734201
+            }
+          },
+          "maximum_residual_a": 1.8867026483349036e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1038,
+            312,
+            0,
+            75450
+          ],
+          "slew_qualified_selection_count": 0
+        },
+        {
+          "chord_corrections": 4,
+          "projected_serial_solver_latency_clocks": 145,
+          "meets_128_clock_deadline": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.92743922943026,
+              "candidate_rms_v": 71.92567864514555,
+              "raw_error_rms_v": 0.004895244417302423,
+              "raw_normalized_error_db": -83.34240435919929,
+              "error_mean_v": -0.001366922783287898,
+              "mean_removed_error_rms_v": 0.004700525503564362,
+              "mean_removed_normalized_error_db": -83.6949637078875,
+              "maximum_absolute_error_v": 0.028629563449513284
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.305844226520843,
+              "candidate_rms_v": 4.305868741990415,
+              "raw_error_rms_v": 0.0001297451865919546,
+              "raw_normalized_error_db": -90.41934118493697,
+              "error_mean_v": -0.00012108853209289853,
+              "mean_removed_error_rms_v": 4.659807763597339e-05,
+              "mean_removed_normalized_error_db": -99.31380627187438,
+              "maximum_absolute_error_v": 0.0005573945116168488
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.4951931302179847,
+              "candidate_rms_v": 0.4952223913418593,
+              "raw_error_rms_v": 6.109835268663068e-05,
+              "raw_normalized_error_db": -78.17490220034233,
+              "error_mean_v": -5.8562476723916066e-05,
+              "mean_removed_error_rms_v": 1.7419673389036268e-05,
+              "mean_removed_normalized_error_db": -89.07469206382214,
+              "maximum_absolute_error_v": 0.00011707045668396532
+            }
+          },
+          "maximum_residual_a": 8.853211284076679e-07,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1038,
+            312,
+            0,
+            75450
+          ],
+          "slew_qualified_selection_count": 0
+        },
+        {
+          "chord_corrections": 5,
+          "projected_serial_solver_latency_clocks": 174,
+          "meets_128_clock_deadline": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.92743922943026,
+              "candidate_rms_v": 71.92562583250987,
+              "raw_error_rms_v": 0.002926936073134473,
+              "raw_normalized_error_db": -87.80962723202808,
+              "error_mean_v": -0.0014363146019274098,
+              "mean_removed_error_rms_v": 0.002550285305707178,
+              "mean_removed_normalized_error_db": -89.00611660375701,
+              "maximum_absolute_error_v": 0.014179872239964197
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.305844226520843,
+              "candidate_rms_v": 4.305908942774553,
+              "raw_error_rms_v": 0.0002436004354381056,
+              "raw_normalized_error_db": -84.9476050787409,
+              "error_mean_v": -0.000241030952379421,
+              "mean_removed_error_rms_v": 3.5288130308985483e-05,
+              "mean_removed_normalized_error_db": -101.72859331410662,
+              "maximum_absolute_error_v": 0.0003349725298237294
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.4951931302179847,
+              "candidate_rms_v": 0.4953122593805963,
+              "raw_error_rms_v": 0.00021240169153118952,
+              "raw_normalized_error_db": -67.3523328008745,
+              "error_mean_v": -0.00021168173981721898,
+              "mean_removed_error_rms_v": 1.7473396729479398e-05,
+              "mean_removed_normalized_error_db": -89.04794547068954,
+              "maximum_absolute_error_v": 0.0002677051853575002
+            }
+          },
+          "maximum_residual_a": 4.2532974475761876e-07,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1038,
+            312,
+            0,
+            75450
+          ],
+          "slew_qualified_selection_count": 0
+        },
+        {
+          "chord_corrections": 6,
+          "projected_serial_solver_latency_clocks": 203,
+          "meets_128_clock_deadline": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.92743922943026,
+              "candidate_rms_v": 71.9256151408954,
+              "raw_error_rms_v": 0.0023749285873472764,
+              "raw_normalized_error_db": -89.62488087153883,
+              "error_mean_v": -0.0014308150296501274,
+              "mean_removed_error_rms_v": 0.0018955353190923756,
+              "mean_removed_normalized_error_db": -91.5832543562579,
+              "maximum_absolute_error_v": 0.007565196028934906
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.305844226520843,
+              "candidate_rms_v": 4.305897223825333,
+              "raw_error_rms_v": 0.00020580757466825988,
+              "raw_normalized_error_db": -86.41193918885912,
+              "error_mean_v": -0.00020215177096182552,
+              "mean_removed_error_rms_v": 3.861889806596005e-05,
+              "mean_removed_normalized_error_db": -100.94516873089596,
+              "maximum_absolute_error_v": 0.00030340172566123425
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.4951931302179847,
+              "candidate_rms_v": 0.49528128165476487,
+              "raw_error_rms_v": 0.00015924100481108677,
+              "raw_normalized_error_db": -69.85439403589967,
+              "error_mean_v": -0.00015833359144847657,
+              "mean_removed_error_rms_v": 1.6975612868802656e-05,
+              "mean_removed_normalized_error_db": -89.29898297180588,
+              "maximum_absolute_error_v": 0.00021084701891677105
+            }
+          },
+          "maximum_residual_a": 2.0696791125374148e-07,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1038,
+            312,
+            0,
+            75450
+          ],
+          "slew_qualified_selection_count": 0
+        }
+      ]
+    },
+    {
+      "integration_method": "backward_euler",
+      "burst_input_peak_v": 1.5,
+      "analytical_nonconvergence_count": 0,
+      "cases": [
+        {
+          "chord_corrections": 3,
+          "projected_serial_solver_latency_clocks": 116,
+          "meets_128_clock_deadline": true,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.7569532698624,
+              "candidate_rms_v": 84.7554581025064,
+              "raw_error_rms_v": 0.019250809695455593,
+              "raw_normalized_error_db": -72.8745267216084,
+              "error_mean_v": -0.0024864707211833103,
+              "mean_removed_error_rms_v": 0.019089555712046975,
+              "mean_removed_normalized_error_db": -72.94759032168058,
+              "maximum_absolute_error_v": 0.051503190156367396
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584857347756908,
+              "candidate_rms_v": 3.5850983948917623,
+              "raw_error_rms_v": 0.0008664024658860568,
+              "raw_normalized_error_db": -72.33504397583991,
+              "error_mean_v": 0.0008463367106281885,
+              "mean_removed_error_rms_v": 0.00018538447922223083,
+              "mean_removed_normalized_error_db": -85.72797014361642,
+              "maximum_absolute_error_v": 0.0011530082401760566
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.189854462196492,
+              "candidate_rms_v": 1.1904454695618183,
+              "raw_error_rms_v": 0.0006313472852355716,
+              "raw_normalized_error_db": -65.50451052549181,
+              "error_mean_v": 0.0006310128582134235,
+              "mean_removed_error_rms_v": 2.054671126122346e-05,
+              "mean_removed_normalized_error_db": -95.25503051431932,
+              "maximum_absolute_error_v": 0.0006968346014061266
+            }
+          },
+          "maximum_residual_a": 1.7997328427554748e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1559,
+            176,
+            96,
+            74969
+          ],
+          "slew_qualified_selection_count": 96
+        },
+        {
+          "chord_corrections": 4,
+          "projected_serial_solver_latency_clocks": 145,
+          "meets_128_clock_deadline": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.7569532698624,
+              "candidate_rms_v": 84.75560350042215,
+              "raw_error_rms_v": 0.0068169418996452185,
+              "raw_normalized_error_db": -81.89171488657857,
+              "error_mean_v": -0.0028272062272047082,
+              "mean_removed_error_rms_v": 0.006203031662984921,
+              "mean_removed_normalized_error_db": -82.71142677759798,
+              "maximum_absolute_error_v": 0.01980015549621328
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584857347756908,
+              "candidate_rms_v": 3.5849874009456664,
+              "raw_error_rms_v": 0.0010214727106704403,
+              "raw_normalized_error_db": -70.9049021962181,
+              "error_mean_v": -0.000944355596509269,
+              "mean_removed_error_rms_v": 0.0003893571701998561,
+              "mean_removed_normalized_error_db": -79.28247403235315,
+              "maximum_absolute_error_v": 0.0036007944856422114
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.189854462196492,
+              "candidate_rms_v": 1.1892956442207807,
+              "raw_error_rms_v": 0.0005909848248510397,
+              "raw_normalized_error_db": -66.07835028616154,
+              "error_mean_v": -0.0005900306177057925,
+              "mean_removed_error_rms_v": 3.3569828327459226e-05,
+              "mean_removed_normalized_error_db": -90.99089446636265,
+              "maximum_absolute_error_v": 0.0006863709876601121
+            }
+          },
+          "maximum_residual_a": 7.308969998121029e-07,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1559,
+            176,
+            96,
+            74969
+          ],
+          "slew_qualified_selection_count": 96
+        },
+        {
+          "chord_corrections": 5,
+          "projected_serial_solver_latency_clocks": 174,
+          "meets_128_clock_deadline": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.7569532698624,
+              "candidate_rms_v": 84.75540843024035,
+              "raw_error_rms_v": 0.003443571877443834,
+              "raw_normalized_error_db": -87.82332368927946,
+              "error_mean_v": -0.002397523893219501,
+              "mean_removed_error_rms_v": 0.0024718548615490477,
+              "mean_removed_normalized_error_db": -90.70304739856329,
+              "maximum_absolute_error_v": 0.009800748600440556
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584857347756908,
+              "candidate_rms_v": 3.584878799795605,
+              "raw_error_rms_v": 0.000660321123250936,
+              "raw_normalized_error_db": -74.6943337633456,
+              "error_mean_v": -0.0006314880303259385,
+              "mean_removed_error_rms_v": 0.0001929944386930473,
+              "mean_removed_normalized_error_db": -85.37854167720972,
+              "maximum_absolute_error_v": 0.0016947051712215
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.189854462196492,
+              "candidate_rms_v": 1.1894443681117899,
+              "raw_error_rms_v": 0.0004326379996982222,
+              "raw_normalized_error_db": -68.78738363332548,
+              "error_mean_v": -0.0004317769252310606,
+              "mean_removed_error_rms_v": 2.7282331661535306e-05,
+              "mean_removed_normalized_error_db": -92.79224718905184,
+              "maximum_absolute_error_v": 0.0005145294068369388
+            }
+          },
+          "maximum_residual_a": 2.9888224162277766e-07,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1559,
+            176,
+            96,
+            74969
+          ],
+          "slew_qualified_selection_count": 96
+        },
+        {
+          "chord_corrections": 6,
+          "projected_serial_solver_latency_clocks": 203,
+          "meets_128_clock_deadline": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.7569532698624,
+              "candidate_rms_v": 84.75541415280118,
+              "raw_error_rms_v": 0.0029417404215831967,
+              "raw_normalized_error_db": -89.1914197766078,
+              "error_mean_v": -0.0024688271912348615,
+              "mean_removed_error_rms_v": 0.001599602765625225,
+              "mean_removed_normalized_error_db": -94.48326381091948,
+              "maximum_absolute_error_v": 0.006609735241809744
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584857347756908,
+              "candidate_rms_v": 3.584907877578017,
+              "raw_error_rms_v": 0.0007552144505996674,
+              "raw_normalized_error_db": -73.52803174235498,
+              "error_mean_v": -0.0007139641416724302,
+              "mean_removed_error_rms_v": 0.00024617894061131133,
+              "mean_removed_normalized_error_db": -83.26441960045045,
+              "maximum_absolute_error_v": 0.0021984515193906873
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.189854462196492,
+              "candidate_rms_v": 1.189399772332122,
+              "raw_error_rms_v": 0.00048018660945431635,
+              "raw_normalized_error_db": -67.88167597075898,
+              "error_mean_v": -0.0004795099341699801,
+              "mean_removed_error_rms_v": 2.5483385401737887e-05,
+              "mean_removed_normalized_error_db": -93.3847344248608,
+              "maximum_absolute_error_v": 0.0005576196144270185
+            }
+          },
+          "maximum_residual_a": 1.2491017287175055e-07,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1559,
+            176,
+            96,
+            74969
+          ],
+          "slew_qualified_selection_count": 96
+        }
+      ]
+    },
+    {
+      "integration_method": "trapezoidal",
+      "burst_input_peak_v": 1.0,
+      "analytical_nonconvergence_count": 0,
+      "cases": [
+        {
+          "chord_corrections": 3,
+          "projected_serial_solver_latency_clocks": 116,
+          "meets_128_clock_deadline": true,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.93338939697277,
+              "raw_error_rms_v": 0.010378917813007203,
+              "raw_normalized_error_db": -76.81577861129648,
+              "error_mean_v": -0.0010537694350406187,
+              "mean_removed_error_rms_v": 0.010325284739266631,
+              "mean_removed_normalized_error_db": -76.86077933038277,
+              "maximum_absolute_error_v": 0.06655570733883565
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.306548985498043,
+              "raw_error_rms_v": 0.00023068946140804774,
+              "raw_normalized_error_db": -85.42221464880639,
+              "error_mean_v": 0.00022138280491146157,
+              "mean_removed_error_rms_v": 6.486355906261157e-05,
+              "mean_removed_normalized_error_db": -96.44275425613374,
+              "maximum_absolute_error_v": 0.0006552689164323056
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.49508012293021486,
+              "raw_error_rms_v": 0.00029121428078360376,
+              "raw_normalized_error_db": -64.61231504798681,
+              "error_mean_v": 0.00029077042001730125,
+              "mean_removed_error_rms_v": 1.6072341934945898e-05,
+              "mean_removed_normalized_error_db": -89.77498514956011,
+              "maximum_absolute_error_v": 0.0003493322993094461
+            }
+          },
+          "maximum_residual_a": 1.8740750533652317e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            417,
+            456,
+            323,
+            154,
+            75450
+          ],
+          "slew_qualified_selection_count": 0
+        },
+        {
+          "chord_corrections": 4,
+          "projected_serial_solver_latency_clocks": 145,
+          "meets_128_clock_deadline": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.93336025862533,
+              "raw_error_rms_v": 0.004708913462304587,
+              "raw_normalized_error_db": -83.68040588404699,
+              "error_mean_v": -0.0013074136289610032,
+              "mean_removed_error_rms_v": 0.0045237744857895374,
+              "mean_removed_normalized_error_db": -84.0288011336171,
+              "maximum_absolute_error_v": 0.031269546687241245
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.306630545371748,
+              "raw_error_rms_v": 7.022242178747736e-05,
+              "raw_normalized_error_db": -95.75325368925087,
+              "error_mean_v": -5.7108819899285024e-05,
+              "mean_removed_error_rms_v": 4.086283410887455e-05,
+              "mean_removed_normalized_error_db": -100.45620005965476,
+              "maximum_absolute_error_v": 0.0006824689835553954
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.4952667695380253,
+              "raw_error_rms_v": 3.6348301783756023e-05,
+              "raw_normalized_error_db": -82.68688591341947,
+              "error_mean_v": -3.0571052970945226e-05,
+              "mean_removed_error_rms_v": 1.9662394635716743e-05,
+              "mean_removed_normalized_error_db": -88.02384024846462,
+              "maximum_absolute_error_v": 9.107571401228975e-05
+            }
+          },
+          "maximum_residual_a": 8.373916102755175e-07,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            417,
+            456,
+            323,
+            154,
+            75450
+          ],
+          "slew_qualified_selection_count": 0
+        },
+        {
+          "chord_corrections": 5,
+          "projected_serial_solver_latency_clocks": 174,
+          "meets_128_clock_deadline": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.93331571459892,
+              "raw_error_rms_v": 0.0028396581064018215,
+              "raw_normalized_error_db": -88.07349898353351,
+              "error_mean_v": -0.0013927165237771744,
+              "mean_removed_error_rms_v": 0.0024746714621645435,
+              "mean_removed_normalized_error_db": -89.26846906846339,
+              "maximum_absolute_error_v": 0.015423755017678786
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.306670407653197,
+              "raw_error_rms_v": 0.000150080436361558,
+              "raw_normalized_error_db": -89.15628807547978,
+              "error_mean_v": -0.0001462381820302153,
+              "mean_removed_error_rms_v": 3.374213234182581e-05,
+              "mean_removed_normalized_error_db": -102.11931926139258,
+              "maximum_absolute_error_v": 0.0002430532621503223
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.495318310682778,
+              "raw_error_rms_v": 0.0001177381390481224,
+              "raw_normalized_error_db": -72.47822507369901,
+              "error_mean_v": -0.00011638025514197972,
+              "mean_removed_error_rms_v": 1.7829907447956816e-05,
+              "mean_removed_normalized_error_db": -88.87358663976485,
+              "maximum_absolute_error_v": 0.0001726585284891058
+            }
+          },
+          "maximum_residual_a": 3.9700506704321015e-07,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            417,
+            456,
+            323,
+            154,
+            75450
+          ],
+          "slew_qualified_selection_count": 0
+        },
+        {
+          "chord_corrections": 6,
+          "projected_serial_solver_latency_clocks": 203,
+          "meets_128_clock_deadline": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.93330158031814,
+              "raw_error_rms_v": 0.002353813821457334,
+              "raw_normalized_error_db": -89.70337789664845,
+              "error_mean_v": -0.0014324778170904271,
+              "mean_removed_error_rms_v": 0.0018677384210931205,
+              "mean_removed_normalized_error_db": -91.71249901584167,
+              "maximum_absolute_error_v": 0.008096437524642397
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.3066894434902485,
+              "raw_error_rms_v": 0.00021086394418181112,
+              "raw_normalized_error_db": -86.20272323703567,
+              "error_mean_v": -0.00020773542734339953,
+              "mean_removed_error_rms_v": 3.6188329366870766e-05,
+              "mean_removed_normalized_error_db": -101.51139906300871,
+              "maximum_absolute_error_v": 0.00031020023839539723
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.4953513503630478,
+              "raw_error_rms_v": 0.00017401007567129228,
+              "raw_normalized_error_db": -69.08508049882252,
+              "error_mean_v": -0.00017317159506128455,
+              "mean_removed_error_rms_v": 1.7061802339124266e-05,
+              "mean_removed_normalized_error_db": -89.25607028939322,
+              "maximum_absolute_error_v": 0.00023121148058166674
+            }
+          },
+          "maximum_residual_a": 1.8575178728497121e-07,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            417,
+            456,
+            323,
+            154,
+            75450
+          ],
+          "slew_qualified_selection_count": 0
+        }
+      ]
+    },
+    {
+      "integration_method": "trapezoidal",
+      "burst_input_peak_v": 1.5,
+      "analytical_nonconvergence_count": 0,
+      "cases": [
+        {
+          "chord_corrections": 3,
+          "projected_serial_solver_latency_clocks": 116,
+          "meets_128_clock_deadline": true,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.75569884648095,
+              "raw_error_rms_v": 0.006909355153961202,
+              "raw_normalized_error_db": -81.77477106007503,
+              "error_mean_v": -0.0024195909971175757,
+              "mean_removed_error_rms_v": 0.006471844254170353,
+              "mean_removed_normalized_error_db": -82.34296024897111,
+              "maximum_absolute_error_v": 0.04953871389105302
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.584190576719187,
+              "raw_error_rms_v": 0.0006123655389614797,
+              "raw_normalized_error_db": -75.34777000502447,
+              "error_mean_v": -0.0005832301396880915,
+              "mean_removed_error_rms_v": 0.00018663911022878546,
+              "mean_removed_normalized_error_db": -85.66793175121789,
+              "maximum_absolute_error_v": 0.0009848690322158404
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.1936043194301016,
+              "raw_error_rms_v": 0.0003207026350064245,
+              "raw_normalized_error_db": -71.4173733298796,
+              "error_mean_v": -0.0003195796006358803,
+              "mean_removed_error_rms_v": 2.6815274704452233e-05,
+              "mean_removed_normalized_error_db": -92.97177888755257,
+              "maximum_absolute_error_v": 0.00040084805506368504
+            }
+          },
+          "maximum_residual_a": 1.7844226931629237e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1321,
+            156,
+            167,
+            187,
+            74969
+          ],
+          "slew_qualified_selection_count": 96
+        },
+        {
+          "chord_corrections": 4,
+          "projected_serial_solver_latency_clocks": 145,
+          "meets_128_clock_deadline": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.75561053447291,
+              "raw_error_rms_v": 0.0036038886140944016,
+              "raw_normalized_error_db": -87.4280942021874,
+              "error_mean_v": -0.0025690043143121333,
+              "mean_removed_error_rms_v": 0.0025274948023378623,
+              "mean_removed_normalized_error_db": -90.50971597323459,
+              "maximum_absolute_error_v": 0.018903509622880676
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.584352504290422,
+              "raw_error_rms_v": 0.0008273251811531069,
+              "raw_normalized_error_db": -72.73445999699449,
+              "error_mean_v": -0.0007650851652443679,
+              "mean_removed_error_rms_v": 0.00031482002047681073,
+              "mean_removed_normalized_error_db": -81.12673800188722,
+              "maximum_absolute_error_v": 0.002840014711765093
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.1934722079419902,
+              "raw_error_rms_v": 0.00046061802379914824,
+              "raw_normalized_error_db": -68.27260534048338,
+              "error_mean_v": -0.00045966714589061873,
+              "mean_removed_error_rms_v": 2.9581731480854312e-05,
+              "mean_removed_normalized_error_db": -92.11895208363222,
+              "maximum_absolute_error_v": 0.0005525282660674424
+            }
+          },
+          "maximum_residual_a": 6.797239393563359e-07,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1321,
+            156,
+            167,
+            188,
+            74968
+          ],
+          "slew_qualified_selection_count": 97
+        },
+        {
+          "chord_corrections": 5,
+          "projected_serial_solver_latency_clocks": 174,
+          "meets_128_clock_deadline": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.75555736788878,
+              "raw_error_rms_v": 0.0029218028312669245,
+              "raw_normalized_error_db": -89.25050328480778,
+              "error_mean_v": -0.0024011570395725667,
+              "mean_removed_error_rms_v": 0.0016647452225822799,
+              "mean_removed_normalized_error_db": -94.13656585151486,
+              "maximum_absolute_error_v": 0.008608129017495969
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.5842858031995384,
+              "raw_error_rms_v": 0.0006789796135484104,
+              "raw_normalized_error_db": -74.45085016392827,
+              "error_mean_v": -0.0006449642141438699,
+              "mean_removed_error_rms_v": 0.0002122132844289657,
+              "mean_removed_normalized_error_db": -84.55253351848492,
+              "maximum_absolute_error_v": 0.0017768709027201623
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.1935074110912254,
+              "raw_error_rms_v": 0.00042330470788713476,
+              "raw_normalized_error_db": -69.00636192281749,
+              "error_mean_v": -0.00042261038851815273,
+              "mean_removed_error_rms_v": 2.423500022588266e-05,
+              "mean_removed_normalized_error_db": -93.8505633329544,
+              "maximum_absolute_error_v": 0.0005030276649022891
+            }
+          },
+          "maximum_residual_a": 2.7471696739667095e-07,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1321,
+            156,
+            167,
+            188,
+            74968
+          ],
+          "slew_qualified_selection_count": 97
+        },
+        {
+          "chord_corrections": 6,
+          "projected_serial_solver_latency_clocks": 203,
+          "meets_128_clock_deadline": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.75553759878538,
+              "raw_error_rms_v": 0.002862960167715552,
+              "raw_normalized_error_db": -89.42721528169768,
+              "error_mean_v": -0.002440760158842356,
+              "mean_removed_error_rms_v": 0.0014964059505808238,
+              "mean_removed_normalized_error_db": -95.06253286568804,
+              "maximum_absolute_error_v": 0.005058432420582903
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.584296979063796,
+              "raw_error_rms_v": 0.0007484458118703765,
+              "raw_normalized_error_db": -73.60477760812309,
+              "error_mean_v": -0.000709145679428932,
+              "mean_removed_error_rms_v": 0.0002393397974712636,
+              "mean_removed_normalized_error_db": -83.50768647458767,
+              "maximum_absolute_error_v": 0.002109727321084165
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.1934647656869901,
+              "raw_error_rms_v": 0.00046866031677182446,
+              "raw_normalized_error_db": -68.12226026042595,
+              "error_mean_v": -0.00046779543303054216,
+              "mean_removed_error_rms_v": 2.8459187487249917e-05,
+              "mean_removed_normalized_error_db": -92.45497395963041,
+              "maximum_absolute_error_v": 0.0005486322888763606
+            }
+          },
+          "maximum_residual_a": 1.1092799923062557e-07,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1321,
+            156,
+            167,
+            188,
+            74968
+          ],
+          "slew_qualified_selection_count": 97
+        }
+      ]
+    }
+  ]
+}

@@ -160,6 +160,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   RMS, while fixed node/capacitor/chord arithmetic accounts for 6.40–19.07 mV.
   Every intermediate solve is diagnostic-clean. This directs the next accuracy
   work to circuit/state/chord arithmetic rather than another tube-table change.
+- A banked three-to-six-pass sensitivity study confirms that solver truncation
+  is material: a fourth pass improves 1.0/1.5 V burst error by 5.65–9.02 dB,
+  and six passes reduce maximum residual below 0.207 µA and burst RMS to
+  2.35–2.94 mV. Recovery-state error is not monotonic with pass count, however,
+  and the first extra serialized pass projects to 145 clocks versus the
+  128-clock deadline. Extra passes remain a diagnostic, not an RTL selection.
 - Removing the shallowest cutoff matrix is not a valid optimization: the 100 ms
   selector study leaves 289 backward-Euler or 119 trapezoidal 1.0 V residual
   failures. All generated matrices remain required; activation thresholds are
@@ -372,6 +378,7 @@ make overload-iterations            # three-to-six-pass solver trade
 make overload-banked                # cutoff-Jacobian bank convergence study
 make banked-slew-selector           # qualify the severe shallow-bank selector
 make banked-error-decomposition     # localize tube/circuit/chord error
+make banked-iterations              # banked three-to-six-pass waveform study
 make grid-current-resolution        # sweep grid-conduction table accuracy
 python3 scripts/study_lut_resolution.py
 python3 scripts/analyze_frontend.py

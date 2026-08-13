@@ -16,8 +16,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   0.372/0.291 mV at 1.0 V and 0.631/0.321 mV at 1.5 V for backward Euler/
   trapezoidal. A continuous-coefficient fixed-interface A/B bounds integer tube
   evaluation to <=0.168 mV burst RMS and identifies circuit/state/chord as the
-  6.40--19.07 mV dominant burst layer. Extra serialized chord passes remain
-  rejected as an implementation, but may be used to diagnose pass truncation.
+  6.40--19.07 mV dominant burst layer. A fourth diagnostic pass cuts burst RMS
+  by 5.65--9.02 dB but projects to 145 clocks; seek comparable contraction
+  within the existing 116/128-clock schedule. Extra serialized passes remain
+  rejected as an implementation.
 - [ ] Extend integrated-solver RTL capture beyond nominal frequency response to
   level-dependent harmonics, clipping asymmetry, and recovery metrics.
 - [ ] Separate folded nonlinear harmonics from preexisting in-band solver energy
@@ -26,6 +28,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Completed this milestone
 
+- [x] Sweep three through six corrections on the current banked solver for both
+  integrators at 1.0/1.5 V over 100 ms. Measure fourth-pass burst improvement
+  of 5.65--9.02 dB, six-pass residual <=0.207 uA, non-monotonic recovery-state
+  error, and the rejected 145-clock minimum extra-pass projection.
 - [x] Split integer tube evaluation from fixed circuit/state/chord error using
   the same Q24/Q20 input and Q31 current interfaces. Prove all intermediate
   banked runs diagnostic-clean; measure <=0.168 mV tube-evaluator burst error

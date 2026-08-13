@@ -6,6 +6,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a full 100 ms banked correction-count study for both integrators at
+  1.0/1.5 V, including unaligned burst/recovery metrics, diagnostics, bank use,
+  and explicit measured-versus-projected latency labeling.
 - Established the physical-reference → SPICE → Python float → Python fixed → RTL verification hierarchy.
 - Selected and versioned the Kennedy 1998 single-12AX7 passive-RIAA phono stage as the V1 circuit artifact.
 - Added reproducible project structure, engineering instructions, task ledger, and local-tool bootstrap path.
@@ -187,6 +190,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Measured
 
+- A fourth banked correction improves burst RMS by 5.65--9.02 dB, while six
+  corrections reduce maximum residual to 0.111--0.207 uA and burst error to
+  2.35--2.94 mV. Final recovery error is non-monotonic. The first added serial
+  pass projects to 145 clocks, so pass-count growth remains rejected for RTL.
 - Split the post-grid-resolution fixed error at the exact Q24/Q20 and Q31 tube
   interfaces. Integer Hermite evaluation contributes at most 0.168 mV burst RMS
   across the 1.0/1.5 V banked campaigns, while node/capacitor/chord arithmetic
