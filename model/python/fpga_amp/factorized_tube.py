@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
@@ -376,3 +377,41 @@ class FixedFactorizedKoren12AX7:
         plate_q31, grid_q31, clipped = self.evaluate_fixed(v_gk_q, v_pk_q)
         scale = float(1 << self.current_fractional_bits)
         return plate_q31 / scale, grid_q31 / scale, clipped
+
+    def write_memories(self, directory: Path) -> list[Path]:
+        """Write packed value/slope tables and the grid-current table."""
+
+        directory.mkdir(parents=True, exist_ok=True)
+        tables = (
+            (
+                "12ax7_factor_reciprocal_q32.mem",
+                self.reciprocal_value_q32,
+                self.reciprocal_slope_q32,
+            ),
+            (
+                "12ax7_factor_softplus_q32.mem",
+                self.softplus_value_q32,
+                self.softplus_slope_q32,
+            ),
+            (
+                "12ax7_factor_power_q31.mem",
+                self.power_value_q31,
+                self.power_slope_q31,
+            ),
+        )
+        paths: list[Path] = []
+        for name, value, slope in tables:
+            path = directory / name
+            with path.open("w", encoding="ascii") as handle:
+                for y, m in zip(value, slope, strict=True):
+                    packed = ((int(m) & 0xFFFFFFFF) << 32) | (
+                        int(y) & 0xFFFFFFFF
+                    )
+                    handle.write(f"{packed:016x}\n")
+            paths.append(path)
+        grid_path = directory / "12ax7_factor_grid_q31.mem"
+        with grid_path.open("w", encoding="ascii") as handle:
+            for value in self.grid_value_q31:
+                handle.write(f"{int(value) & 0xFFFFFFFF:08x}\n")
+        paths.append(grid_path)
+        return paths

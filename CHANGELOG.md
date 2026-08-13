@@ -42,6 +42,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added floating and bit-accurate factorized Koren models using reciprocal-root,
   softplus, and power value/slope 1-D tables with cubic Hermite interpolation,
   plus a reproducible 100,000-point and five-level circuit study.
+- Added a synthesizable eight-clock factorized 12AX7 primitive, reproducible
+  packed ROM generation, and an exact 4,107-vector RTL regression with directed
+  endpoint and out-of-range cases.
 - Added warning-free Verilator lint and a 4,096-vector bit-exact testbench with checked eight-clock latency.
 - Added non-root ngspice/Yosys bootstrap and a generic XC7 out-of-context synthesis report.
 - Added quantitative cartridge/front-end noise, ADC headroom, and analog-versus-digital RIAA partition analysis.
@@ -101,6 +104,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   +0.00026 dB fundamental gain error. At 0.5 V it is 2.2419% versus 2.2417%.
   The unaligned 5 mV waveform residual remains -42.90 dB and is tracked
   separately; the 1.0 V fixed solve still exceeds its residual limit.
+- The standalone factorized RTL is bit-exact to fixed Python for all 4,107 test
+  vectors. XC7 structural synthesis reports 1,597 estimated logic cells,
+  37 DSP48E1s, and 8 RAMB18E1s; no Fmax is claimed.
 
 ### Changed
 
@@ -111,3 +117,6 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Overlapped KCL matrix evaluation with tube lookup and launched completed RHS/
   chord results without scheduler bubbles, reducing mono latency from 130 to
   126 clocks and meeting the 128-clock simulation deadline.
+- Time-multiplexed the three mutually exclusive Hermite interpolations through
+  one arithmetic datapath, reducing factorized-tube synthesis from 65 to 37
+  DSP48E1s while preserving exact output and eight-clock latency.

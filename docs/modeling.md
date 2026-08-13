@@ -118,8 +118,9 @@ On 100,000 random quantized inputs it has 10.5 nA mean, 16.0 nA RMS, and
 versus 0.0191% analytical; 0.5 V results are 2.2419% and 2.2417%. The 5 mV
 unaligned waveform residual is still only -42.90 dB, despite +0.00026 dB
 fundamental gain error, demonstrating a separate state/phase error that requires
-diagnosis. RTL is not yet implemented, so the verified 2-D primitive remains
-the integrated baseline.
+diagnosis. The standalone factorized RTL is exact at eight clocks, but complete
+solver integration is not yet verified, so the 2-D primitive remains the
+integrated baseline.
 
 ## Explicit error budget status
 
@@ -132,7 +133,8 @@ the integrated baseline.
 | integration/solver | -53.10 dB residual vs SPICE at one level/frequency | measured, more sweeps needed |
 | chord vs full Newton | -137.28 dB normalized residual, 3-pass multitone | float architecture candidate |
 | fixed tube LUT | 0.139 µA mean / 9.33 µA worst full range | measured |
-| fixed factorized tube | 10.5 nA mean / 51.8 nA worst; 233,472 raw table bits | Python candidate; RTL open |
+| fixed factorized tube | 10.5 nA mean / 51.8 nA worst; 233,472 raw table bits | measured; standalone RTL passing |
+| factorized RTL vs fixed | 4,107 vectors exact at 8 clocks; 1,597 LC / 37 DSP / 8 RAMB18 | standalone passing; integration open |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |
 | fixed chord/state vs float LUT circuit | -70.33 dB initial multitone; -34.58 dB at 5 mV/1 kHz | signal-dependent; low-level improvement required |
 | low-level complete fixed model | 2-D: 0.0733%; factorized: 0.0188%; analytical: 0.0191% THD | device error improved; RTL/state-phase work open |

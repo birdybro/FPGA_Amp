@@ -30,6 +30,7 @@ def main() -> int:
         "--top",
         choices=(
             "triode_12ax7",
+            "triode_12ax7_factorized",
             "chord_corrector_v1",
             "network_rhs_v1",
             "network_kcl_v1",
@@ -52,6 +53,7 @@ def main() -> int:
     results.mkdir(parents=True, exist_ok=True)
     sources = {
         "triode_12ax7": ["rtl/tube/triode_12ax7.sv"],
+        "triode_12ax7_factorized": ["rtl/tube/triode_12ax7_factorized.sv"],
         "chord_corrector_v1": ["rtl/circuit/chord_corrector_v1.sv"],
         "network_rhs_v1": ["rtl/circuit/network_rhs_v1.sv"],
         "network_kcl_v1": ["rtl/circuit/network_kcl_v1.sv"],

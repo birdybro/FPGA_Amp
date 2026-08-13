@@ -11,8 +11,9 @@ RTL, then prove frequency, level, and overload behavior through the complete
 
 ## Active, highest value first
 
-- [ ] Implement a bit-exact factorized/Hermite tube RTL primitive, characterize
-  latency/resources, and integrate it without exceeding the 128-clock deadline.
+- [ ] Integrate the verified factorized/Hermite tube primitive into the complete
+  solver and stream without exceeding the 128-clock deadline; compare hierarchy
+  resources and retain the 2-D mode as an explicit implementation baseline.
 - [ ] Diagnose the fixed circuit's low-level raw waveform residual/phase error;
   the factorized candidate fixes THD but retains -42.90 dB unaligned residual at
   5 mV despite only +0.00026 dB fundamental gain error.
@@ -82,6 +83,9 @@ RTL, then prove frequency, level, and overload behavior through the complete
 - [x] Implement and measure a fixed factorized Koren candidate using three
   value/slope 1-D LUTs with cubic Hermite interpolation: 51.8 nA worst current
   error and 0.0188% versus 0.0191% analytical THD at 5 mV.
+- [x] Implement the standalone factorized tube RTL and pass 4,107 bit-exact
+  randomized/boundary vectors at eight clocks, including five clip cases;
+  synthesize at 1,597 LC, 37 DSP48E1, and 8 RAMB18E1.
 - [x] Quantify flat/partial/full-analog RIAA front-end architectures.
 - [x] Produce initial gain/headroom, MM loading, noise, converter, clock, control,
   safety, stereo schedule, and hardware-verification engineering documents.

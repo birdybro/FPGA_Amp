@@ -40,8 +40,12 @@ y  = round(round(round(c3*t) + c2)*t + m0)*t + y0
 Each multiply is rounded back to the table format with add-half then arithmetic
 shift. `z` is Q2.30 and `E1` is Q12.20. The 128-entry linear grid-current table
 is unchanged. Total raw table storage is 233,472 bits. These formats are a
-bit-accurate Python contract; RTL latency and intermediate-width proof remain
-open and the existing 2-D RTL is still the synthesized baseline.
+bit-accurate Python contract. The standalone RTL passes 4,107 exact vectors,
+including five directed range clips, at eight clocks. Proven table bounds allow
+the Hermite coefficient and Horner states to remain signed 32-bit with full
+49-bit products. Generic XC7 synthesis reports 1,597 estimated logic cells,
+37 DSP48E1s, and 8 RAMB18E1s. Complete solver integration remains open, so the
+existing 2-D RTL is still the end-to-end baseline.
 
 ## Circuit-state chord candidate
 

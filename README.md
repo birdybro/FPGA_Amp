@@ -44,8 +44,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   value/slope 1-D tables and cubic Hermite interpolation. Its bit-accurate Python
   model measures 51.8 nA worst current error in 100,000 points and 0.0188% THD
   at 5 mV versus 0.0191% analytical, using 233,472 raw table bits (12.67 raw
-  RAMB18 equivalents). It is not the reference RTL until its own RTL equivalence,
-  scheduling, and synthesis work is complete.
+  RAMB18 equivalents). Its standalone RTL is exact across 4,107 vectors at the
+  existing eight-clock latency; structural synthesis reports 1,597 logic cells,
+  37 DSP48E1s, and 8 RAMB18E1s. It is not the reference stream until complete
+  solver integration is exact and measured.
 - The SystemVerilog tube lookup accepts physical Q-format voltages, is
   bit-exact for 4,096 randomized vectors, and has eight-clock latency.
 - The nine-node chord corrector is bit-exact for 1,024 randomized/boundary
@@ -115,12 +117,14 @@ python3 scripts/study_lut_resolution.py
 python3 scripts/analyze_frontend.py
 python3 scripts/design_resampler.py
 make rtl                           # lint + 4,096 bit-exact vectors
+make factorized-rtl                # smooth tube RTL + directed clip vectors
 make chord-rtl                     # lint + 1,024 circuit-correction vectors
 make network-rtl                   # RHS/KCL bit-exact unit tests
 make solver-rtl                    # 512-sample persistent-state integration
 make halfband-rtl                  # exact 2x units and complete 16x streams
 make stream-rtl                    # complete 48 kHz reference stream
 make synth                         # generic XC7 structural estimate
+make synth-factorized              # factorized tube structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
 make synth-solver                  # hierarchical complete-solver estimate
 make synth-halfband                # complete interpolator/decimator estimates
