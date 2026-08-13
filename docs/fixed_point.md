@@ -71,6 +71,12 @@ Newton float. Error decomposition shows the floating LUT circuit itself at
 -56.14 dB versus analytical float, while Q-format plus three-pass chord is
 -70.33 dB versus the floating LUT circuit. Thus LUT device resolution—not fixed
 state arithmetic—is the dominant measured downstream approximation in this test.
+That conclusion is stimulus-specific. A settled 5 mV/1 kHz test measures
+-43.41 dB for floating LUT versus analytical, -37.24 dB for complete fixed
+versus analytical, and only -34.58 dB for fixed versus the same-LUT floating
+circuit. The corresponding fixed THD is 0.0733% versus 0.0191% analytical.
+The low-level state/LUT interaction is therefore now a tracked accuracy defect;
+the multitone result must not be generalized to all signals.
 
 Generic hierarchical XC7 synthesis of the complete solver reports 8,024
 estimated logic cells, 89 DSP48E1s, and 47 RAMB18E1s. The RHS and KCL engines

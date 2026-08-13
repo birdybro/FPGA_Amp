@@ -82,6 +82,13 @@ is 1.1 V peak—far outside an MM cartridge signal. These are model results, not
 measurements of a physical Kennedy preamp, and positive-grid behavior remains a
 weakly supported part of the tube model.
 
+The exact fixed/RTL candidate is separately characterized so its approximation
+is not confused with reference behavior. It gives 0.0733% THD at 5 mV peak
+versus 0.0191% analytical; this low-level excess is unresolved. At 0.5 V it
+closely tracks the analytical model (2.2395% versus 2.2417% THD). Its first
+tested ≥1 dB compression level is also 1.1 V. The 2 µA residual diagnostic first
+fires at 1.0 V, and table-range clips begin at 1.1 V.
+
 ## Stability policy
 
 Changing a frozen component, B+, tube parameter set, source, or reference load

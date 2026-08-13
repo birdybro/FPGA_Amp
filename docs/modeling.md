@@ -81,6 +81,21 @@ the 50,000-point resolution study. Relative error is deliberately not the main
 metric near cutoff, where division by a nearly zero physical current is
 misleading.
 
+That full-range current metric does not bound low-level harmonic error. A
+20–30 ms 1 kHz sweep shows 0.0733% H2–H10 THD for the complete fixed model at
+5 mV peak versus 0.0191% for the analytical model. At 0.5 V the results converge
+to 2.2395% and 2.2417%, with -55.98 dB waveform residual. Thus the present LUT/
+state approximation is most visible at ordinary cartridge levels, even though
+gain remains close (+0.0324 dB at 5 mV).
+
+A controlled resolution study does not justify simply increasing BRAM. At
+5 mV, moving from 128×256 to 256×256 changes complete fixed THD from 0.0733%
+to 0.0723% while doubling raw plate-table storage. A 512×256 table gives
+0.0683%; 256×512 gives 0.0731%. Fixed versus same-LUT floating residual is
+-34.58 dB for 128×256 and improves only to about -36.5 dB with more grid points.
+A transformed, smooth polynomial, Hermite, or hybrid approximation should be
+studied before changing the frozen RTL table.
+
 ## Explicit error budget status
 
 | Layer | Present evidence | Status |
@@ -93,8 +108,9 @@ misleading.
 | chord vs full Newton | -137.28 dB normalized residual, 3-pass multitone | float architecture candidate |
 | fixed tube LUT | 0.139 µA mean / 9.33 µA worst full range | measured |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |
-| fixed chord/state vs float LUT circuit | -70.33 dB normalized residual, initial multitone | implemented DSP-friendly candidate; wider sweeps open |
-| interpolation/decimation | not implemented | open |
+| fixed chord/state vs float LUT circuit | -70.33 dB initial multitone; -34.58 dB at 5 mV/1 kHz | signal-dependent; low-level improvement required |
+| low-level complete fixed model | 0.0733% THD vs 0.0191% analytical at 5 mV/1 kHz | measured approximation error; unresolved |
+| interpolation/decimation | exact fixed/RTL streams; Python alias -137.81 dB | implemented; RTL alias capture open |
 | ADC/front end/DAC | analytical requirements only | unvalidated |
 | physical FPGA/audio chain | absent | unvalidated |
 

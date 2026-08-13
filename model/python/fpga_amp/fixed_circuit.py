@@ -86,6 +86,7 @@ class FixedChordV1CircuitModel:
         inverse_fractional_bits: int = 1,
         correction_residual_fractional_bits: int = 30,
         correction_residual_width: int = 25,
+        tube_lut: TubeLUT | None = None,
     ):
         self.sample_rate_hz = float(sample_rate_hz)
         self.inverse_fractional_bits = int(inverse_fractional_bits)
@@ -96,8 +97,9 @@ class FixedChordV1CircuitModel:
         self.reference = V1CircuitModel(sample_rate_hz)
         self.node = self.reference.node
         self.node_count = self.reference.node_count
-        self.tube_lut = TubeLUT()
-        self.tube_lut.generate()
+        self.tube_lut = tube_lut or TubeLUT()
+        if self.tube_lut.plate_table is None or self.tube_lut.grid_table is None:
+            self.tube_lut.generate()
         initial_reference = V1CircuitModel(
             sample_rate_hz,
             tube=LUTTubeAdapter(self.tube_lut),  # type: ignore[arg-type]

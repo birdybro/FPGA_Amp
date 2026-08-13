@@ -37,6 +37,9 @@ The mono reference and complete 768 kHz circuit solver are operating:
 - The complete bit-accurate three-pass chord candidate is -57.87 dB normalized
   residual from analytical/full-Newton float on the initial multitone; isolated
   state/chord error is -70.33 dB relative to the same circuit using the tube LUT.
+- A settled 1 kHz sweep exposes a narrower low-level limitation: at 5 mV peak,
+  fixed THD is 0.0733% versus 0.0191% analytical. Doubling either LUT axis does
+  not fix it, so this remains an explicit approximation error and active priority.
 - The SystemVerilog tube lookup accepts physical Q-format voltages, is
   bit-exact for 4,096 randomized vectors, and has eight-clock latency.
 - The nine-node chord corrector is bit-exact for 1,024 randomized/boundary
@@ -100,6 +103,7 @@ python3 scripts/compare_spice_python.py
 python3 scripts/characterize_solver.py
 python3 scripts/study_solver_architecture.py
 python3 scripts/compare_fixed_float.py
+make accuracy-sweeps                # settled level and low-level LUT studies
 python3 scripts/study_lut_resolution.py
 python3 scripts/analyze_frontend.py
 python3 scripts/design_resampler.py

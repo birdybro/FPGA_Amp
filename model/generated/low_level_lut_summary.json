@@ -1,0 +1,114 @@
+{
+  "stimulus": "5 mV peak, 1 kHz sine",
+  "analysis_window_s": [
+    0.02,
+    0.03
+  ],
+  "analytical": {
+    "fundamental_peak_v": 0.5667779056774709,
+    "thd_percent_h2_to_h10": 0.019058643568062868
+  },
+  "architectural_note": "raw RAMB18 equivalents exclude aspect-ratio and packing overhead",
+  "resolutions": [
+    {
+      "grid_points": 128,
+      "plate_points": 256,
+      "plate_storage_bits": 1048576,
+      "raw_ramb18_equivalents": 56.888888888888886,
+      "lut_float": {
+        "fundamental_peak_v": 0.5688620055431132,
+        "thd_percent_h2_to_h10": 0.07943371583973748,
+        "normalized_residual_db": -43.406121361151186,
+        "maximum_absolute_error_v": 0.005033170446543056
+      },
+      "fixed": {
+        "fundamental_peak_v": 0.5688976963178232,
+        "thd_percent_h2_to_h10": 0.07330403629182222,
+        "normalized_residual_db": -37.23871247567935,
+        "maximum_absolute_error_v": 0.007960253631163428,
+        "max_residual_a": 3.395709313736006e-07,
+        "saturation_count": 0,
+        "lut_clip_count": 0
+      },
+      "fixed_vs_lut_float": {
+        "normalized_residual_db": -34.57841403027392,
+        "maximum_absolute_error_v": 0.008455848579063577
+      }
+    },
+    {
+      "grid_points": 256,
+      "plate_points": 256,
+      "plate_storage_bits": 2097152,
+      "raw_ramb18_equivalents": 113.77777777777777,
+      "lut_float": {
+        "fundamental_peak_v": 0.5670629794119342,
+        "thd_percent_h2_to_h10": 0.08235165763327276,
+        "normalized_residual_db": -44.86473837745486,
+        "maximum_absolute_error_v": 0.0032523432725852786
+      },
+      "fixed": {
+        "fundamental_peak_v": 0.5671424100257032,
+        "thd_percent_h2_to_h10": 0.07232224049322122,
+        "normalized_residual_db": -39.968683931779445,
+        "maximum_absolute_error_v": 0.006039628497949423,
+        "max_residual_a": 3.3947168276426964e-07,
+        "saturation_count": 0,
+        "lut_clip_count": 0
+      },
+      "fixed_vs_lut_float": {
+        "normalized_residual_db": -36.210547558232115,
+        "maximum_absolute_error_v": 0.007828997315238173
+      }
+    },
+    {
+      "grid_points": 512,
+      "plate_points": 256,
+      "plate_storage_bits": 4194304,
+      "raw_ramb18_equivalents": 227.55555555555554,
+      "lut_float": {
+        "fundamental_peak_v": 0.5664256489171567,
+        "thd_percent_h2_to_h10": 0.06032912259407696,
+        "normalized_residual_db": -45.56914273046067,
+        "maximum_absolute_error_v": 0.0028767047320212846
+      },
+      "fixed": {
+        "fundamental_peak_v": 0.5665333198222193,
+        "thd_percent_h2_to_h10": 0.06832775828447599,
+        "normalized_residual_db": -40.02390308020564,
+        "maximum_absolute_error_v": 0.006182256890567284,
+        "max_residual_a": 3.403315531613771e-07,
+        "saturation_count": 0,
+        "lut_clip_count": 0
+      },
+      "fixed_vs_lut_float": {
+        "normalized_residual_db": -36.45866650821887,
+        "maximum_absolute_error_v": 0.007906359822453968
+      }
+    },
+    {
+      "grid_points": 256,
+      "plate_points": 512,
+      "plate_storage_bits": 4194304,
+      "raw_ramb18_equivalents": 227.55555555555554,
+      "lut_float": {
+        "fundamental_peak_v": 0.566819195496155,
+        "thd_percent_h2_to_h10": 0.07905767445890229,
+        "normalized_residual_db": -50.05612918383453,
+        "maximum_absolute_error_v": 0.0019000795485704103
+      },
+      "fixed": {
+        "fundamental_peak_v": 0.5669007350983054,
+        "thd_percent_h2_to_h10": 0.07305917018410217,
+        "normalized_residual_db": -34.21349920353296,
+        "maximum_absolute_error_v": 0.009509690553796551,
+        "max_residual_a": 3.4008098737103865e-07,
+        "saturation_count": 0,
+        "lut_clip_count": 0
+      },
+      "fixed_vs_lut_float": {
+        "normalized_residual_db": -35.65834339070743,
+        "maximum_absolute_error_v": 0.007772516716262376
+      }
+    }
+  ]
+}

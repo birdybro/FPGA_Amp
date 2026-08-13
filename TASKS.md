@@ -12,8 +12,10 @@ against the floating and SPICE references. The circuit is frozen at version 0.1.
 
 - [ ] Extend fixed-vs-float comparison across frequency, level, silence, impulse,
   grid conduction, overload/recovery, and long-duration capacitor-state drift.
-- [ ] Prove fixed residual/overflow bounds and determine whether tube LUT
-  resolution must increase before circuit RTL is frozen.
+- [ ] Reduce the measured 5 mV/1 kHz fixed THD error (0.0733% versus 0.0191%
+  analytical). Test smooth polynomial/Hermite/hybrid tube approximations; simple
+  LUT resolution doubling is not an adequate BRAM/accuracy trade.
+- [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
 - [ ] Automate RTL frequency and level comparisons through the integrated solver,
   including DC, gain, harmonics, clipping asymmetry, and recovery.
 - [ ] Reproduce the nonlinear alias measurement through RTL captures and automate
@@ -70,6 +72,10 @@ against the floating and SPICE references. The circuit is frozen at version 0.1.
   including saturating Q12.20-to-Q8.24 output conversion and diagnostics.
 - [x] Match 64 consecutive end-to-end outputs / 1,024 nonlinear updates exactly;
   synthesize the full stream at 13,170 estimated LC, 137 DSP, and 47 RAMB18.
+- [x] Sweep analytical and fixed behavior from 0.5 mV to 5 V at 1 kHz using the
+  settled SPICE analysis window; quantify THD, compression, residual, and clips.
+- [x] Measure low-level distortion at four larger LUT resolutions and reject a
+  raw BRAM increase as an ineffective fix.
 - [x] Quantify flat/partial/full-analog RIAA front-end architectures.
 - [x] Produce initial gain/headroom, MM loading, noise, converter, clock, control,
   safety, stereo schedule, and hardware-verification engineering documents.
@@ -82,6 +88,9 @@ against the floating and SPICE references. The circuit is frozen at version 0.1.
   an acceptance bound.
 - The frozen historical circuit is -0.919 dB from ideal RIAA at its worst audio-
   band point. This is reference behavior, not an implementation defect.
+- At 5 mV/1 kHz the fixed model produces 0.0733% THD versus 0.0191% analytical.
+  This is approximation error, not reference behavior; the ordinary-level
+  discrepancy has priority over model expansion.
 - Yosys reports 204 Xilinx BRAM primitive port-resize warnings on the hierarchical
   solver while `check` reports no structural problem. Track tool-version behavior;
   do not describe synthesis as warning-free.

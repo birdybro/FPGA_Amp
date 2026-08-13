@@ -37,6 +37,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added the complete mono 48 kHz reference stream, including 16× rate conversion,
   all circuit state, saturating line-output format conversion, and aggregated
   runtime diagnostics.
+- Added a settled analytical/fixed 1 kHz sweep from 0.5 mV to 5 V and a targeted
+  low-level LUT-resolution study with explicit raw memory tradeoffs.
 - Added warning-free Verilator lint and a 4,096-vector bit-exact testbench with checked eight-clock latency.
 - Added non-root ngspice/Yosys bootstrap and a generic XC7 out-of-context synthesis report.
 - Added quantitative cartridge/front-end noise, ADC headroom, and analog-versus-digital RIAA partition analysis.
@@ -84,6 +86,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
   nonlinear updates exactly, with zero saturation, overrun, phase, LUT, deadline,
   or convergence events. Synthesis reports 13,170 estimated XC7 logic cells,
   137 DSP48E1s, and 47 RAMB18E1s; Fmax remains unmeasured.
+- Fixed and analytical models agree closely at 0.5 V (2.2395% versus 2.2417%
+  THD, -55.98 dB waveform residual), but fixed low-level THD at 5 mV is 0.0733%
+  versus 0.0191% analytical. Doubling either LUT axis does not resolve it.
+- The fixed residual limit first fails at 1.0 V peak and LUT clipping begins at
+  1.1 V; first tested ≥1 dB fixed gain compression is 1.1 V.
 
 ### Changed
 
