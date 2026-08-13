@@ -2,7 +2,7 @@
 `default_nettype none
 
 module phono_stream_mono_wide_tb;
-    localparam int VECTOR_COUNT = 64;
+    localparam int MAX_VECTOR_COUNT = 8192;
 
     logic clk;
     logic rst_n = 1'b0;
@@ -23,8 +23,8 @@ module phono_stream_mono_wide_tb;
     logic [5:0] solver_minimum_correction_fractional_bits;
     logic [62:0] solver_last_residual_q44;
     logic [7:0] solver_latency_cycles;
-    logic signed [31:0] input_vector [0:VECTOR_COUNT-1];
-    logic signed [31:0] expected_vector [0:VECTOR_COUNT-1];
+    logic signed [31:0] input_vector [0:MAX_VECTOR_COUNT-1];
+    logic signed [31:0] expected_vector [0:MAX_VECTOR_COUNT-1];
 
     phono_stream_mono_wide dut (.*);
     always #5 clk = ~clk;
@@ -35,16 +35,31 @@ module phono_stream_mono_wide_tb;
     integer output_index;
     integer error_count;
     integer clock_count;
+    integer vector_count;
+    integer capture_handle;
     string marker;
+    string vector_path;
+    string capture_path;
 
     initial begin
         clk = 1'b0;
-        file_handle = $fopen(
-            "sim/vectors/generated/phono_stream_mono_wide_factorized.txt", "r"
-        );
+        if (!$value$plusargs("VECTOR_COUNT=%d", vector_count))
+            vector_count = 64;
+        if (vector_count <= 0 || vector_count > MAX_VECTOR_COUNT)
+            $fatal(1, "invalid vector count %0d", vector_count);
+        if (!$value$plusargs("VECTORS=%s", vector_path))
+            vector_path =
+                "sim/vectors/generated/phono_stream_mono_wide_factorized.txt";
+        file_handle = $fopen(vector_path, "r");
         if (file_handle == 0)
             $fatal(1, "cannot open wide stream vectors");
-        for (input_index = 0; input_index < VECTOR_COUNT; input_index++) begin
+        capture_handle = 0;
+        if ($value$plusargs("CAPTURE=%s", capture_path)) begin
+            capture_handle = $fopen(capture_path, "w");
+            if (capture_handle == 0)
+                $fatal(1, "cannot open capture output");
+        end
+        for (input_index = 0; input_index < vector_count; input_index++) begin
             scan_count = $fscanf(file_handle, "%d\n", input_vector[input_index]);
             if (scan_count != 1)
                 $fatal(1, "malformed input %0d", input_index);
@@ -52,7 +67,7 @@ module phono_stream_mono_wide_tb;
         scan_count = $fscanf(file_handle, "%s\n", marker);
         if (scan_count != 1 || marker != "EXPECTED")
             $fatal(1, "missing marker");
-        for (output_index = 0; output_index < VECTOR_COUNT; output_index++) begin
+        for (output_index = 0; output_index < vector_count; output_index++) begin
             scan_count = $fscanf(file_handle, "%d\n", expected_vector[output_index]);
             if (scan_count != 1)
                 $fatal(1, "malformed output %0d", output_index);
@@ -68,7 +83,7 @@ module phono_stream_mono_wide_tb;
         rst_n <= 1'b1;
         ce_input_48k <= 1'b1;
 
-        while (output_index < VECTOR_COUNT) begin
+        while (output_index < vector_count) begin
             @(posedge clk);
             #1;
             clock_count = clock_count + 1;
@@ -79,16 +94,22 @@ module phono_stream_mono_wide_tb;
                            sample_output_q24, expected_vector[output_index]);
                     error_count = error_count + 1;
                 end
+                if (capture_handle != 0)
+                    $fwrite(capture_handle, "%0d %0d\n", output_index,
+                            sample_output_q24);
                 output_index = output_index + 1;
             end
-            if ((clock_count % 2048) == 0 && input_index + 1 < VECTOR_COUNT) begin
+            if ((clock_count % 2048) == 0 && input_index + 1 < vector_count) begin
                 input_index = input_index + 1;
                 sample_input_q24 <= input_vector[input_index];
                 ce_input_48k <= 1'b1;
             end
-            if (clock_count > VECTOR_COUNT * 2300)
+            if (clock_count > vector_count * 2300)
                 $fatal(1, "stream timeout output=%0d", output_index);
         end
+
+        if (capture_handle != 0)
+            $fclose(capture_handle);
 
         if (resampler_saturation_count != 0 || resampler_overrun_count != 0
             || input_phase_error_count != 0

@@ -15,7 +15,9 @@ and compares every node, capacitor, residual, output, and diagnostic count.
 The complete stream test independently composes the fixed interpolator, 1,024
 fixed nonlinear updates, output format conversion, and decimator, then requires
 64 consecutive 48 kHz RTL outputs to be exactly equal without latency/gain
-alignment. The output-safety test covers reset, positive/negative rounding,
+alignment. The wide-stream bench also accepts up to 8,192 external samples and
+can capture arbitrary exact trajectories for longer measurements. The
+output-safety test covers reset, positive/negative rounding,
 sample-qualified gain changes, exact-unity bypass, graceful ramp-down, and a
 forced clamp with and without a valid input sample.
 

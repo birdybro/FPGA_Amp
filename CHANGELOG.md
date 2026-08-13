@@ -82,6 +82,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
   zero-diagnostic acceptance checks.
 - Added shared arbitrary-trajectory wide-solver vector/capture infrastructure
   and a 100 ms captured overload/recovery regression through 1.5 V peak.
+- Extended the wide complete-stream testbench and runner with bounded dynamic
+  vector counts, alternate vector files, and direct 48 kHz output capture.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.

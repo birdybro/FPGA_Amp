@@ -16,6 +16,10 @@ ROOT = Path(__file__).resolve().parents[1]
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
+    parser.add_argument("--skip-generate", action="store_true")
+    parser.add_argument("--vectors-file")
+    parser.add_argument("--vector-count", type=int)
+    parser.add_argument("--capture-file")
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
@@ -29,8 +33,13 @@ def main() -> int:
         "scripts/generate_halfband_rtl_vectors.py",
         "scripts/generate_stream_vectors.py --wide",
     )
-    for generator in generators:
-        subprocess.run([sys.executable, *generator.split()], cwd=ROOT, check=True)
+    if not args.skip_generate:
+        for generator in generators:
+            subprocess.run([sys.executable, *generator.split()], cwd=ROOT, check=True)
+    if (args.vectors_file is None) != (args.vector_count is None):
+        parser.error("--vectors-file and --vector-count must be provided together")
+    if args.vector_count is not None and not 0 < args.vector_count <= 8192:
+        parser.error("--vector-count must be within 1..8192")
     sources = [
         "rtl/tube/triode_12ax7_factorized.sv",
         "rtl/circuit/network_rhs_v1_wide.sv",
@@ -67,7 +76,17 @@ def main() -> int:
         cwd=ROOT,
         check=True,
     )
-    subprocess.run([str(build / "Vphono_stream_mono_wide_tb")], cwd=ROOT, check=True)
+    simulation = [str(build / "Vphono_stream_mono_wide_tb")]
+    if args.vectors_file:
+        simulation.extend(
+            (
+                f"+VECTORS={args.vectors_file}",
+                f"+VECTOR_COUNT={args.vector_count}",
+            )
+        )
+    if args.capture_file:
+        simulation.append(f"+CAPTURE={args.capture_file}")
+    subprocess.run(simulation, cwd=ROOT, check=True)
     return 0
 
 
