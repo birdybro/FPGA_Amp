@@ -235,6 +235,14 @@ point. In the six-point 5 mV sweep, the largest stored-current magnitude is
 retains the existing residual-current resolution; large-signal range and RTL
 storage/schedule costs are not yet accepted.
 
+The overload sweep measures a 203.34 uA maximum stored branch current through
+1.5 V peak input, still far inside signed Q4.44. No current-state saturation is
+observed. Coefficient reuse is not width-neutral, however: the 470 nF output
+coupling capacitor changes from 0.36096 S to 0.72192 S. Its Q0.47 integer is
+101601207593478, requiring 48 signed bits rather than the 47-bit backward-Euler
+capacitor-coefficient contract. Any trapezoidal RTL must widen that coefficient
+and its multiplier input explicitly.
+
 The overload gate passes only through the measured 0.5 V level. At 20 mV, the
 candidate matches analytical 10%/1% recovery within about 0.002/0.000 ms and
 reduces post-burst fixed/analytical RMS from 5.80 mV legacy to 0.258 mV. At

@@ -99,6 +99,14 @@ reported mean-removed residual is -68.15 dB. Nominal capacitor-current peaks
 remain below 2.25 uA in this sweep. This clears nominal fixed state/rounding,
 not overload range or RTL scheduling.
 
+The matched fixed overload run remains diagnostic-clean at 20 mV and 0.5 V.
+At 1.0/1.5 V, it records 1,107/1,690 residual-limit failures; 1.5 V also has
+4,048 factorized-tube range clips and 728 safe correction-scale fallbacks. The
+largest capacitor-current history magnitude is 203.34 uA, with no arithmetic
+saturation. The doubled output-coupling companion is 0.72192 S or
+101601207593478 in Q0.47, which requires a signed 48-bit coefficient rather
+than the current backward-Euler RTL block's measured 47 bits.
+
 Three nonlinear solution forms have now been measured. Full Newton with a live
 Jacobian is the float reference and needs at most two correction passes for the
 20 mV 1 kHz test. Raw fixed-point iteration around the linear network is rejected:
@@ -346,6 +354,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | 768 kHz trapezoidal float candidate | 10/20 kHz SPICE transients | <=0.00846 dB gain / <=0.0582 degree phase; downstream proof open |
 | trapezoidal float overload stability | 20 mV--1.5 V, 100 ms records | finite/convergent; clean recovery matches BE; shared long memory above 0.5 V |
 | fixed trapezoidal state | six 5 mV points, 20 Hz--20 kHz | <=0.000131 dB / <=0.000784 degree vs float trapezoidal; zero diagnostics; RTL open |
+| fixed trapezoidal overload | 20 mV--1.5 V bursts | clean through 0.5 V; 203.34 uA history-current peak; severe solver/range limit unchanged |
 | chord vs full Newton | -137.28 dB normalized residual, 3-pass multitone | float architecture candidate |
 | fixed tube LUT | 0.139 µA mean / 9.33 µA worst full range | measured |
 | fixed factorized tube | 10.5 nA mean / 51.8 nA worst; 233,472 raw table bits | measured; standalone RTL passing |

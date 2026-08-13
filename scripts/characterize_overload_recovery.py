@@ -19,6 +19,7 @@ from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
 from fpga_amp.fixed_circuit import (  # noqa: E402
     FixedChordV1CircuitModel,
     FixedWideStateV1CircuitModel,
+    FixedWideStateTrapezoidalV1CircuitModel,
 )
 from fpga_amp.v1_circuit import V1CircuitModel  # noqa: E402
 
@@ -64,14 +65,19 @@ def run_analytical(
 
 
 def run_fixed(
-    samples: np.ndarray, wide_candidate: bool = False
+    samples: np.ndarray,
+    wide_candidate: bool = False,
+    integration_method: str = "backward_euler",
 ) -> tuple[np.ndarray, np.ndarray, FixedChordV1CircuitModel]:
     tube = FixedFactorizedKoren12AX7()
-    fixed_type = (
-        FixedWideStateV1CircuitModel
-        if wide_candidate
-        else FixedChordV1CircuitModel
-    )
+    if integration_method == "trapezoidal":
+        if not wide_candidate:
+            raise ValueError("fixed trapezoidal overload requires the wide state")
+        fixed_type = FixedWideStateTrapezoidalV1CircuitModel
+    elif wide_candidate:
+        fixed_type = FixedWideStateV1CircuitModel
+    else:
+        fixed_type = FixedChordV1CircuitModel
     model = fixed_type(SAMPLE_RATE_HZ, tube_lut=tube)
     output = np.empty_like(samples)
     maximum_grid_current_q31 = np.zeros(2, dtype=np.int64)
@@ -139,15 +145,23 @@ def burst_metrics(output: np.ndarray, burst_mask: np.ndarray) -> dict[str, float
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--wide-candidate", action="store_true")
+    parser.add_argument("--trapezoidal", action="store_true")
     args = parser.parse_args()
+    if args.trapezoidal:
+        args.wide_candidate = True
+    integration_method = "trapezoidal" if args.trapezoidal else "backward_euler"
     levels_peak_v = (0.020, 0.500, 1.000, 1.500)
     time_s = np.arange(int(DURATION_S * SAMPLE_RATE_HZ)) / SAMPLE_RATE_HZ
     burst_mask = (time_s >= BURST_START_S) & (time_s < BURST_END_S)
     post_index = int(round(BURST_END_S * SAMPLE_RATE_HZ))
 
     control_stimulus = stimulus(NOMINAL_PEAK_V)
-    analytical_control, _, _ = run_analytical(control_stimulus)
-    fixed_control, _, _ = run_fixed(control_stimulus, args.wide_candidate)
+    analytical_control, _, _ = run_analytical(
+        control_stimulus, integration_method
+    )
+    fixed_control, _, _ = run_fixed(
+        control_stimulus, args.wide_candidate, integration_method
+    )
     nominal_output_rms = float(
         np.sqrt(np.mean(np.square(analytical_control[time_s >= 0.040])))
     )
@@ -160,8 +174,12 @@ def main() -> int:
     measurements: list[dict[str, object]] = []
     for level_peak_v in levels_peak_v:
         samples = stimulus(level_peak_v)
-        analytical, analytical_grid, analytical_failures = run_analytical(samples)
-        fixed, fixed_grid, fixed_model = run_fixed(samples, args.wide_candidate)
+        analytical, analytical_grid, analytical_failures = run_analytical(
+            samples, integration_method
+        )
+        fixed, fixed_grid, fixed_model = run_fixed(
+            samples, args.wide_candidate, integration_method
+        )
         analytical_recovery_residual = analytical - analytical_control
         fixed_recovery_residual = fixed - fixed_control
         fixed_vs_analytical = fixed - analytical
@@ -201,6 +219,10 @@ def main() -> int:
                 "range_clip_count": fixed_model.lut_clip_count,
                 "correction_scale_fallback_count": fixed_model.correction_scale_fallback_count,
                 "minimum_correction_residual_fractional_bits": fixed_model.minimum_correction_residual_fractional_bits,
+                "maximum_capacitor_history_current_a": [
+                    value / (1 << 44)
+                    for value in fixed_model.max_abs_capacitor_current_q44
+                ],
             },
             "fixed_vs_analytical": {
                 "post_burst_residual_rms_v": float(
@@ -225,8 +247,11 @@ def main() -> int:
     report = {
         "model": "12ax7_passive_riaa_v1",
         "sample_rate_hz": SAMPLE_RATE_HZ,
+        "integration_method": integration_method,
         "fixed_implementation": (
-            "40-bit Q28/Q32 nodes, Q30 branch history, staged adaptive Q30/Q34/Q40 corrections"
+            "40-bit Q28/Q32 nodes, Q30 voltage/Q4.44 current trapezoidal history, staged adaptive Q30/Q34/Q40 corrections"
+            if args.trapezoidal
+            else "40-bit Q28/Q32 nodes, Q30 branch history, staged adaptive Q30/Q34/Q40 corrections"
             if args.wide_candidate
             else "legacy 32-bit heterogeneous nodes, Q12.20 matrix/history stamp"
         ),
@@ -243,7 +268,37 @@ def main() -> int:
         "recovery_definition": "last 1 ms sliding-RMS threshold crossing relative to a nominal undisturbed trajectory",
         "measurements": measurements,
     }
-    report_stem = "overload_recovery_wide" if args.wide_candidate else "overload_recovery"
+    clean_region = [
+        measurement
+        for measurement in measurements
+        if float(measurement["burst_input_peak_v"]) <= 0.500
+    ]
+    acceptance_passed = all(
+        int(measurement["analytical"]["nonconvergence_count"]) == 0
+        and int(measurement["fixed_factorized"]["residual_limit_exceedance_count"])
+        == 0
+        and int(measurement["fixed_factorized"]["saturation_count"]) == 0
+        and int(measurement["fixed_factorized"]["range_clip_count"]) == 0
+        and float(measurement["fixed_factorized"]["max_residual_a"]) <= 2.0e-6
+        for measurement in clean_region
+    )
+    report["clean_region_acceptance"] = {
+        "maximum_burst_input_peak_v": 0.500,
+        "maximum_residual_a": 2.0e-6,
+        "require_zero_analytical_nonconvergence": True,
+        "require_zero_fixed_residual_limit_exceedances": True,
+        "require_zero_saturations": True,
+        "require_zero_range_clips": True,
+        "severe_overload_above_region_is_characterized_not_accepted": True,
+        "passed": acceptance_passed,
+    }
+    report_stem = (
+        "overload_recovery_trapezoidal"
+        if args.trapezoidal
+        else "overload_recovery_wide"
+        if args.wide_candidate
+        else "overload_recovery"
+    )
     result_path = REPOSITORY_ROOT / "reference" / "results" / f"{report_stem}.json"
     result_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     summary_path = (
@@ -251,7 +306,7 @@ def main() -> int:
     )
     summary_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
-    return 0
+    return 0 if acceptance_passed else 1
 
 
 if __name__ == "__main__":

@@ -314,6 +314,12 @@ class V1CircuitTests(unittest.TestCase):
             tube_lut=FixedFactorizedKoren12AX7()
         )
         self.assertEqual(model.integration_method, "trapezoidal")
+        conductance_q47 = [
+            capacitor.conductance_q47 for capacitor in model.capacitors
+        ]
+        self.assertEqual(max(conductance_q47), 101_601_207_593_478)
+        self.assertGreaterEqual(max(conductance_q47), 1 << 46)
+        self.assertLess(max(conductance_q47), 1 << 47)
         self.assertTrue(
             all(capacitor.previous_current_q44 == 0 for capacitor in model.capacitors)
         )

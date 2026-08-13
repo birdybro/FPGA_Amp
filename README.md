@@ -48,6 +48,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   0.000131 dB / 0.000784° of floating trapezoidal, with zero convergence,
   saturation, range, or correction-fallback events. RTL and large-signal fixed
   proof remain open; backward Euler is still the implemented RTL contract.
+- In the 5 ms burst gate, fixed trapezoidal stays diagnostic-clean through
+  0.5 V peak and retains the same severe-overload boundary as backward Euler:
+  1.0/1.5 V cause 1,107/1,690 residual failures and 1.5 V causes 4,048 tube-
+  domain clips. Stored capacitor current reaches 203.34 uA with no arithmetic
+  saturation. The doubled 470 nF companion coefficient requires signed 48-bit
+  Q0.47, one bit wider than the current backward-Euler RTL KCL contract.
 - The 128 × 256 Q0.31 tube LUT has 0.139 µA mean and 9.33 µA worst absolute
   error in a 100,000-point full-range probe.
 - The complete bit-accurate three-pass chord candidate is -57.87 dB normalized
@@ -239,6 +245,7 @@ make wide-rtl-frequency             # captured 100 Hz-20 kHz solver sweep
 make wide-rtl-overload              # captured 100 ms overload/recovery sweep
 make wide-stream-rtl-alias          # captured nonlinear decimation-alias test
 make overload-study                 # grid conduction, clipping, recovery
+make overload-trapezoidal           # fixed/float trapezoidal burst comparison
 make overload-wide                  # same bursts with wide-state candidate
 make overload-iterations            # three-to-six-pass solver trade
 python3 scripts/study_lut_resolution.py

@@ -1,0 +1,290 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "sample_rate_hz": 768000.0,
+  "integration_method": "trapezoidal",
+  "fixed_implementation": "40-bit Q28/Q32 nodes, Q30 voltage/Q4.44 current trapezoidal history, staged adaptive Q30/Q34/Q40 corrections",
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_start_s": 0.01,
+    "burst_end_s": 0.015,
+    "duration_s": 0.05,
+    "burst_levels_peak_v": [
+      0.02,
+      0.5,
+      1.0,
+      1.5
+    ]
+  },
+  "nominal_analytical_output_rms_v": 0.4008969042150439,
+  "recovery_thresholds_v_rms": {
+    "ten_percent_nominal_output_rms": 0.0400896904215044,
+    "one_percent_nominal_output_rms": 0.00400896904215044,
+    "one_millivolt_rms": 0.001
+  },
+  "recovery_definition": "last 1 ms sliding-RMS threshold crossing relative to a nominal undisturbed trajectory",
+  "measurements": [
+    {
+      "burst_input_peak_v": 0.02,
+      "analytical": {
+        "burst_output": {
+          "positive_peak_v": 2.9160250191406916,
+          "negative_peak_v": -2.146622037125372,
+          "peak_to_peak_v": 5.062647056266064,
+          "absolute_peak_asymmetry_db": 2.660713247217887
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          0.0
+        ],
+        "nonconvergence_count": 0,
+        "peak_post_burst_deviation_v": 1.155811079271991,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": 0.00846484375,
+          "one_percent_nominal_output_rms": 0.014915364583333333,
+          "one_millivolt_rms": 0.01827734375
+        }
+      },
+      "fixed_factorized": {
+        "burst_output": {
+          "positive_peak_v": 2.9157252004370093,
+          "negative_peak_v": -2.146898246370256,
+          "peak_to_peak_v": 5.062623446807265,
+          "absolute_peak_asymmetry_db": 2.6587025837194096
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          0.0
+        ],
+        "peak_post_burst_deviation_v": 1.1557661367114633,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": 0.008463541666666666,
+          "one_percent_nominal_output_rms": 0.014921875,
+          "one_millivolt_rms": 0.018313802083333334
+        },
+        "max_residual_a": 6.162679255794501e-09,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "correction_scale_fallback_count": 0,
+        "minimum_correction_residual_fractional_bits": null,
+        "maximum_capacitor_history_current_a": [
+          2.829096956702415e-10,
+          1.3376791230257368e-08,
+          4.9071218199969735e-09,
+          5.855440576851834e-10,
+          3.578969653972308e-08,
+          1.3218084404797992e-08,
+          2.7813376277663338e-06,
+          1.8383773863206443e-06,
+          1.3744624993705656e-06,
+          1.3224935173639096e-06
+        ]
+      },
+      "fixed_vs_analytical": {
+        "post_burst_residual_rms_v": 0.00026498718013713926,
+        "post_burst_residual_mean_v": -0.0002640780282204586,
+        "maximum_post_burst_absolute_error_v": 0.00033593222137540124
+      }
+    },
+    {
+      "burst_input_peak_v": 0.5,
+      "analytical": {
+        "burst_output": {
+          "positive_peak_v": 71.18185665559172,
+          "negative_peak_v": -50.6101822805633,
+          "peak_to_peak_v": 121.79203893615502,
+          "absolute_peak_asymmetry_db": 2.9626282028813424
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          0.0
+        ],
+        "nonconvergence_count": 0,
+        "peak_post_burst_deviation_v": 35.98208826670442,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        }
+      },
+      "fixed_factorized": {
+        "burst_output": {
+          "positive_peak_v": 71.18033072911203,
+          "negative_peak_v": -50.61009422689676,
+          "peak_to_peak_v": 121.79042495600879,
+          "absolute_peak_asymmetry_db": 2.9624571134245126
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          0.0
+        ],
+        "peak_post_burst_deviation_v": 35.98202853533439,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        },
+        "max_residual_a": 3.329976721033745e-07,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "correction_scale_fallback_count": 0,
+        "minimum_correction_residual_fractional_bits": null,
+        "maximum_capacitor_history_current_a": [
+          7.0563714871241245e-09,
+          3.7454532275660313e-07,
+          1.3769482620773488e-07,
+          1.3870931070414372e-08,
+          8.717929063095653e-07,
+          3.217252810827631e-07,
+          6.907275565026794e-05,
+          4.5814573354618915e-05,
+          3.412321933637941e-05,
+          3.224410045277182e-05
+        ]
+      },
+      "fixed_vs_analytical": {
+        "post_burst_residual_rms_v": 0.0002978972399020138,
+        "post_burst_residual_mean_v": -0.0002963021424458115,
+        "maximum_post_burst_absolute_error_v": 0.0003782477599842682
+      }
+    },
+    {
+      "burst_input_peak_v": 1.0,
+      "analytical": {
+        "burst_output": {
+          "positive_peak_v": 101.98633351390234,
+          "negative_peak_v": -94.61857581355576,
+          "peak_to_peak_v": 196.6049093274581,
+          "absolute_peak_asymmetry_db": 0.6513114406142227
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          6.402955212218413e-08
+        ],
+        "nonconvergence_count": 0,
+        "peak_post_burst_deviation_v": 66.44401915412341,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        }
+      },
+      "fixed_factorized": {
+        "burst_output": {
+          "positive_peak_v": 102.12297485140152,
+          "negative_peak_v": -94.61353389685974,
+          "peak_to_peak_v": 196.73650874826126,
+          "absolute_peak_asymmetry_db": 0.6634038659033847
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          8.288770914077759e-08
+        ],
+        "peak_post_burst_deviation_v": 66.4416309024673,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        },
+        "max_residual_a": 6.4429397639287345e-06,
+        "residual_limit_exceedance_count": 1107,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "correction_scale_fallback_count": 0,
+        "minimum_correction_residual_fractional_bits": null,
+        "maximum_capacitor_history_current_a": [
+          1.4113652468950022e-08,
+          7.506919814659341e-07,
+          2.759882704594929e-07,
+          3.122312364212121e-08,
+          1.727654648675525e-06,
+          6.375296379701467e-07,
+          0.0001356495134814395,
+          9.00093678524172e-05,
+          6.833726087052128e-05,
+          4.628256817795773e-05
+        ]
+      },
+      "fixed_vs_analytical": {
+        "post_burst_residual_rms_v": 0.0003593318989778578,
+        "post_burst_residual_mean_v": 7.014642609521097e-05,
+        "maximum_post_burst_absolute_error_v": 0.0023733733098438847
+      }
+    },
+    {
+      "burst_input_peak_v": 1.5,
+      "analytical": {
+        "burst_output": {
+          "positive_peak_v": 102.52258378650065,
+          "negative_peak_v": -109.1447064385852,
+          "peak_to_peak_v": 211.66729022508585,
+          "absolute_peak_asymmetry_db": -0.5436626861980522
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          2.640345664182003e-05
+        ],
+        "nonconvergence_count": 0,
+        "peak_post_burst_deviation_v": 73.10011898047729,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        }
+      },
+      "fixed_factorized": {
+        "burst_output": {
+          "positive_peak_v": 103.89469162933528,
+          "negative_peak_v": -109.07020917441696,
+          "peak_to_peak_v": 212.96490080375224,
+          "absolute_peak_asymmetry_db": -0.422255752790261
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          2.6421621441841125e-05
+        ],
+        "peak_post_burst_deviation_v": 72.97346365242265,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        },
+        "max_residual_a": 1.665187227217757e-05,
+        "residual_limit_exceedance_count": 1690,
+        "saturation_count": 0,
+        "range_clip_count": 4048,
+        "correction_scale_fallback_count": 728,
+        "minimum_correction_residual_fractional_bits": 34,
+        "maximum_capacitor_history_current_a": [
+          2.1167920749576297e-08,
+          1.1269781907685683e-06,
+          4.1433526121181785e-07,
+          6.153953790999367e-08,
+          2.4704039560674573e-06,
+          9.112839620684099e-07,
+          0.0002033418206224269,
+          0.00013325094380434166,
+          0.00010248557845216055,
+          4.941029499150318e-05
+        ]
+      },
+      "fixed_vs_analytical": {
+        "post_burst_residual_rms_v": 0.036171389867804576,
+        "post_burst_residual_mean_v": 0.03363719772338296,
+        "maximum_post_burst_absolute_error_v": 0.1263609369915315
+      }
+    }
+  ],
+  "clean_region_acceptance": {
+    "maximum_burst_input_peak_v": 0.5,
+    "maximum_residual_a": 2e-06,
+    "require_zero_analytical_nonconvergence": true,
+    "require_zero_fixed_residual_limit_exceedances": true,
+    "require_zero_saturations": true,
+    "require_zero_range_clips": true,
+    "severe_overload_above_region_is_characterized_not_accepted": true,
+    "passed": true
+  }
+}

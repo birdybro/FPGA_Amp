@@ -42,6 +42,7 @@ scripts/sweep_wide_solver_rtl.py              captured four-point RTL sweep
 scripts/characterize_wide_solver_rtl_overload.py  captured 100 ms burst/recovery
 scripts/characterize_wide_stream_rtl_alias.py     captured cubic alias/full stream
 scripts/characterize_overload_recovery.py     grid conduction and recovery
+scripts/characterize_overload_recovery.py --trapezoidal  fixed integrator overload
 scripts/study_overload_iterations.py          pass-count/deadline trade
 scripts/study_trapezoidal_overload.py         floating integrator stability
 scripts/characterize_factorized_frequency.py --trapezoidal  fixed integrator sweep
@@ -60,6 +61,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | trapezoidal float candidate vs ngspice | 5 mV, 10/20 kHz | <=0.00846 dB gain, <=0.0582 degree phase; zero failed solves |
 | trapezoidal overload stability | 20 mV/0.5/1.0/1.5 V, 85 ms post-burst | finite/convergent; 20 mV recovery within 2.6 us of BE |
 | fixed trapezoidal vs trapezoidal float | 5 mV, 20/50/100/1k/10k/20k Hz | <=0.000131 dB gain, <=0.000784 degree phase; zero diagnostics |
+| fixed trapezoidal overload | 20 mV/0.5/1.0/1.5 V, 5 ms burst | clean through 0.5 V; 1,107/1,690 failures at 1/1.5 V; 203.34 uA max capacitor current |
 | 2-pass vs converged solver | 20 mV peak, 1 kHz | all samples ≤100 pA residual; -136.84 dB output residual |
 | LUT vs analytical tube | 100,000 random full-range points | 0.139 µA mean, 9.33 µA worst |
 | factorized fixed vs analytical tube | 100,000 quantized full-range points | 10.5 nA mean, 51.8 nA worst; 12.67 raw RAMB18 equivalents |

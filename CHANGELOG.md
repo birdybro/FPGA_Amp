@@ -97,6 +97,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   capacitor voltage, signed Q4.44 previous current, identical rounded KCL/state
   branch arithmetic, nominal-range instrumentation, and a gated six-frequency
   comparison against floating trapezoidal.
+- Extended the controlled overload harness to select fixed trapezoidal state,
+  report all capacitor-current maxima, and enforce a diagnostic-clean <=0.5 V
+  acceptance region while retaining severe overload as characterization.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -249,6 +252,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
   0.000131 dB / 0.000784 degrees across six 5 mV points from 20 Hz to 20 kHz.
   No convergence, saturation, range, or correction-fallback diagnostics occur;
   maximum observed nominal capacitor history current is 2.25 uA.
+- Fixed trapezoidal remains diagnostic-clean through 0.5 V peak; 1.0/1.5 V
+  retain 1,107/1,690 convergence failures and 1.5 V retains 4,048 tube-domain
+  clips. Capacitor history current peaks at 203.34 uA without saturation. The
+  0.72192 S output-coupling companion requires signed 48-bit Q0.47 versus the
+  existing backward-Euler KCL's 47-bit coefficient.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.

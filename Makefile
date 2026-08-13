@@ -2,7 +2,7 @@ PYTHON ?= python3
 NGSPICE ?= ngspice
 VERILATOR ?= verilator
 
-.PHONY: all reference analysis accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide factorized-frequency-trapezoidal state-drift state-wide state-wide-audio wide-rtl-audio wide-rtl-frequency wide-rtl-overload wide-stream-rtl-alias spice-python-frequency overload-study overload-wide overload-iterations trapezoidal-overload precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl guarded-stream-rtl mute-rtl lint synth synth-factorized synth-chord synth-wide-chord synth-network synth-wide-network synth-solver synth-solver-factorized synth-wide-solver synth-halfband synth-stream synth-stream-factorized synth-stream-wide synth-stream-guarded synth-mute clean tools
+.PHONY: all reference analysis accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide factorized-frequency-trapezoidal state-drift state-wide state-wide-audio wide-rtl-audio wide-rtl-frequency wide-rtl-overload wide-stream-rtl-alias spice-python-frequency overload-study overload-wide overload-trapezoidal overload-iterations trapezoidal-overload precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl guarded-stream-rtl mute-rtl lint synth synth-factorized synth-chord synth-wide-chord synth-network synth-wide-network synth-solver synth-solver-factorized synth-wide-solver synth-halfband synth-stream synth-stream-factorized synth-stream-wide synth-stream-guarded synth-mute clean tools
 
 all: reference test
 
@@ -59,6 +59,9 @@ overload-study:
 
 overload-wide:
 	$(PYTHON) scripts/characterize_overload_recovery.py --wide-candidate
+
+overload-trapezoidal:
+	$(PYTHON) scripts/characterize_overload_recovery.py --trapezoidal
 
 overload-iterations:
 	$(PYTHON) scripts/study_overload_iterations.py
