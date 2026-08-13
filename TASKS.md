@@ -15,8 +15,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   the factorized candidate fixes THD but retains -42.90 dB raw residual at
   5 mV. A -2.840 mV mean offset dominates it; mean-removed residual is -59.63 dB,
   phase error 0.00958°, and fundamental gain error +0.00026 dB.
-- [ ] Extend captured wide RTL measurement from the completed nominal 1 kHz
-  case to frequency sweeps, level/overload, and nonlinear alias measurements.
+- [ ] Extend captured wide RTL measurement beyond the completed nominal and
+  four-point frequency sweeps to level/overload and nonlinear alias measurements.
 - [ ] Lengthen severe-overload recovery windows.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
 - [ ] Evaluate overload-specific solver strategies (adaptive Jacobian, parallel
@@ -32,6 +32,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 ## Completed this milestone
 
 - [x] Establish repository engineering instructions and reproducible tool bootstrap.
+- [x] Capture wide-solver RTL at 100 Hz, 1 kHz, 10 kHz, and 20 kHz; prove Q32
+  fixed equivalence and <=0.0001943 dB / <=0.0009814 degree analytical error.
 - [x] Select, document, and version the Kennedy 1998 two-stage passive-RIAA circuit.
 - [x] Implement AT-VM95E R/L/47.5 kΩ/150 pF cartridge loading.
 - [x] Build ngspice DC, 10 Hz–100 kHz AC, transient, and 1 kHz H1–H10 level sweeps.

@@ -25,12 +25,17 @@ from fpga_amp.v1_circuit import V1CircuitModel  # noqa: E402
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
+    parser.add_argument("--frequency-hz", type=float, default=1_000.0)
     args = parser.parse_args()
     sample_rate_hz = 768_000.0
-    frequency_hz = 1_000.0
+    frequency_hz = args.frequency_hz
+    if frequency_hz <= 0.0 or frequency_hz > 20_000.0:
+        raise ValueError("frequency must be within 0 < f <= 20 kHz")
     input_peak_v = 0.005
-    duration_s = 0.030
-    analysis_start_s = 0.020
+    duration_s = max(0.030, 10.0 / frequency_hz)
+    analysis_start_s = round(
+        duration_s - max(0.010, 5.0 / frequency_hz), 12
+    )
     sample_count = int(round(duration_s * sample_rate_hz))
     time_s = np.arange(sample_count, dtype=np.float64) / sample_rate_hz
     input_q24 = np.rint(
@@ -44,7 +49,14 @@ def main() -> int:
         stimulus, max_iterations=8, tolerance_a=1.0e-12
     )
     fixed_output = np.empty(sample_count, dtype=np.float64)
-    vector_path = ROOT / "sim" / "vectors" / "generated" / "wide_solver_rtl_1khz.txt"
+    frequency_tag = f"{frequency_hz:g}".replace(".", "p")
+    vector_path = (
+        ROOT
+        / "sim"
+        / "vectors"
+        / "generated"
+        / f"wide_solver_rtl_{frequency_tag}hz.txt"
+    )
     vector_path.parent.mkdir(parents=True, exist_ok=True)
     with vector_path.open("w", encoding="ascii") as handle:
         for index, sample in enumerate(input_q24):
@@ -62,7 +74,7 @@ def main() -> int:
             ]
             handle.write(" ".join(str(value) for value in fields) + "\n")
 
-    capture_path = ROOT / "build" / "wide_solver_rtl_1khz_capture.txt"
+    capture_path = ROOT / "build" / f"wide_solver_rtl_{frequency_tag}hz_capture.txt"
     capture_path.parent.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         [
@@ -145,9 +157,14 @@ def main() -> int:
             "correction_scale_fallback_count": fixed.correction_scale_fallback_count,
         },
     }
-    summary = ROOT / "model" / "generated" / "wide_solver_rtl_audio_summary.json"
-    summary.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    result = ROOT / "reference" / "results" / "wide_solver_rtl_audio.json"
+    run_report = ROOT / "build" / f"wide_solver_rtl_{frequency_tag}hz_report.json"
+    run_report.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    if frequency_hz == 1_000.0:
+        summary = ROOT / "model" / "generated" / "wide_solver_rtl_audio_summary.json"
+        summary.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    result = (
+        ROOT / "reference" / "results" / f"wide_solver_rtl_{frequency_tag}hz.json"
+    )
     result.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
     return 0

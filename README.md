@@ -136,6 +136,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   Python. Measured directly from RTL output, gain/phase error versus analytical
   float is -0.000054 dB / -0.000187 degrees, THD is 0.019371% versus 0.019059%,
   and raw/mean-removed residual is -63.83 / -88.45 dB.
+- Captured solver output at 100 Hz, 1 kHz, 10 kHz, and 20 kHz remains Q32
+  bit-exact to fixed Python. Against analytical float, maximum gain/phase error
+  is 0.000194 dB / 0.000982 degrees with zero runtime diagnostics. This is an
+  RTL-simulation result, not an FPGA or analog measurement.
 - A downstream, explicitly non-reference output guard now starts muted, applies
   a configurable sample-qualified linear ramp, bypasses exactly at unity, and
   synchronously clamps held output on a fault. Its warning-free RTL regression
@@ -197,6 +201,7 @@ make state-drift                    # one-second silence/click state audit
 make state-wide                     # wide-state candidate on the same audit
 make state-wide-audio               # 5 mV/1 kHz legacy/wide A/B
 make wide-rtl-audio                 # capture and measure 23,040 RTL samples
+make wide-rtl-frequency             # captured 100 Hz-20 kHz solver sweep
 make overload-study                 # grid conduction, clipping, recovery
 make overload-wide                  # same bursts with wide-state candidate
 make overload-iterations            # three-to-six-pass solver trade

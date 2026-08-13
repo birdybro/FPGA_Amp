@@ -206,6 +206,16 @@ is -0.0000542 dB, phase error -0.0001866 degrees, THD 0.0193708% versus
 is retained at -0.2573 mV rather than removed from reference behavior. Maximum
 fixed KCL residual is 4.961 nA and all diagnostics are zero.
 
+Four captured-RTL frequency points extend that result over representative
+audio-band locations. At 100 Hz, 1 kHz, 10 kHz, and 20 kHz, every Q8.32 output
+sample is exact to fixed Python. Relative to analytical float, maximum absolute
+gain and phase error are 0.0001943 dB and 0.0009814 degrees. The worst raw null
+is -44.755 dB at 20 kHz, while its mean-removed null is -68.367 dB; both are
+reported because the raw high-frequency residual is dominated by a small DC
+difference. No saturation, tube-range clip, residual-limit failure, or
+correction-scale fallback occurs. These are captured simulator values, not
+placed-FPGA or physical-audio measurements.
+
 At 20 mV, fixed 10%/1%/1 mV recovery becomes 8.466/14.918/18.297 ms versus
 analytical 8.465/14.918/18.280 ms. Legacy fixed needed 8.668/24.612/34.643 ms.
 Post-burst wide fixed/analytical RMS is 0.258 mV at both 20 mV and 0.5 V,
@@ -275,6 +285,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | wide factorized solver RTL vs fixed | 512 persistent samples | bit-exact all state/diagnostics, latency 116; 11,981 LC / 122 DSP / 8 RAMB18 |
 | wide factorized stream vs fixed | 64 outputs / 1,024 updates | bit-exact, zero diagnostics; 16,993 LC / 170 DSP / 8 RAMB18 |
 | captured wide solver RTL vs analytical | 23,040 samples, 5 mV/1 kHz | Q32 exact to fixed; -0.000054 dB / -0.000187 degree gain/phase error; 0.019371% THD |
+| captured wide solver RTL frequency sweep | 5 mV, 100 Hz/1/10/20 kHz | Q32 exact to fixed; <=0.0001943 dB gain / <=0.0009814 degree phase; zero diagnostics |
 | wide-state frequency response | 5 mV, 20 Hz--20 kHz | <=0.000196 dB gain / <=0.000982 degree phase; zero diagnostics |
 | wide-state overload/recovery | 20 mV--1.5 V bursts | clean through 0.5 V; convergence fails at 1 V; adaptive scale prevents arithmetic saturation |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |

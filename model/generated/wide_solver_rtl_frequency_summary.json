@@ -1,0 +1,170 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "implementation": "captured SystemVerilog wide factorized solver",
+  "frequencies_hz": [
+    100.0,
+    1000.0,
+    10000.0,
+    20000.0
+  ],
+  "input_peak_v": 0.005,
+  "all_rtl_fixed_bit_exact": true,
+  "maximum_absolute_gain_error_db": 0.00019424336434911964,
+  "maximum_absolute_phase_error_deg": 0.00098136604475485,
+  "worst_raw_normalized_residual_db": -44.75496751812257,
+  "worst_mean_removed_normalized_residual_db": -68.3672319520151,
+  "total_saturation_count": 0,
+  "total_range_clip_count": 0,
+  "total_residual_limit_exceedance_count": 0,
+  "total_correction_scale_fallback_count": 0,
+  "measurements": [
+    {
+      "model": "12ax7_passive_riaa_v1",
+      "implementation": "captured SystemVerilog wide factorized solver",
+      "sample_rate_hz": 768000.0,
+      "stimulus": {
+        "frequency_hz": 100.0,
+        "input_peak_v": 0.005,
+        "duration_s": 0.1,
+        "analysis_start_s": 0.05,
+        "quantized_input": "Q8.24"
+      },
+      "captured_samples": 76800,
+      "rtl_fixed_bit_exact": true,
+      "analytical": {
+        "fundamental_peak_v": 2.445393408418888,
+        "phase_deg": -51.6175940990158,
+        "mean_v": -0.03982102275503241,
+        "thd_percent_h2_to_h10": 0.08420052535128898
+      },
+      "rtl": {
+        "fundamental_peak_v": 2.445361077361984,
+        "phase_deg": -51.61777663108364,
+        "mean_v": -0.039996172091728406,
+        "thd_percent_h2_to_h10": 0.08427030337666944,
+        "gain_db": 53.78745981910111,
+        "gain_error_db": -0.00011483871986251312,
+        "phase_error_deg": -0.00018253206784635267,
+        "raw_normalized_residual_db": -79.72499151242684,
+        "mean_removed_normalized_residual_db": -93.98859666318778,
+        "residual_mean_v": -0.00017514933669710679,
+        "maximum_residual_a": 5.647393663821276e-09,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "residual_limit_exceedance_count": 0,
+        "correction_scale_fallback_count": 0
+      }
+    },
+    {
+      "model": "12ax7_passive_riaa_v1",
+      "implementation": "captured SystemVerilog wide factorized solver",
+      "sample_rate_hz": 768000.0,
+      "stimulus": {
+        "frequency_hz": 1000.0,
+        "input_peak_v": 0.005,
+        "duration_s": 0.03,
+        "analysis_start_s": 0.02,
+        "quantized_input": "Q8.24"
+      },
+      "captured_samples": 23040,
+      "rtl_fixed_bit_exact": true,
+      "analytical": {
+        "fundamental_peak_v": 0.5667776614821468,
+        "phase_deg": -48.546319935559815,
+        "mean_v": -0.005073707458612221,
+        "thd_percent_h2_to_h10": 0.01905863270973286
+      },
+      "rtl": {
+        "fundamental_peak_v": 0.5667741240112492,
+        "phase_deg": -48.54650650080288,
+        "mean_v": -0.00533101778006918,
+        "thd_percent_h2_to_h10": 0.019370847156964032,
+        "gain_db": 41.08880020083415,
+        "gain_error_db": -5.42120478447215e-05,
+        "phase_error_deg": -0.00018656524306237543,
+        "raw_normalized_residual_db": -63.834467995906124,
+        "mean_removed_normalized_residual_db": -88.4477508475282,
+        "residual_mean_v": -0.00025731032145699206,
+        "maximum_residual_a": 4.960838850820437e-09,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "residual_limit_exceedance_count": 0,
+        "correction_scale_fallback_count": 0
+      }
+    },
+    {
+      "model": "12ax7_passive_riaa_v1",
+      "implementation": "captured SystemVerilog wide factorized solver",
+      "sample_rate_hz": 768000.0,
+      "stimulus": {
+        "frequency_hz": 10000.0,
+        "input_peak_v": 0.005,
+        "duration_s": 0.03,
+        "analysis_start_s": 0.02,
+        "quantized_input": "Q8.24"
+      },
+      "captured_samples": 23040,
+      "rtl_fixed_bit_exact": true,
+      "analytical": {
+        "fundamental_peak_v": 0.11332773742182814,
+        "phase_deg": -79.80531667157797,
+        "mean_v": -0.00019545794181545024,
+        "thd_percent_h2_to_h10": 0.0053967124133638125
+      },
+      "rtl": {
+        "fundamental_peak_v": 0.11332597633108062,
+        "phase_deg": -79.80531615373093,
+        "mean_v": -0.0004643962945920073,
+        "thd_percent_h2_to_h10": 0.006175257674059906,
+        "gain_db": 27.107189299286027,
+        "gain_error_db": -0.00013497806519573402,
+        "phase_error_deg": 5.17847041692221e-07,
+        "raw_normalized_residual_db": -49.46978745085087,
+        "mean_removed_normalized_residual_db": -74.51648770360589,
+        "residual_mean_v": -0.0002689383527765562,
+        "maximum_residual_a": 4.6708237277925946e-09,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "residual_limit_exceedance_count": 0,
+        "correction_scale_fallback_count": 0
+      }
+    },
+    {
+      "model": "12ax7_passive_riaa_v1",
+      "implementation": "captured SystemVerilog wide factorized solver",
+      "sample_rate_hz": 768000.0,
+      "stimulus": {
+        "frequency_hz": 20000.0,
+        "input_peak_v": 0.005,
+        "duration_s": 0.03,
+        "analysis_start_s": 0.02,
+        "quantized_input": "Q8.24"
+      },
+      "captured_samples": 23040,
+      "rtl_fixed_bit_exact": true,
+      "analytical": {
+        "fundamental_peak_v": 0.05735875203908371,
+        "phase_deg": -83.07375521269556,
+        "mean_v": 7.295558397238737e-05,
+        "thd_percent_h2_to_h10": 0.004370641163952413
+      },
+      "rtl": {
+        "fundamental_peak_v": 0.057357469334276684,
+        "phase_deg": -83.0727738466508,
+        "mean_v": -0.00016113813159489152,
+        "thd_percent_h2_to_h10": 0.006234212847764814,
+        "gain_db": 21.192399545273496,
+        "gain_error_db": -0.00019424336434911964,
+        "phase_error_deg": 0.00098136604475485,
+        "raw_normalized_residual_db": -44.75496751812257,
+        "mean_removed_normalized_residual_db": -68.3672319520151,
+        "residual_mean_v": -0.00023409371556727904,
+        "maximum_residual_a": 4.666503627959173e-09,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "residual_limit_exceedance_count": 0,
+        "correction_scale_fallback_count": 0
+      }
+    }
+  ]
+}
