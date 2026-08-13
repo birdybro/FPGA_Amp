@@ -366,8 +366,19 @@ class FixedChordV1CircuitModel:
     ) -> int:
         if not self.adaptive_correction_scaling:
             return requested_fractional_bits
-        selected = requested_fractional_bits
-        while selected > 0:
+        candidates = sorted(
+            {
+                value
+                for value in self.correction_residual_fractional_bits
+                if value <= requested_fractional_bits
+            },
+            reverse=True,
+        )
+        if not candidates:
+            raise ValueError("correction schedule has no usable residual format")
+        selected = candidates[-1]
+        for candidate in candidates:
+            selected = candidate
             shift = self.RESIDUAL_FRACTIONAL_BITS - selected
             if all(
                 not saturate_signed(
@@ -376,7 +387,6 @@ class FixedChordV1CircuitModel:
                 for value in residual_q44
             ):
                 break
-            selected -= 1
         if selected != requested_fractional_bits:
             self.correction_scale_fallback_count += 1
             if self.minimum_correction_residual_fractional_bits is None:

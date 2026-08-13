@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run reproducible out-of-context XC7 structural synthesis for the tube core."""
+"""Run reproducible out-of-context XC7 structural synthesis for project RTL."""
 
 from __future__ import annotations
 
@@ -32,6 +32,7 @@ def main() -> int:
             "triode_12ax7",
             "triode_12ax7_factorized",
             "chord_corrector_v1",
+            "chord_corrector_v1_wide",
             "network_rhs_v1",
             "network_kcl_v1",
             "v1_solver_mono",
@@ -58,6 +59,7 @@ def main() -> int:
         "triode_12ax7": ["rtl/tube/triode_12ax7.sv"],
         "triode_12ax7_factorized": ["rtl/tube/triode_12ax7_factorized.sv"],
         "chord_corrector_v1": ["rtl/circuit/chord_corrector_v1.sv"],
+        "chord_corrector_v1_wide": ["rtl/circuit/chord_corrector_v1_wide.sv"],
         "network_rhs_v1": ["rtl/circuit/network_rhs_v1.sv"],
         "network_kcl_v1": ["rtl/circuit/network_kcl_v1.sv"],
         "v1_solver_mono": [

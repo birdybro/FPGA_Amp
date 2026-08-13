@@ -44,6 +44,24 @@ measured nine DSPs confirm that Q17.1 × 25-bit-Q30 maps one native multiplier p
 row; no timing claim is made. Tube plus corrector total 25 DSPs when composed,
 before KCL/network/filter arithmetic.
 
+The 40-bit Q28/Q32 candidate corrector keeps the same nine multipliers but
+selects only constant Q30/Q34/Q40 scaling paths. Its separate result is:
+
+| Resource | Count |
+|---|---:|
+| estimated logic cells | 1,701 |
+| LUT2 / LUT3 / LUT4 / LUT5 / LUT6 | 952 / 29 / 33 / 122 / 1,072 |
+| FDRE | 1,403 |
+| DSP48E1 | 9 |
+| RAMB18E1 | 0 |
+| CARRY4 / MUXF7 | 431 / 60 |
+
+The structural check reports zero problems and six techmap resize warnings.
+This is a 592-cell increase over the 32-bit corrector. A first version allowing
+an arbitrary runtime binary-point shift used 5,531 cells and was rejected; its
+cost was not used as the selected design result. Complete wide KCL/solver
+resources and 98.304 MHz timing remain unmeasured.
+
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.
 Time-multiplexing it across triodes/channels is therefore favored over blind

@@ -147,13 +147,22 @@ Tube lookup interfaces remain Q8.24/Q12.20, so this changes the numerical state
 layer rather than the tube device approximation.
 
 Each late-pass format is a requested maximum rather than an unsafe fixed shift.
-The candidate selects the finest fractional count that keeps all nine signed
-25-bit residual operands in range, recording every fallback and its minimum
-format. Ordinary signals use the requested Q30/Q34/Q40 sequence. The 1.5 V
-burst falls back 729 times to no less than Q30, eliminating the 1,429 operand
-saturations observed with a fixed scale. This bounded block-floating choice is
-still only a Python candidate; its compare/leading-zero hardware and timing cost
-are not claimed.
+The candidate selects the finest available schedule format that keeps all nine
+signed 25-bit residual operands in range, recording every fallback and its
+minimum format. Ordinary signals use the requested Q30/Q34/Q40 sequence. The
+1.5 V burst falls back 729 times to no less than Q34, eliminating the 1,429
+operand saturations observed with a fixed scale. Restricting fallback to these
+three formats makes the scaling hardware bounded and auditable.
+
+`chord_corrector_v1_wide.sv` implements the complete 40-bit correction. It uses
+the same Q17.1 inverse and nine parallel 18x25 multipliers, applies explicit
+constant shifts for Q30/Q34/Q40 into each node format, and saturates at signed
+40-bit node boundaries. It matches 1,024 generated randomized and directed
+vectors exactly, including 95 vectors with at least one forced output
+saturation, at ten clocks. Generic XC7 synthesis reports 1,701 estimated logic
+cells, 9 DSP48E1s, and no block RAM. An earlier arbitrary runtime shifter
+synthesized to 5,531 cells and was rejected; that experiment did not change the
+numerical formats. Wide KCL/history integration is still open.
 
 On the same 768,000-sample bipolar-click audit, late raw output residual falls
 from 5.375 mV RMS to 38.74 uV RMS and between-click residual falls from
@@ -161,8 +170,10 @@ from 5.375 mV RMS to 38.74 uV RMS and between-click residual falls from
 5.01 nA with zero diagnostic events. At 5 mV/1 kHz, raw null improves from
 -42.90 to -63.83 dB, phase error from +0.00958 to -0.00019 degrees, and gain
 error from +0.000257 to -0.000058 dB. Candidate THD is 0.01937% versus
-0.01906% analytical. This is a successful Python architecture candidate, but
-it is not yet an RTL result and has no synthesis/cycle-cost claim.
+0.01906% analytical. This is a successful Python architecture candidate. Only
+its chord-correction subsystem currently has bit-exact RTL and a structural
+resource measurement; the complete wide solver has no synthesis/cycle-cost
+claim.
 
 The six-point 5 mV sweep bounds the wide candidate to 0.000196 dB gain error
 and 0.000982 degrees phase error from 20 Hz through 20 kHz, with zero residual,

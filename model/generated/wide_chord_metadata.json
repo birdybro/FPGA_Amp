@@ -1,0 +1,25 @@
+{
+  "algorithm": "9x9 Q17.1 inverse by adaptive signed 25-bit residual",
+  "vectors": 1024,
+  "seed": 4243678,
+  "node_fractional_bits": [
+    32,
+    28,
+    32,
+    28,
+    32,
+    32,
+    28,
+    32,
+    32
+  ],
+  "node_width_bits": 40,
+  "residual_fractional_bits": [
+    30,
+    34,
+    40
+  ],
+  "saturation_vectors": 95,
+  "latency_clocks": 10,
+  "output": "sim/vectors/generated/wide_chord.txt"
+}

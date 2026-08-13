@@ -155,9 +155,10 @@ that entire difference.
 At nominal 5 mV/1 kHz, the wide-state raw null is -63.83 dB and mean-removed
 null -88.43 dB, versus -42.90/-59.63 dB for the legacy state. Gain and phase
 errors are -0.000058 dB and -0.000187 degrees. The remaining -0.257 mV mean
-difference is still reported raw. Frequency, overload, RTL schedule, and
-resource proof remain gates before this candidate can replace the explicit
-legacy implementation.
+difference is still reported raw. Frequency, overload, complete-RTL schedule,
+and hierarchical resource proof remain gates before this candidate can replace
+the explicit legacy implementation. The correction sub-block alone is now
+verified in RTL.
 
 The matched six-frequency sweep reduces the legacy worst gain/phase bounds
 from 0.00846 dB / 0.0729 degrees to 0.000196 dB / 0.000982 degrees. There are
@@ -167,10 +168,18 @@ are -95.26, -87.71, -79.73, -63.83, -49.47, and -44.75 dB from 20 Hz through
 raw values remain primary and the separate mean report is diagnostic only.
 
 The wide-state overload rerun uses a bounded adaptive residual scale. Each pass
-requests Q30/Q34/Q40, then reduces fractional bits only until all nine 25-bit
-operands fit. At 20 mV and 0.5 V no fallback occurs. At 1.5 V, 729 fallback
-events prevent any arithmetic saturation; the minimum is Q30. This improves
-numerical robustness but not the quiescent-Jacobian convergence envelope.
+requests Q30/Q34/Q40, then selects the finest no-greater format from that same
+three-value set for which all nine 25-bit operands fit. At 20 mV and 0.5 V no
+fallback occurs. At 1.5 V, 729 fallback events prevent any arithmetic
+saturation; the minimum is Q34. This improves numerical robustness but not the
+quiescent-Jacobian convergence envelope.
+
+The standalone wide correction block matches 1,024 exact vectors at ten clocks,
+including 95 output-saturation vectors. Its constant-format Q30/Q34/Q40 scaling
+synthesizes to 1,701 generic XC7 logic cells and nine DSP48E1s. A fully variable
+shift version required 5,531 cells and was rejected. The branch-current KCL and
+complete scheduler remain to be implemented before this is an accepted RTL
+state contract.
 
 At 20 mV, fixed 10%/1%/1 mV recovery becomes 8.466/14.918/18.297 ms versus
 analytical 8.465/14.918/18.280 ms. Legacy fixed needed 8.668/24.612/34.643 ms.
@@ -235,7 +244,8 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | factorized overload/recovery | 5 ms bursts, 20 mV–1.5 V | clean at 20/500 mV; residual failure at 1 V; range clip at 1.5 V |
 | overload iteration count | 3–6 corrections at 1.0/1.5 V | improved but still failing; projected 213 clocks at six |
 | long fixed state / click recovery | 1 s silence with +/-100 mV single-sample clicks | Q12.20 deadband leaves -5.368 mV late output; must be redesigned |
-| wide-state Python candidate | same 1 s click audit; 5 mV/1 kHz | 38.74 uV late residual; -63.83 dB nominal raw null; RTL/resource proof open |
+| wide-state Python candidate | same 1 s click audit; 5 mV/1 kHz | 38.74 uV late residual; -63.83 dB nominal raw null; complete-RTL proof open |
+| wide chord RTL vs fixed | 1,024 randomized/directed vectors | bit-exact, latency 10; 1,701 LC / 9 DSP / 0 RAMB18 structural |
 | wide-state frequency response | 5 mV, 20 Hz--20 kHz | <=0.000196 dB gain / <=0.000982 degree phase; zero diagnostics |
 | wide-state overload/recovery | 20 mV--1.5 V bursts | clean through 0.5 V; convergence fails at 1 V; adaptive scale prevents arithmetic saturation |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |

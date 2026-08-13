@@ -15,9 +15,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   the factorized candidate fixes THD but retains -42.90 dB raw residual at
   5 mV. A -2.840 mV mean offset dominates it; mean-removed residual is -59.63 dB,
   phase error 0.00958°, and fundamental gain error +0.00026 dB.
-- [ ] Derive an RTL branch-current/adaptive-correction schedule for the 40-bit
-  candidate and measure whether it can meet 128 clocks with realistic XC7
-  resources.
+- [ ] Implement the wide branch-current KCL and integrate the measured 10-clock
+  wide chord block into a complete solver; close the 128-clock schedule and
+  measure hierarchical XC7 resources.
 - [ ] Lengthen severe-overload recovery windows.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
 - [ ] Evaluate overload-specific solver strategies (adaptive Jacobian, parallel
@@ -116,6 +116,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Re-run 20 mV--1.5 V overload with adaptive Q30/Q34/Q40 residual scaling:
   eliminate arithmetic saturation and improve clean-region recovery/error, but
   retain explicit 1.0/1.5 V convergence and 1.5 V range failures.
+- [x] Implement the 40-bit Q28/Q32 chord corrector with bounded Q30/Q34/Q40
+  scaling; match 1,024 vectors at ten clocks and synthesize to 1,701 XC7 logic
+  cells / 9 DSP48E1 / no RAMB18. Reject the 5,531-cell arbitrary-shift version.
 - [x] Implement and test a downstream Q0.16 output mute/ramp with reset-muted
   startup, symmetric rounding, exact-unity bypass, and synchronous fault clamp;
   synthesize at 171 XC7 logic cells, 2 DSP48E1s, and no block RAM.

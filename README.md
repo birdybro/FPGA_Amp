@@ -98,8 +98,9 @@ The mono reference and complete 768 kHz circuit solver are operating:
   branch-current stamping, and Q30/Q34/Q40 staged correction precision reduces
   that late raw residual from 5.375 mV to 38.74 uV RMS with zero diagnostics.
   At 5 mV/1 kHz it improves raw fixed/analytical null from -42.90 to -63.83 dB,
-  with -0.000058 dB gain and -0.000187 degree phase error. This is not RTL yet;
-  frequency, overload, schedule, and synthesis gates remain.
+  with -0.000058 dB gain and -0.000187 degree phase error. Its standalone
+  wide-state chord corrector is now bit-exact RTL, but complete KCL/state
+  integration, schedule, and hierarchical synthesis gates remain.
 - Across 20 Hz, 50 Hz, 100 Hz, 1 kHz, 10 kHz, and 20 kHz at 5 mV, that
   candidate stays within 0.000196 dB gain and 0.000982 degree phase of the
   analytical model with zero diagnostics. Raw null spans -95.26 to -44.75 dB;
@@ -112,6 +113,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   24.61 ms legacy to 14.92 ms, matching analytical; post-burst error falls from
   5.80 mV to 0.258 mV RMS. Severe overload remains rejected: 1.0/1.5 V still
   produce 1,122/1,695 convergence failures and 1.5 V retains 4,046 range clips.
+- The wide Q28/Q32 chord block accepts only the bounded Q30/Q34/Q40 correction
+  schedule, matches 1,024 randomized and boundary vectors exactly at 10 clocks,
+  and synthesizes structurally to 1,701 XC7 logic cells, 9 DSP48E1s, and no
+  block RAM. The constrained three-format shifter avoids the 5,531-cell cost of
+  the rejected arbitrary-shift experiment.
 - A downstream, explicitly non-reference output guard now starts muted, applies
   a configurable sample-qualified linear ramp, bypasses exactly at unity, and
   synchronously clamps held output on a fault. Its warning-free RTL regression
@@ -181,6 +187,7 @@ python3 scripts/design_resampler.py
 make rtl                           # lint + 4,096 bit-exact vectors
 make factorized-rtl                # smooth tube RTL + directed clip vectors
 make chord-rtl                     # lint + 1,024 circuit-correction vectors
+make wide-chord-rtl                # exact 40-bit Q28/Q32 correction vectors
 make network-rtl                   # RHS/KCL bit-exact unit tests
 make solver-rtl                    # 512-sample persistent-state integration
 make solver-factorized-rtl         # exact smooth-tube solver integration
@@ -191,6 +198,7 @@ make mute-rtl                      # reset/ramp/fault output safety primitive
 make synth                         # generic XC7 structural estimate
 make synth-factorized              # factorized tube structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
+make synth-wide-chord              # wide-state corrector structural estimate
 make synth-solver                  # hierarchical complete-solver estimate
 make synth-solver-factorized       # smooth-tube hierarchy/resource trade
 make synth-halfband                # complete interpolator/decimator estimates

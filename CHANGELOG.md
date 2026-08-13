@@ -64,6 +64,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   a matched one-second audit, and nominal-level legacy A/B report.
 - Added bounded adaptive correction-residual scaling and a wide-state overload
   comparison with fallback, range, recovery, and convergence counters.
+- Added a synthesizable 40-bit Q28/Q32 chord corrector with explicit
+  Q30/Q34/Q40 residual scaling, exact randomized/boundary vectors, and a generic
+  XC7 structural synthesis path.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -167,6 +170,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
   legacy and cuts post-burst residual from 5.80 to 0.258 mV RMS. Adaptive scale
   removes all 1.5 V operand saturations using 729 fallbacks, but 1.0/1.5 V still
   have 1,122/1,695 residual failures and 1.5 V keeps 4,046 tube-range clips.
+- The wide chord RTL matches 1,024 fixed vectors, including 95 output-saturation
+  vectors, at ten clocks. Constraining runtime scaling to Q30/Q34/Q40 reduces
+  generic XC7 synthesis from a rejected 5,531-cell arbitrary-shift experiment
+  to 1,701 logic cells, 9 DSP48E1s, and no block RAM.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.

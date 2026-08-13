@@ -199,32 +199,32 @@
       },
       "fixed_factorized": {
         "burst_output": {
-          "positive_peak_v": 103.9313332196325,
-          "negative_peak_v": -109.04576706793159,
-          "peak_to_peak_v": 212.9771002875641,
-          "absolute_peak_asymmetry_db": -0.41724626842328727
+          "positive_peak_v": 103.93133374978788,
+          "negative_peak_v": -109.04576705978252,
+          "peak_to_peak_v": 212.9771008095704,
+          "absolute_peak_asymmetry_db": -0.4172462234673242
         },
         "maximum_grid_current_a": [
           0.0,
           2.630334347486496e-05
         ],
-        "peak_post_burst_deviation_v": 72.81060199369676,
+        "peak_post_burst_deviation_v": 72.81058313092217,
         "recovery_s": {
           "ten_percent_nominal_output_rms": null,
           "one_percent_nominal_output_rms": null,
           "one_millivolt_rms": null
         },
-        "max_residual_a": 1.718895299518408e-05,
+        "max_residual_a": 1.718929235039468e-05,
         "residual_limit_exceedance_count": 1695,
         "saturation_count": 0,
         "range_clip_count": 4046,
         "correction_scale_fallback_count": 729,
-        "minimum_correction_residual_fractional_bits": 30
+        "minimum_correction_residual_fractional_bits": 34
       },
       "fixed_vs_analytical": {
-        "post_burst_residual_rms_v": 0.036817128024271284,
-        "post_burst_residual_mean_v": 0.03431578699843409,
-        "maximum_post_burst_absolute_error_v": 0.12686951915931388
+        "post_burst_residual_rms_v": 0.03681316292549428,
+        "post_burst_residual_mean_v": 0.03430982596223087,
+        "maximum_post_burst_absolute_error_v": 0.1268883819339095
       }
     }
   ]

@@ -270,7 +270,7 @@ class V1CircuitTests(unittest.TestCase):
             [int(100.0e-6 * (1 << model.RESIDUAL_FRACTIONAL_BITS))] + [0] * 8,
             40,
         )
-        self.assertLess(selected, 40)
+        self.assertEqual(selected, 34)
         self.assertEqual(model.correction_scale_fallback_count, 1)
         self.assertEqual(model.minimum_correction_residual_fractional_bits, selected)
         for capacitor in model.capacitors:
