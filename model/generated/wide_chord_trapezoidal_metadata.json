@@ -1,6 +1,6 @@
 {
   "algorithm": "9x9 Q17.1 inverse by adaptive signed 25-bit residual",
-  "integration_method": "backward_euler",
+  "integration_method": "trapezoidal",
   "vectors": 1024,
   "seed": 4243678,
   "node_fractional_bits": [
@@ -20,10 +20,10 @@
     34,
     40
   ],
-  "saturation_vectors": 95,
+  "saturation_vectors": 78,
   "latency_clocks": 10,
   "outputs": [
-    "model/generated/v1_chord_inverse_q17_1.mem",
-    "sim/vectors/generated/wide_chord.txt"
+    "model/generated/v1_chord_inverse_q17_1_trapezoidal.mem",
+    "sim/vectors/generated/wide_chord_trapezoidal.txt"
   ]
 }

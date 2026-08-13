@@ -154,6 +154,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   The measured schedule is 116 clocks, leaving 12 of 128 clocks, with zero test
   diagnostics. Hierarchical XC7 synthesis is 11,981 logic cells, 122 DSP48E1s,
   and 8 RAMB18E1s; Fmax remains unmeasured.
+- The explicitly selectable trapezoidal solver also matches 512 persistent
+  samples exactly, including ten Q4.44 current histories, at the unchanged
+  116-clock latency. Its separate chord-inverse ROM is required by the doubled
+  capacitor companions. Structural synthesis measures 12,451 logic cells,
+  122 DSP48E1s, and 8 RAMB18E1s: +470 cells and no DSP/BRAM change versus
+  backward Euler. This is structural evidence only; Fmax remains unmeasured.
 - The corresponding complete 48 kHz stream matches 64 outputs spanning 1,024
   nonlinear updates exactly with zero diagnostics. Structural synthesis is
   16,993 logic cells, 170 DSP48E1s, and 8 RAMB18E1s, so the mono reference fits
@@ -261,9 +267,11 @@ make chord-rtl                     # lint + 1,024 circuit-correction vectors
 make wide-chord-rtl                # exact 40-bit Q28/Q32 correction vectors
 make network-rtl                   # RHS/KCL bit-exact unit tests
 make wide-network-rtl              # branch-current RHS/KCL exact tests
+make trapezoidal-network-rtl       # explicit current-history KCL vectors
 make solver-rtl                    # 512-sample persistent-state integration
 make solver-factorized-rtl         # exact smooth-tube solver integration
 make wide-solver-rtl               # exact 40-bit branch-current solver
+make trapezoidal-solver-rtl        # exact selectable integration-mode solver
 make halfband-rtl                  # exact 2x units and complete 16x streams
 make stream-rtl                    # complete 48 kHz reference stream
 make stream-factorized-rtl         # complete smooth-tube reference stream
@@ -278,6 +286,7 @@ make synth-wide-network            # wide RHS/KCL structural estimates
 make synth-solver                  # hierarchical complete-solver estimate
 make synth-solver-factorized       # smooth-tube hierarchy/resource trade
 make synth-wide-solver             # wide-state hierarchy estimate
+make synth-trapezoidal-solver      # trapezoidal hierarchy estimate
 make synth-stream-wide             # complete wide-state stream estimate
 make synth-stream-guarded          # wide stream plus safety/control guard
 make synth-halfband                # complete interpolator/decimator estimates

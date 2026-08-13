@@ -11,14 +11,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
-- [ ] Implement and schedule trapezoidal integration as the next RTL state
-  contract. Floating SPICE error is <=0.00846 dB / <=0.0582 degrees at 10/20
-  kHz, and the Q30-voltage/Q4.44-current bit-accurate candidate is within
-  0.000131 dB / 0.000784 degrees of floating trapezoidal across 20 Hz--20 kHz.
-  Large-signal current range is now measured to 203.34 uA, and the maximum
-  Q0.47 conductance is proven to need 48 signed bits. The parameterized KCL is
-  exact at the unchanged ten clocks; persistent solver current state, reset
-  vectors, and hierarchical resource cost remain open before RTL adoption.
+- [ ] Carry the selectable trapezoidal solver into the complete 48 kHz stream
+  and captured SPICE frequency comparison. The 512-sample persistent RTL is
+  exact at 116 clocks, and synthesis is 12,451 LC / 122 DSP / 8 RAMB18, but
+  rate-converter integration and long captured audio remain open.
 - [ ] Lengthen severe-overload recovery beyond the new 85 ms post-burst window;
   neither analytical nor RTL trajectories reach 10% nominal output at >=0.5 V.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
@@ -56,6 +52,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Widen the KCL capacitor coefficient to signed 48-bit, add explicit
   previous/current-next ports, and pass 1,024 exact trapezoidal vectors without
   regressing the backward-Euler KCL.
+- [x] Add persistent Q4.44 current state and a separate trapezoidal chord-
+  inverse ROM to the selectable solver; match all 29 state words and diagnostics
+  across 512 samples at 116 clocks and synthesize the hierarchy.
 - [x] Select, document, and version the Kennedy 1998 two-stage passive-RIAA circuit.
 - [x] Implement AT-VM95E R/L/47.5 kΩ/150 pF cartridge loading.
 - [x] Build ngspice DC, 10 Hz–100 kHz AC, transient, and 1 kHz H1–H10 level sweeps.

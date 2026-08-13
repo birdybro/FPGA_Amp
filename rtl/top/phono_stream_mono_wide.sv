@@ -47,6 +47,7 @@ module phono_stream_mono_wide (
     logic solver_busy;
     logic [359:0] unused_node_voltage_debug;
     logic [399:0] unused_capacitor_state_debug;
+    logic [479:0] unused_capacitor_current_state_debug;
 
     v1_solver_mono_wide solver (
         .clk,
@@ -68,7 +69,8 @@ module phono_stream_mono_wide (
         ),
         .last_residual_q44(solver_last_residual_q44),
         .node_voltage_debug(unused_node_voltage_debug),
-        .capacitor_state_debug(unused_capacitor_state_debug)
+        .capacitor_state_debug(unused_capacitor_state_debug),
+        .capacitor_current_state_debug(unused_capacitor_current_state_debug)
     );
 
     logic signed [40:0] solver_output_biased;

@@ -15,27 +15,43 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPOSITORY_ROOT / "model" / "python"))
 
 from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
-from fpga_amp.fixed_circuit import FixedWideStateV1CircuitModel  # noqa: E402
+from fpga_amp.fixed_circuit import (  # noqa: E402
+    FixedWideStateTrapezoidalV1CircuitModel,
+    FixedWideStateV1CircuitModel,
+)
 from generate_solver_vectors import stimulus_q24, write_memory  # noqa: E402
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--vectors", type=int, default=512)
+    parser.add_argument("--trapezoidal", action="store_true")
     args = parser.parse_args()
-    model = FixedWideStateV1CircuitModel(tube_lut=FixedFactorizedKoren12AX7())
+    model_type = (
+        FixedWideStateTrapezoidalV1CircuitModel
+        if args.trapezoidal
+        else FixedWideStateV1CircuitModel
+    )
+    model = model_type(tube_lut=FixedFactorizedKoren12AX7())
     generated = REPOSITORY_ROOT / "model" / "generated"
     generated.mkdir(parents=True, exist_ok=True)
+    suffix = "_trapezoidal" if args.trapezoidal else ""
     write_memory(
-        generated / "v1_node_initial_wide.mem",
+        generated / f"v1_node_initial_wide{suffix}.mem",
         [int(value) for value in model.voltage_q],
         40,
     )
     write_memory(
-        generated / "v1_cap_initial_q30_wide.mem",
+        generated / f"v1_cap_initial_q30_wide{suffix}.mem",
         [int(capacitor.previous_voltage_q20) for capacitor in model.capacitors],
         40,
     )
+    if args.trapezoidal:
+        write_memory(
+            generated / "v1_cap_current_initial_q4_44_trapezoidal.mem",
+            [int(capacitor.previous_current_q44) for capacitor in model.capacitors],
+            48,
+        )
 
     rng = np.random.default_rng(0x501A3)
     vector_path = (
@@ -43,7 +59,7 @@ def main() -> int:
         / "sim"
         / "vectors"
         / "generated"
-        / "v1_solver_wide_factorized_stream.txt"
+        / f"v1_solver_wide_factorized_stream{suffix}.txt"
     )
     vector_path.parent.mkdir(parents=True, exist_ok=True)
     maximum_residual = 0
@@ -55,11 +71,15 @@ def main() -> int:
             capacitors = [
                 int(capacitor.previous_voltage_q20) for capacitor in model.capacitors
             ]
+            capacitor_currents = [
+                int(capacitor.previous_current_q44) for capacitor in model.capacitors
+            ]
             maximum_residual = max(maximum_residual, model.last_residual_q44)
             fields = [
                 input_q24,
                 *nodes,
                 *capacitors,
+                *(capacitor_currents if args.trapezoidal else []),
                 model.last_residual_q44,
                 model.saturation_count,
                 model.lut_clip_count,
@@ -71,7 +91,14 @@ def main() -> int:
 
     report = {
         "model": "12ax7_passive_riaa_v1",
-        "algorithm": "wide branch-current state, three adaptive Q30/Q34/Q40 chord corrections",
+        "algorithm": (
+            "wide trapezoidal Q30-voltage/Q4.44-current state, three adaptive Q30/Q34/Q40 chord corrections"
+            if args.trapezoidal
+            else "wide branch-current state, three adaptive Q30/Q34/Q40 chord corrections"
+        ),
+        "integration_method": (
+            "trapezoidal" if args.trapezoidal else "backward_euler"
+        ),
         "tube_implementation": "factorized",
         "sample_rate_hz": int(model.sample_rate_hz),
         "vectors": args.vectors,
@@ -86,7 +113,7 @@ def main() -> int:
         "latency_clocks": 116,
         "output": str(vector_path.relative_to(REPOSITORY_ROOT)),
     }
-    metadata = generated / "v1_solver_wide_factorized_metadata.json"
+    metadata = generated / f"v1_solver_wide_factorized{suffix}_metadata.json"
     metadata.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
     return 0

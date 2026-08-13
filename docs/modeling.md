@@ -355,7 +355,8 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | trapezoidal float overload stability | 20 mV--1.5 V, 100 ms records | finite/convergent; clean recovery matches BE; shared long memory above 0.5 V |
 | fixed trapezoidal state | six 5 mV points, 20 Hz--20 kHz | <=0.000131 dB / <=0.000784 degree vs float trapezoidal; zero diagnostics; RTL open |
 | fixed trapezoidal overload | 20 mV--1.5 V bursts | clean through 0.5 V; 203.34 uA history-current peak; severe solver/range limit unchanged |
-| trapezoidal KCL RTL | 1,024 randomized/directed vectors | exact residual and Q4.44 next current; 10 clocks; solver integration open |
+| trapezoidal KCL RTL | 1,024 randomized/directed vectors | exact residual and Q4.44 next current; 10 clocks; integrated |
+| trapezoidal solver RTL | 512 persistent samples | exact 9 node + 20 capacitor states; 116 clocks; 12,451 LC / 122 DSP / 8 RAMB18 structural |
 | chord vs full Newton | -137.28 dB normalized residual, 3-pass multitone | float architecture candidate |
 | fixed tube LUT | 0.139 µA mean / 9.33 µA worst full range | measured |
 | fixed factorized tube | 10.5 nA mean / 51.8 nA worst; 233,472 raw table bits | measured; standalone RTL passing |

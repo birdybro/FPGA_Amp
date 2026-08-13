@@ -103,6 +103,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a parameterized 48-bit-capacitor KCL mode with Q4.44 previous/next
   current ports, exact trapezoidal branch stamping, state saturation reporting,
   and an independent 1,024-vector warning-free RTL regression.
+- Added a selectable persistent trapezoidal solver with a separate generated
+  chord-inverse ROM, ten Q4.44 current-state registers, exact 512-sample
+  integration regression, and an explicit synthesis wrapper/target.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -260,6 +263,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
   clips. Capacitor history current peaks at 203.34 uA without saturation. The
   0.72192 S output-coupling companion requires signed 48-bit Q0.47 versus the
   existing backward-Euler KCL's 47-bit coefficient.
+- Trapezoidal solver RTL matches fixed Python at all nine node, ten voltage-
+  history, and ten current-history states for 512 samples at 116 clocks.
+  Structural synthesis is 12,451 logic cells, 122 DSP48E1s, and 8 RAMB18E1s,
+  adding 470 cells but no DSP/BRAM versus backward Euler; no Fmax is claimed.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.

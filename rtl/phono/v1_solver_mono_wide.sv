@@ -5,7 +5,13 @@
 // capacitor branches, and three adaptive Q30/Q34/Q40 chord corrections.
 module v1_solver_mono_wide #(
     parameter NODE_INITIAL_FILE = "model/generated/v1_node_initial_wide.mem",
-    parameter CAP_INITIAL_FILE = "model/generated/v1_cap_initial_q30_wide.mem"
+    parameter CAP_INITIAL_FILE = "model/generated/v1_cap_initial_q30_wide.mem",
+    parameter CAP_CURRENT_INITIAL_FILE =
+        "model/generated/v1_cap_current_initial_q4_44_trapezoidal.mem",
+    parameter CAP_G_FILE = "model/generated/v1_cap_conductance_q0_47.mem",
+    parameter CHORD_COEFFICIENT_FILE =
+        "model/generated/v1_chord_inverse_q17_1.mem",
+    parameter bit TRAPEZOIDAL = 1'b0
 ) (
     input  logic                  clk,
     input  logic                  rst_n,
@@ -24,7 +30,8 @@ module v1_solver_mono_wide #(
     output logic [5:0]            minimum_correction_fractional_bits,
     output logic [62:0]           last_residual_q44,
     output logic [359:0]          node_voltage_debug,
-    output logic [399:0]          capacitor_state_debug
+    output logic [399:0]          capacitor_state_debug,
+    output logic [479:0]          capacitor_current_state_debug
 );
 
     localparam logic [62:0] RESIDUAL_LIMIT_Q44 = 63'd35184372; // 2 uA
@@ -46,13 +53,21 @@ module v1_solver_mono_wide #(
 
     logic signed [39:0] node_initial [0:8];
     logic signed [39:0] capacitor_initial [0:9];
+    logic signed [47:0] capacitor_current_initial [0:9];
     logic signed [39:0] node_voltage [0:8];
     logic signed [39:0] capacitor_state [0:9];
     logic signed [39:0] capacitor_next [0:9];
+    logic signed [47:0] capacitor_current_state [0:9];
 
     initial begin
         $readmemh(NODE_INITIAL_FILE, node_initial);
         $readmemh(CAP_INITIAL_FILE, capacitor_initial);
+        if (TRAPEZOIDAL)
+            $readmemh(CAP_CURRENT_INITIAL_FILE, capacitor_current_initial);
+        else
+            for (int initial_lane = 0; initial_lane < 10;
+                 initial_lane = initial_lane + 1)
+                capacitor_current_initial[initial_lane] = '0;
     end
 
     function automatic int cap_node_a(input int index);
@@ -188,6 +203,10 @@ module v1_solver_mono_wide #(
         for (int lane = 0; lane < 10; lane = lane + 1) begin
             capacitor_flat[lane * 40 +: 40] = capacitor_state[lane];
             capacitor_state_debug[lane * 40 +: 40] = capacitor_state[lane];
+            capacitor_current_flat[lane * 48 +: 48] =
+                capacitor_current_state[lane];
+            capacitor_current_state_debug[lane * 48 +: 48] =
+                capacitor_current_state[lane];
             capacitor_voltage_a[lane] = '0;
             capacitor_voltage_b[lane] = '0;
             if (cap_node_a(lane) >= 0)
@@ -204,7 +223,6 @@ module v1_solver_mono_wide #(
             capacitor_next[lane] = saturate_40(capacitor_difference[lane]);
             if (exceeds_40(capacitor_difference[lane]))
                 capacitor_saturation_count = capacitor_saturation_count + 1'b1;
-            capacitor_current_flat[lane * 48 +: 48] = '0;
         end
     end
 
@@ -264,7 +282,10 @@ module v1_solver_mono_wide #(
         kcl_start = residual_launch;
     end
 
-    network_kcl_v1_wide kcl_engine (
+    network_kcl_v1_wide #(
+        .CAP_G_FILE(CAP_G_FILE),
+        .TRAPEZOIDAL(TRAPEZOIDAL)
+    ) kcl_engine (
         .clk,
         .rst_n,
         .start(kcl_start),
@@ -346,7 +367,9 @@ module v1_solver_mono_wide #(
     logic chord_valid;
     assign chord_start = (state == WAIT_KCL) && kcl_valid && !final_pass;
 
-    chord_corrector_v1_wide chord_engine (
+    chord_corrector_v1_wide #(
+        .COEFFICIENT_FILE(CHORD_COEFFICIENT_FILE)
+    ) chord_engine (
         .clk,
         .rst_n,
         .start(chord_start),
@@ -388,6 +411,8 @@ module v1_solver_mono_wide #(
                 node_voltage[lane] <= node_initial[lane];
             for (lane = 0; lane < 10; lane = lane + 1)
                 capacitor_state[lane] <= capacitor_initial[lane];
+            for (lane = 0; lane < 10; lane = lane + 1)
+                capacitor_current_state[lane] <= capacitor_current_initial[lane];
         end else begin
             output_valid <= 1'b0;
             if (ce_sample && busy)
@@ -445,9 +470,17 @@ module v1_solver_mono_wide #(
                             if (kcl_max_abs_q44 > RESIDUAL_LIMIT_Q44)
                                 nonconvergence_count <= nonconvergence_count + 1'b1;
                             saturation_count <= saturation_count
-                                + {28'd0, capacitor_saturation_count};
-                            for (lane = 0; lane < 10; lane = lane + 1)
+                                + {28'd0, capacitor_saturation_count}
+                                + {28'd0, capacitor_current_saturation_unused};
+                            for (lane = 0; lane < 10; lane = lane + 1) begin
                                 capacitor_state[lane] <= capacitor_next[lane];
+                                if (TRAPEZOIDAL)
+                                    capacitor_current_state[lane] <= $signed(
+                                        capacitor_current_next_unused[
+                                            lane * 48 +: 48
+                                        ]
+                                    );
+                            end
                             output_q32 <= node_voltage[8];
                             sample_latency_cycles <= cycle_count + 1'b1;
                             output_valid <= 1'b1;
@@ -495,8 +528,9 @@ module v1_solver_mono_wide #(
     logic unused_status;
     always_comb unused_status = rhs_busy || kcl_busy || kcl_saturation_any
                                 || chord_busy || chord_saturation_any
-                                || (|capacitor_current_next_unused)
-                                || (|capacitor_current_saturation_unused);
+                                || ((!TRAPEZOIDAL)
+                                    && ((|capacitor_current_next_unused)
+                                        || (|capacitor_current_saturation_unused)));
 
 endmodule
 

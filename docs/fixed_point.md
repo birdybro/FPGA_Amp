@@ -252,6 +252,16 @@ correction format, maximum residual, all current states, and both saturation
 counts; 1,015 intentionally extreme vectors exercise current saturation. The
 default backward-Euler mode still passes its original 1,024 vectors exactly.
 
+The persistent solver selects a separate Q17.1 chord-inverse ROM because the
+trapezoidal companion conductances change the quiescent Jacobian. A regression
+that initially reused the backward-Euler inverse failed on sample zero and is
+now prevented by explicit integration-mode assets. With the matched inverse,
+RTL equals fixed Python across 512 sequential samples at all nine nodes, ten
+Q30 voltage histories, ten Q4.44 current histories, and every diagnostic. The
+latency remains 116 clocks. Generic XC7 synthesis is 12,451 estimated logic
+cells, 122 DSP48E1s, and 8 RAMB18E1s, versus 11,981 / 122 / 8 for backward
+Euler. No Fmax is inferred from structural synthesis.
+
 The overload gate passes only through the measured 0.5 V level. At 20 mV, the
 candidate matches analytical 10%/1% recovery within about 0.002/0.000 ms and
 reduces post-burst fixed/analytical RMS from 5.80 mV legacy to 0.258 mV. At

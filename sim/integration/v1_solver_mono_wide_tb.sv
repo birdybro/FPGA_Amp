@@ -1,7 +1,9 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-module v1_solver_mono_wide_tb;
+module v1_solver_mono_wide_tb #(
+    parameter bit TRAPEZOIDAL = 1'b0
+);
     logic clk;
     logic rst_n = 1'b0;
     logic ce_sample = 1'b0;
@@ -20,8 +22,31 @@ module v1_solver_mono_wide_tb;
     logic [62:0] last_residual_q44;
     logic [359:0] node_voltage_debug;
     logic [399:0] capacitor_state_debug;
+    logic [479:0] capacitor_current_state_debug;
 
-    v1_solver_mono_wide dut (.*);
+    v1_solver_mono_wide #(
+        .NODE_INITIAL_FILE(
+            TRAPEZOIDAL
+                ? "model/generated/v1_node_initial_wide_trapezoidal.mem"
+                : "model/generated/v1_node_initial_wide.mem"
+        ),
+        .CAP_INITIAL_FILE(
+            TRAPEZOIDAL
+                ? "model/generated/v1_cap_initial_q30_wide_trapezoidal.mem"
+                : "model/generated/v1_cap_initial_q30_wide.mem"
+        ),
+        .CAP_G_FILE(
+            TRAPEZOIDAL
+                ? "model/generated/v1_cap_conductance_q0_47_trapezoidal.mem"
+                : "model/generated/v1_cap_conductance_q0_47.mem"
+        ),
+        .CHORD_COEFFICIENT_FILE(
+            TRAPEZOIDAL
+                ? "model/generated/v1_chord_inverse_q17_1_trapezoidal.mem"
+                : "model/generated/v1_chord_inverse_q17_1.mem"
+        ),
+        .TRAPEZOIDAL(TRAPEZOIDAL)
+    ) dut (.*);
     always #5 clk = ~clk;
 
     integer file_handle;
@@ -32,6 +57,7 @@ module v1_solver_mono_wide_tb;
     integer timeout;
     longint signed expected_node [0:8];
     longint signed expected_capacitor [0:9];
+    longint signed expected_capacitor_current [0:9];
     logic [62:0] expected_residual;
     logic [31:0] expected_saturation_count;
     logic [31:0] expected_lut_clip_count;
@@ -44,8 +70,12 @@ module v1_solver_mono_wide_tb;
     initial begin
         clk = 1'b0;
         input_q24 = '0;
-        if (!$value$plusargs("VECTORS=%s", vector_path))
-            vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream.txt";
+        if (!$value$plusargs("VECTORS=%s", vector_path)) begin
+            if (TRAPEZOIDAL)
+                vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_trapezoidal.txt";
+            else
+                vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream.txt";
+        end
         file_handle = $fopen(vector_path, "r");
         if (file_handle == 0)
             $fatal(1, "cannot open wide solver vectors");
@@ -67,13 +97,18 @@ module v1_solver_mono_wide_tb;
                 scan_count += $fscanf(file_handle, "%d", expected_node[lane]);
             for (integer lane = 0; lane < 10; lane = lane + 1)
                 scan_count += $fscanf(file_handle, "%d", expected_capacitor[lane]);
+            if (TRAPEZOIDAL)
+                for (integer lane = 0; lane < 10; lane = lane + 1)
+                    scan_count += $fscanf(
+                        file_handle, "%d", expected_capacitor_current[lane]
+                    );
             scan_count += $fscanf(
                 file_handle, "%d %d %d %d %d %d\n",
                 expected_residual, expected_saturation_count,
                 expected_lut_clip_count, expected_nonconvergence_count,
                 expected_fallback_count, expected_minimum_fraction
             );
-            if (scan_count != 26)
+            if (scan_count != (TRAPEZOIDAL ? 36 : 26))
                 $fatal(1, "malformed vector %0d fields=%0d", vector_count, scan_count);
 
             if (busy)
@@ -114,6 +149,15 @@ module v1_solver_mono_wide_tb;
                            vector_count, lane,
                            $signed(capacitor_state_debug[lane * 40 +: 40]),
                            expected_capacitor[lane]);
+                    errors = errors + 1;
+                end
+                if (TRAPEZOIDAL
+                    && $signed(capacitor_current_state_debug[lane * 48 +: 48])
+                       !== $signed(expected_capacitor_current[lane][47:0])) begin
+                    $error("sample=%0d capacitor_current=%0d got=%0d expected=%0d",
+                           vector_count, lane,
+                           $signed(capacitor_current_state_debug[lane * 48 +: 48]),
+                           expected_capacitor_current[lane]);
                     errors = errors + 1;
                 end
             end
