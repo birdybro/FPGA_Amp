@@ -116,15 +116,16 @@ The mono reference and complete 768 kHz circuit solver are operating:
   every fixed state over 9,216 overload samples per mode, exercises every bank,
   retains the 116-clock schedule, and records zero diagnostics. Structural
   synthesis is 12,942 logic cells / 122 DSPs / 8 RAMs for backward Euler and
-  13,870 / 122 / 8 for trapezoidal. The 1.5 V characterization still has 72/0
+  13,870 / 122 / 8 for trapezoidal. The 1.5 V characterization still has 72/67
   residual failures and 4,052/4,052 tube-table clips; the bank is a numerical
   solver improvement, not a change to the physical circuit or tube domain.
 - Against full Newton with the same Q8.24 input, banked 1.0 V burst error is
-  -76.43 dB backward Euler and -82.89 dB trapezoidal, improving the failing DC
-  chord by 22.98 and 29.24 dB. No gain, DC, or delay alignment is applied. The
-  trapezoidal final 10 ms retains a 1.042 mV mean error after the burst even
-  though its mean-removed error is -89.64 dB; selector/state optimization is
-  still required before the bank becomes the default solver.
+  -76.43 dB backward Euler and -76.79 dB trapezoidal, improving the failing DC
+  chord by 22.98 and 23.13 dB. No gain, DC, or delay alignment is applied.
+- Moving only the shallow trapezoidal threshold from -2.50 to -2.75 V prevents
+  bank activation at 0.5 V, preserves zero 1.0 V failures, and reduces final
+  10 ms mean error from 1.042 to 0.537 mV. Mean-removed error is -89.75 dB; the
+  remaining slow-state displacement keeps the bank optional.
 - Removing the shallowest cutoff matrix is not a valid optimization: the 100 ms
   selector study leaves 289 backward-Euler or 119 trapezoidal 1.0 V residual
   failures. All generated matrices remain required; activation thresholds are
@@ -354,6 +355,7 @@ make trapezoidal-banked-solver-rtl # exact five-bank cutoff solver
 make banked-rtl-overload           # 9,216-sample/mode bank-selection gate
 make banked-accuracy               # 100 ms banked/full-Newton waveform gate
 make banked-selector               # prove required cutoff-bank partitions
+make banked-threshold              # sweep shallow trapezoidal activation
 make halfband-rtl                  # exact 2x units and complete 16x streams
 make stream-rtl                    # complete 48 kHz reference stream
 make stream-factorized-rtl         # complete smooth-tube reference stream

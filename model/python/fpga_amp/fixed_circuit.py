@@ -545,7 +545,7 @@ class FixedWideStateBankedChordV1CircuitModel(FixedWideStateV1CircuitModel):
         (-4.00, -4.25, 293.0),
         (-3.50, -3.75, 289.0),
         (-3.00, -3.25, 278.0),
-        (-2.50, -2.75, 261.0),
+        (-2.75, -2.75, 261.0),
     )
 
     def __init__(self, *args: object, **kwargs: object):

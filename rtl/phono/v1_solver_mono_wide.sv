@@ -128,7 +128,7 @@ module v1_solver_mono_wide #(
                     select_chord_coefficient_set = 3'd1;
                 else if (previous_v_gk2_q32 < -41'sd12884901888) // -3.0 V
                     select_chord_coefficient_set = 3'd2;
-                else if (previous_v_gk2_q32 < -41'sd10737418240) // -2.5 V
+                else if (previous_v_gk2_q32 < -41'sd11811160064) // -2.75 V
                     select_chord_coefficient_set = 3'd3;
                 else
                     select_chord_coefficient_set = 3'd4;

@@ -237,9 +237,9 @@ use separate assets because sharing the two-entry backward-Euler partition left
 
 In a 100 ms, 1 kHz campaign with a 5 ms burst, the bank reduces 1.0 V residual
 failures from 1,122 to zero for backward Euler and from 1,107 to zero for
-trapezoidal. Maximum residual becomes 1.887/1.587 uA, below the 2 uA gate, with
+trapezoidal. Maximum residual becomes 1.887/1.874 uA, below the 2 uA gate, with
 zero arithmetic saturation, tube-range clips, or scale fallbacks. At 1.5 V,
-backward-Euler failures fall from 1,695 to 72 and trapezoidal from 1,690 to zero,
+backward-Euler failures fall from 1,695 to 72 and trapezoidal from 1,690 to 67,
 but both still record 4,052 tube-range clips. This improves the FPGA
 approximation only; it neither changes the physical reference circuit nor
 claims behavior outside the factorized tube table.
@@ -256,11 +256,12 @@ question before making the bank the default reference implementation.
 A subsequent 100 ms full-Newton audit closes the burst-waveform question but
 does not erase the recovery-state tradeoff. With Q8.24 input and no gain, DC,
 or delay alignment, the 1.0 V raw burst residual improves from -53.45 to
--76.43 dB for backward Euler and from -53.65 to -82.89 dB for trapezoidal.
+-76.43 dB for backward Euler and from -53.65 to -76.79 dB for trapezoidal.
 Every 20 mV--1.0 V banked burst is below the frozen -70 dB gate. In the final
-10 ms, however, the trapezoidal bank has 1.042 mV raw RMS/mean error versus
+10 ms, however, the trapezoidal bank has 0.538 mV raw RMS and 0.537 mV mean
+error versus
 48.0 uV for the nonconvergent-during-burst baseline; removing the mean leaves
--89.64 dB error. This is evidence of a small slow-state displacement, not
+-89.75 dB error. This is evidence of a small slow-state displacement, not
 permission to DC-align the comparison, and keeps the bank optional.
 
 A prefix-minimization sweep proves the offset cannot be addressed by merely
@@ -268,6 +269,14 @@ deleting the shallowest matrix. Retaining one of two backward-Euler cutoff
 matrices leaves 289 residual failures at 1.0 V; retaining three of four
 trapezoidal matrices leaves 119. All present coefficient sets therefore remain
 required under the current thresholds.
+
+The fourth trapezoidal cutoff matrix remains necessary, but its activation
+threshold need not be -2.50 V. A sweep from -2.50 through -2.90 V finds -2.75 V
+to be the most-negative tested threshold with zero 0.5/1.0 V failures. It
+eliminates all 231 shallow-bank activations at 0.5 V, retains 154 at 1.0 V, and
+halves the final-window mean error from 1.042 to 0.537 mV. At -2.80 V two
+samples exceed the residual limit, so that more aggressive boundary is
+rejected.
 
 `v1_solver_mono_wide.sv` composes those blocks with the factorized tube and
 matches 512 sequential fixed-Python samples exactly across all nine nodes, ten

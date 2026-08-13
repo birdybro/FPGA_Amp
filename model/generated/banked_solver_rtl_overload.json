@@ -42,7 +42,7 @@
       "samples": 9216,
       "full_state_rtl_fixed_bit_exact": true,
       "latency_clocks": 116,
-      "maximum_residual_a": 1.5898833680694224e-06,
+      "maximum_residual_a": 1.8797650795931986e-06,
       "residual_limit_exceedance_count": 0,
       "saturation_count": 0,
       "range_clip_count": 0,
@@ -51,8 +51,8 @@
         417,
         315,
         251,
-        243,
-        7990
+        122,
+        8111
       ],
       "all_cutoff_banks_exercised": true,
       "nominal_bank_exercised": true

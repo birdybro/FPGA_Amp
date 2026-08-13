@@ -149,6 +149,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a bank-prefix minimization study across 0.5/1.0 V and both integration
   modes; it preserves the negative result that every current cutoff matrix is
   required for the 1.0 V residual gate.
+- Added a trapezoidal shallow-bank threshold sweep from -2.50 to -2.90 V and
+  selected the most-negative diagnostic-clean threshold that excludes the
+  accepted 0.5 V trajectory.
 - Added architecture, model, phono, fixed-point, gain, noise, analog front-end, converter/clock, hardware, controls, safety, verification, and annotated-reference documentation.
 
 ### Fixed
@@ -183,9 +186,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   cathode-sum bits, 57/63 KCL-accumulator bits, and 89/92 capacitor-product
   bits. The proof is now a default regression gate.
 - The cutoff-Jacobian bank reduces 100 ms / 1 V residual failures from
-  1,122/1,107 to zero for backward-Euler/trapezoidal state at 1.887/1.587 uA
+  1,122/1,107 to zero for backward-Euler/trapezoidal state at 1.887/1.874 uA
   maximum residual, with zero saturation, tube-range clips, or correction
-  fallbacks. At 1.5 V it leaves 72/0 residual failures but 4,052/4,052 tube-table
+  fallbacks. At 1.5 V it leaves 72/67 residual failures but 4,052/4,052 tube-table
   clips, so tube-domain expansion remains separate from solver convergence.
 - Banked RTL is bit-exact across all 9,216 captured overload states per mode,
   selects every generated bank, retains 116 clocks, and records no diagnostic
@@ -193,13 +196,18 @@ All notable engineering changes are recorded here. The project is pre-release; d
   backward Euler/trapezoidal with 122 DSP48E1s and 8 RAMB18E1s in either mode:
   +503/+1,327 logic cells and no DSP/RAM increase over the nominal solvers.
 - At 1.0 V, the bank improves raw full-Newton burst error from -53.45 to
-  -76.43 dB for backward Euler and from -53.65 to -82.89 dB for trapezoidal.
-  The latter retains 1.042 mV final-window mean error after 85 ms recovery;
-  mean-removed error is -89.64 dB, so the unhidden slow-state offset remains an
+  -76.43 dB for backward Euler and from -53.65 to -76.79 dB for trapezoidal.
+  The latter retains 0.537 mV final-window mean error after 85 ms recovery;
+  mean-removed error is -89.75 dB, so the unhidden slow-state offset remains an
   optimization target rather than being removed by null alignment.
 - Removing the least-negative cutoff matrix leaves 289 backward-Euler or 119
   trapezoidal 1.0 V residual failures. Coefficient-bank reduction is rejected;
   later selector work must retain all matrices or provide stronger evidence.
+- Tightening the shallow trapezoidal threshold from -2.50 to -2.75 V eliminates
+  all 231 bank activations in the 0.5 V campaign while retaining 154 necessary
+  1.0 V activations and zero residual failures. It halves the measured 1.0 V
+  final-window mean error from 1.042 to 0.537 mV; -2.80 V is rejected because
+  it leaves two residual failures.
 
 - ngspice bias is 179.994 V/0.9918 mA for stage 1 and 192.808 V/1.0719 mA for stage 2; circuit gain is 41.087 dB at 1 kHz.
 - The physical passive network's ideal-RIAA error is -0.919 to +0.000 dB over 20 Hz–20 kHz (0.364 dB RMS), retained as reference behavior.

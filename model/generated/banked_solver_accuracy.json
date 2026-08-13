@@ -730,46 +730,46 @@
             },
             "burst": {
               "reference_rms_v": 41.045509048178815,
-              "candidate_rms_v": 41.04503142835386,
-              "raw_error_rms_v": 0.002310571811930538,
-              "raw_normalized_error_db": -84.99092350715787,
-              "error_mean_v": 0.00014601557017602563,
-              "mean_removed_error_rms_v": 0.0023059535015594176,
-              "mean_removed_normalized_error_db": -85.00830200932373,
-              "maximum_absolute_error_v": 0.010832262214847788
+              "candidate_rms_v": 41.044853991227704,
+              "raw_error_rms_v": 0.002812574080083487,
+              "raw_normalized_error_db": -83.28323352138048,
+              "error_mean_v": -0.0005739781147789932,
+              "mean_removed_error_rms_v": 0.0027533837508985607,
+              "mean_removed_normalized_error_db": -83.46797802156959,
+              "maximum_absolute_error_v": 0.01072508360418567
             },
             "early_recovery_10ms": {
               "reference_rms_v": 7.284028404204478,
-              "candidate_rms_v": 7.283618745734307,
-              "raw_error_rms_v": 0.0005296825110088092,
-              "raw_normalized_error_db": -82.76711993948821,
-              "error_mean_v": 0.0005275331320610627,
-              "mean_removed_error_rms_v": 4.7669246338101285e-05,
-              "mean_removed_normalized_error_db": -103.68266689962607,
-              "maximum_absolute_error_v": 0.0007332557617445445
+              "candidate_rms_v": 7.284212128296473,
+              "raw_error_rms_v": 0.0002989647294889814,
+              "raw_normalized_error_db": -87.7350335084848,
+              "error_mean_v": -0.00029541372529071785,
+              "mean_removed_error_rms_v": 4.594170641454354e-05,
+              "mean_removed_normalized_error_db": -104.00329016981212,
+              "maximum_absolute_error_v": 0.0003690594220731036
             },
             "complete_post_burst": {
               "reference_rms_v": 2.530055738061021,
-              "candidate_rms_v": 2.5298950021184505,
-              "raw_error_rms_v": 0.0005414708083988397,
-              "raw_normalized_error_db": -73.39110081803342,
-              "error_mean_v": 0.0005402174154463844,
-              "mean_removed_error_rms_v": 3.682092335237569e-05,
-              "mean_removed_normalized_error_db": -96.7407082782272,
-              "maximum_absolute_error_v": 0.0007332557617445445
+              "candidate_rms_v": 2.530128188135628,
+              "raw_error_rms_v": 0.0002590931914445156,
+              "raw_normalized_error_db": -79.7934817675754,
+              "error_mean_v": -0.0002546062753787918,
+              "mean_removed_error_rms_v": 4.8009648932722344e-05,
+              "mean_removed_normalized_error_db": -94.43603117433534,
+              "maximum_absolute_error_v": 0.00037810388720849186
             },
             "final_10ms": {
               "reference_rms_v": 0.40728476621670545,
-              "candidate_rms_v": 0.4071775210093243,
-              "raw_error_rms_v": 0.0005798882951904785,
-              "raw_normalized_error_db": -56.9310764715123,
-              "error_mean_v": 0.0005796597350666492,
-              "mean_removed_error_rms_v": 1.627963271642408e-05,
-              "mean_removed_normalized_error_db": -87.96507127552655,
-              "maximum_absolute_error_v": 0.0006304514906690373
+              "candidate_rms_v": 0.40731318997659677,
+              "raw_error_rms_v": 0.00018770868029913316,
+              "raw_normalized_error_db": -66.72827619977673,
+              "error_mean_v": -0.0001870275836208727,
+              "mean_removed_error_rms_v": 1.597597022342148e-05,
+              "mean_removed_normalized_error_db": -88.12861847889472,
+              "maximum_absolute_error_v": 0.00024115059921298032
             }
           },
-          "maximum_residual_a": 1.3574322679232864e-06,
+          "maximum_residual_a": 3.329976721033745e-07,
           "residual_limit_exceedance_count": 0,
           "saturation_count": 0,
           "range_clip_count": 0,
@@ -779,8 +779,8 @@
             0,
             0,
             0,
-            231,
-            76569
+            0,
+            76800
           ]
         }
       },
@@ -790,20 +790,20 @@
           "maximum_absolute_difference_v": 0.0
         },
         "burst": {
-          "raw_difference_rms_v": 0.0017444580832507643,
-          "maximum_absolute_difference_v": 0.01144334557466209
+          "raw_difference_rms_v": 0.0,
+          "maximum_absolute_difference_v": 0.0
         },
         "early_recovery_10ms": {
-          "raw_difference_rms_v": 0.00082312900729743,
-          "maximum_absolute_difference_v": 0.0008932577911764383
+          "raw_difference_rms_v": 0.0,
+          "maximum_absolute_difference_v": 0.0
         },
         "complete_post_burst": {
-          "raw_difference_rms_v": 0.0007951844967409527,
-          "maximum_absolute_difference_v": 0.0008932577911764383
+          "raw_difference_rms_v": 0.0,
+          "maximum_absolute_difference_v": 0.0
         },
         "final_10ms": {
-          "raw_difference_rms_v": 0.0007669077352919551,
-          "maximum_absolute_difference_v": 0.0008480555843561888
+          "raw_difference_rms_v": 0.0,
+          "maximum_absolute_difference_v": 0.0
         }
       }
     },
@@ -886,46 +886,46 @@
             },
             "burst": {
               "reference_rms_v": 71.93512514908701,
-              "candidate_rms_v": 71.93321301094385,
-              "raw_error_rms_v": 0.005155116300711588,
-              "raw_normalized_error_db": -82.89405071965733,
-              "error_mean_v": -0.0005373746474004048,
-              "mean_removed_error_rms_v": 0.005127031554632136,
-              "mean_removed_normalized_error_db": -82.94150026328226,
-              "maximum_absolute_error_v": 0.032861355251796454
+              "candidate_rms_v": 71.93320513535326,
+              "raw_error_rms_v": 0.010413026773103679,
+              "raw_normalized_error_db": -76.7872803698153,
+              "error_mean_v": -0.0008366464730189424,
+              "mean_removed_error_rms_v": 0.010379361697934944,
+              "mean_removed_normalized_error_db": -76.8154071416385,
+              "maximum_absolute_error_v": 0.06655570733883565
             },
             "early_recovery_10ms": {
               "reference_rms_v": 12.44688416210102,
-              "candidate_rms_v": 12.445374025576692,
-              "raw_error_rms_v": 0.0016768240500233524,
-              "raw_normalized_error_db": -77.41146307019733,
-              "error_mean_v": 0.0015920133500097351,
-              "mean_removed_error_rms_v": 0.0005265286204258016,
-              "mean_removed_normalized_error_db": -87.472773294765,
-              "maximum_absolute_error_v": 0.0035883961919935814
+              "candidate_rms_v": 12.4457720741911,
+              "raw_error_rms_v": 0.00117016059873919,
+              "raw_normalized_error_db": -80.53630354342538,
+              "error_mean_v": 0.0010483244976758155,
+              "mean_removed_error_rms_v": 0.0005198957341760062,
+              "mean_removed_normalized_error_db": -87.5828878755276,
+              "maximum_absolute_error_v": 0.0030403300863000027
             },
             "complete_post_burst": {
               "reference_rms_v": 4.306639184163982,
-              "candidate_rms_v": 4.306033674241271,
-              "raw_error_rms_v": 0.0011520105872835139,
-              "raw_normalized_error_db": -71.45364034285079,
-              "error_mean_v": 0.001124724266394659,
-              "mean_removed_error_rms_v": 0.00024924629946360843,
-              "mean_removed_normalized_error_db": -84.75019536855228,
-              "maximum_absolute_error_v": 0.0035883961919935814
+              "candidate_rms_v": 4.3062141220411725,
+              "raw_error_rms_v": 0.000647470571700466,
+              "raw_normalized_error_db": -76.45836907046586,
+              "error_mean_v": 0.0006003276101125623,
+              "mean_removed_error_rms_v": 0.00024253845417720373,
+              "mean_removed_normalized_error_db": -84.98715764539915,
+              "maximum_absolute_error_v": 0.0030403300863000027
             },
             "final_10ms": {
               "reference_rms_v": 0.49525448915365206,
-              "candidate_rms_v": 0.49463902829832124,
-              "raw_error_rms_v": 0.0010423769458315817,
-              "raw_normalized_error_db": -53.536072465319236,
-              "error_mean_v": 0.0010422490862148752,
-              "mean_removed_error_rms_v": 1.6326037040068745e-05,
-              "mean_removed_normalized_error_db": -89.63895286679991,
-              "maximum_absolute_error_v": 0.001093557405890122
+              "candidate_rms_v": 0.4949353785635411,
+              "raw_error_rms_v": 0.0005376352237122154,
+              "raw_normalized_error_db": -59.28681413205045,
+              "error_mean_v": 0.000537393647675564,
+              "mean_removed_error_rms_v": 1.611524787384945e-05,
+              "mean_removed_normalized_error_db": -89.75182861792283,
+              "maximum_absolute_error_v": 0.0005951047497835815
             }
           },
-          "maximum_residual_a": 1.5871409004830639e-06,
+          "maximum_residual_a": 1.8740750533652317e-06,
           "residual_limit_exceedance_count": 0,
           "saturation_count": 0,
           "range_clip_count": 0,
@@ -935,8 +935,8 @@
             417,
             456,
             323,
-            307,
-            75297
+            154,
+            75450
           ]
         }
       },
@@ -946,20 +946,20 @@
           "maximum_absolute_difference_v": 0.0
         },
         "burst": {
-          "raw_difference_rms_v": 0.14935893934356057,
-          "maximum_absolute_difference_v": 0.5059416615404189
+          "raw_difference_rms_v": 0.14902230293727933,
+          "maximum_absolute_difference_v": 0.5058860371354967
         },
         "early_recovery_10ms": {
-          "raw_difference_rms_v": 0.0011718820959495614,
-          "maximum_absolute_difference_v": 0.001262056641280651
+          "raw_difference_rms_v": 0.0006282359341518764,
+          "maximum_absolute_difference_v": 0.0007094824686646461
         },
         "complete_post_burst": {
-          "raw_difference_rms_v": 0.0011257753469928163,
-          "maximum_absolute_difference_v": 0.001262056641280651
+          "raw_difference_rms_v": 0.000601314692609924,
+          "maximum_absolute_difference_v": 0.0007094824686646461
         },
         "final_10ms": {
-          "raw_difference_rms_v": 0.0010876740518166058,
-          "maximum_absolute_difference_v": 0.0011586188338696957
+          "raw_difference_rms_v": 0.0005829176876482659,
+          "maximum_absolute_difference_v": 0.0006495974957942963
         }
       }
     }

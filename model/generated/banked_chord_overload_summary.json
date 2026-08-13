@@ -37,7 +37,7 @@
           "representative_v_pk_v": 278.0
         },
         {
-          "upper_v_gk_v": -2.5,
+          "upper_v_gk_v": -2.75,
           "representative_v_gk_v": -2.75,
           "representative_v_pk_v": 261.0
         }
@@ -158,8 +158,8 @@
       "solver": "banked_cutoff_chord",
       "burst_input_peak_v": 0.5,
       "output_finite": true,
-      "maximum_absolute_output_v": 71.18061967892572,
-      "maximum_residual_a": 1.3574322679232864e-06,
+      "maximum_absolute_output_v": 71.18033072911203,
+      "maximum_residual_a": 3.329976721033745e-07,
       "residual_limit_exceedance_count": 0,
       "saturation_count": 0,
       "range_clip_count": 0,
@@ -168,8 +168,8 @@
         0,
         0,
         0,
-        231,
-        76569
+        0,
+        76800
       ]
     },
     {
@@ -177,8 +177,8 @@
       "solver": "banked_cutoff_chord",
       "burst_input_peak_v": 1.0,
       "output_finite": true,
-      "maximum_absolute_output_v": 101.98156797559932,
-      "maximum_residual_a": 1.5871409004830639e-06,
+      "maximum_absolute_output_v": 101.98151181032881,
+      "maximum_residual_a": 1.8740750533652317e-06,
       "residual_limit_exceedance_count": 0,
       "saturation_count": 0,
       "range_clip_count": 0,
@@ -187,8 +187,8 @@
         417,
         456,
         323,
-        307,
-        75297
+        154,
+        75450
       ]
     },
     {
@@ -196,9 +196,9 @@
       "solver": "banked_cutoff_chord",
       "burst_input_peak_v": 1.5,
       "output_finite": true,
-      "maximum_absolute_output_v": 109.06942370114848,
-      "maximum_residual_a": 1.7738649944476492e-06,
-      "residual_limit_exceedance_count": 0,
+      "maximum_absolute_output_v": 109.06980497715995,
+      "maximum_residual_a": 3.0817442393527017e-06,
+      "residual_limit_exceedance_count": 67,
       "saturation_count": 0,
       "range_clip_count": 4052,
       "correction_scale_fallback_count": 0,
@@ -206,8 +206,8 @@
         1321,
         156,
         167,
-        188,
-        74968
+        91,
+        75065
       ]
     },
     {

@@ -1,6 +1,6 @@
 {
   "model": "12ax7_passive_riaa_v1",
-  "study": "cutoff Jacobian bank prefix minimization",
+  "study": "trapezoidal shallow cutoff-bank threshold sweep",
   "sample_rate_hz": 768000.0,
   "stimulus": {
     "frequency_hz": 1000.0,
@@ -14,219 +14,34 @@
     ],
     "input_format": "Q8.24"
   },
-  "selection_policy": "retain the most-negative cutoff regimes in order and use the nominal Jacobian above the last retained threshold",
-  "selected_cutoff_bank_count": {
-    "backward_euler": 2,
-    "trapezoidal": 4
-  },
-  "selected_total_coefficient_sets": {
-    "backward_euler": 3,
-    "trapezoidal": 5
-  },
-  "bank_prefix_reduction_rejected": true,
+  "thresholds_tested_v": [
+    -2.5,
+    -2.625,
+    -2.675,
+    -2.68,
+    -2.7,
+    -2.75,
+    -2.8,
+    -2.9
+  ],
+  "passing_thresholds_v": [
+    -2.68,
+    -2.7,
+    -2.75
+  ],
+  "selection_policy": "most-negative passing threshold",
+  "selected_threshold_v": -2.75,
+  "selected_one_volt_shallow_bank_activations": 154,
   "gates": {
-    "both_modes_have_convergent_prefix": true,
-    "all_existing_cutoff_banks_are_required": true,
+    "selected_threshold_is_stricter_than_original": true,
+    "selected_threshold_avoids_half_volt_shallow_bank": true,
+    "selected_threshold_preserves_one_volt_convergence": true,
     "all_outputs_finite": true
   },
   "all_gates_pass": true,
   "measurements": [
     {
-      "integration_method": "backward_euler",
-      "cutoff_bank_count": 0,
-      "total_coefficient_sets": 1,
-      "burst_input_peak_v": 0.5,
-      "maximum_residual_a": 3.5147769494869863e-07,
-      "residual_limit_exceedance_count": 0,
-      "saturation_count": 0,
-      "range_clip_count": 0,
-      "correction_scale_fallback_count": 0,
-      "output_finite": true,
-      "bank_selection_count": [
-        76800
-      ]
-    },
-    {
-      "integration_method": "backward_euler",
-      "cutoff_bank_count": 0,
-      "total_coefficient_sets": 1,
-      "burst_input_peak_v": 1.0,
-      "maximum_residual_a": 6.698764480006503e-06,
-      "residual_limit_exceedance_count": 1122,
-      "saturation_count": 0,
-      "range_clip_count": 0,
-      "correction_scale_fallback_count": 0,
-      "output_finite": true,
-      "bank_selection_count": [
-        76800
-      ]
-    },
-    {
-      "integration_method": "backward_euler",
-      "cutoff_bank_count": 1,
-      "total_coefficient_sets": 2,
-      "burst_input_peak_v": 0.5,
-      "maximum_residual_a": 3.5147769494869863e-07,
-      "residual_limit_exceedance_count": 0,
-      "saturation_count": 0,
-      "range_clip_count": 0,
-      "correction_scale_fallback_count": 0,
-      "output_finite": true,
-      "bank_selection_count": [
-        0,
-        76800
-      ]
-    },
-    {
-      "integration_method": "backward_euler",
-      "cutoff_bank_count": 1,
-      "total_coefficient_sets": 2,
-      "burst_input_peak_v": 1.0,
-      "maximum_residual_a": 4.132633875997271e-06,
-      "residual_limit_exceedance_count": 289,
-      "saturation_count": 0,
-      "range_clip_count": 0,
-      "correction_scale_fallback_count": 0,
-      "output_finite": true,
-      "bank_selection_count": [
-        1038,
-        75762
-      ]
-    },
-    {
-      "integration_method": "backward_euler",
-      "cutoff_bank_count": 2,
-      "total_coefficient_sets": 3,
-      "burst_input_peak_v": 0.5,
-      "maximum_residual_a": 3.5147769494869863e-07,
-      "residual_limit_exceedance_count": 0,
-      "saturation_count": 0,
-      "range_clip_count": 0,
-      "correction_scale_fallback_count": 0,
-      "output_finite": true,
-      "bank_selection_count": [
-        0,
-        0,
-        76800
-      ]
-    },
-    {
-      "integration_method": "backward_euler",
-      "cutoff_bank_count": 2,
-      "total_coefficient_sets": 3,
-      "burst_input_peak_v": 1.0,
-      "maximum_residual_a": 1.8867026483349036e-06,
-      "residual_limit_exceedance_count": 0,
-      "saturation_count": 0,
-      "range_clip_count": 0,
-      "correction_scale_fallback_count": 0,
-      "output_finite": true,
-      "bank_selection_count": [
-        1038,
-        312,
-        75450
-      ]
-    },
-    {
-      "integration_method": "trapezoidal",
-      "cutoff_bank_count": 0,
-      "total_coefficient_sets": 1,
-      "burst_input_peak_v": 0.5,
-      "maximum_residual_a": 3.329976721033745e-07,
-      "residual_limit_exceedance_count": 0,
-      "saturation_count": 0,
-      "range_clip_count": 0,
-      "correction_scale_fallback_count": 0,
-      "output_finite": true,
-      "bank_selection_count": [
-        76800
-      ]
-    },
-    {
-      "integration_method": "trapezoidal",
-      "cutoff_bank_count": 0,
-      "total_coefficient_sets": 1,
-      "burst_input_peak_v": 1.0,
-      "maximum_residual_a": 6.4429397639287345e-06,
-      "residual_limit_exceedance_count": 1107,
-      "saturation_count": 0,
-      "range_clip_count": 0,
-      "correction_scale_fallback_count": 0,
-      "output_finite": true,
-      "bank_selection_count": [
-        76800
-      ]
-    },
-    {
-      "integration_method": "trapezoidal",
-      "cutoff_bank_count": 1,
-      "total_coefficient_sets": 2,
-      "burst_input_peak_v": 0.5,
-      "maximum_residual_a": 3.329976721033745e-07,
-      "residual_limit_exceedance_count": 0,
-      "saturation_count": 0,
-      "range_clip_count": 0,
-      "correction_scale_fallback_count": 0,
-      "output_finite": true,
-      "bank_selection_count": [
-        0,
-        76800
-      ]
-    },
-    {
-      "integration_method": "trapezoidal",
-      "cutoff_bank_count": 1,
-      "total_coefficient_sets": 2,
-      "burst_input_peak_v": 1.0,
-      "maximum_residual_a": 6.419950238978345e-06,
-      "residual_limit_exceedance_count": 849,
-      "saturation_count": 0,
-      "range_clip_count": 0,
-      "correction_scale_fallback_count": 0,
-      "output_finite": true,
-      "bank_selection_count": [
-        417,
-        76383
-      ]
-    },
-    {
-      "integration_method": "trapezoidal",
-      "cutoff_bank_count": 2,
-      "total_coefficient_sets": 3,
-      "burst_input_peak_v": 0.5,
-      "maximum_residual_a": 3.329976721033745e-07,
-      "residual_limit_exceedance_count": 0,
-      "saturation_count": 0,
-      "range_clip_count": 0,
-      "correction_scale_fallback_count": 0,
-      "output_finite": true,
-      "bank_selection_count": [
-        0,
-        0,
-        76800
-      ]
-    },
-    {
-      "integration_method": "trapezoidal",
-      "cutoff_bank_count": 2,
-      "total_coefficient_sets": 3,
-      "burst_input_peak_v": 1.0,
-      "maximum_residual_a": 5.258871624391759e-06,
-      "residual_limit_exceedance_count": 443,
-      "saturation_count": 0,
-      "range_clip_count": 0,
-      "correction_scale_fallback_count": 0,
-      "output_finite": true,
-      "bank_selection_count": [
-        417,
-        455,
-        75928
-      ]
-    },
-    {
-      "integration_method": "trapezoidal",
-      "cutoff_bank_count": 3,
-      "total_coefficient_sets": 4,
+      "shallow_bank_upper_v_gk_v": -2.9,
       "burst_input_peak_v": 0.5,
       "maximum_residual_a": 3.329976721033745e-07,
       "residual_limit_exceedance_count": 0,
@@ -238,16 +53,15 @@
         0,
         0,
         0,
+        0,
         76800
       ]
     },
     {
-      "integration_method": "trapezoidal",
-      "cutoff_bank_count": 3,
-      "total_coefficient_sets": 4,
+      "shallow_bank_upper_v_gk_v": -2.9,
       "burst_input_peak_v": 1.0,
-      "maximum_residual_a": 2.870650575914624e-06,
-      "residual_limit_exceedance_count": 119,
+      "maximum_residual_a": 2.4538500724702317e-06,
+      "residual_limit_exceedance_count": 52,
       "saturation_count": 0,
       "range_clip_count": 0,
       "correction_scale_fallback_count": 0,
@@ -256,13 +70,12 @@
         417,
         456,
         323,
-        75604
+        62,
+        75542
       ]
     },
     {
-      "integration_method": "trapezoidal",
-      "cutoff_bank_count": 4,
-      "total_coefficient_sets": 5,
+      "shallow_bank_upper_v_gk_v": -2.8,
       "burst_input_peak_v": 0.5,
       "maximum_residual_a": 3.329976721033745e-07,
       "residual_limit_exceedance_count": 0,
@@ -279,9 +92,41 @@
       ]
     },
     {
-      "integration_method": "trapezoidal",
-      "cutoff_bank_count": 4,
-      "total_coefficient_sets": 5,
+      "shallow_bank_upper_v_gk_v": -2.8,
+      "burst_input_peak_v": 1.0,
+      "maximum_residual_a": 2.0617708855752426e-06,
+      "residual_limit_exceedance_count": 2,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        417,
+        456,
+        323,
+        124,
+        75480
+      ]
+    },
+    {
+      "shallow_bank_upper_v_gk_v": -2.75,
+      "burst_input_peak_v": 0.5,
+      "maximum_residual_a": 3.329976721033745e-07,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        0,
+        0,
+        0,
+        0,
+        76800
+      ]
+    },
+    {
+      "shallow_bank_upper_v_gk_v": -2.75,
       "burst_input_peak_v": 1.0,
       "maximum_residual_a": 1.8740750533652317e-06,
       "residual_limit_exceedance_count": 0,
@@ -295,6 +140,176 @@
         323,
         154,
         75450
+      ]
+    },
+    {
+      "shallow_bank_upper_v_gk_v": -2.7,
+      "burst_input_peak_v": 0.5,
+      "maximum_residual_a": 3.329976721033745e-07,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        0,
+        0,
+        0,
+        0,
+        76800
+      ]
+    },
+    {
+      "shallow_bank_upper_v_gk_v": -2.7,
+      "burst_input_peak_v": 1.0,
+      "maximum_residual_a": 1.6985572415251227e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        417,
+        456,
+        323,
+        185,
+        75419
+      ]
+    },
+    {
+      "shallow_bank_upper_v_gk_v": -2.68,
+      "burst_input_peak_v": 0.5,
+      "maximum_residual_a": 3.329976721033745e-07,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        0,
+        0,
+        0,
+        0,
+        76800
+      ]
+    },
+    {
+      "shallow_bank_upper_v_gk_v": -2.68,
+      "burst_input_peak_v": 1.0,
+      "maximum_residual_a": 1.6434250369457004e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        417,
+        456,
+        323,
+        197,
+        75407
+      ]
+    },
+    {
+      "shallow_bank_upper_v_gk_v": -2.675,
+      "burst_input_peak_v": 0.5,
+      "maximum_residual_a": 1.3851797575625824e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        0,
+        0,
+        0,
+        21,
+        76779
+      ]
+    },
+    {
+      "shallow_bank_upper_v_gk_v": -2.675,
+      "burst_input_peak_v": 1.0,
+      "maximum_residual_a": 1.6441368870800943e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        417,
+        456,
+        323,
+        199,
+        75405
+      ]
+    },
+    {
+      "shallow_bank_upper_v_gk_v": -2.625,
+      "burst_input_peak_v": 0.5,
+      "maximum_residual_a": 1.3583749023382552e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        0,
+        0,
+        0,
+        77,
+        76723
+      ]
+    },
+    {
+      "shallow_bank_upper_v_gk_v": -2.625,
+      "burst_input_peak_v": 1.0,
+      "maximum_residual_a": 1.586795406183228e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        417,
+        456,
+        323,
+        229,
+        75375
+      ]
+    },
+    {
+      "shallow_bank_upper_v_gk_v": -2.5,
+      "burst_input_peak_v": 0.5,
+      "maximum_residual_a": 1.3574322679232864e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        0,
+        0,
+        0,
+        231,
+        76569
+      ]
+    },
+    {
+      "shallow_bank_upper_v_gk_v": -2.5,
+      "burst_input_peak_v": 1.0,
+      "maximum_residual_a": 1.5871409004830639e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        417,
+        456,
+        323,
+        307,
+        75297
       ]
     }
   ]

@@ -97,7 +97,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | trapezoidal wide solver synthesis | Yosys 0.66 structural | 12,543 LC, 122 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | banked wide solver RTL vs fixed | 9,216 overload samples/mode | every state exact, every bank selected, latency 116, zero diagnostics |
 | banked wide solver synthesis | Yosys 0.66 structural | BE 12,942 LC; trap 13,870 LC; both 122 DSP48E1 / 8 RAMB18E1 |
-| banked solver vs full Newton | 100 ms, 20 mV/0.5/1.0 V per mode | raw burst error <=-75.28 dB; no alignment or diagnostics; trapezoidal 1 V final mean error 1.042 mV |
+| banked solver vs full Newton | 100 ms, 20 mV/0.5/1.0 V per mode | raw burst error <=-75.28 dB; no alignment or diagnostics; trapezoidal 1 V final mean error 0.537 mV |
 | trapezoidal 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 116-clock solver |
 | trapezoidal stream synthesis | Yosys 0.66 structural | 17,651 LC, 170 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | wide factorized solver RTL vs fixed | 512 sequential samples | bit-exact all 19 states and diagnostics, latency 116, zero events |
