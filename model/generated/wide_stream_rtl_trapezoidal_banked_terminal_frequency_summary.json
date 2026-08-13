@@ -1,0 +1,299 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "implementation": "captured complete SystemVerilog wide stream",
+  "integration_method": "trapezoidal",
+  "banked_chord": true,
+  "terminal_correction": true,
+  "solver_latency_clocks": 127,
+  "external_sample_rate_hz": 48000.0,
+  "internal_sample_rate_hz": 768000.0,
+  "input_peak_v": 0.005,
+  "vectors_per_frequency": 4800,
+  "analysis_vectors_per_frequency": 2400,
+  "converter_group_delay_external_samples": 51.0,
+  "converter_group_delay_ms": 1.0625,
+  "phase_reporting": "End-to-end phase includes the causal converters. Circuit-attributed phase subtracts a separately measured identity-path converter phase.",
+  "all_rtl_fixed_bit_exact": true,
+  "maximum_absolute_gain_error_vs_floating_db": 0.00013339836975490016,
+  "maximum_absolute_phase_error_vs_floating_deg": 0.0004432124153481709,
+  "worst_mean_removed_normalized_residual_db": -63.769465265421445,
+  "worst_linear_detrended_normalized_residual_db": -74.78782658754496,
+  "measurements": [
+    {
+      "frequency_hz": 100.0,
+      "analysis_cycles": 5.0,
+      "rtl_fixed_bit_exact": true,
+      "input": {
+        "mean_v": -8.190724694891791e-21,
+        "fundamental_peak_v": 0.004999998073452222,
+        "phase_deg": -9.939237209256562e-15
+      },
+      "end_to_end": {
+        "floating": {
+          "mean_v": -0.04011154606367603,
+          "fundamental_peak_v": 2.4462136649941066,
+          "phase_deg": -89.88905211071827,
+          "gain_db": 53.790491017846165,
+          "phase_deg_relative_to_input": -89.88905211071825
+        },
+        "captured_rtl": {
+          "mean_v": -0.04027931340038767,
+          "fundamental_peak_v": 2.4461760961988817,
+          "phase_deg": -89.88915181872466,
+          "gain_db": 53.79035761947641,
+          "phase_deg_relative_to_input": -89.88915181872464,
+          "gain_error_vs_floating_db": -0.00013339836975490016,
+          "phase_error_vs_floating_deg": -9.970800638825494e-05,
+          "raw_normalized_residual_db": -80.08730952834168,
+          "mean_removed_normalized_residual_db": -93.990535909632,
+          "residual_mean_v": -0.00016776733671165696,
+          "linear_residual_drift_v_per_external_sample": 2.871292713292849e-08,
+          "linear_residual_drift_v_across_window": 6.888231219189545e-05,
+          "linear_detrended_normalized_residual_db": -95.73838819412484
+        }
+      },
+      "converter_only": {
+        "nominal_group_delay_phase_deg": -38.25,
+        "floating": {
+          "mean_v": -3.4524647307884262e-19,
+          "fundamental_peak_v": 0.004999997838332241,
+          "phase_deg": -38.25000000000003,
+          "gain_db": -4.0844540761397506e-07,
+          "phase_deg_relative_to_input": -38.25000000000003
+        },
+        "fixed": {
+          "mean_v": 0.0,
+          "fundamental_peak_v": 0.004999998073452235,
+          "phase_deg": -38.25000000000006,
+          "gain_db": 2.314385919727886e-14,
+          "phase_deg_relative_to_input": -38.25000000000006
+        },
+        "fixed_phase_error_vs_nominal_deg": -5.684341886080802e-14
+      },
+      "circuit_attributed_after_converter_removal": {
+        "floating_gain_db": 53.790491426291574,
+        "floating_phase_deg": -51.63905211071824,
+        "rtl_gain_db": 53.79035761947639,
+        "rtl_phase_deg": -51.6391518187246
+      },
+      "diagnostics": {
+        "interpolation_saturation_count": 0,
+        "output_conversion_saturation_count": 0,
+        "decimation_saturation_count": 0,
+        "solver_saturation_count": 0,
+        "solver_range_clip_count": 0,
+        "solver_residual_limit_exceedance_count": 0,
+        "solver_correction_scale_fallback_count": 0,
+        "maximum_solver_residual_a": 6.740606295352336e-09,
+        "floating_nonconvergence_count": 0
+      }
+    },
+    {
+      "frequency_hz": 1000.0,
+      "analysis_cycles": 50.0,
+      "rtl_fixed_bit_exact": true,
+      "input": {
+        "mean_v": -1.0585750817307646e-21,
+        "fundamental_peak_v": 0.004999993624603471,
+        "phase_deg": 2.7432319106005236e-12
+      },
+      "end_to_end": {
+        "floating": {
+          "mean_v": -0.003695207886838456,
+          "fundamental_peak_v": 0.5669190785288527,
+          "phase_deg": -71.13561999226039,
+          "gain_db": 41.09103243948371,
+          "phase_deg_relative_to_input": -71.13561999226313
+        },
+        "captured_rtl": {
+          "mean_v": -0.003889712467789652,
+          "fundamental_peak_v": 0.5669111119748464,
+          "phase_deg": -71.13559186512164,
+          "gain_db": 41.09091038133165,
+          "phase_deg_relative_to_input": -71.13559186512438,
+          "gain_error_vs_floating_db": -0.00012205815205845738,
+          "phase_error_vs_floating_deg": 2.8127138762101822e-05,
+          "raw_normalized_residual_db": -66.24269198614671,
+          "mean_removed_normalized_residual_db": -86.70664666019061,
+          "residual_mean_v": -0.00019450458095119703,
+          "linear_residual_drift_v_per_external_sample": 2.19259621161035e-08,
+          "linear_residual_drift_v_across_window": 5.26003831165323e-05,
+          "linear_detrended_normalized_residual_db": -91.55620631370327
+        }
+      },
+      "converter_only": {
+        "nominal_group_delay_phase_deg": -22.5,
+        "floating": {
+          "mean_v": -2.213118417172068e-19,
+          "fundamental_peak_v": 0.004999974467925345,
+          "phase_deg": -22.499999999997076,
+          "gain_db": -3.327866459023455e-05,
+          "phase_deg_relative_to_input": -22.49999999999983
+        },
+        "fixed": {
+          "mean_v": -4.426236834344136e-21,
+          "fundamental_peak_v": 0.0049999850214140044,
+          "phase_deg": -22.49999999999717,
+          "gain_db": -1.4945302761895454e-05,
+          "phase_deg_relative_to_input": -22.499999999999915
+        },
+        "fixed_phase_error_vs_nominal_deg": 8.526512829121202e-14
+      },
+      "circuit_attributed_after_converter_removal": {
+        "floating_gain_db": 41.0910657181483,
+        "floating_phase_deg": -48.63561999226329,
+        "rtl_gain_db": 41.09092532663441,
+        "rtl_phase_deg": -48.63559186512447
+      },
+      "diagnostics": {
+        "interpolation_saturation_count": 0,
+        "output_conversion_saturation_count": 0,
+        "decimation_saturation_count": 0,
+        "solver_saturation_count": 0,
+        "solver_range_clip_count": 0,
+        "solver_residual_limit_exceedance_count": 0,
+        "solver_correction_scale_fallback_count": 0,
+        "maximum_solver_residual_a": 6.130790097813588e-09,
+        "floating_nonconvergence_count": 0
+      }
+    },
+    {
+      "frequency_hz": 10000.0,
+      "analysis_cycles": 500.0,
+      "rtl_fixed_bit_exact": true,
+      "input": {
+        "mean_v": -2.8228668846153722e-22,
+        "fundamental_peak_v": 0.00499998830720505,
+        "phase_deg": 4.283819604561022e-12
+      },
+      "end_to_end": {
+        "floating": {
+          "mean_v": -0.00010270907021404788,
+          "fundamental_peak_v": 0.11404088259560276,
+          "phase_deg": 52.93608977022479,
+          "gain_db": 27.16183162140677,
+          "phase_deg_relative_to_input": 52.93608977022052
+        },
+        "captured_rtl": {
+          "mean_v": -0.0002838013321161282,
+          "fundamental_peak_v": 0.11403961452487506,
+          "phase_deg": 52.936502237311636,
+          "gain_db": 27.161735038642938,
+          "phase_deg_relative_to_input": 52.936502237307366,
+          "gain_error_vs_floating_db": -9.658276383106568e-05,
+          "phase_error_vs_floating_deg": 0.0004124670868463909,
+          "raw_normalized_residual_db": -52.89345572363754,
+          "mean_removed_normalized_residual_db": -70.3092156883248,
+          "residual_mean_v": -0.00018109226190207915,
+          "linear_residual_drift_v_per_external_sample": 3.433434768536205e-08,
+          "linear_residual_drift_v_across_window": 8.236810009718355e-05,
+          "linear_detrended_normalized_residual_db": -82.1395578194518
+        }
+      },
+      "converter_only": {
+        "nominal_group_delay_phase_deg": 135.0,
+        "floating": {
+          "mean_v": 0.0,
+          "fundamental_peak_v": 0.005000108816409709,
+          "phase_deg": 135.0000000000042,
+          "gain_db": 0.00020934389719439415,
+          "phase_deg_relative_to_input": 134.9999999999999
+        },
+        "fixed": {
+          "mean_v": 0.0,
+          "fundamental_peak_v": 0.005000100161843461,
+          "phase_deg": 135.00000000000423,
+          "gain_db": 0.00019430968991718074,
+          "phase_deg_relative_to_input": 134.99999999999994
+        },
+        "fixed_phase_error_vs_nominal_deg": -5.684341886080802e-14
+      },
+      "circuit_attributed_after_converter_removal": {
+        "floating_gain_db": 27.161622277509576,
+        "floating_phase_deg": -82.06391022977937,
+        "rtl_gain_db": 27.16154072895302,
+        "rtl_phase_deg": -82.06349776269258
+      },
+      "diagnostics": {
+        "interpolation_saturation_count": 0,
+        "output_conversion_saturation_count": 0,
+        "decimation_saturation_count": 0,
+        "solver_saturation_count": 0,
+        "solver_range_clip_count": 0,
+        "solver_residual_limit_exceedance_count": 0,
+        "solver_correction_scale_fallback_count": 0,
+        "maximum_solver_residual_a": 5.950084869255079e-09,
+        "floating_nonconvergence_count": 0
+      }
+    },
+    {
+      "frequency_hz": 20000.0,
+      "analysis_cycles": 1000.0,
+      "rtl_fixed_bit_exact": true,
+      "input": {
+        "mean_v": -9.909003518083267e-19,
+        "fundamental_peak_v": 0.004999981224883703,
+        "phase_deg": 8.358926660185336e-12
+      },
+      "end_to_end": {
+        "floating": {
+          "mean_v": 0.00015869552923564005,
+          "fundamental_peak_v": 0.05772986584985365,
+          "phase_deg": -177.7353765583896,
+          "gain_db": 21.248643495162746,
+          "phase_deg_relative_to_input": -177.73537655839795
+        },
+        "captured_rtl": {
+          "mean_v": -1.1585926016147633e-05,
+          "fundamental_peak_v": 0.05773006123473065,
+          "phase_deg": -177.73493334597424,
+          "gain_db": 21.24867289222754,
+          "phase_deg_relative_to_input": -177.7349333459826,
+          "gain_error_vs_floating_db": 2.939706479310189e-05,
+          "phase_error_vs_floating_deg": 0.0004432124153481709,
+          "raw_normalized_residual_db": -47.490894163480576,
+          "mean_removed_normalized_residual_db": -63.769465265421445,
+          "residual_mean_v": -0.00017028145525178762,
+          "linear_residual_drift_v_per_external_sample": 3.663547471619584e-08,
+          "linear_residual_drift_v_across_window": 8.788850384415383e-05,
+          "linear_detrended_normalized_residual_db": -74.78782658754496
+        }
+      },
+      "converter_only": {
+        "nominal_group_delay_phase_deg": -90.0,
+        "floating": {
+          "mean_v": 2.778864500579212e-17,
+          "fundamental_peak_v": 0.004999940277473705,
+          "phase_deg": -89.99999999999167,
+          "gain_db": -7.113349522378345e-05,
+          "phase_deg_relative_to_input": -90.00000000000003
+        },
+        "fixed": {
+          "mean_v": 2.7806165306874906e-17,
+          "fundamental_peak_v": 0.0049999070756961625,
+          "phase_deg": -89.99999999999166,
+          "gain_db": -0.00012881177076899883,
+          "phase_deg_relative_to_input": -90.00000000000001
+        },
+        "fixed_phase_error_vs_nominal_deg": 0.0
+      },
+      "circuit_attributed_after_converter_removal": {
+        "floating_gain_db": 21.248714628657968,
+        "floating_phase_deg": -87.73537655839792,
+        "rtl_gain_db": 21.248801703998307,
+        "rtl_phase_deg": -87.73493334598258
+      },
+      "diagnostics": {
+        "interpolation_saturation_count": 0,
+        "output_conversion_saturation_count": 0,
+        "decimation_saturation_count": 0,
+        "solver_saturation_count": 0,
+        "solver_range_clip_count": 0,
+        "solver_residual_limit_exceedance_count": 0,
+        "solver_correction_scale_fallback_count": 0,
+        "maximum_solver_residual_a": 5.82281245442573e-09,
+        "floating_nonconvergence_count": 0
+      }
+    }
+  ]
+}

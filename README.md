@@ -158,6 +158,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   constant multipliers reduce the solver to 14,945 logic cells / 174 DSPs; the
   full stream measures 20,241 / 222 / 8 RAMB18E1s. This fits the provisional
   A7-100T structurally with 18 DSPs free, but timing is not claimed.
+- A captured complete-stream sweep at 100 Hz, 1 kHz, 10 kHz, and 20 kHz proves
+  all 19,200 Q8.24 outputs exact with zero diagnostics. Relative to the composed
+  floating trapezoidal reference, gain/phase error stays within 0.000134 dB /
+  0.000444°. The worst mean-removed null is -63.77 dB at 20 kHz because the
+  fixed/float startup-state residual drifts 87.89 µV across the 50 ms window;
+  retaining that metric while removing only its fitted linear drift gives a
+  -74.79 dB shape null. No gain, phase, or fractional-delay alignment is used.
 - Moving only the shallow trapezoidal threshold from -2.50 to -2.75 V prevents
   bank activation at 0.5 V, preserves zero 1.0 V failures, and reduces final
   10 ms mean error from 1.042 to 0.537 mV with the former 128-point grid-current
@@ -397,6 +404,7 @@ make wide-rtl-frequency             # captured 100 Hz-20 kHz solver sweep
 make trapezoidal-rtl-frequency      # captured selectable-integrator sweep
 make trapezoidal-rtl-recovery       # accepted 0.5 V long-recovery capture
 make trapezoidal-stream-rtl-frequency # captured complete 48 kHz sweep
+make trapezoidal-terminal-stream-rtl-frequency # accuracy-first stream sweep
 make wide-rtl-overload              # captured 100 ms overload/recovery sweep
 make terminal-banked-rtl-metrics    # terminal H1-H10/clipping/recovery capture
 make wide-stream-rtl-alias          # captured nonlinear decimation-alias test

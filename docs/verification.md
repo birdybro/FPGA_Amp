@@ -114,6 +114,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | banked terminal stream synthesis | Yosys 0.66 structural | 18,466 LC, 168 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | trapezoidal banked terminal solver synthesis | Yosys 0.66 structural | 14,945 LC, 174 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | trapezoidal banked terminal stream | 64 outputs / 1,024 circuit samples plus synthesis | bit-exact, zero diagnostics, 127 clocks; 20,241 LC / 222 DSP48E1 / 8 RAMB18E1; no Fmax claim |
+| captured trapezoidal banked terminal stream frequency | 4,800 outputs each at 100 Hz/1/10/20 kHz | Q24 exact; <=0.000134 dB / <=0.000444 degree vs float; -74.79 dB worst linear-detrended null; zero diagnostics |
 | trapezoidal 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 116-clock solver |
 | trapezoidal stream synthesis | Yosys 0.66 structural | 17,735 LC, 168 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | wide factorized solver RTL vs fixed | 512 sequential samples | bit-exact all 19 states and diagnostics, latency 116, zero events |

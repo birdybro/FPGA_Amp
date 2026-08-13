@@ -450,6 +450,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | captured trapezoidal banked terminal overload | 384,000 RTL updates, 20 mV--1.5 V | fixed state/current exact; zero diagnostics; 0.276--4.709 mV burst RMS error |
 | banked terminal complete stream | 64 outputs / 1,024 nonlinear updates | exact fixed/RTL Q8.24 outputs, zero diagnostics; 18,466 LC / 168 DSP / 8 RAMB18 structural |
 | trapezoidal banked terminal complete stream | 64 outputs / 1,024 nonlinear updates | exact fixed/RTL Q8.24 outputs, zero diagnostics; 20,241 LC / 222 DSP / 8 RAMB18 structural |
+| trapezoidal banked terminal stream sweep | 19,200 captured outputs, 100 Hz--20 kHz | fixed exact; <=0.000134 dB / <=0.000444 degree vs float; startup drift retained, detrended null <=-74.79 dB |
 | long fixed state / click recovery | 1 s silence with +/-100 mV single-sample clicks | Q12.20 deadband leaves -5.368 mV late output; must be redesigned |
 | wide-state Python candidate | same 1 s click audit; 5 mV/1 kHz | 38.74 uV late residual; -63.83 dB nominal raw null; complete-RTL proof open |
 | wide chord RTL vs fixed | 1,024 randomized/directed vectors | bit-exact, latency 10; 1,701 LC / 9 DSP / 0 RAMB18 structural |

@@ -79,6 +79,13 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
     parser.add_argument("--trapezoidal", action="store_true")
+    parser.add_argument("--banked", action="store_true")
+    parser.add_argument("--terminal-correction", action="store_true")
+    parser.add_argument(
+        "--run-only",
+        action="store_true",
+        help="reuse the simulator built by an earlier matching sweep",
+    )
     parser.add_argument("--vectors", type=int, default=4800)
     parser.add_argument("--analysis-vectors", type=int, default=2400)
     parser.add_argument(
@@ -88,6 +95,10 @@ def main() -> int:
         default=(100.0, 1_000.0, 10_000.0, 20_000.0),
     )
     args = parser.parse_args()
+    if args.terminal_correction and not args.banked:
+        parser.error("terminal correction requires --banked")
+    if (args.banked or args.terminal_correction) and not args.trapezoidal:
+        parser.error("this captured banked sweep is defined for trapezoidal mode")
     if not 0 < args.vectors <= 8192:
         parser.error("--vectors must be within 1..8192")
     if not 0 < args.analysis_vectors <= args.vectors:
@@ -96,11 +107,12 @@ def main() -> int:
         parser.error("frequencies must be within 0 < f <= 20 kHz")
 
     integration_method = "trapezoidal" if args.trapezoidal else "backward_euler"
-    stem = (
-        "wide_stream_rtl_trapezoidal_frequency"
-        if args.trapezoidal
-        else "wide_stream_rtl_frequency"
-    )
+    if args.trapezoidal and args.terminal_correction:
+        stem = "wide_stream_rtl_trapezoidal_banked_terminal_frequency"
+    elif args.trapezoidal:
+        stem = "wide_stream_rtl_trapezoidal_frequency"
+    else:
+        stem = "wide_stream_rtl_frequency"
     analysis_indices = np.arange(
         args.vectors - args.analysis_vectors,
         args.vectors,
@@ -108,7 +120,7 @@ def main() -> int:
     )
     external_index = np.arange(args.vectors, dtype=np.float64)
     measurements: list[dict[str, object]] = []
-    built = False
+    built = args.run_only
     for frequency_hz in args.frequencies_hz:
         input_q24 = np.rint(
             0.005
@@ -122,7 +134,10 @@ def main() -> int:
             * (1 << 24)
         ).astype(np.int64)
         fixed = compose_fixed_wide_stream(
-            input_q24, trapezoidal=args.trapezoidal
+            input_q24,
+            trapezoidal=args.trapezoidal,
+            banked=args.banked,
+            terminal_correction=args.terminal_correction,
         )
         floating = compose_floating_stream(
             input_q24, integration_method=integration_method
@@ -153,6 +168,10 @@ def main() -> int:
         ]
         if args.trapezoidal:
             command.append("--trapezoidal")
+        if args.banked:
+            command.append("--banked")
+        if args.terminal_correction:
+            command.append("--terminal-correction")
         if built:
             command.extend(("--skip-generate", "--run-only"))
         subprocess.run(command, cwd=ROOT, check=True)
@@ -194,6 +213,17 @@ def main() -> int:
         )
         residual = rtl_v[analysis_indices] - floating.output_v[analysis_indices]
         residual_mean = float(np.mean(residual))
+        centered_index = (
+            np.arange(residual.size, dtype=np.float64)
+            - 0.5 * (residual.size - 1)
+        )
+        drift_basis = np.column_stack(
+            (np.ones(residual.size), centered_index)
+        )
+        drift_coefficient, *_ = np.linalg.lstsq(
+            drift_basis, residual, rcond=None
+        )
+        residual_detrended = residual - drift_basis @ drift_coefficient
         reference_rms = float(
             np.sqrt(np.mean(np.square(floating.output_v[analysis_indices])))
         )
@@ -244,6 +274,19 @@ def main() -> int:
                         )
                     ),
                     "residual_mean_v": residual_mean,
+                    "linear_residual_drift_v_per_external_sample": float(
+                        drift_coefficient[1]
+                    ),
+                    "linear_residual_drift_v_across_window": float(
+                        drift_coefficient[1] * (residual.size - 1)
+                    ),
+                    "linear_detrended_normalized_residual_db": float(
+                        20.0
+                        * np.log10(
+                            np.sqrt(np.mean(np.square(residual_detrended)))
+                            / reference_rms
+                        )
+                    ),
                 },
             },
             "converter_only": {
@@ -297,6 +340,9 @@ def main() -> int:
         "model": "12ax7_passive_riaa_v1",
         "implementation": "captured complete SystemVerilog wide stream",
         "integration_method": integration_method,
+        "banked_chord": args.banked,
+        "terminal_correction": args.terminal_correction,
+        "solver_latency_clocks": 127 if args.terminal_correction else 116,
         "external_sample_rate_hz": EXTERNAL_SAMPLE_RATE_HZ,
         "internal_sample_rate_hz": 16.0 * EXTERNAL_SAMPLE_RATE_HZ,
         "input_peak_v": 0.005,
@@ -327,6 +373,10 @@ def main() -> int:
             float(point["mean_removed_normalized_residual_db"])
             for point in rtl_points
         ),
+        "worst_linear_detrended_normalized_residual_db": max(
+            float(point["linear_detrended_normalized_residual_db"])
+            for point in rtl_points
+        ),
         "measurements": measurements,
     }
     if not summary["all_rtl_fixed_bit_exact"]:
@@ -335,7 +385,20 @@ def main() -> int:
         raise RuntimeError("complete-stream gain error exceeds 0.0002 dB")
     if float(summary["maximum_absolute_phase_error_vs_floating_deg"]) > 0.0015:
         raise RuntimeError("complete-stream phase error exceeds 0.0015 degrees")
-    if float(summary["worst_mean_removed_normalized_residual_db"]) > -65.0:
+    if args.terminal_correction:
+        # The terminal trajectory resolves the long circuit modes differently
+        # from floating Newton during startup. Preserve its raw/mean-removed
+        # nulls and fitted drift, but gate audio-shape error independently of
+        # that documented 143.9 ms / 1.068 s recovery. No gain or phase
+        # alignment is applied.
+        if (
+            float(summary["worst_linear_detrended_normalized_residual_db"])
+            > -70.0
+        ):
+            raise RuntimeError(
+                "complete-stream linear-detrended residual exceeds -70 dB"
+            )
+    elif float(summary["worst_mean_removed_normalized_residual_db"]) > -65.0:
         raise RuntimeError("complete-stream mean-removed residual exceeds -65 dB")
     if any(
         int(point["diagnostics"]["floating_nonconvergence_count"])

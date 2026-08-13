@@ -26,6 +26,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Capture the complete trapezoidal terminal stream at 100 Hz, 1 kHz,
+  10 kHz, and 20 kHz for 4,800 outputs each. Prove fixed/RTL identity and zero
+  diagnostics; bound gain/phase error to 0.000134 dB / 0.000444 degree; and
+  separate the 87.89 uV worst fitted startup drift from the -74.79 dB
+  detrended waveform null.
 - [x] Implement trapezoidal terminal correction with exact corrected Q4.44
   capacitor-current commit on the final chord edge. Match all state across
   384,000 overload updates with zero diagnostics; reduce 1.0/1.5 V burst RMS

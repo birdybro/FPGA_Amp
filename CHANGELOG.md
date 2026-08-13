@@ -15,6 +15,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
   outputs / 1,024 internal updates are exact with zero diagnostics; structural
   synthesis measures 20,241 logic cells, 222 DSP48E1s, and 8 RAMB18E1s. Named-
   part timing remains unproven.
+- Added a captured 100 Hz/1/10/20 kHz frequency gate for the complete
+  trapezoidal terminal stream. All 19,200 outputs are exact; gain/phase error
+  versus floating trapezoidal stays within 0.000134 dB / 0.000444 degree. The
+  report preserves startup drift separately from its -74.79 dB worst linear-
+  detrended waveform null.
 - Added a phase-coherent complete-stream alias-family decomposition covering all
   16 internal frequencies that fold to ±3 kHz. The combined out-of-band
   projection is captured bit-exactly in RTL; the 45 kHz fold is exactly zero in
