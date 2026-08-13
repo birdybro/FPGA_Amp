@@ -146,6 +146,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a parallel 100 ms banked/DC-chord/full-Newton waveform audit at 20 mV,
   0.5 V, and 1.0 V with Q8.24 stimulus, unaligned windowed residuals, and a
   -70 dB raw burst-error gate.
+- Added a bank-prefix minimization study across 0.5/1.0 V and both integration
+  modes; it preserves the negative result that every current cutoff matrix is
+  required for the 1.0 V residual gate.
 - Added architecture, model, phono, fixed-point, gain, noise, analog front-end, converter/clock, hardware, controls, safety, verification, and annotated-reference documentation.
 
 ### Fixed
@@ -194,6 +197,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   The latter retains 1.042 mV final-window mean error after 85 ms recovery;
   mean-removed error is -89.64 dB, so the unhidden slow-state offset remains an
   optimization target rather than being removed by null alignment.
+- Removing the least-negative cutoff matrix leaves 289 backward-Euler or 119
+  trapezoidal 1.0 V residual failures. Coefficient-bank reduction is rejected;
+  later selector work must retain all matrices or provide stronger evidence.
 
 - ngspice bias is 179.994 V/0.9918 mA for stage 1 and 192.808 V/1.0719 mA for stage 2; circuit gain is 41.087 dB at 1 kHz.
 - The physical passive network's ideal-RIAA error is -0.919 to +0.000 dB over 20 Hz–20 kHz (0.364 dB RMS), retained as reference behavior.

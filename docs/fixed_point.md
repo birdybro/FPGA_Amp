@@ -263,6 +263,12 @@ Every 20 mV--1.0 V banked burst is below the frozen -70 dB gate. In the final
 -89.64 dB error. This is evidence of a small slow-state displacement, not
 permission to DC-align the comparison, and keeps the bank optional.
 
+A prefix-minimization sweep proves the offset cannot be addressed by merely
+deleting the shallowest matrix. Retaining one of two backward-Euler cutoff
+matrices leaves 289 residual failures at 1.0 V; retaining three of four
+trapezoidal matrices leaves 119. All present coefficient sets therefore remain
+required under the current thresholds.
+
 `v1_solver_mono_wide.sv` composes those blocks with the factorized tube and
 matches 512 sequential fixed-Python samples exactly across all nine nodes, ten
 capacitor histories, output, residual, and cumulative diagnostics. The vector

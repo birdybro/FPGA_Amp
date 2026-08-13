@@ -125,6 +125,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   trapezoidal final 10 ms retains a 1.042 mV mean error after the burst even
   though its mean-removed error is -89.64 dB; selector/state optimization is
   still required before the bank becomes the default solver.
+- Removing the shallowest cutoff matrix is not a valid optimization: the 100 ms
+  selector study leaves 289 backward-Euler or 119 trapezoidal 1.0 V residual
+  failures. All generated matrices remain required; activation thresholds are
+  studied separately from coefficient-bank removal.
 - A new one-second silence/click audit exposes a Q12.20 state deadband that the
   KCL diagnostics miss: after bipolar 100 mV one-sample clicks, fixed output is
   still -5.368 mV in the final 100 ms while analytical output is about 7.2 uV
@@ -349,6 +353,7 @@ make banked-solver-rtl             # exact three-bank cutoff solver
 make trapezoidal-banked-solver-rtl # exact five-bank cutoff solver
 make banked-rtl-overload           # 9,216-sample/mode bank-selection gate
 make banked-accuracy               # 100 ms banked/full-Newton waveform gate
+make banked-selector               # prove required cutoff-bank partitions
 make halfband-rtl                  # exact 2x units and complete 16x streams
 make stream-rtl                    # complete 48 kHz reference stream
 make stream-factorized-rtl         # complete smooth-tube reference stream

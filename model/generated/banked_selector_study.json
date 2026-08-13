@@ -1,0 +1,301 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "study": "cutoff Jacobian bank prefix minimization",
+  "sample_rate_hz": 768000.0,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_start_s": 0.01,
+    "burst_end_s": 0.015,
+    "duration_s": 0.1,
+    "burst_levels_peak_v": [
+      0.5,
+      1.0
+    ],
+    "input_format": "Q8.24"
+  },
+  "selection_policy": "retain the most-negative cutoff regimes in order and use the nominal Jacobian above the last retained threshold",
+  "selected_cutoff_bank_count": {
+    "backward_euler": 2,
+    "trapezoidal": 4
+  },
+  "selected_total_coefficient_sets": {
+    "backward_euler": 3,
+    "trapezoidal": 5
+  },
+  "bank_prefix_reduction_rejected": true,
+  "gates": {
+    "both_modes_have_convergent_prefix": true,
+    "all_existing_cutoff_banks_are_required": true,
+    "all_outputs_finite": true
+  },
+  "all_gates_pass": true,
+  "measurements": [
+    {
+      "integration_method": "backward_euler",
+      "cutoff_bank_count": 0,
+      "total_coefficient_sets": 1,
+      "burst_input_peak_v": 0.5,
+      "maximum_residual_a": 3.5147769494869863e-07,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        76800
+      ]
+    },
+    {
+      "integration_method": "backward_euler",
+      "cutoff_bank_count": 0,
+      "total_coefficient_sets": 1,
+      "burst_input_peak_v": 1.0,
+      "maximum_residual_a": 6.698764480006503e-06,
+      "residual_limit_exceedance_count": 1122,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        76800
+      ]
+    },
+    {
+      "integration_method": "backward_euler",
+      "cutoff_bank_count": 1,
+      "total_coefficient_sets": 2,
+      "burst_input_peak_v": 0.5,
+      "maximum_residual_a": 3.5147769494869863e-07,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        0,
+        76800
+      ]
+    },
+    {
+      "integration_method": "backward_euler",
+      "cutoff_bank_count": 1,
+      "total_coefficient_sets": 2,
+      "burst_input_peak_v": 1.0,
+      "maximum_residual_a": 4.132633875997271e-06,
+      "residual_limit_exceedance_count": 289,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        1038,
+        75762
+      ]
+    },
+    {
+      "integration_method": "backward_euler",
+      "cutoff_bank_count": 2,
+      "total_coefficient_sets": 3,
+      "burst_input_peak_v": 0.5,
+      "maximum_residual_a": 3.5147769494869863e-07,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        0,
+        0,
+        76800
+      ]
+    },
+    {
+      "integration_method": "backward_euler",
+      "cutoff_bank_count": 2,
+      "total_coefficient_sets": 3,
+      "burst_input_peak_v": 1.0,
+      "maximum_residual_a": 1.8867026483349036e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        1038,
+        312,
+        75450
+      ]
+    },
+    {
+      "integration_method": "trapezoidal",
+      "cutoff_bank_count": 0,
+      "total_coefficient_sets": 1,
+      "burst_input_peak_v": 0.5,
+      "maximum_residual_a": 3.329976721033745e-07,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        76800
+      ]
+    },
+    {
+      "integration_method": "trapezoidal",
+      "cutoff_bank_count": 0,
+      "total_coefficient_sets": 1,
+      "burst_input_peak_v": 1.0,
+      "maximum_residual_a": 6.4429397639287345e-06,
+      "residual_limit_exceedance_count": 1107,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        76800
+      ]
+    },
+    {
+      "integration_method": "trapezoidal",
+      "cutoff_bank_count": 1,
+      "total_coefficient_sets": 2,
+      "burst_input_peak_v": 0.5,
+      "maximum_residual_a": 3.329976721033745e-07,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        0,
+        76800
+      ]
+    },
+    {
+      "integration_method": "trapezoidal",
+      "cutoff_bank_count": 1,
+      "total_coefficient_sets": 2,
+      "burst_input_peak_v": 1.0,
+      "maximum_residual_a": 6.419950238978345e-06,
+      "residual_limit_exceedance_count": 849,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        417,
+        76383
+      ]
+    },
+    {
+      "integration_method": "trapezoidal",
+      "cutoff_bank_count": 2,
+      "total_coefficient_sets": 3,
+      "burst_input_peak_v": 0.5,
+      "maximum_residual_a": 3.329976721033745e-07,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        0,
+        0,
+        76800
+      ]
+    },
+    {
+      "integration_method": "trapezoidal",
+      "cutoff_bank_count": 2,
+      "total_coefficient_sets": 3,
+      "burst_input_peak_v": 1.0,
+      "maximum_residual_a": 5.258871624391759e-06,
+      "residual_limit_exceedance_count": 443,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        417,
+        455,
+        75928
+      ]
+    },
+    {
+      "integration_method": "trapezoidal",
+      "cutoff_bank_count": 3,
+      "total_coefficient_sets": 4,
+      "burst_input_peak_v": 0.5,
+      "maximum_residual_a": 3.329976721033745e-07,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        0,
+        0,
+        0,
+        76800
+      ]
+    },
+    {
+      "integration_method": "trapezoidal",
+      "cutoff_bank_count": 3,
+      "total_coefficient_sets": 4,
+      "burst_input_peak_v": 1.0,
+      "maximum_residual_a": 2.870650575914624e-06,
+      "residual_limit_exceedance_count": 119,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        417,
+        456,
+        323,
+        75604
+      ]
+    },
+    {
+      "integration_method": "trapezoidal",
+      "cutoff_bank_count": 4,
+      "total_coefficient_sets": 5,
+      "burst_input_peak_v": 0.5,
+      "maximum_residual_a": 1.3574322679232864e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        0,
+        0,
+        0,
+        231,
+        76569
+      ]
+    },
+    {
+      "integration_method": "trapezoidal",
+      "cutoff_bank_count": 4,
+      "total_coefficient_sets": 5,
+      "burst_input_peak_v": 1.0,
+      "maximum_residual_a": 1.5871409004830639e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "output_finite": true,
+      "bank_selection_count": [
+        417,
+        456,
+        323,
+        307,
+        75297
+      ]
+    }
+  ]
+}
