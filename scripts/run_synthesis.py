@@ -201,7 +201,13 @@ def main() -> int:
         "output_mute_ramp": ["rtl/audio/output_mute_ramp.sv"],
     }[args.top]
     log_path = results / f"yosys_xc7_{args.top}.log"
-    factorized_top = args.top.endswith("_factorized")
+    # Only the legacy solver/stream aliases select the factorized primitive by
+    # overriding a wrapper parameter.  The factorized tube primitive is itself
+    # a real top-level module despite sharing the same suffix.
+    factorized_top = args.top in {
+        "v1_solver_mono_factorized",
+        "phono_stream_mono_factorized",
+    }
     actual_top = args.top.removesuffix("_factorized") if factorized_top else args.top
     parameter_command = None
     if factorized_top:
