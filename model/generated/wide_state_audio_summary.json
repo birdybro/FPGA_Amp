@@ -1,0 +1,73 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "sample_rate_hz": 768000.0,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "input_peak_v": 0.005,
+    "duration_s": 0.03,
+    "analysis_start_s": 0.02
+  },
+  "wide_state_contract": {
+    "node_fractional_bits": [
+      32,
+      28,
+      32,
+      28,
+      32,
+      32,
+      28,
+      32,
+      32
+    ],
+    "node_width_bits": 40,
+    "capacitor_state_fractional_bits": 30,
+    "correction_residual_fractional_bits_by_pass": [
+      30,
+      34,
+      40
+    ],
+    "capacitor_stamp": "single rounded G*(Vnow-Vprevious) branch current"
+  },
+  "implementations": {
+    "analytical": {
+      "fundamental_peak_v": 0.5667779056774709,
+      "phase_deg": -48.54631993524749,
+      "mean_v": -0.005073709508079177,
+      "thd_percent_h2_to_h10": 0.01905864356806287,
+      "gain_db": 41.08885815518399,
+      "nonconvergence_count": 0
+    },
+    "legacy_factorized": {
+      "fundamental_peak_v": 0.5667947005734089,
+      "phase_deg": -48.53674437214361,
+      "mean_v": -0.007914203281203847,
+      "thd_percent_h2_to_h10": 0.018796709876683047,
+      "gain_db": 41.08911553369122,
+      "gain_error_db": 0.0002573785072198976,
+      "phase_error_deg": 0.009575563103879858,
+      "raw_normalized_residual_db": -42.897699917195176,
+      "mean_removed_normalized_residual_db": -59.63354009620622,
+      "residual_mean_v": -0.002840493773124722,
+      "maximum_residual_a": 3.435922621974896e-07,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0
+    },
+    "wide_state_factorized": {
+      "fundamental_peak_v": 0.5667741240112492,
+      "phase_deg": -48.54650650080288,
+      "mean_v": -0.00533101778006918,
+      "thd_percent_h2_to_h10": 0.019370847156964032,
+      "gain_db": 41.08880020083415,
+      "gain_error_db": -5.7954349848628414e-05,
+      "phase_error_deg": -0.00018656555538854036,
+      "raw_normalized_residual_db": -63.83447477471627,
+      "mean_removed_normalized_residual_db": -88.42873036165858,
+      "residual_mean_v": -0.0002573082719900002,
+      "maximum_residual_a": 4.960838850820437e-09,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0
+    }
+  }
+}

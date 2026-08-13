@@ -94,6 +94,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   still -5.368 mV in the final 100 ms while analytical output is about 7.2 uV
   RMS. The current RTL remains bit-exact to that now-rejected state contract;
   wider internal output/history precision is the active redesign.
+- A 40-bit Q28/Q32 all-node Python candidate with Q30 capacitor history,
+  branch-current stamping, and Q30/Q34/Q40 staged correction precision reduces
+  that late raw residual from 5.375 mV to 38.74 uV RMS with zero diagnostics.
+  At 5 mV/1 kHz it improves raw fixed/analytical null from -42.90 to -63.83 dB,
+  with -0.000058 dB gain and -0.000187 degree phase error. This is not RTL yet;
+  frequency, overload, schedule, and synthesis gates remain.
 - A downstream, explicitly non-reference output guard now starts muted, applies
   a configurable sample-qualified linear ramp, bypasses exactly at unity, and
   synchronously clamps held output on a fault. Its warning-free RTL regression
@@ -151,6 +157,8 @@ make accuracy-sweeps                # settled level and low-level LUT studies
 make factorized-study               # smooth 1-D/Hermite tube candidate
 make factorized-frequency           # 20 Hz-20 kHz fixed/analytical sweep
 make state-drift                    # one-second silence/click state audit
+make state-wide                     # wide-state candidate on the same audit
+make state-wide-audio               # 5 mV/1 kHz legacy/wide A/B
 make overload-study                 # grid conduction, clipping, recovery
 make overload-iterations            # three-to-six-pass solver trade
 python3 scripts/study_lut_resolution.py

@@ -59,6 +59,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   waveform error and explicit serialized latency projections.
 - Added a one-second, 768,000-sample fixed/analytical state audit with bipolar
   synthetic clicks and complete node/capacitor checkpoints.
+- Added a 40-bit heterogeneous-node/Q30-history Python candidate with direct
+  capacitor branch-current stamping, staged Q30/Q34/Q40 correction residuals,
+  a matched one-second audit, and nominal-level legacy A/B report.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -150,6 +153,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
   output is about 7.2 uV RMS. Final output/coupling-capacitor errors are 5.373 /
   5.299 mV despite zero diagnostics, so the current state contract is rejected
   for long recovery rather than presented as accepted RTL accuracy.
+- On the identical audit, the wide-state candidate reduces late raw residual
+  to 38.74 uV RMS and maximum KCL residual to 5.01 nA with zero diagnostics.
+  At 5 mV/1 kHz its raw null is -63.83 dB, mean-removed null -88.43 dB, gain
+  error -0.000058 dB, phase error -0.000187 degrees, and THD 0.01937% versus
+  0.01906% analytical. No RTL or synthesis equivalence is claimed yet.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.

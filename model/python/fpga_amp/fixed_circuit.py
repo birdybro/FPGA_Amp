@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from collections.abc import Sequence
 from typing import Protocol
 
 import numpy as np
@@ -93,15 +94,43 @@ class FixedChordV1CircuitModel:
         self,
         sample_rate_hz: float = 768_000.0,
         inverse_fractional_bits: int = 1,
-        correction_residual_fractional_bits: int = 30,
+        correction_residual_fractional_bits: int | Sequence[int] = 30,
         correction_residual_width: int = 25,
         tube_lut: FixedTubeApproximation | None = None,
+        voltage_fractional_bits: Sequence[int] | None = None,
+        output_fractional_bits: int | None = None,
+        voltage_width: int | None = None,
+        capacitor_state_fractional_bits: int | None = None,
+        branch_capacitor_stamp: bool = False,
     ):
         self.sample_rate_hz = float(sample_rate_hz)
+        self.VOLTAGE_FRACTIONAL_BITS = self.VOLTAGE_FRACTIONAL_BITS.copy()
+        if voltage_fractional_bits is not None:
+            if len(voltage_fractional_bits) != len(self.VOLTAGE_FRACTIONAL_BITS):
+                raise ValueError("one voltage format is required for each node")
+            self.VOLTAGE_FRACTIONAL_BITS = np.asarray(
+                voltage_fractional_bits, dtype=np.int64
+            )
+        if output_fractional_bits is not None:
+            self.VOLTAGE_FRACTIONAL_BITS[-1] = int(output_fractional_bits)
+        if voltage_width is not None:
+            self.VOLTAGE_WIDTH = int(voltage_width)
+        if capacitor_state_fractional_bits is not None:
+            self.CAPACITOR_STATE_FRACTIONAL_BITS = int(
+                capacitor_state_fractional_bits
+            )
+        self.branch_capacitor_stamp = bool(branch_capacitor_stamp)
         self.inverse_fractional_bits = int(inverse_fractional_bits)
-        self.correction_residual_fractional_bits = int(
-            correction_residual_fractional_bits
-        )
+        if isinstance(correction_residual_fractional_bits, Sequence):
+            self.correction_residual_fractional_bits = tuple(
+                int(value) for value in correction_residual_fractional_bits
+            )
+            if not self.correction_residual_fractional_bits:
+                raise ValueError("correction residual schedule must not be empty")
+        else:
+            self.correction_residual_fractional_bits = (
+                int(correction_residual_fractional_bits),
+            )
         self.correction_residual_width = int(correction_residual_width)
         self.reference = V1CircuitModel(sample_rate_hz)
         self.node = self.reference.node
@@ -119,8 +148,13 @@ class FixedChordV1CircuitModel:
         )
 
         dynamic_matrix, _ = self.reference._linear_system(0.0, dynamic=True)
+        network_matrix = (
+            self.reference.conductance
+            if self.branch_capacitor_stamp
+            else dynamic_matrix
+        )
         g_scale = 1 << self.CONDUCTANCE_FRACTIONAL_BITS
-        self.matrix_q47 = np.rint(dynamic_matrix * g_scale).astype(np.int64)
+        self.matrix_q47 = np.rint(network_matrix * g_scale).astype(np.int64)
         self.input_conductance_q47 = int(round(self.reference.input_conductance * g_scale))
         residual_scale = 1 << self.RESIDUAL_FRACTIONAL_BITS
         self.fixed_rhs_q44 = np.rint(
@@ -161,6 +195,10 @@ class FixedChordV1CircuitModel:
                     previous_q20,
                 )
             )
+        if self.branch_capacitor_stamp:
+            # Make every companion branch initially quiescent in the candidate
+            # fixed domain.  This avoids importing float-state subtraction error.
+            self._update_capacitors()
         self.nonconvergence_count = 0
         self.saturation_count = 0
         self.lut_clip_count = 0
@@ -187,16 +225,17 @@ class FixedChordV1CircuitModel:
         rhs[self.node["g1"]] += self._linear_product_current_q44(
             self.input_conductance_q47, input_q24, 24
         )
-        for capacitor in self.capacitors:
-            history_current = self._linear_product_current_q44(
-                capacitor.conductance_q47,
-                capacitor.previous_voltage_q20,
-                self.CAPACITOR_STATE_FRACTIONAL_BITS,
-            )
-            if capacitor.node_a is not None:
-                rhs[capacitor.node_a] += history_current
-            if capacitor.node_b is not None:
-                rhs[capacitor.node_b] -= history_current
+        if not self.branch_capacitor_stamp:
+            for capacitor in self.capacitors:
+                history_current = self._linear_product_current_q44(
+                    capacitor.conductance_q47,
+                    capacitor.previous_voltage_q20,
+                    self.CAPACITOR_STATE_FRACTIONAL_BITS,
+                )
+                if capacitor.node_a is not None:
+                    rhs[capacitor.node_a] += history_current
+                if capacitor.node_b is not None:
+                    rhs[capacitor.node_b] -= history_current
         return rhs
 
     def _tube_current_q44(self, voltage_q: IntArray) -> tuple[list[int], bool]:
@@ -209,12 +248,20 @@ class FixedChordV1CircuitModel:
             grid = self.node[grid_name]
             plate = self.node[plate_name]
             cathode = self.node[cathode_name]
-            vgk_q24 = int(voltage_q[grid]) - self._convert_fraction(
+            vgk_q24 = self._convert_fraction(
+                int(voltage_q[grid]),
+                int(self.VOLTAGE_FRACTIONAL_BITS[grid]),
+                24,
+            ) - self._convert_fraction(
                 int(voltage_q[cathode]),
                 int(self.VOLTAGE_FRACTIONAL_BITS[cathode]),
                 24,
             )
-            vpk_q20 = int(voltage_q[plate]) - self._convert_fraction(
+            vpk_q20 = self._convert_fraction(
+                int(voltage_q[plate]),
+                int(self.VOLTAGE_FRACTIONAL_BITS[plate]),
+                20,
+            ) - self._convert_fraction(
                 int(voltage_q[cathode]),
                 int(self.VOLTAGE_FRACTIONAL_BITS[cathode]),
                 20,
@@ -237,23 +284,55 @@ class FixedChordV1CircuitModel:
                     int(voltage_q[column]),
                     int(self.VOLTAGE_FRACTIONAL_BITS[column]),
                 )
+        if self.branch_capacitor_stamp:
+            for capacitor in self.capacitors:
+                voltage_a = 0
+                voltage_b = 0
+                if capacitor.node_a is not None:
+                    voltage_a = self._convert_fraction(
+                        int(voltage_q[capacitor.node_a]),
+                        int(self.VOLTAGE_FRACTIONAL_BITS[capacitor.node_a]),
+                        self.CAPACITOR_STATE_FRACTIONAL_BITS,
+                    )
+                if capacitor.node_b is not None:
+                    voltage_b = self._convert_fraction(
+                        int(voltage_q[capacitor.node_b]),
+                        int(self.VOLTAGE_FRACTIONAL_BITS[capacitor.node_b]),
+                        self.CAPACITOR_STATE_FRACTIONAL_BITS,
+                    )
+                delta_voltage = (
+                    voltage_a
+                    - voltage_b
+                    - capacitor.previous_voltage_q20
+                )
+                branch_current = self._linear_product_current_q44(
+                    capacitor.conductance_q47,
+                    delta_voltage,
+                    self.CAPACITOR_STATE_FRACTIONAL_BITS,
+                )
+                if capacitor.node_a is not None:
+                    residual[capacitor.node_a] += branch_current
+                if capacitor.node_b is not None:
+                    residual[capacitor.node_b] -= branch_current
         tube_current, clipped = self._tube_current_q44(voltage_q)
         if clipped:
             self.lut_clip_count += 1
         return [linear + nonlinear for linear, nonlinear in zip(residual, tube_current)]
 
-    def _apply_correction(self, residual_q44: list[int]) -> None:
+    def _apply_correction(
+        self, residual_q44: list[int], residual_fractional_bits: int
+    ) -> None:
         next_voltage = self.voltage_q.copy()
         product_fraction = (
             self.inverse_fractional_bits
-            + self.correction_residual_fractional_bits
+            + residual_fractional_bits
         )
         correction_residual: list[int] = []
         for value in residual_q44:
             converted = round_shift(
                 value,
                 self.RESIDUAL_FRACTIONAL_BITS
-                - self.correction_residual_fractional_bits,
+                - residual_fractional_bits,
             )
             converted, clipped = saturate_signed(
                 converted, self.correction_residual_width
@@ -308,7 +387,10 @@ class FixedChordV1CircuitModel:
         tolerance_q44 = max(1, int(round(residual_limit_a * (1 << 44))))
         for iteration in range(1, max_iterations + 1):
             residual = self._residual_q44(self.voltage_q, rhs)
-            self._apply_correction(residual)
+            residual_fractional_bits = self.correction_residual_fractional_bits[
+                min(iteration - 1, len(self.correction_residual_fractional_bits) - 1)
+            ]
+            self._apply_correction(residual, residual_fractional_bits)
         residual = self._residual_q44(self.voltage_q, rhs)
         self.last_residual_q44 = max(abs(value) for value in residual)
         self.max_residual_q44_observed = max(
@@ -335,3 +417,25 @@ class FixedChordV1CircuitModel:
             / (1 << int(self.VOLTAGE_FRACTIONAL_BITS[index]))
             for name, index in self.node.items()
         }
+
+
+class FixedWideStateV1CircuitModel(FixedChordV1CircuitModel):
+    """Measured 40-bit node/Q30-history candidate with branch capacitor KCL.
+
+    This remains a Python architecture candidate, not the accepted RTL
+    contract.  Wider internal nodes retain the historical circuit's measured
+    large-signal range while resolving slow decay.
+    """
+
+    def __init__(self, *args: object, **kwargs: object):
+        kwargs.setdefault(
+            "voltage_fractional_bits", (32, 28, 32, 28, 32, 32, 28, 32, 32)
+        )
+        kwargs.setdefault("voltage_width", 40)
+        kwargs.setdefault("capacitor_state_fractional_bits", 30)
+        kwargs.setdefault("branch_capacitor_stamp", True)
+        # The first correction retains the established 3.9 mA range.  Once it
+        # removes the large transient, later passes trade range for the current
+        # resolution needed by the 2.21 Mohm output node.
+        kwargs.setdefault("correction_residual_fractional_bits", (30, 34, 40))
+        super().__init__(*args, **kwargs)

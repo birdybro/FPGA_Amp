@@ -12,7 +12,10 @@ sys.path.insert(0, str(REPOSITORY_ROOT / "model" / "python"))
 from fpga_amp.cartridge import CartridgeModel  # noqa: E402
 from fpga_amp.fixed import TubeLUT  # noqa: E402
 from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
-from fpga_amp.fixed_circuit import FixedChordV1CircuitModel  # noqa: E402
+from fpga_amp.fixed_circuit import (  # noqa: E402
+    FixedChordV1CircuitModel,
+    FixedWideStateV1CircuitModel,
+)
 from fpga_amp.riaa import riaa_db  # noqa: E402
 from fpga_amp.resampling import (  # noqa: E402
     DEFAULT_STAGES,
@@ -249,6 +252,37 @@ class V1CircuitTests(unittest.TestCase):
         self.assertEqual(fixed_model.nonconvergence_count, 0)
         self.assertEqual(fixed_model.saturation_count, 0)
         self.assertEqual(fixed_model.lut_clip_count, 0)
+
+    def test_wide_state_candidate_initializes_quiescent_capacitor_branches(self) -> None:
+        model = FixedWideStateV1CircuitModel(
+            tube_lut=FixedFactorizedKoren12AX7()
+        )
+        np.testing.assert_array_equal(
+            model.VOLTAGE_FRACTIONAL_BITS,
+            np.asarray((32, 28, 32, 28, 32, 32, 28, 32, 32)),
+        )
+        self.assertEqual(model.VOLTAGE_WIDTH, 40)
+        self.assertEqual(model.CAPACITOR_STATE_FRACTIONAL_BITS, 30)
+        self.assertTrue(model.branch_capacitor_stamp)
+        self.assertEqual(model.correction_residual_fractional_bits, (30, 34, 40))
+        for capacitor in model.capacitors:
+            voltage_a = 0
+            voltage_b = 0
+            if capacitor.node_a is not None:
+                voltage_a = model._convert_fraction(
+                    int(model.voltage_q[capacitor.node_a]),
+                    int(model.VOLTAGE_FRACTIONAL_BITS[capacitor.node_a]),
+                    model.CAPACITOR_STATE_FRACTIONAL_BITS,
+                )
+            if capacitor.node_b is not None:
+                voltage_b = model._convert_fraction(
+                    int(model.voltage_q[capacitor.node_b]),
+                    int(model.VOLTAGE_FRACTIONAL_BITS[capacitor.node_b]),
+                    model.CAPACITOR_STATE_FRACTIONAL_BITS,
+                )
+            self.assertEqual(
+                capacitor.previous_voltage_q20, voltage_a - voltage_b
+            )
 
 
 if __name__ == "__main__":

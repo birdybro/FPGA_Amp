@@ -136,3 +136,21 @@ saturation, and range diagnostics all remain clear. This is an exposed
 numerical-contract failure, not reference behavior. Wider internal output/
 history formats and a branch-current capacitor stamp are under measured
 evaluation; the current RTL has not been silently changed.
+
+The first measured replacement candidate uses 40-bit node words: Q28 for the
+three high-voltage nodes (`p1`, `eq_pre`, `p2`) and Q32 elsewhere, including
+`out`. Capacitor history is Q30, retaining +/-512 V range, and capacitor KCL is
+formed as one rounded `G * (Vnow - Vprevious)` branch current. Chord residuals
+use Q30, Q34, and Q40 on passes one through three respectively; this keeps the
+first pass's +/-3.906 mA range while resolving late sub-nanoampere corrections.
+Tube lookup interfaces remain Q8.24/Q12.20, so this changes the numerical state
+layer rather than the tube device approximation.
+
+On the same 768,000-sample bipolar-click audit, late raw output residual falls
+from 5.375 mV RMS to 38.74 uV RMS and between-click residual falls from
+36.09 mV to 0.358 mV. Maximum fixed KCL residual falls from 0.334 uA to
+5.01 nA with zero diagnostic events. At 5 mV/1 kHz, raw null improves from
+-42.90 to -63.83 dB, phase error from +0.00958 to -0.00019 degrees, and gain
+error from +0.000257 to -0.000058 dB. Candidate THD is 0.01937% versus
+0.01906% analytical. This is a successful Python architecture candidate, but
+it is not yet an RTL result and has no synthesis/cycle-cost claim.

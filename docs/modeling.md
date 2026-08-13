@@ -141,6 +141,24 @@ counter is zero. This proves that the residual criterion does not detect
 long-time state deadbands. The exact raw waveform and all node/capacitor
 checkpoints are retained in `state_drift_summary.json`.
 
+A 40-bit all-node candidate addresses both causes rather than only widening the
+output. High-voltage nodes use Q28, low-voltage/output nodes Q32, capacitor
+history Q30, and capacitor current is evaluated as a cancellation-safe branch
+product. Its three corrections stage residual precision Q30 -> Q34 -> Q40.
+On the identical click audit, final instantaneous output error is 41.3 uV and
+late raw residual is 38.74 uV RMS, a 42.9 dB reduction from the legacy late
+residual. The between-click residual improves by 40.1 dB. The final plate/
+capacitor differences remain about 5.3--5.4 mV because the fixed factorized tube
+has a different quantized operating point; the coupling output no longer traps
+that entire difference.
+
+At nominal 5 mV/1 kHz, the wide-state raw null is -63.83 dB and mean-removed
+null -88.43 dB, versus -42.90/-59.63 dB for the legacy state. Gain and phase
+errors are -0.000058 dB and -0.000187 degrees. The remaining -0.257 mV mean
+difference is still reported raw. Frequency, overload, RTL schedule, and
+resource proof remain gates before this candidate can replace the explicit
+legacy implementation.
+
 The same comparison now spans 20 Hz, 50 Hz, 100 Hz, 1 kHz, 10 kHz, and 20 kHz
 at 5 mV peak, using at least ten stimulus cycles and analyzing at least the last
 five. Maximum fundamental gain and phase errors are 0.00846 dB and 0.0729°.
@@ -196,6 +214,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | factorized overload/recovery | 5 ms bursts, 20 mV–1.5 V | clean at 20/500 mV; residual failure at 1 V; range clip at 1.5 V |
 | overload iteration count | 3–6 corrections at 1.0/1.5 V | improved but still failing; projected 213 clocks at six |
 | long fixed state / click recovery | 1 s silence with +/-100 mV single-sample clicks | Q12.20 deadband leaves -5.368 mV late output; must be redesigned |
+| wide-state Python candidate | same 1 s click audit; 5 mV/1 kHz | 38.74 uV late residual; -63.83 dB nominal raw null; RTL/resource proof open |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |
 | fixed chord/state vs float LUT circuit | -70.33 dB initial multitone; -34.58 dB at 5 mV/1 kHz | signal-dependent; low-level improvement required |
 | low-level complete fixed model | 2-D: 0.0733%; factorized: 0.0188%; analytical: 0.0191% THD | device error improved; RTL/state-phase work open |

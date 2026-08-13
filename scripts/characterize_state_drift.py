@@ -16,7 +16,10 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPOSITORY_ROOT / "model" / "python"))
 
 from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
-from fpga_amp.fixed_circuit import FixedChordV1CircuitModel  # noqa: E402
+from fpga_amp.fixed_circuit import (  # noqa: E402
+    FixedChordV1CircuitModel,
+    FixedWideStateV1CircuitModel,
+)
 from fpga_amp.v1_circuit import V1CircuitModel  # noqa: E402
 
 
@@ -57,7 +60,9 @@ def state_snapshot(
         zip(analytical.capacitors, fixed.capacitors, strict=True)
     ):
         analytical_v = analytical_cap.previous_voltage_v
-        fixed_v = fixed_cap.previous_voltage_q20 / (1 << 20)
+        fixed_v = fixed_cap.previous_voltage_q20 / (
+            1 << fixed.CAPACITOR_STATE_FRACTIONAL_BITS
+        )
         capacitors[capacitor_name(analytical, index)] = {
             "analytical_v": analytical_v,
             "fixed_v": fixed_v,
@@ -107,6 +112,8 @@ def window_metrics(
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--duration-s", type=float, default=1.0)
+    parser.add_argument("--wide-candidate", action="store_true")
+    parser.add_argument("--corrections", type=int, default=3)
     args = parser.parse_args()
     if args.duration_s < 1.0:
         raise SystemExit("--duration-s must be at least 1.0 for the fixed windows")
@@ -120,9 +127,12 @@ def main() -> int:
     stimulus[negative_index] = -CLICK_PEAK_V
 
     analytical_model = V1CircuitModel(SAMPLE_RATE_HZ)
-    fixed_model = FixedChordV1CircuitModel(
-        SAMPLE_RATE_HZ, tube_lut=FixedFactorizedKoren12AX7()
+    fixed_type = (
+        FixedWideStateV1CircuitModel
+        if args.wide_candidate
+        else FixedChordV1CircuitModel
     )
+    fixed_model = fixed_type(SAMPLE_RATE_HZ, tube_lut=FixedFactorizedKoren12AX7())
     analytical_output = np.empty(sample_count, dtype=np.float64)
     fixed_output = np.empty(sample_count, dtype=np.float64)
 
@@ -143,7 +153,9 @@ def main() -> int:
             float(sample), max_iterations=8, tolerance_a=1.0e-12
         )
         fixed_output[index] = fixed_model.process_sample(
-            float(sample), max_iterations=3, residual_limit_a=2.0e-6
+            float(sample),
+            max_iterations=args.corrections,
+            residual_limit_a=2.0e-6,
         )
         for name, snapshot_index in snapshot_indices.items():
             if index == snapshot_index:
@@ -201,7 +213,16 @@ def main() -> int:
             "negative_click_time_s": NEGATIVE_CLICK_S,
             "click_peak_v": CLICK_PEAK_V,
         },
-        "comparison": "analytical Koren/full Newton versus factorized fixed/three chord corrections",
+        "comparison": "analytical Koren/full Newton versus factorized fixed chord candidate",
+        "fixed_implementation": (
+            "40-bit Q28/Q32 nodes, Q30 capacitor history, and explicit branch-current stamps"
+            if args.wide_candidate
+            else "legacy Q12.20 output/history with matrix-plus-history stamps"
+        ),
+        "fixed_chord_corrections": args.corrections,
+        "fixed_correction_residual_fractional_bits": list(
+            fixed_model.correction_residual_fractional_bits
+        ),
         "baseline_residual_mean_v": baseline_residual_v,
         "baseline_note": "baseline correction is reported separately and never applied to raw output",
         "late_residual_linear_slope_v_per_s": residual_slope_v_per_s,
@@ -217,10 +238,11 @@ def main() -> int:
         "windows": window_report,
         "state_snapshots": snapshots,
     }
-    result_path = REPOSITORY_ROOT / "reference" / "results" / "state_drift.json"
+    report_stem = "state_drift_wide" if args.wide_candidate else "state_drift"
+    result_path = REPOSITORY_ROOT / "reference" / "results" / f"{report_stem}.json"
     result_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     summary_path = (
-        REPOSITORY_ROOT / "model" / "generated" / "state_drift_summary.json"
+        REPOSITORY_ROOT / "model" / "generated" / f"{report_stem}_summary.json"
     )
     summary_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))

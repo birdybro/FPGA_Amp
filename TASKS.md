@@ -15,9 +15,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   the factorized candidate fixes THD but retains -42.90 dB raw residual at
   5 mV. A -2.840 mV mean offset dominates it; mean-removed residual is -59.63 dB,
   phase error 0.00958°, and fundamental gain error +0.00026 dB.
-- [ ] Replace the rejected Q12.20 output/capacitor state contract. The first
-  one-second click audit leaves -5.368 mV late output with zero diagnostics;
-  evaluate wider output state plus cancellation-safe capacitor branch stamps.
+- [ ] Sweep the successful 40-bit state candidate across 20 Hz--20 kHz and
+  overload, then derive an RTL branch-current/correction schedule and measure
+  whether it can still meet 128 clocks with realistic XC7 resources.
 - [ ] Lengthen severe-overload recovery windows.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
 - [ ] Evaluate overload-specific solver strategies (adaptive Jacobian, parallel
@@ -107,6 +107,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Run a 768,000-sample silence/bipolar-click state audit with node and all
   capacitor checkpoints; expose the Q12.20 deadband and preserve it as a
   reproducible regression rather than hiding it with output DC removal.
+- [x] Implement a 40-bit Q28/Q32 node, Q30 history, branch-current Python
+  candidate with staged Q30/Q34/Q40 correction precision. Reduce the click
+  audit's late residual from 5.375 mV to 38.74 uV and the nominal 1 kHz raw null
+  from -42.90 to -63.83 dB with zero diagnostics.
 - [x] Implement and test a downstream Q0.16 output mute/ramp with reset-muted
   startup, symmetric rounding, exact-unity bypass, and synchronous fault clamp;
   synthesize at 171 XC7 logic cells, 2 DSP48E1s, and no block RAM.
