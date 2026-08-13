@@ -164,6 +164,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   nonlinear updates exactly with zero diagnostics. Structural synthesis is
   16,993 logic cells, 170 DSP48E1s, and 8 RAMB18E1s, so the mono reference fits
   the provisional A7-100T resource envelope but leaves only 70 of 240 DSPs.
+- The selectable trapezoidal 48 kHz stream likewise matches all 64 outputs /
+  1,024 nonlinear updates exactly with zero diagnostics and 5.02 nA maximum
+  residual. Structural synthesis is 17,556 logic cells, 170 DSP48E1s, and
+  8 RAMB18E1s: +563 cells with unchanged DSP/BRAM versus backward Euler.
 - A 23,040-sample captured RTL run at 5 mV / 1 kHz is Q32 bit-exact to fixed
   Python. Measured directly from RTL output, gain/phase error versus analytical
   float is -0.000054 dB / -0.000187 degrees, THD is 0.019371% versus 0.019059%,
@@ -276,6 +280,7 @@ make halfband-rtl                  # exact 2x units and complete 16x streams
 make stream-rtl                    # complete 48 kHz reference stream
 make stream-factorized-rtl         # complete smooth-tube reference stream
 make stream-wide-rtl               # complete wide-state reference stream
+make stream-trapezoidal-rtl        # complete trapezoidal reference stream
 make guarded-stream-rtl            # mute/reset/warmup model-change sequence
 make mute-rtl                      # reset/ramp/fault output safety primitive
 make synth                         # generic XC7 structural estimate
@@ -288,6 +293,7 @@ make synth-solver-factorized       # smooth-tube hierarchy/resource trade
 make synth-wide-solver             # wide-state hierarchy estimate
 make synth-trapezoidal-solver      # trapezoidal hierarchy estimate
 make synth-stream-wide             # complete wide-state stream estimate
+make synth-stream-trapezoidal      # complete trapezoidal stream estimate
 make synth-stream-guarded          # wide stream plus safety/control guard
 make synth-halfband                # complete interpolator/decimator estimates
 make synth-stream                  # complete reference-stream estimate

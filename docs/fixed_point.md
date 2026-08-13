@@ -262,6 +262,13 @@ latency remains 116 clocks. Generic XC7 synthesis is 12,451 estimated logic
 cells, 122 DSP48E1s, and 8 RAMB18E1s, versus 11,981 / 122 / 8 for backward
 Euler. No Fmax is inferred from structural synthesis.
 
+The complete selectable 48 kHz path retains the established Q8.24 boundary and
+Q8.32-to-Q8.24 output rounding. It matches fixed Python for 64 outputs spanning
+1,024 internal circuit updates with zero diagnostic events and 5.02 nA maximum
+residual. Structural synthesis measures 17,556 logic cells, 170 DSP48E1s, and
+8 RAMB18E1s, versus 16,993 / 170 / 8 for backward Euler. The 563-cell delta is
+measured; timing closure remains unproven.
+
 The overload gate passes only through the measured 0.5 V level. At 20 mV, the
 candidate matches analytical 10%/1% recovery within about 0.002/0.000 ms and
 reduces post-burst fixed/analytical RMS from 5.80 mV legacy to 0.258 mV. At

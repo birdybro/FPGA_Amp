@@ -2,7 +2,7 @@ PYTHON ?= python3
 NGSPICE ?= ngspice
 VERILATOR ?= verilator
 
-.PHONY: all reference analysis accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide factorized-frequency-trapezoidal state-drift state-wide state-wide-audio wide-rtl-audio wide-rtl-frequency wide-rtl-overload wide-stream-rtl-alias spice-python-frequency overload-study overload-wide overload-trapezoidal overload-iterations trapezoidal-overload precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl trapezoidal-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl guarded-stream-rtl mute-rtl lint synth synth-factorized synth-chord synth-wide-chord synth-network synth-wide-network synth-solver synth-solver-factorized synth-wide-solver synth-trapezoidal-solver synth-halfband synth-stream synth-stream-factorized synth-stream-wide synth-stream-guarded synth-mute clean tools
+.PHONY: all reference analysis accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide factorized-frequency-trapezoidal state-drift state-wide state-wide-audio wide-rtl-audio wide-rtl-frequency wide-rtl-overload wide-stream-rtl-alias spice-python-frequency overload-study overload-wide overload-trapezoidal overload-iterations trapezoidal-overload precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl trapezoidal-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-trapezoidal-rtl guarded-stream-rtl mute-rtl lint synth synth-factorized synth-chord synth-wide-chord synth-network synth-wide-network synth-solver synth-solver-factorized synth-wide-solver synth-trapezoidal-solver synth-halfband synth-stream synth-stream-factorized synth-stream-wide synth-stream-trapezoidal synth-stream-guarded synth-mute clean tools
 
 all: reference test
 
@@ -130,6 +130,9 @@ stream-factorized-rtl:
 stream-wide-rtl:
 	$(PYTHON) scripts/run_wide_stream_rtl.py --verilator $(VERILATOR)
 
+stream-trapezoidal-rtl:
+	$(PYTHON) scripts/run_wide_stream_rtl.py --verilator $(VERILATOR) --trapezoidal
+
 guarded-stream-rtl:
 	$(PYTHON) scripts/run_guarded_stream_rtl.py --verilator $(VERILATOR)
 
@@ -219,6 +222,16 @@ synth-stream-wide:
 	$(PYTHON) scripts/generate_stream_vectors.py --wide
 	$(PYTHON) scripts/run_synthesis.py --top phono_stream_mono_wide
 
+synth-stream-trapezoidal:
+	$(PYTHON) scripts/generate_wide_network_vectors.py
+	$(PYTHON) scripts/generate_trapezoidal_network_vectors.py
+	$(PYTHON) scripts/generate_wide_chord_vectors.py --trapezoidal
+	$(PYTHON) scripts/generate_factorized_tube.py
+	$(PYTHON) scripts/generate_wide_solver_vectors.py --trapezoidal
+	$(PYTHON) scripts/generate_halfband_rtl_vectors.py
+	$(PYTHON) scripts/generate_stream_vectors.py --wide --trapezoidal
+	$(PYTHON) scripts/run_synthesis.py --top phono_stream_mono_wide_trapezoidal
+
 synth-stream-guarded:
 	$(PYTHON) scripts/generate_wide_network_vectors.py
 	$(PYTHON) scripts/generate_wide_chord_vectors.py
@@ -232,7 +245,7 @@ synth-mute:
 python-test:
 	$(PYTHON) -m unittest discover -s model/tests -v
 
-test: python-test rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl trapezoidal-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl guarded-stream-rtl mute-rtl
+test: python-test rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl trapezoidal-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-trapezoidal-rtl guarded-stream-rtl mute-rtl
 
 tools:
 	bash scripts/bootstrap_tools.sh

@@ -16,6 +16,7 @@ sys.path.insert(0, str(REPOSITORY_ROOT / "model" / "python"))
 
 from fpga_amp.fixed_circuit import (  # noqa: E402
     FixedChordV1CircuitModel,
+    FixedWideStateTrapezoidalV1CircuitModel,
     FixedWideStateV1CircuitModel,
     round_shift,
     saturate_signed,
@@ -32,7 +33,10 @@ def main() -> int:
     parser.add_argument("--vectors", type=int, default=64)
     parser.add_argument("--factorized", action="store_true")
     parser.add_argument("--wide", action="store_true")
+    parser.add_argument("--trapezoidal", action="store_true")
     args = parser.parse_args()
+    if args.trapezoidal:
+        args.wide = True
     if args.wide:
         args.factorized = True
     rng = np.random.default_rng(0xA0D10)
@@ -54,11 +58,12 @@ def main() -> int:
         : 16 * args.vectors
     ]
     tube = FixedFactorizedKoren12AX7() if args.factorized else None
-    model = (
-        FixedWideStateV1CircuitModel(tube_lut=tube)
-        if args.wide
-        else FixedChordV1CircuitModel(tube_lut=tube)
-    )
+    if args.trapezoidal:
+        model = FixedWideStateTrapezoidalV1CircuitModel(tube_lut=tube)
+    elif args.wide:
+        model = FixedWideStateV1CircuitModel(tube_lut=tube)
+    else:
+        model = FixedChordV1CircuitModel(tube_lut=tube)
     circuit_output_q24: list[int] = []
     conversion_saturations = 0
     for sample_q24 in internal_q24:
@@ -77,7 +82,9 @@ def main() -> int:
 
     vector_directory = REPOSITORY_ROOT / "sim" / "vectors" / "generated"
     vector_directory.mkdir(parents=True, exist_ok=True)
-    if args.wide:
+    if args.trapezoidal:
+        vector_name = "phono_stream_mono_wide_factorized_trapezoidal.txt"
+    elif args.wide:
         vector_name = "phono_stream_mono_wide_factorized.txt"
     elif args.factorized:
         vector_name = "phono_stream_mono_factorized.txt"
@@ -95,6 +102,9 @@ def main() -> int:
         "model": "12ax7_passive_riaa_v1",
         "tube_implementation": "factorized" if args.factorized else "surface",
         "state_implementation": "wide_branch_current" if args.wide else "legacy_companion_rhs",
+        "integration_method": (
+            "trapezoidal" if args.trapezoidal else "backward_euler"
+        ),
         "input_rate_hz": 48_000,
         "circuit_rate_hz": 768_000,
         "vectors": args.vectors,
@@ -110,7 +120,9 @@ def main() -> int:
         "maximum_solver_residual_q44": model.max_residual_q44_observed,
         "output": str(vector_path.relative_to(REPOSITORY_ROOT)),
     }
-    if args.wide:
+    if args.trapezoidal:
+        metadata_name = "phono_stream_wide_factorized_trapezoidal_metadata.json"
+    elif args.wide:
         metadata_name = "phono_stream_wide_factorized_metadata.json"
     elif args.factorized:
         metadata_name = "phono_stream_factorized_metadata.json"

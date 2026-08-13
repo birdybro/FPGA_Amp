@@ -84,6 +84,8 @@ scripts/run_synthesis.py            XC7 structural resource report
 | trapezoidal wide KCL RTL vs fixed | 1,024 deterministic vectors | bit-exact residual/current state, latency 10; 1,015 deliberate current-saturation vectors |
 | trapezoidal wide solver RTL vs fixed | 512 sequential samples | bit-exact all 29 state words and diagnostics, latency 116, zero events |
 | trapezoidal wide solver synthesis | Yosys 0.66 structural | 12,451 LC, 122 DSP48E1, 8 RAMB18E1; no Fmax claim |
+| trapezoidal 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 116-clock solver |
+| trapezoidal stream synthesis | Yosys 0.66 structural | 17,556 LC, 170 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | wide factorized solver RTL vs fixed | 512 sequential samples | bit-exact all 19 states and diagnostics, latency 116, zero events |
 | wide factorized solver synthesis | Yosys 0.66 structural | 11,981 LC, 122 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | wide 48 kHz stream vs fixed composition | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 116-clock solver |

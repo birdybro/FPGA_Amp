@@ -1,7 +1,9 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-module phono_stream_mono_wide_tb;
+module phono_stream_mono_wide_tb #(
+    parameter bit TRAPEZOIDAL = 1'b0
+);
     localparam int MAX_VECTOR_COUNT = 8192;
 
     logic clk;
@@ -26,7 +28,29 @@ module phono_stream_mono_wide_tb;
     logic signed [31:0] input_vector [0:MAX_VECTOR_COUNT-1];
     logic signed [31:0] expected_vector [0:MAX_VECTOR_COUNT-1];
 
-    phono_stream_mono_wide dut (.*);
+    phono_stream_mono_wide #(
+        .NODE_INITIAL_FILE(
+            TRAPEZOIDAL
+                ? "model/generated/v1_node_initial_wide_trapezoidal.mem"
+                : "model/generated/v1_node_initial_wide.mem"
+        ),
+        .CAP_INITIAL_FILE(
+            TRAPEZOIDAL
+                ? "model/generated/v1_cap_initial_q30_wide_trapezoidal.mem"
+                : "model/generated/v1_cap_initial_q30_wide.mem"
+        ),
+        .CAP_G_FILE(
+            TRAPEZOIDAL
+                ? "model/generated/v1_cap_conductance_q0_47_trapezoidal.mem"
+                : "model/generated/v1_cap_conductance_q0_47.mem"
+        ),
+        .CHORD_COEFFICIENT_FILE(
+            TRAPEZOIDAL
+                ? "model/generated/v1_chord_inverse_q17_1_trapezoidal.mem"
+                : "model/generated/v1_chord_inverse_q17_1.mem"
+        ),
+        .TRAPEZOIDAL(TRAPEZOIDAL)
+    ) dut (.*);
     always #5 clk = ~clk;
 
     integer file_handle;
@@ -47,9 +71,13 @@ module phono_stream_mono_wide_tb;
             vector_count = 64;
         if (vector_count <= 0 || vector_count > MAX_VECTOR_COUNT)
             $fatal(1, "invalid vector count %0d", vector_count);
-        if (!$value$plusargs("VECTORS=%s", vector_path))
-            vector_path =
-                "sim/vectors/generated/phono_stream_mono_wide_factorized.txt";
+        if (!$value$plusargs("VECTORS=%s", vector_path)) begin
+            if (TRAPEZOIDAL)
+                vector_path = "sim/vectors/generated/phono_stream_mono_wide_factorized_trapezoidal.txt";
+            else
+                vector_path =
+                    "sim/vectors/generated/phono_stream_mono_wide_factorized.txt";
+        end
         file_handle = $fopen(vector_path, "r");
         if (file_handle == 0)
             $fatal(1, "cannot open wide stream vectors");

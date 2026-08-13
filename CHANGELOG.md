@@ -106,6 +106,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a selectable persistent trapezoidal solver with a separate generated
   chord-inverse ROM, ten Q4.44 current-state registers, exact 512-sample
   integration regression, and an explicit synthesis wrapper/target.
+- Added selectable trapezoidal state to the complete 48 kHz stream, an exact
+  64-output/1,024-update integration regression, and an explicit full-stream
+  synthesis wrapper/target.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -267,6 +270,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   history, and ten current-history states for 512 samples at 116 clocks.
   Structural synthesis is 12,451 logic cells, 122 DSP48E1s, and 8 RAMB18E1s,
   adding 470 cells but no DSP/BRAM versus backward Euler; no Fmax is claimed.
+- The complete trapezoidal stream is bit-exact with zero diagnostics and a
+  5.02 nA maximum residual. Structural synthesis is 17,556 logic cells,
+  170 DSP48E1s, and 8 RAMB18E1s, adding 563 cells but no DSP/BRAM.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.

@@ -2,7 +2,7 @@
   "model": "12ax7_passive_riaa_v1",
   "tube_implementation": "factorized",
   "state_implementation": "wide_branch_current",
-  "integration_method": "backward_euler",
+  "integration_method": "trapezoidal",
   "input_rate_hz": 48000,
   "circuit_rate_hz": 768000,
   "vectors": 64,
@@ -15,6 +15,6 @@
   "solver_lut_clips": 0,
   "solver_nonconvergence": 0,
   "solver_correction_scale_fallbacks": 0,
-  "maximum_solver_residual_q44": 80891,
-  "output": "sim/vectors/generated/phono_stream_mono_wide_factorized.txt"
+  "maximum_solver_residual_q44": 88326,
+  "output": "sim/vectors/generated/phono_stream_mono_wide_factorized_trapezoidal.txt"
 }

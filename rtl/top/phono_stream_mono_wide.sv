@@ -3,7 +3,16 @@
 
 // Complete wide-state V1 reference stream. The external boundary stays signed
 // Q8.24 at 48 kHz; the circuit output is rounded from Q8.32 before decimation.
-module phono_stream_mono_wide (
+module phono_stream_mono_wide #(
+    parameter NODE_INITIAL_FILE = "model/generated/v1_node_initial_wide.mem",
+    parameter CAP_INITIAL_FILE = "model/generated/v1_cap_initial_q30_wide.mem",
+    parameter CAP_CURRENT_INITIAL_FILE =
+        "model/generated/v1_cap_current_initial_q4_44_trapezoidal.mem",
+    parameter CAP_G_FILE = "model/generated/v1_cap_conductance_q0_47.mem",
+    parameter CHORD_COEFFICIENT_FILE =
+        "model/generated/v1_chord_inverse_q17_1.mem",
+    parameter bit TRAPEZOIDAL = 1'b0
+) (
     input  logic                 clk,
     input  logic                 rst_n,
     input  logic                 ce_input_48k,
@@ -49,7 +58,14 @@ module phono_stream_mono_wide (
     logic [399:0] unused_capacitor_state_debug;
     logic [479:0] unused_capacitor_current_state_debug;
 
-    v1_solver_mono_wide solver (
+    v1_solver_mono_wide #(
+        .NODE_INITIAL_FILE(NODE_INITIAL_FILE),
+        .CAP_INITIAL_FILE(CAP_INITIAL_FILE),
+        .CAP_CURRENT_INITIAL_FILE(CAP_CURRENT_INITIAL_FILE),
+        .CAP_G_FILE(CAP_G_FILE),
+        .CHORD_COEFFICIENT_FILE(CHORD_COEFFICIENT_FILE),
+        .TRAPEZOIDAL(TRAPEZOIDAL)
+    ) solver (
         .clk,
         .rst_n,
         .ce_sample(interpolated_valid),

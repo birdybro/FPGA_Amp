@@ -20,22 +20,31 @@ def main() -> int:
     parser.add_argument("--vectors-file")
     parser.add_argument("--vector-count", type=int)
     parser.add_argument("--capture-file")
+    parser.add_argument("--trapezoidal", action="store_true")
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
         print("ERROR: verilator unavailable", file=sys.stderr)
         return 2
-    generators = (
-        "scripts/generate_wide_network_vectors.py",
-        "scripts/generate_wide_chord_vectors.py",
-        "scripts/generate_factorized_tube.py",
-        "scripts/generate_wide_solver_vectors.py",
-        "scripts/generate_halfband_rtl_vectors.py",
-        "scripts/generate_stream_vectors.py --wide",
-    )
+    generators = [
+        [sys.executable, "scripts/generate_wide_network_vectors.py"],
+        [sys.executable, "scripts/generate_wide_chord_vectors.py"],
+        [sys.executable, "scripts/generate_factorized_tube.py"],
+        [sys.executable, "scripts/generate_wide_solver_vectors.py"],
+        [sys.executable, "scripts/generate_halfband_rtl_vectors.py"],
+        [sys.executable, "scripts/generate_stream_vectors.py", "--wide"],
+    ]
+    if args.trapezoidal:
+        generators.insert(
+            1,
+            [sys.executable, "scripts/generate_trapezoidal_network_vectors.py"],
+        )
+        generators[2].append("--trapezoidal")
+        generators[4].append("--trapezoidal")
+        generators[-1].append("--trapezoidal")
     if not args.skip_generate:
-        for generator in generators:
-            subprocess.run([sys.executable, *generator.split()], cwd=ROOT, check=True)
+        for command in generators:
+            subprocess.run(command, cwd=ROOT, check=True)
     if (args.vectors_file is None) != (args.vector_count is None):
         parser.error("--vectors-file and --vector-count must be provided together")
     if args.vector_count is not None and not 0 < args.vector_count <= 8192:
@@ -53,12 +62,35 @@ def main() -> int:
         "rtl/top/phono_stream_mono_wide.sv",
         "sim/integration/phono_stream_mono_wide_tb.sv",
     ]
+    if args.trapezoidal:
+        sources.append(
+            "sim/integration/phono_stream_mono_wide_trapezoidal_tb.sv"
+        )
+    top = (
+        "phono_stream_mono_wide_trapezoidal_tb"
+        if args.trapezoidal
+        else "phono_stream_mono_wide_tb"
+    )
     subprocess.run(
-        [verilator, "--lint-only", "--timing", "-Wall", "-Wno-fatal", "-sv", *sources],
+        [
+            verilator,
+            "--lint-only",
+            "--timing",
+            "-Wall",
+            "-Wno-fatal",
+            "-sv",
+            "--top-module",
+            top,
+            *sources,
+        ],
         cwd=ROOT,
         check=True,
     )
-    build = ROOT / "build" / "verilator_phono_stream_wide"
+    build = ROOT / "build" / (
+        "verilator_phono_stream_wide_trapezoidal"
+        if args.trapezoidal
+        else "verilator_phono_stream_wide"
+    )
     subprocess.run(
         [
             verilator,
@@ -68,7 +100,7 @@ def main() -> int:
             "-Wno-fatal",
             "-sv",
             "--top-module",
-            "phono_stream_mono_wide_tb",
+            top,
             "--Mdir",
             str(build),
             *sources,
@@ -76,7 +108,7 @@ def main() -> int:
         cwd=ROOT,
         check=True,
     )
-    simulation = [str(build / "Vphono_stream_mono_wide_tb")]
+    simulation = [str(build / f"V{top}")]
     if args.vectors_file:
         simulation.extend(
             (

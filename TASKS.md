@@ -11,10 +11,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
-- [ ] Carry the selectable trapezoidal solver into the complete 48 kHz stream
-  and captured SPICE frequency comparison. The 512-sample persistent RTL is
-  exact at 116 clocks, and synthesis is 12,451 LC / 122 DSP / 8 RAMB18, but
-  rate-converter integration and long captured audio remain open.
+- [ ] Capture the selectable trapezoidal RTL against SPICE at 100 Hz, 1 kHz,
+  10 kHz, and 20 kHz. The complete 64-output stream is exact and structurally
+  measured, but long waveform evidence still uses the backward-Euler solver.
 - [ ] Lengthen severe-overload recovery beyond the new 85 ms post-burst window;
   neither analytical nor RTL trajectories reach 10% nominal output at >=0.5 V.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
@@ -55,6 +54,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Add persistent Q4.44 current state and a separate trapezoidal chord-
   inverse ROM to the selectable solver; match all 29 state words and diagnostics
   across 512 samples at 116 clocks and synthesize the hierarchy.
+- [x] Carry trapezoidal state through the complete interpolator/solver/
+  decimator stream; match 64 outputs / 1,024 internal updates with zero
+  diagnostics and synthesize the selectable hierarchy.
 - [x] Select, document, and version the Kennedy 1998 two-stage passive-RIAA circuit.
 - [x] Implement AT-VM95E R/L/47.5 kΩ/150 pF cartridge loading.
 - [x] Build ngspice DC, 10 Hz–100 kHz AC, transient, and 1 kHz H1–H10 level sweeps.
