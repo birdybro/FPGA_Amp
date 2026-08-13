@@ -50,7 +50,7 @@ module v1_solver_mono_wide_tb #(
                    ? "model/generated/v1_chord_inverse_q17_1_trapezoidal.mem"
                    : "model/generated/v1_chord_inverse_q17_1.mem")
         ),
-        .CHORD_COEFFICIENT_SETS(BANKED ? (TRAPEZOIDAL ? 5 : 3) : 1),
+        .CHORD_COEFFICIENT_SETS(BANKED ? (TRAPEZOIDAL ? 5 : 4) : 1),
         .TRAPEZOIDAL(TRAPEZOIDAL)
     ) dut (.*);
     always #5 clk = ~clk;

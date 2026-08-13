@@ -215,10 +215,11 @@ class V1CircuitTests(unittest.TestCase):
         grid = model.node["g2"]
         cathode = model.node["k2"]
         model.voltage_q[cathode] = 0
-        expected = ((-4.0, 0), (-3.0, 1), (-2.5, 2))
+        expected = ((-4.0, 0), (-3.0, 1), (-2.5, 3), (-2.6, 2))
         for v_gk_v, bank_index in expected:
             model.voltage_q[grid] = int(round(v_gk_v * (1 << 32)))
             self.assertEqual(model._select_chord_bank(), bank_index)
+        self.assertEqual(model.slew_qualified_selection_count, 1)
         for bank in model.chord_inverse_banks_q:
             self.assertGreaterEqual(int(np.min(bank)), -(1 << 17))
             self.assertLess(int(np.max(bank)), 1 << 17)
@@ -230,10 +231,18 @@ class V1CircuitTests(unittest.TestCase):
         grid = trapezoidal.node["g2"]
         cathode = trapezoidal.node["k2"]
         trapezoidal.voltage_q[cathode] = 0
-        expected = ((-4.25, 0), (-3.75, 1), (-3.25, 2), (-2.76, 3), (-2.75, 4))
+        expected = (
+            (-4.25, 0),
+            (-3.75, 1),
+            (-3.25, 2),
+            (-2.76, 3),
+            (-2.75, 4),
+            (-2.60, 3),
+        )
         for v_gk_v, bank_index in expected:
             trapezoidal.voltage_q[grid] = int(round(v_gk_v * (1 << 32)))
             self.assertEqual(trapezoidal._select_chord_bank(), bank_index)
+        self.assertEqual(trapezoidal.slew_qualified_selection_count, 1)
 
     def test_wide_tube_pin_conversion_saturates_instead_of_wrapping(self) -> None:
         model = FixedWideStateV1CircuitModel(

@@ -11,9 +11,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
-- [ ] Reduce the remaining 0.537 mV trapezoidal banked post-burst mean error and
-  1.5 V residual-limit misses without regressing 1.0 V convergence. Extra chord
-  passes remain rejected.
+- [ ] Reduce the remaining 0.537 mV trapezoidal 1.0 V post-burst mean error and
+  17--18 mV 1.5 V final-window waveform error versus full Newton without
+  regressing the now-clean fixed residual gate. Extra chord passes remain
+  rejected.
 - [ ] Extend integrated-solver RTL capture beyond nominal frequency response to
   level-dependent harmonics, clipping asymmetry, and recovery metrics.
 - [ ] Separate folded nonlinear harmonics from preexisting in-band solver energy
@@ -22,11 +23,16 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Completed this milestone
 
+- [x] Add a Vgk-slew-qualified shallow bank for the severe cutoff arc. Preserve
+  bit-exact <=1.0 V behavior, remove all 1.5 V residual-limit misses in both
+  integration modes, prove 36,864 RTL states exact with every bank exercised,
+  and retain the 116-clock schedule with no added DSP or block RAM.
 - [x] Separate the factorized plate-law domain from its grid-current lookup.
   Prove every former 1.5 V range event was only `Vgk < -5 V`, expand plate-law
   acceptance to -8 V while retaining the -5 V grid leakage-floor clamp, and
   prove before/after audio bit-exactness. Exact integrated RTL now has zero
-  arithmetic/range/fallback events at 1.5 V; 57/53 residual misses remain.
+  arithmetic/range/fallback events at 1.5 V; the later slew-qualified bank
+  closes the then-remaining 57/53 residual misses.
 - [x] Tighten the shallow trapezoidal bank threshold from -2.50 to -2.75 V.
   Avoid every 0.5 V activation, retain zero 1.0 V failures and exact RTL, and
   reduce the final-window mean error from 1.042 to 0.537 mV.

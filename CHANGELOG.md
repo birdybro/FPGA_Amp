@@ -140,7 +140,7 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a reproducible fixed cutoff-Jacobian bank study using integration-mode-
   specific matrices derived from the analytical second-stage trajectory and a
   previous-sample Vgk selector held across the fixed three-correction schedule.
-- Added generated three-bank backward-Euler and five-bank trapezoidal chord
+- Added generated four-bank backward-Euler and five-bank trapezoidal chord
   assets, a sample-held selector in the wide solver, explicit synthesis
   wrappers, and a 9,216-sample-per-mode full-state RTL overload regression.
 - Added a parallel 100 ms banked/DC-chord/full-Newton waveform audit at 20 mV,
@@ -152,6 +152,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a trapezoidal shallow-bank threshold sweep from -2.50 to -2.90 V and
   selected the most-negative diagnostic-clean threshold that excludes the
   accepted 0.5 V trajectory.
+- Added a 100 ms previous-Vgk-slew selector study, a reproducible
+  backward-Euler shallow Jacobian, matched fixed/RTL selector history, and
+  1.0/1.5 V full-state overload gates for both integration modes.
 - Added architecture, model, phono, fixed-point, gain, noise, analog front-end, converter/clock, hardware, controls, safety, verification, and annotated-reference documentation.
 
 ### Fixed
@@ -189,10 +192,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
   plate-law acceptance bounds on identical 1.5 V overload trajectories. It
   classifies every factor coordinate, counts the separate grid-current clamp,
   and requires bit-exact audio before accepting a diagnostic-domain change.
-- The cutoff-Jacobian bank reduces 100 ms / 1 V residual failures from
+- The initial cutoff-Jacobian bank reduces 100 ms / 1 V residual failures from
   1,122/1,107 to zero for backward-Euler/trapezoidal state at 1.887/1.874 uA
   maximum residual, with zero saturation, tube-range clips, or correction
-  fallbacks. At 1.5 V it leaves 72/67 residual failures. The previously reported
+  fallbacks. Its initial 1.5 V result left 72/67 residual failures. The
+  previously reported
   4,052/4,052 range events were subsequently proven to be only the conservative
   negative-grid acceptance boundary, separate from solver convergence.
 - The factorized cutoff-domain audit observes `Vgk` down to -7.027 V while
@@ -200,15 +204,19 @@ All notable engineering changes are recorded here. The project is pre-release; d
   ranges. Expanding plate-law acceptance to -8 V removes all 3,294/3,292 false
   clip evaluations while leaving both integrator outputs bit-exact. The
   grid-current lookup remains clamped below -5 V at its leakage-floor entry.
+- A 20 mV/sample previous-Vgk slew qualifier is inactive and output-bit-exact
+  to the prior selector through 1.0 V, but selects the severe shallow cutoff arc
+  at 1.5 V. The 100 ms residual-failure counts fall from 72/67 to zero at
+  1.703/1.774 uA maximum residual with zero arithmetic/range/fallback events.
 - Banked integrated RTL matches every fixed state across 36,864 total updates
-  at 1.0/1.5 V. The 1.5 V cases have zero arithmetic, range, or correction-scale
-  events and retain explicitly measured 57/53 residual-limit misses in the
-  12 ms backward-Euler/trapezoidal captures.
+  at 1.0/1.5 V. Every generated bank is selected in aggregate, both 1.5 V cases
+  have zero residual/range/arithmetic/fallback events, and latency remains 116
+  clocks.
 - Banked RTL is bit-exact across all 9,216 captured overload states per mode,
   selects every generated bank, retains 116 clocks, and records no diagnostic
-  event. XC7 structural synthesis measures 12,942/13,870 logic cells for
+  event. XC7 structural synthesis measures 13,369/13,914 logic cells for
   backward Euler/trapezoidal with 122 DSP48E1s and 8 RAMB18E1s in either mode:
-  +503/+1,327 logic cells and no DSP/RAM increase over the nominal solvers.
+  +930/+1,371 logic cells and no DSP/RAM increase over the nominal solvers.
 - At 1.0 V, the bank improves raw full-Newton burst error from -53.45 to
   -76.43 dB for backward Euler and from -53.65 to -76.79 dB for trapezoidal.
   The latter retains 0.537 mV final-window mean error after 85 ms recovery;
@@ -222,6 +230,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
   1.0 V activations and zero residual failures. It halves the measured 1.0 V
   final-window mean error from 1.042 to 0.537 mV; -2.80 V is rejected because
   it leaves two residual failures.
+- At 1.5 V, the slew-qualified selector slightly improves the raw full-Newton
+  burst error to -61.80/-62.12 dB but retains 18.26/17.36 mV final-window RMS
+  error. This severe waveform discrepancy remains separate from the closed
+  fixed-schedule residual gate.
 
 - ngspice bias is 179.994 V/0.9918 mA for stage 1 and 192.808 V/1.0719 mA for stage 2; circuit gain is 41.087 dB at 1 kHz.
 - The physical passive network's ideal-RIAA error is -0.919 to +0.000 dB over 20 Hz–20 kHz (0.364 dB RMS), retained as reference behavior.

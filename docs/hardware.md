@@ -90,12 +90,13 @@ or block RAM; measured structural resources are:
 
 | Solver | Logic cells | DSP48E1 | RAMB18E1 | Delta logic vs nominal |
 |---|---:|---:|---:|---:|
-| backward Euler, banked | 12,942 | 122 | 8 | +503 |
-| trapezoidal, banked | 13,870 | 122 | 8 | +1,327 |
+| backward Euler, banked | 13,369 | 122 | 8 | +930 |
+| trapezoidal, banked | 13,914 | 122 | 8 | +1,371 |
 
 Both checks report zero structural problems and 57 primitive-resize warnings.
-The larger trapezoidal selector is accepted only as a solver candidate pending
-full-Newton waveform-error measurement; no Fmax claim is inferred from Yosys.
+The selector includes a previous-Vgk slew comparison but adds no DSP or RAM.
+Full-Newton waveform error remains reported separately; no Fmax claim is
+inferred from Yosys.
 
 The complete wide stream measures 17,552 logic cells, 170 DSP48E1s, and 8
 RAMB18E1s, with zero structural check problems and 61 techmap resize warnings.

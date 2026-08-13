@@ -139,6 +139,9 @@ def run_case(integration_method: str, level_peak_v: float) -> dict[str, object]:
             solver_result["bank_selection_count"] = (
                 model.chord_bank_selection_count
             )
+            solver_result["slew_qualified_selection_count"] = (
+                model.slew_qualified_selection_count
+            )
         solver_results[solver_name] = solver_result
 
     banked_vs_baseline = fixed_outputs["banked_cutoff_chord"] - fixed_outputs[
@@ -275,7 +278,7 @@ def main() -> int:
             "minimum_one_volt_improvement_over_dc_chord_db": 20.0,
             "rtl_link": (
                 "banked_solver_rtl_overload.json proves fixed full-state "
-                "equivalence at 1.0 V"
+                "equivalence at 1.0 V and 1.5 V"
             ),
         },
         "gates": gates,

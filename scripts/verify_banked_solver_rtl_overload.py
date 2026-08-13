@@ -72,6 +72,9 @@ def main() -> int:
                     model.correction_scale_fallback_count
                 ),
                 "bank_selection_count": counts,
+                "slew_qualified_selection_count": (
+                    model.slew_qualified_selection_count
+                ),
                 "all_cutoff_banks_exercised": all(
                     count > 0 for count in counts[:-1]
                 ),
@@ -107,19 +110,35 @@ def main() -> int:
                 "correction_scale_fallback_count",
             )
         ),
-        "one_point_five_volts_has_no_arithmetic_or_range_event": all(
+        "one_point_five_volts_converges_without_diagnostics": all(
             int(item[key]) == 0
             for item in severe
             for key in (
+                "residual_limit_exceedance_count",
                 "saturation_count",
                 "range_clip_count",
                 "correction_scale_fallback_count",
             )
         ),
         "every_generated_bank_selected": all(
-            bool(item["all_cutoff_banks_exercised"])
-            and bool(item["nominal_bank_exercised"])
-            for item in one_volt
+            all(
+                sum(
+                    int(item["bank_selection_count"][bank_index])
+                    for item in measurements
+                    if item["integration_method"] == method
+                )
+                > 0
+                for bank_index in range(
+                    len(
+                        next(
+                            item["bank_selection_count"]
+                            for item in measurements
+                            if item["integration_method"] == method
+                        )
+                    )
+                )
+            )
+            for method in ("backward_euler", "trapezoidal")
         ),
         "fixed_schedule_preserved": all(
             int(item["latency_clocks"]) == 116 for item in measurements

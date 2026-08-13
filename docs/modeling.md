@@ -432,11 +432,12 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | factorized frequency response | six 5 mV points, 20 Hz–20 kHz | ≤0.00846 dB gain / ≤0.0729° phase; zero diagnostics |
 | factorized overload/recovery | 5 ms bursts, 20 mV–1.5 V | clean at 20/500 mV; residual failure at 1 V; legacy -5 V flags reclassified without output change |
 | overload iteration count | 3–6 corrections at 1.0/1.5 V | improved but still failing; projected 213 clocks at six |
-| cutoff-Jacobian bank | 100 ms 1 kHz bursts through 1.5 V | zero 1 V failures in both modes; 1.5 V retains 72/67 residual misses and zero range events |
+| cutoff-Jacobian bank | 100 ms 1 kHz bursts through 1.5 V | zero 1 V failures; slew-qualified shallow selection removes all 1.5 V residual misses with zero range events |
 | factorized cutoff-domain audit | 12 ms 1.5 V burst, -5 V vs -8 V bound | 3,294/3,292 false flags removed; output bit-exact; independent factor ranges valid |
-| banked cutoff RTL | 36,864 updates at 1.0/1.5 V | fixed full-state exact, all banks selected, 116 clocks; severe range/arithmetic clean; 57/53 residual misses |
+| banked cutoff RTL | 36,864 updates at 1.0/1.5 V | fixed full-state exact, all banks selected, 116 clocks; zero residual/range/arithmetic events |
 | banked cutoff vs full Newton | 100 ms, 20 mV/0.5/1.0 V bursts | <=-75.28 dB raw burst error; 1 V improves 22.98/23.13 dB vs DC chord |
 | trapezoidal shallow-bank threshold | -2.50 to -2.90 V, 0.5/1.0 V bursts | select -2.75 V; no 0.5 V activation, zero 1 V failures, 0.537 mV final mean error |
+| slew-qualified shallow-bank selector | 100 ms, 0.5/1.0/1.5 V bursts | <=1 V bit-exact; zero 1.5 V residual failures; -61.80/-62.12 dB severe burst error |
 | long fixed state / click recovery | 1 s silence with +/-100 mV single-sample clicks | Q12.20 deadband leaves -5.368 mV late output; must be redesigned |
 | wide-state Python candidate | same 1 s click audit; 5 mV/1 kHz | 38.74 uV late residual; -63.83 dB nominal raw null; complete-RTL proof open |
 | wide chord RTL vs fixed | 1,024 randomized/directed vectors | bit-exact, latency 10; 1,701 LC / 9 DSP / 0 RAMB18 structural |

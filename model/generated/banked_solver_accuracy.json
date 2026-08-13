@@ -22,7 +22,7 @@
     "fractional_delay_alignment": false,
     "raw_burst_normalized_error_limit_db": -70.0,
     "minimum_one_volt_improvement_over_dc_chord_db": 20.0,
-    "rtl_link": "banked_solver_rtl_overload.json proves fixed full-state equivalence at 1.0 V"
+    "rtl_link": "banked_solver_rtl_overload.json proves fixed full-state equivalence at 1.0 V and 1.5 V"
   },
   "gates": {
     "analytical_newton_converged": true,
@@ -160,8 +160,10 @@
           "bank_selection_count": [
             0,
             0,
+            0,
             76800
-          ]
+          ],
+          "slew_qualified_selection_count": 0
         }
       },
       "banked_vs_baseline": {
@@ -314,8 +316,10 @@
           "bank_selection_count": [
             0,
             0,
+            0,
             76800
-          ]
+          ],
+          "slew_qualified_selection_count": 0
         }
       },
       "banked_vs_baseline": {
@@ -468,8 +472,10 @@
           "bank_selection_count": [
             1038,
             312,
+            0,
             75450
-          ]
+          ],
+          "slew_qualified_selection_count": 0
         }
       },
       "banked_vs_baseline": {
@@ -625,7 +631,8 @@
             0,
             0,
             76800
-          ]
+          ],
+          "slew_qualified_selection_count": 0
         }
       },
       "banked_vs_baseline": {
@@ -781,7 +788,8 @@
             0,
             0,
             76800
-          ]
+          ],
+          "slew_qualified_selection_count": 0
         }
       },
       "banked_vs_baseline": {
@@ -937,7 +945,8 @@
             323,
             154,
             75450
-          ]
+          ],
+          "slew_qualified_selection_count": 0
         }
       },
       "banked_vs_baseline": {

@@ -1,7 +1,8 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-// Backward-Euler wide solver with two cutoff Jacobians plus the nominal set.
+// Backward-Euler wide solver with two Vgk banks, one slew-qualified shallow
+// Jacobian, and the nominal set.
 // Selection uses previous-sample stage-two Vgk and does not alter latency.
 module v1_solver_mono_wide_banked (
     input  logic                  clk,
@@ -29,7 +30,7 @@ module v1_solver_mono_wide_banked (
         .CHORD_COEFFICIENT_FILE(
             "model/generated/v1_chord_inverse_banked_q17_1.mem"
         ),
-        .CHORD_COEFFICIENT_SETS(3)
+        .CHORD_COEFFICIENT_SETS(4)
     ) core (.*);
 
 endmodule

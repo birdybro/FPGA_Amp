@@ -17,7 +17,7 @@
   "gates": {
     "all_cases_full_state_exact": true,
     "one_volt_both_modes_converged_without_diagnostics": true,
-    "one_point_five_volts_has_no_arithmetic_or_range_event": true,
+    "one_point_five_volts_converges_without_diagnostics": true,
     "every_generated_bank_selected": true,
     "fixed_schedule_preserved": true
   },
@@ -37,9 +37,11 @@
       "bank_selection_count": [
         859,
         245,
+        0,
         8112
       ],
-      "all_cutoff_banks_exercised": true,
+      "slew_qualified_selection_count": 0,
+      "all_cutoff_banks_exercised": false,
       "nominal_bank_exercised": true
     },
     {
@@ -60,6 +62,7 @@
         122,
         8111
       ],
+      "slew_qualified_selection_count": 0,
       "all_cutoff_banks_exercised": true,
       "nominal_bank_exercised": true
     },
@@ -69,16 +72,18 @@
       "samples": 9216,
       "full_state_rtl_fixed_bit_exact": true,
       "latency_clocks": 116,
-      "maximum_residual_a": 3.148763198623783e-06,
-      "residual_limit_exceedance_count": 57,
+      "maximum_residual_a": 1.6872463675099425e-06,
+      "residual_limit_exceedance_count": 0,
       "saturation_count": 0,
       "range_clip_count": 0,
       "correction_scale_fallback_count": 0,
       "bank_selection_count": [
         1258,
         141,
-        7817
+        80,
+        7737
       ],
+      "slew_qualified_selection_count": 80,
       "all_cutoff_banks_exercised": true,
       "nominal_bank_exercised": true
     },
@@ -88,8 +93,8 @@
       "samples": 9216,
       "full_state_rtl_fixed_bit_exact": true,
       "latency_clocks": 116,
-      "maximum_residual_a": 3.0811247029305378e-06,
-      "residual_limit_exceedance_count": 53,
+      "maximum_residual_a": 1.7750975302988081e-06,
+      "residual_limit_exceedance_count": 0,
       "saturation_count": 0,
       "range_clip_count": 0,
       "correction_scale_fallback_count": 0,
@@ -97,9 +102,10 @@
         1068,
         124,
         134,
-        73,
-        7817
+        150,
+        7740
       ],
+      "slew_qualified_selection_count": 77,
       "all_cutoff_banks_exercised": true,
       "nominal_bank_exercised": true
     }

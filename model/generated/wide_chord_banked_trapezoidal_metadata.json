@@ -27,6 +27,16 @@
       "representative_v_pk_v": 261.0
     }
   ],
+  "slew_qualified_shallow_selector": {
+    "upper_v_gk_v": -2.5,
+    "minimum_absolute_delta_v_gk_v_per_sample": 0.02,
+    "set_index": 3,
+    "representative_v_gk_vpk_v": [
+      -2.75,
+      261.0
+    ],
+    "reuses_existing_cutoff_set": true
+  },
   "nominal_set_index": 4,
   "output": "model/generated/v1_chord_inverse_banked_q17_1_trapezoidal.mem"
 }

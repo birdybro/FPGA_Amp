@@ -125,6 +125,9 @@ def main() -> int:
         "chord_bank_selection_count": (
             model.chord_bank_selection_count if args.banked else None
         ),
+        "slew_qualified_selection_count": (
+            model.slew_qualified_selection_count if args.banked else None
+        ),
         "latency_clocks": 116,
         "output": str(vector_path.relative_to(REPOSITORY_ROOT)),
     }

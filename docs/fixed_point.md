@@ -233,19 +233,20 @@ derivative is collapsing. Adding iterations does not repair this within the
 `FixedWideStateBankedChordV1CircuitModel` instead selects a small inverse bank
 once per sample from the previous Vgk2 and holds it for all three corrections.
 The inverse matrices are generated from the same frozen circuit and Koren
-derivatives at measured cutoff-arc Vgk/Vpk points. Backward Euler needs two
-cutoff matrices plus nominal; trapezoidal needs four plus nominal. All remain
+derivatives at measured cutoff-arc Vgk/Vpk points. The baseline partition uses
+two backward-Euler cutoff matrices plus nominal and four trapezoidal matrices
+plus nominal. All remain
 within the existing signed-18 Q17.1 coefficient interface, so the projected
 serialized schedule stays at 116 clocks. The integration modes deliberately
 use separate assets because sharing the two-entry backward-Euler partition left
 309 trapezoidal failures.
 
-In a 100 ms, 1 kHz campaign with a 5 ms burst, the bank reduces 1.0 V residual
-failures from 1,122 to zero for backward Euler and from 1,107 to zero for
-trapezoidal. Maximum residual becomes 1.887/1.874 uA, below the 2 uA gate, with
-zero arithmetic saturation, tube-range clips, or scale fallbacks. At 1.5 V,
-backward-Euler failures fall from 1,695 to 72 and trapezoidal from 1,690 to 67,
-with no arithmetic or correction-scale event. A later exact-intermediate audit
+In a 100 ms, 1 kHz campaign with a 5 ms burst, the initial bank reduces 1.0 V
+residual failures from 1,122 to zero for backward Euler and from 1,107 to zero
+for trapezoidal. Maximum residual becomes 1.887/1.874 uA, below the 2 uA gate,
+with zero arithmetic saturation, tube-range clips, or scale fallbacks. Its
+first 1.5 V result left 72 backward-Euler and 67 trapezoidal failures. A later
+exact-intermediate audit
 proved all 4,052 formerly reported range events were solely `Vgk < -5 V` while
 the evaluated `Vpk`, transformed coordinate, and `E1` remained valid. Expanding
 the plate-law acceptance bound to -8 V removes those false diagnostics without
@@ -258,10 +259,9 @@ Vgk and holds it through all three corrections. A 9,216-sample, 1.0 V capture
 per integration mode matches every fixed node, capacitor state, output,
 residual, and cumulative diagnostic word exactly; every generated bank is
 selected and latency remains 116 clocks. The expanded 1.5 V RTL capture is also
-full-state exact and records zero range, arithmetic, or scale-fallback events;
-its 57/53 residual misses remain explicit. Structural synthesis measures 12,942
-logic cells / 122 DSP48E1 / 8 RAMB18E1 for backward Euler and 13,870 / 122 / 8
-for trapezoidal. Full-Newton waveform error was therefore the next acceptance
+full-state exact and records zero range, arithmetic, or scale-fallback events.
+That capture initially retained 57/53 residual misses before the selector
+extension below. Full-Newton waveform error remains a separate acceptance
 question before making the bank the default reference implementation.
 
 A subsequent 100 ms full-Newton audit closes the burst-waveform question but
@@ -288,6 +288,30 @@ eliminates all 231 shallow-bank activations at 0.5 V, retains 154 at 1.0 V, and
 halves the final-window mean error from 1.042 to 0.537 mV. At -2.80 V two
 samples exceed the residual limit, so that more aggressive boundary is
 rejected.
+
+A separate selector study observes a clean slew separation on the shallow
+cutoff arc. Across the tested 100 ms records, accepted 0.5/1.0 V trajectories
+stay below 17.4 mV of absolute previous-Vgk change per 768 kHz sample, while
+the failing 1.5 V samples exceed 23.3 mV. The implementation therefore enables
+a shallow bank only when previous Vgk2 is below -2.50 V and its absolute
+sample-to-sample change exceeds 20 mV. Backward Euler adds a matrix evaluated
+at the (-2.25 V, 261 V) representative; trapezoidal reuses its fourth
+cutoff matrix. The <=1.0 V output is bit-exact to the previous selector.
+
+The production 100 ms gate reduces the 1.5 V failure counts from 72/67 to zero,
+with maximum residual 1.703/1.774 uA and no arithmetic, range, or scale event.
+In the 12 ms RTL gate, all 36,864 states across 1.0/1.5 V and both integration
+modes are exact, every generated bank is selected in aggregate, and latency
+remains 116 clocks. Structural synthesis measures 13,369 logic cells / 122
+DSP48E1 / 8 RAMB18E1 for backward Euler and 13,914 / 122 / 8 for trapezoidal.
+No Fmax is claimed from the structural flow.
+
+This closes fixed-schedule residual convergence, not severe-overload waveform
+accuracy. At 1.5 V the unaligned raw burst residual versus full Newton is
+-61.80/-62.12 dB, and final 10 ms RMS error is 18.26/17.36 mV for backward
+Euler/trapezoidal. These errors remain explicit. The 1.0 V trapezoidal final
+mean error also remains 0.537 mV because the slew qualifier deliberately does
+not alter accepted <=1.0 V behavior.
 
 `v1_solver_mono_wide.sv` composes those blocks with the factorized tube and
 matches 512 sequential fixed-Python samples exactly across all nine nodes, ten

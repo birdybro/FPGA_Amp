@@ -43,6 +43,15 @@
         }
       ]
     },
+    "slew_qualified_shallow_regime": {
+      "upper_v_gk_v": -2.5,
+      "minimum_absolute_v_gk_delta_v_per_sample": 0.02,
+      "backward_euler_representative_v_gk_vpk_v": [
+        -2.25,
+        261.0
+      ],
+      "trapezoidal_reuses_last_cutoff_regime": true
+    },
     "nominal_bank": "existing DC operating-point Jacobian"
   },
   "stimulus": {
@@ -61,7 +70,8 @@
   "gates": {
     "baseline_reproduces_one_volt_failure": true,
     "banked_one_volt_has_no_residual_failure": true,
-    "banked_through_one_volt_has_no_arithmetic_or_range_event": true,
+    "banked_through_one_point_five_volts_has_no_residual_failure": true,
+    "banked_through_one_point_five_volts_has_no_arithmetic_or_range_event": true,
     "all_outputs_finite": true
   },
   "all_gates_pass": true,
@@ -80,8 +90,10 @@
       "bank_selection_count": [
         0,
         0,
+        0,
         76800
-      ]
+      ],
+      "slew_qualified_selection_count": 0
     },
     {
       "integration_method": "backward_euler",
@@ -97,25 +109,29 @@
       "bank_selection_count": [
         1038,
         312,
+        0,
         75450
-      ]
+      ],
+      "slew_qualified_selection_count": 0
     },
     {
       "integration_method": "backward_euler",
       "solver": "banked_cutoff_chord",
       "burst_input_peak_v": 1.5,
       "output_finite": true,
-      "maximum_absolute_output_v": 109.0458920407109,
-      "maximum_residual_a": 3.151303246795578e-06,
-      "residual_limit_exceedance_count": 72,
+      "maximum_absolute_output_v": 109.04588430654258,
+      "maximum_residual_a": 1.7026283103405149e-06,
+      "residual_limit_exceedance_count": 0,
       "saturation_count": 0,
       "range_clip_count": 0,
       "correction_scale_fallback_count": 0,
       "bank_selection_count": [
         1559,
         176,
-        75065
-      ]
+        99,
+        74966
+      ],
+      "slew_qualified_selection_count": 99
     },
     {
       "integration_method": "backward_euler",
@@ -170,7 +186,8 @@
         0,
         0,
         76800
-      ]
+      ],
+      "slew_qualified_selection_count": 0
     },
     {
       "integration_method": "trapezoidal",
@@ -189,16 +206,17 @@
         323,
         154,
         75450
-      ]
+      ],
+      "slew_qualified_selection_count": 0
     },
     {
       "integration_method": "trapezoidal",
       "solver": "banked_cutoff_chord",
       "burst_input_peak_v": 1.5,
       "output_finite": true,
-      "maximum_absolute_output_v": 109.06980497715995,
-      "maximum_residual_a": 3.0817442393527017e-06,
-      "residual_limit_exceedance_count": 67,
+      "maximum_absolute_output_v": 109.06942370114848,
+      "maximum_residual_a": 1.7738649944476492e-06,
+      "residual_limit_exceedance_count": 0,
       "saturation_count": 0,
       "range_clip_count": 0,
       "correction_scale_fallback_count": 0,
@@ -206,9 +224,10 @@
         1321,
         156,
         167,
-        91,
-        75065
-      ]
+        188,
+        74968
+      ],
+      "slew_qualified_selection_count": 97
     },
     {
       "integration_method": "trapezoidal",

@@ -65,6 +65,9 @@ def run_case(integration_method: str, banked: bool, level_peak_v: float) -> dict
     }
     if banked:
         result["bank_selection_count"] = model.chord_bank_selection_count
+        result["slew_qualified_selection_count"] = (
+            model.slew_qualified_selection_count
+        )
     return result
 
 
@@ -120,10 +123,19 @@ def main() -> int:
             == 0
             for method in INTEGRATION_METHODS
         ),
-        "banked_through_one_volt_has_no_arithmetic_or_range_event": all(
+        "banked_through_one_point_five_volts_has_no_residual_failure": all(
+            int(
+                case(method, "banked_cutoff_chord", level)[
+                    "residual_limit_exceedance_count"
+                ]
+            ) == 0
+            for method in INTEGRATION_METHODS
+            for level in LEVELS_PEAK_V
+        ),
+        "banked_through_one_point_five_volts_has_no_arithmetic_or_range_event": all(
             int(case(method, "banked_cutoff_chord", level)[key]) == 0
             for method in INTEGRATION_METHODS
-            for level in (0.5, 1.0)
+            for level in LEVELS_PEAK_V
             for key in (
                 "saturation_count",
                 "range_clip_count",
@@ -132,6 +144,7 @@ def main() -> int:
         ),
         "all_outputs_finite": all(bool(item["output_finite"]) for item in results),
     }
+    banked_model = FixedWideStateBankedChordV1CircuitModel
     report = {
         "model": "12ax7_passive_riaa_v1",
         "sample_rate_hz": SAMPLE_RATE_HZ,
@@ -160,6 +173,18 @@ def main() -> int:
                         FixedWideStateBankedChordV1CircuitModel.TRAPEZOIDAL_CUTOFF_JACOBIAN_REGIMES,
                     ),
                 )
+            },
+            "slew_qualified_shallow_regime": {
+                "upper_v_gk_v": (
+                    banked_model.SHALLOW_SLEW_UPPER_V_GK_V
+                ),
+                "minimum_absolute_v_gk_delta_v_per_sample": (
+                    banked_model.SHALLOW_SLEW_THRESHOLD_V_PER_SAMPLE
+                ),
+                "backward_euler_representative_v_gk_vpk_v": list(
+                    banked_model.BACKWARD_EULER_SLEW_JACOBIAN_REPRESENTATIVE
+                ),
+                "trapezoidal_reuses_last_cutoff_regime": True,
             },
             "nominal_bank": "existing DC operating-point Jacobian",
         },

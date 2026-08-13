@@ -15,6 +15,7 @@
   "minimum_correction_residual_fractional_bits": null,
   "banked_chord": false,
   "chord_bank_selection_count": null,
+  "slew_qualified_selection_count": null,
   "latency_clocks": 116,
   "output": "sim/vectors/generated/v1_solver_wide_factorized_stream.txt"
 }

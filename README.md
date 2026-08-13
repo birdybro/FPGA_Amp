@@ -46,8 +46,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   Q30 previous capacitor voltage, and explicit signed Q4.44 previous capacitor
   current. Across six 5 mV points from 20 Hz through 20 kHz it stays within
   0.000131 dB / 0.000784° of floating trapezoidal, with zero convergence,
-  saturation, range, or correction-fallback events. RTL and large-signal fixed
-  proof remain open; backward Euler is still the implemented RTL contract.
+  saturation, range, or correction-fallback events. Its RTL is bit-exact at the
+  same 116-clock schedule, including the banked large-signal captures below.
+  It remains an optional numerical candidate rather than a silent reference
+  change.
 - In the 5 ms burst gate, fixed trapezoidal stays diagnostic-clean through
   0.5 V peak and retains the same severe-overload boundary as backward Euler:
   1.0/1.5 V cause 1,107/1,690 residual failures and 1.5 V causes 4,048 tube-
@@ -113,19 +115,20 @@ The mono reference and complete 768 kHz circuit solver are operating:
   a different solver/range strategy rather than an unbudgeted extra pass.
 - A physically derived, fixed-schedule cutoff-Jacobian bank removes the 1.0 V
   residual failure for both backward-Euler and trapezoidal state. RTL matches
-  every fixed state over 9,216 overload samples per mode, exercises every bank,
-  retains the 116-clock schedule, and records zero diagnostics. Structural
-  synthesis is 12,942 logic cells / 122 DSPs / 8 RAMs for backward Euler and
-  13,870 / 122 / 8 for trapezoidal. The 1.5 V characterization still has 72/67
-  residual failures; those are kept separate from tube-domain diagnostics.
+  every fixed state, retains the 116-clock schedule, and records zero
+  diagnostics. A Vgk-slew-qualified shallow matrix extends that result through
+  the tested 1.5 V peak burst without activating at 0.5 or 1.0 V. Structural
+  synthesis is 13,369 logic cells / 122 DSPs / 8 RAMs for backward Euler and
+  13,914 / 122 / 8 for trapezoidal.
 - A fixed-intermediate domain audit proves that all former 1.5 V range events
   were only `Vgk < -5 V`: measured `Vpk`, transformed coordinate, and `E1`
   remained inside their tables. The plate-law acceptance bound is now -8 V,
   covering the measured -7.03 V minimum, while the grid-current lookup still
   clamps below -5 V at its negative-grid leakage floor. Backward-Euler and
   trapezoidal 12 ms outputs are bit-exact before/after this diagnostic change.
-  Integrated RTL is full-state exact at both 1.0 and 1.5 V; the 1.5 V cases have
-  zero range/arithmetic/fallback events but retain 57/53 residual-limit misses.
+  Integrated RTL is full-state exact at both 1.0 and 1.5 V; after the independent
+  slew-selector change, all four captures have zero residual, range, arithmetic,
+  or fallback events.
 - Against full Newton with the same Q8.24 input, banked 1.0 V burst error is
   -76.43 dB backward Euler and -76.79 dB trapezoidal, improving the failing DC
   chord by 22.98 and 23.13 dB. No gain, DC, or delay alignment is applied.
@@ -133,6 +136,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   bank activation at 0.5 V, preserves zero 1.0 V failures, and reduces final
   10 ms mean error from 1.042 to 0.537 mV. Mean-removed error is -89.75 dB; the
   remaining slow-state displacement keeps the bank optional.
+- A 20 mV/sample previous-Vgk slew qualifier separates the measured severe
+  cutoff arc from every accepted <=1.0 V trajectory. Backward Euler adds a
+  fourth matrix evaluated at (-2.25 V, 261 V); trapezoidal reuses its shallow
+  matrix. The 100 ms 1.5 V residual-failure counts fall from 72/67 to zero and
+  the 12 ms RTL proof is full-state exact across 36,864 total updates. Severe
+  burst error versus full Newton remains -61.80/-62.12 dB and final 10 ms error
+  remains 18.27/17.36 mV, so convergence is not mislabeled waveform accuracy.
 - Removing the shallowest cutoff matrix is not a valid optimization: the 100 ms
   selector study leaves 289 backward-Euler or 119 trapezoidal 1.0 V residual
   failures. All generated matrices remain required; activation thresholds are
@@ -343,6 +353,7 @@ make overload-seven-second          # complete severe floating recovery timing
 make overload-wide                  # same bursts with wide-state candidate
 make overload-iterations            # three-to-six-pass solver trade
 make overload-banked                # cutoff-Jacobian bank convergence study
+make banked-slew-selector           # qualify the severe shallow-bank selector
 python3 scripts/study_lut_resolution.py
 python3 scripts/analyze_frontend.py
 python3 scripts/design_resampler.py
@@ -358,7 +369,7 @@ make solver-rtl                    # 512-sample persistent-state integration
 make solver-factorized-rtl         # exact smooth-tube solver integration
 make wide-solver-rtl               # exact 40-bit branch-current solver
 make trapezoidal-solver-rtl        # exact selectable integration-mode solver
-make banked-solver-rtl             # exact three-bank cutoff solver
+make banked-solver-rtl             # exact four-bank cutoff solver
 make trapezoidal-banked-solver-rtl # exact five-bank cutoff solver
 make banked-rtl-overload           # 1.0/1.5 V full-state bank-selection gate
 make banked-accuracy               # 100 ms banked/full-Newton waveform gate

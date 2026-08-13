@@ -110,17 +110,30 @@ module v1_solver_mono_wide #(
     endfunction
 
     function automatic logic [2:0] select_chord_coefficient_set(
-        input logic signed [40:0] previous_v_gk2_q32
+        input logic signed [40:0] previous_v_gk2_q32,
+        input logic signed [40:0] prior_v_gk2_q32
     );
+        logic signed [41:0] slew_delta_q32;
+        logic [41:0] slew_magnitude_q32;
         begin
+            slew_delta_q32 =
+                $signed({previous_v_gk2_q32[40], previous_v_gk2_q32})
+                - $signed({prior_v_gk2_q32[40], prior_v_gk2_q32});
+            if (slew_delta_q32 < 0)
+                slew_magnitude_q32 = -slew_delta_q32;
+            else
+                slew_magnitude_q32 = slew_delta_q32;
             select_chord_coefficient_set = 3'd0;
-            if (CHORD_COEFFICIENT_SETS == 3) begin
+            if (CHORD_COEFFICIENT_SETS == 4) begin
                 if (previous_v_gk2_q32 < -41'sd13958643712) // -3.25 V
                     select_chord_coefficient_set = 3'd0;
                 else if (previous_v_gk2_q32 < -41'sd11811160064) // -2.75 V
                     select_chord_coefficient_set = 3'd1;
-                else
+                else if ((previous_v_gk2_q32 < -41'sd10737418240) &&
+                         (slew_magnitude_q32 > 42'd85899346)) // -2.5 V, 20 mV
                     select_chord_coefficient_set = 3'd2;
+                else
+                    select_chord_coefficient_set = 3'd3;
             end else if (CHORD_COEFFICIENT_SETS == 5) begin
                 if (previous_v_gk2_q32 < -41'sd17179869184) // -4.0 V
                     select_chord_coefficient_set = 3'd0;
@@ -129,6 +142,9 @@ module v1_solver_mono_wide #(
                 else if (previous_v_gk2_q32 < -41'sd12884901888) // -3.0 V
                     select_chord_coefficient_set = 3'd2;
                 else if (previous_v_gk2_q32 < -41'sd11811160064) // -2.75 V
+                    select_chord_coefficient_set = 3'd3;
+                else if ((previous_v_gk2_q32 < -41'sd10737418240) &&
+                         (slew_magnitude_q32 > 42'd85899346)) // -2.5 V, 20 mV
                     select_chord_coefficient_set = 3'd3;
                 else
                     select_chord_coefficient_set = 3'd4;
@@ -434,6 +450,7 @@ module v1_solver_mono_wide #(
     logic chord_busy;
     logic chord_valid;
     logic signed [40:0] previous_v_gk2_q32;
+    logic signed [40:0] selector_prior_v_gk2_q32;
     logic [2:0] chord_coefficient_set;
     assign chord_start = (state == WAIT_KCL) && kcl_valid && !final_pass;
     assign previous_v_gk2_q32 =
@@ -483,6 +500,9 @@ module v1_solver_mono_wide #(
             minimum_correction_fractional_bits <= '0;
             last_residual_q44 <= '0;
             chord_coefficient_set <= '0;
+            selector_prior_v_gk2_q32 <=
+                $signed({node_initial[4][39], node_initial[4]})
+                - $signed({node_initial[7][39], node_initial[7]});
             for (lane = 0; lane < 9; lane = lane + 1)
                 node_voltage[lane] <= node_initial[lane];
             for (lane = 0; lane < 10; lane = lane + 1)
@@ -511,8 +531,10 @@ module v1_solver_mono_wide #(
                         correction_index <= '0;
                         final_pass <= 1'b0;
                         chord_coefficient_set <= select_chord_coefficient_set(
-                            previous_v_gk2_q32
+                            previous_v_gk2_q32,
+                            selector_prior_v_gk2_q32
                         );
+                        selector_prior_v_gk2_q32 <= previous_v_gk2_q32;
                         state <= WAIT_RHS;
                     end
                 end

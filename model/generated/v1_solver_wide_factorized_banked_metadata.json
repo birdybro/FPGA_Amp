@@ -17,8 +17,10 @@
   "chord_bank_selection_count": [
     0,
     0,
+    0,
     512
   ],
+  "slew_qualified_selection_count": 0,
   "latency_clocks": 116,
   "output": "sim/vectors/generated/v1_solver_wide_factorized_stream_banked.txt"
 }

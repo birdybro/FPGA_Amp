@@ -528,10 +528,10 @@ class FixedWideStateV1CircuitModel(FixedChordV1CircuitModel):
 class FixedWideStateBankedChordV1CircuitModel(FixedWideStateV1CircuitModel):
     """Wide candidate with physically derived second-stage cutoff Jacobians.
 
-    The bank is selected once from the previous sample's stage-two Vgk and held
-    for all three chord corrections. This keeps the real-time schedule fixed
-    while replacing the DC Jacobian only in cutoff regions where its measured
-    residual contraction fails.
+    The bank is selected once from the previous sample's stage-two Vgk and its
+    sample-to-sample slew, then held for all three chord corrections. This keeps
+    the real-time schedule fixed while replacing the DC Jacobian only in cutoff
+    regions where its measured residual contraction fails.
     """
 
     # Selection upper bound, representative Vgk, representative Vpk, all volts.
@@ -547,6 +547,9 @@ class FixedWideStateBankedChordV1CircuitModel(FixedWideStateV1CircuitModel):
         (-3.00, -3.25, 278.0),
         (-2.75, -2.75, 261.0),
     )
+    BACKWARD_EULER_SLEW_JACOBIAN_REPRESENTATIVE = (-2.25, 261.0)
+    SHALLOW_SLEW_UPPER_V_GK_V = -2.50
+    SHALLOW_SLEW_THRESHOLD_V_PER_SAMPLE = 0.020
 
     def __init__(self, *args: object, **kwargs: object):
         super().__init__(*args, **kwargs)
@@ -558,30 +561,42 @@ class FixedWideStateBankedChordV1CircuitModel(FixedWideStateV1CircuitModel):
         self.nominal_chord_inverse_q = self.chord_inverse_q.copy()
         self.chord_inverse_banks_q: list[NDArray[np.int64]] = []
         for _, v_gk_v, v_pk_v in self.cutoff_jacobian_regimes:
-            voltage = self.reference.voltage.copy()
-            grid = self.node["g2"]
-            plate = self.node["p2"]
-            cathode = self.node["k2"]
-            voltage[grid] = voltage[cathode] + v_gk_v
-            voltage[plate] = voltage[cathode] + v_pk_v
-            jacobian, _ = self.reference._linear_system(0.0, dynamic=True)
-            residual = np.zeros(self.node_count, dtype=np.float64)
-            self.reference._tube_stamp(
-                residual, jacobian, voltage, "g1", "p1", "k1"
+            self.chord_inverse_banks_q.append(
+                self._chord_inverse_at(v_gk_v, v_pk_v)
             )
-            self.reference._tube_stamp(
-                residual, jacobian, voltage, "g2", "p2", "k2"
+        if self.integration_method == "backward_euler":
+            self.chord_inverse_banks_q.append(
+                self._chord_inverse_at(
+                    *self.BACKWARD_EULER_SLEW_JACOBIAN_REPRESENTATIVE
+                )
             )
-            inverse_scale = 1 << self.inverse_fractional_bits
-            inverse_q = np.rint(np.linalg.inv(jacobian) * inverse_scale).astype(
-                np.int64
-            )
-            self.chord_inverse_banks_q.append(inverse_q)
         self.chord_bank_selection_count = [0] * (
             len(self.chord_inverse_banks_q) + 1
         )
+        self.slew_qualified_selection_count = 0
+        self.previous_selector_v_gk2_q32 = self._previous_v_gk2_q32()
 
-    def _select_chord_bank(self) -> int:
+    def _chord_inverse_at(
+        self, v_gk_v: float, v_pk_v: float
+    ) -> NDArray[np.int64]:
+        voltage = self.reference.voltage.copy()
+        grid = self.node["g2"]
+        plate = self.node["p2"]
+        cathode = self.node["k2"]
+        voltage[grid] = voltage[cathode] + v_gk_v
+        voltage[plate] = voltage[cathode] + v_pk_v
+        jacobian, _ = self.reference._linear_system(0.0, dynamic=True)
+        residual = np.zeros(self.node_count, dtype=np.float64)
+        self.reference._tube_stamp(
+            residual, jacobian, voltage, "g1", "p1", "k1"
+        )
+        self.reference._tube_stamp(
+            residual, jacobian, voltage, "g2", "p2", "k2"
+        )
+        inverse_scale = 1 << self.inverse_fractional_bits
+        return np.rint(np.linalg.inv(jacobian) * inverse_scale).astype(np.int64)
+
+    def _previous_v_gk2_q32(self) -> int:
         grid = self.node["g2"]
         cathode = self.node["k2"]
         grid_q32 = self._convert_fraction(
@@ -594,12 +609,25 @@ class FixedWideStateBankedChordV1CircuitModel(FixedWideStateV1CircuitModel):
             int(self.VOLTAGE_FRACTIONAL_BITS[cathode]),
             32,
         )
-        v_gk_q32 = grid_q32 - cathode_q32
+        return grid_q32 - cathode_q32
+
+    def _select_chord_bank(self) -> int:
+        v_gk_q32 = self._previous_v_gk2_q32()
+        slew_q32 = abs(v_gk_q32 - self.previous_selector_v_gk2_q32)
+        self.previous_selector_v_gk2_q32 = v_gk_q32
         for bank_index, (upper_v, _, _) in enumerate(
             self.cutoff_jacobian_regimes
         ):
             if v_gk_q32 < int(round(upper_v * (1 << 32))):
                 return bank_index
+        if (
+            v_gk_q32
+            < int(round(self.SHALLOW_SLEW_UPPER_V_GK_V * (1 << 32)))
+            and slew_q32
+            > int(round(self.SHALLOW_SLEW_THRESHOLD_V_PER_SAMPLE * (1 << 32)))
+        ):
+            self.slew_qualified_selection_count += 1
+            return len(self.chord_inverse_banks_q) - 1
         return len(self.chord_inverse_banks_q)
 
     def process_sample(

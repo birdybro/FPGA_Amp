@@ -97,6 +97,22 @@ def main() -> int:
                 }
                 for upper, v_gk, v_pk in model.cutoff_jacobian_regimes
             ],
+            "slew_qualified_shallow_selector": {
+                "upper_v_gk_v": model.SHALLOW_SLEW_UPPER_V_GK_V,
+                "minimum_absolute_delta_v_gk_v_per_sample": (
+                    model.SHALLOW_SLEW_THRESHOLD_V_PER_SAMPLE
+                ),
+                "set_index": len(model.chord_inverse_banks_q) - 1,
+                "representative_v_gk_vpk_v": (
+                    list(model.BACKWARD_EULER_SLEW_JACOBIAN_REPRESENTATIVE)
+                    if not args.trapezoidal
+                    else [
+                        model.cutoff_jacobian_regimes[-1][1],
+                        model.cutoff_jacobian_regimes[-1][2],
+                    ]
+                ),
+                "reuses_existing_cutoff_set": args.trapezoidal,
+            },
             "nominal_set_index": len(coefficient_sets) - 1,
             "output": str(coefficient_path.relative_to(REPOSITORY_ROOT)),
         }
