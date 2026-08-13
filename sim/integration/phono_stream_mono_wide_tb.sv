@@ -81,7 +81,9 @@ module phono_stream_mono_wide_tb #(
         if (vector_count <= 0 || vector_count > MAX_VECTOR_COUNT)
             $fatal(1, "invalid vector count %0d", vector_count);
         if (!$value$plusargs("VECTORS=%s", vector_path)) begin
-            if (TRAPEZOIDAL && BANKED)
+            if (TRAPEZOIDAL && BANKED && TERMINAL_CORRECTION)
+                vector_path = "sim/vectors/generated/phono_stream_mono_wide_factorized_trapezoidal_banked_terminal.txt";
+            else if (TRAPEZOIDAL && BANKED)
                 vector_path = "sim/vectors/generated/phono_stream_mono_wide_factorized_trapezoidal_banked.txt";
             else if (TRAPEZOIDAL)
                 vector_path = "sim/vectors/generated/phono_stream_mono_wide_factorized_trapezoidal.txt";

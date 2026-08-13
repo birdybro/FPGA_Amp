@@ -16,13 +16,22 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   0.372/0.291 mV at 1.0 V and 0.631/0.321 mV at 1.5 V for backward Euler/
   trapezoidal. A continuous-coefficient fixed-interface A/B bounds integer tube
   evaluation to <=0.168 mV burst RMS and identifies circuit/state/chord as the
-  6.40--19.07 mV dominant burst layer. The implemented backward-Euler terminal
-  correction reuses the existing residual, is output-exact to four-pass, and
-  cuts 1.0/1.5 V burst RMS to 4.895/6.817 mV at 127 clocks. Seek further
-  contraction without consuming the final schedule clock; trapezoidal terminal
-  current-history commit remains open.
+  6.40--19.07 mV dominant burst layer. The implemented terminal correction
+  cuts 1.0/1.5 V burst RMS to 4.895/6.817 mV for backward Euler and
+  4.709/3.604 mV for trapezoidal at 127 clocks. Seek further contraction
+  without consuming the final schedule clock.
+- [ ] Prove 98.304 MHz named-part timing for the 127-clock trapezoidal terminal
+  stream. Generic synthesis fits XC7A100T structurally at 20,241 LC / 222 of
+  240 DSP48E1 / 8 RAMB18E1, but the parallel terminal-current path and one-clock
+  sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Implement trapezoidal terminal correction with exact corrected Q4.44
+  capacitor-current commit on the final chord edge. Match all state across
+  384,000 overload updates with zero diagnostics; reduce 1.0/1.5 V burst RMS
+  error to 4.709/3.604 mV; carry it through 64 complete-stream outputs; and
+  synthesize the 127-clock solver/stream to 14,945/20,241 LC, 174/222 DSP48E1,
+  and 8 RAMB18E1.
 - [x] Separate all 16 internal frequencies that fold to ±3 kHz in the captured
   complete-stream stress test. Prove the isolated 45 kHz third-harmonic output
   is exactly zero in Q8.24, capture the combined out-of-band projection exactly,

@@ -15,7 +15,6 @@ module v1_solver_mono_wide #(
     parameter bit TRAPEZOIDAL = 1'b0,
     // Reuse the final diagnostic residual for a fourth chord update.  The
     // reported residual remains the explicitly documented pre-update value.
-    // Trapezoidal history-current commit is not implemented for this mode.
     parameter bit TERMINAL_CORRECTION = 1'b0
 ) (
     input  logic                  clk,
@@ -65,8 +64,6 @@ module v1_solver_mono_wide #(
     logic signed [47:0] capacitor_current_state [0:9];
 
     initial begin
-        if (TRAPEZOIDAL && TERMINAL_CORRECTION)
-            $fatal(1, "terminal correction currently supports backward Euler only");
         $readmemh(NODE_INITIAL_FILE, node_initial);
         $readmemh(CAP_INITIAL_FILE, capacitor_initial);
         if (TRAPEZOIDAL)
@@ -275,6 +272,49 @@ module v1_solver_mono_wide #(
         end
     endfunction
 
+    // Match round_shift() in the bit-accurate model.  CAP_G_FILE is Q0.47,
+    // the voltage delta is Q30, and the committed current is Q4.44, hence a
+    // 33-bit right shift after adding a positive half-LSB bias.
+    function automatic logic signed [62:0] rounded_capacitor_current_q44(
+        input logic signed [91:0] product
+    );
+        logic signed [91:0] biased;
+        begin
+            biased = product + (92'sd1 <<< 32);
+            rounded_capacitor_current_q44 = 63'($signed(biased) >>> 33);
+        end
+    endfunction
+
+    function automatic logic signed [47:0] saturate_current_q44(
+        input logic signed [62:0] value
+    );
+        begin
+            if (value > 63'sd140737488355327)
+                saturate_current_q44 = 48'sh7fffffffffff;
+            else if (value < -63'sd140737488355328)
+                saturate_current_q44 = 48'sh800000000000;
+            else
+                saturate_current_q44 = value[47:0];
+        end
+    endfunction
+
+    function automatic logic current_exceeds_48(
+        input logic signed [62:0] value
+    );
+        begin
+            current_exceeds_48 = (value > 63'sd140737488355327)
+                                 || (value < -63'sd140737488355328);
+        end
+    endfunction
+
+    // The file-backed KCL engine must support selectable integration assets,
+    // but the terminal trapezoidal path is specific to the frozen 768 kHz V1
+    // model.  Emitting these coefficients as constants lets synthesis reduce
+    // ten simultaneous products instead of inferring full variable 48x44
+    // multipliers.  The generator also emits the matching .mem file used by
+    // the bit-accurate KCL engine and vectors.
+`include "model/generated/v1_cap_conductance_q0_47_trapezoidal.svh"
+
     logic [359:0] voltage_flat;
     logic [399:0] capacitor_flat;
     logic [479:0] capacitor_current_flat;
@@ -291,9 +331,15 @@ module v1_solver_mono_wide #(
     logic signed [41:0] terminal_capacitor_voltage_b [0:9];
     logic signed [42:0] terminal_capacitor_difference [0:9];
     logic [3:0] terminal_capacitor_saturation_count;
+    logic signed [43:0] terminal_current_voltage_delta [0:9];
+    logic signed [91:0] terminal_current_product [0:9];
+    logic signed [62:0] terminal_current_value [0:9];
+    logic signed [47:0] terminal_current_next [0:9];
+    logic [3:0] terminal_current_saturation_count;
     always_comb begin
         capacitor_saturation_count = '0;
         terminal_capacitor_saturation_count = '0;
+        terminal_current_saturation_count = '0;
         for (int lane = 0; lane < 9; lane = lane + 1) begin
             voltage_flat[lane * 40 +: 40] = node_voltage[lane];
             node_voltage_debug[lane * 40 +: 40] = node_voltage[lane];
@@ -346,6 +392,32 @@ module v1_solver_mono_wide #(
             if (exceeds_40(terminal_capacitor_difference[lane]))
                 terminal_capacitor_saturation_count =
                     terminal_capacitor_saturation_count + 1'b1;
+
+            // The terminal chord changes the committed branch voltage after
+            // the final KCL engine pass.  Trapezoidal mode must therefore
+            // recompute i[n] = G*(v[n]-v[n-1])-i[n-1] from that corrected,
+            // saturated voltage.  Ten parallel constant products keep this
+            // commit on the existing final WAIT_CHORD edge (127 clocks).
+            terminal_current_voltage_delta[lane] =
+                $signed({{4{terminal_capacitor_next[lane][39]}},
+                         terminal_capacitor_next[lane]})
+                - $signed({{4{capacitor_state[lane][39]}},
+                           capacitor_state[lane]});
+            terminal_current_product[lane] =
+                v1_terminal_cap_g_q47(lane)
+                * terminal_current_voltage_delta[lane];
+            terminal_current_value[lane] =
+                rounded_capacitor_current_q44(
+                    terminal_current_product[lane]
+                ) - $signed({{15{capacitor_current_state[lane][47]}},
+                             capacitor_current_state[lane]});
+            terminal_current_next[lane] = saturate_current_q44(
+                terminal_current_value[lane]
+            );
+            if (TRAPEZOIDAL
+                && current_exceeds_48(terminal_current_value[lane]))
+                terminal_current_saturation_count =
+                    terminal_current_saturation_count + 1'b1;
         end
     end
 
@@ -665,12 +737,20 @@ module v1_solver_mono_wide #(
                         if (final_pass) begin
                             saturation_count <= saturation_count
                                 + {28'd0, chord_saturation_count}
-                                + {28'd0, terminal_capacitor_saturation_count};
+                                + {28'd0, terminal_capacitor_saturation_count}
+                                + (TRAPEZOIDAL
+                                   ? {28'd0,
+                                      terminal_current_saturation_count}
+                                   : 32'd0);
                             for (lane = 0; lane < 9; lane = lane + 1)
                                 node_voltage[lane] <= corrected_node_voltage[lane];
-                            for (lane = 0; lane < 10; lane = lane + 1)
+                            for (lane = 0; lane < 10; lane = lane + 1) begin
                                 capacitor_state[lane] <=
                                     terminal_capacitor_next[lane];
+                                if (TRAPEZOIDAL)
+                                    capacitor_current_state[lane] <=
+                                        terminal_current_next[lane];
+                            end
                             output_q32 <= corrected_node_voltage[8];
                             sample_latency_cycles <= cycle_count + 1'b1;
                             output_valid <= 1'b1;

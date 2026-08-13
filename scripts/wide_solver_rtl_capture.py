@@ -57,9 +57,6 @@ def capture_wide_solver_rtl(
     samples = np.asarray(input_q24, dtype=np.int64)
     if samples.ndim != 1 or samples.size == 0:
         raise ValueError("input_q24 must be a non-empty one-dimensional array")
-    if trapezoidal and terminal_correction:
-        raise ValueError("terminal correction currently supports backward Euler only")
-
     tube = FixedFactorizedKoren12AX7()
     if banked:
         fixed = FixedWideStateBankedChordV1CircuitModel(

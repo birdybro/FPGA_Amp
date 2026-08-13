@@ -109,9 +109,6 @@ def compose_fixed_wide_stream(
 
     if terminal_correction and not banked:
         raise ValueError("terminal correction requires the banked chord solver")
-    if terminal_correction and trapezoidal:
-        raise ValueError("terminal correction currently supports backward Euler only")
-
     inputs = np.asarray(input_q24, dtype=np.int64)
     interpolated_q24, interpolation_saturations = interpolate_16x_fixed_q24(
         inputs

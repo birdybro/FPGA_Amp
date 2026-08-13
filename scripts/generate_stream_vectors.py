@@ -32,8 +32,6 @@ def main() -> int:
     parser.add_argument("--banked", action="store_true")
     parser.add_argument("--terminal-correction", action="store_true")
     args = parser.parse_args()
-    if args.trapezoidal and args.terminal_correction:
-        parser.error("terminal correction currently supports backward Euler only")
     if args.terminal_correction and not args.banked:
         parser.error("terminal correction requires --banked")
     if args.trapezoidal:
@@ -91,7 +89,9 @@ def main() -> int:
 
     vector_directory = REPOSITORY_ROOT / "sim" / "vectors" / "generated"
     vector_directory.mkdir(parents=True, exist_ok=True)
-    if args.trapezoidal and args.banked:
+    if args.trapezoidal and args.banked and args.terminal_correction:
+        vector_name = "phono_stream_mono_wide_factorized_trapezoidal_banked_terminal.txt"
+    elif args.trapezoidal and args.banked:
         vector_name = "phono_stream_mono_wide_factorized_trapezoidal_banked.txt"
     elif args.trapezoidal:
         vector_name = "phono_stream_mono_wide_factorized_trapezoidal.txt"
@@ -145,7 +145,9 @@ def main() -> int:
         "maximum_solver_residual_q44": model.max_residual_q44_observed,
         "output": str(vector_path.relative_to(REPOSITORY_ROOT)),
     }
-    if args.trapezoidal and args.banked:
+    if args.trapezoidal and args.banked and args.terminal_correction:
+        metadata_name = "phono_stream_wide_factorized_trapezoidal_banked_terminal_metadata.json"
+    elif args.trapezoidal and args.banked:
         metadata_name = "phono_stream_wide_factorized_trapezoidal_banked_metadata.json"
     elif args.trapezoidal:
         metadata_name = "phono_stream_wide_factorized_trapezoidal_metadata.json"

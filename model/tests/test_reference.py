@@ -181,13 +181,22 @@ class ResamplerTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "requires the banked"):
             compose_fixed_wide_stream(input_q24, terminal_correction=True)
-        with self.assertRaisesRegex(ValueError, "backward Euler"):
-            compose_fixed_wide_stream(
-                input_q24,
-                trapezoidal=True,
-                banked=True,
-                terminal_correction=True,
-            )
+        trapezoidal_terminal = compose_fixed_wide_stream(
+            input_q24,
+            trapezoidal=True,
+            banked=True,
+            terminal_correction=True,
+        )
+        self.assertEqual(trapezoidal_terminal.output_q24.size, input_q24.size)
+        self.assertEqual(sum(trapezoidal_terminal.diagnostic_counts.values()), 0)
+        self.assertEqual(
+            trapezoidal_terminal.circuit.integration_method, "trapezoidal"
+        )
+        self.assertTrue(trapezoidal_terminal.circuit.terminal_correction)
+        self.assertEqual(
+            sum(trapezoidal_terminal.circuit.chord_bank_selection_count),
+            16 * input_q24.size,
+        )
 
     def test_halfband_structure_and_image_rejection(self) -> None:
         for stage in DEFAULT_STAGES:

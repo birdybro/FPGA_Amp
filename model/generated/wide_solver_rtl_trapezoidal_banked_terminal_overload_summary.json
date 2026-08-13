@@ -1,0 +1,511 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "implementation": "captured SystemVerilog wide factorized trapezoidal banked terminal-correction solver",
+  "banked_chord": true,
+  "integration_method": "trapezoidal",
+  "terminal_correction": true,
+  "solver_latency_clocks": 127,
+  "residual_diagnostic_state": "preterminal_correction",
+  "sample_rate_hz": 768000.0,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_start_s": 0.01,
+    "burst_end_s": 0.015,
+    "duration_s": 0.1,
+    "post_burst_observation_s": 0.085,
+    "burst_levels_peak_v": [
+      0.02,
+      0.5,
+      1.0,
+      1.5
+    ],
+    "quantized_input": "Q8.24",
+    "harmonic_analysis_start_s": 0.012,
+    "harmonic_analysis_end_s": 0.015,
+    "harmonic_analysis_cycles": 3
+  },
+  "nominal_analytical_output_rms_v": 0.40088111498969,
+  "recovery_thresholds_v_rms": {
+    "ten_percent_nominal_output_rms": 0.040088111498969,
+    "one_percent_nominal_output_rms": 0.0040088111498969,
+    "one_millivolt_rms": 0.001
+  },
+  "recovery_definition": "last 1 ms sliding-RMS threshold crossing relative to a nominal undisturbed trajectory",
+  "harmonic_measurement_note": "coherent H1-H10 least-squares fit over the final three cycles of the five-cycle burst; includes the physical transient state and is not labeled settled continuous-drive THD",
+  "control_rtl_fixed_bit_exact": true,
+  "measurements": [
+    {
+      "burst_input_peak_v": 0.02,
+      "rtl_fixed_bit_exact": true,
+      "analytical": {
+        "burst_output": {
+          "positive_peak_v": 2.916025289562046,
+          "negative_peak_v": -2.146622247903768,
+          "peak_to_peak_v": 5.062647537465814,
+          "absolute_peak_asymmetry_db": 2.6607131998412203
+        },
+        "burst_harmonics": {
+          "mean_v": 0.21928564282824614,
+          "fundamental_peak_v": 2.283016485436055,
+          "fundamental_phase_deg": -48.11741853684968,
+          "harmonic_peak_v_h1_to_h10": [
+            2.283016485436055,
+            0.014786935829221047,
+            0.00874566026718218,
+            0.006566162836566882,
+            0.005252848972623395,
+            0.004377458365300343,
+            0.003752212940113029,
+            0.0032832956717308045,
+            0.002918613206712772,
+            0.0026268832836825965
+          ],
+          "harmonic_db_relative_to_h1": [
+            0.0,
+            -43.7726171865154,
+            -48.33432889422583,
+            -50.823947975030414,
+            -52.762282662831964,
+            -54.345740467349614,
+            -55.6844314129193,
+            -56.84398106682735,
+            -57.86665008359341,
+            -58.781365412634976
+          ],
+          "thd_percent_h2_to_h10": 0.9033000496212525
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          0.0
+        ],
+        "nonconvergence_count": 0,
+        "peak_post_burst_deviation_v": 1.1558110343686092,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": 0.00846484375,
+          "one_percent_nominal_output_rms": 0.014915364583333333,
+          "one_millivolt_rms": 0.01827734375
+        }
+      },
+      "captured_rtl": {
+        "burst_output": {
+          "positive_peak_v": 2.9157271231524646,
+          "negative_peak_v": -2.146892589284107,
+          "peak_to_peak_v": 5.062619712436572,
+          "absolute_peak_asymmetry_db": 2.6587311988369624
+        },
+        "burst_harmonics": {
+          "mean_v": 0.21901295713258873,
+          "fundamental_peak_v": 2.2829896724719636,
+          "fundamental_phase_deg": -48.11745956396003,
+          "harmonic_peak_v_h1_to_h10": [
+            2.2829896724719636,
+            0.014789745779416273,
+            0.008743962247801825,
+            0.006566280170245278,
+            0.005253590998288481,
+            0.004377238342891591,
+            0.0037528599248485795,
+            0.003282233102846968,
+            0.0029188336078560264,
+            0.0026271043619223683
+          ],
+          "harmonic_db_relative_to_h1": [
+            0.0,
+            -43.77086475798431,
+            -48.335913460212545,
+            -50.823690752076864,
+            -52.760953754802536,
+            -54.34607504133575,
+            -55.68283184337743,
+            -56.846690513095446,
+            -57.86589217492824,
+            -58.78053242745019
+          ],
+          "thd_percent_h2_to_h10": 0.903375597027794
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          0.0
+        ],
+        "peak_post_burst_deviation_v": 1.1557614936027676,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": 0.008463541666666666,
+          "one_percent_nominal_output_rms": 0.0149140625,
+          "one_millivolt_rms": 0.0182890625
+        },
+        "maximum_residual_a": 5.9916942518611904e-09,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "correction_scale_fallback_count": 0,
+        "minimum_correction_residual_fractional_bits": null
+      },
+      "rtl_vs_analytical": {
+        "burst_residual_rms_v": 0.0002761105334187055,
+        "burst_maximum_absolute_error_v": 0.00034896834266362475,
+        "harmonic_window_fundamental_gain_error_db": -0.00010201232276689515,
+        "harmonic_window_phase_error_deg": -4.102711035613993e-05,
+        "harmonic_window_thd_error_percentage_points": 7.554740654147629e-05,
+        "post_burst_residual_rms_v": 0.0002204319313685294,
+        "post_burst_residual_mean_v": -0.00021722814665154974,
+        "final_10ms_residual_rms_v": 0.0001679781523038891,
+        "maximum_post_burst_absolute_error_v": 0.00032530634361396804
+      }
+    },
+    {
+      "burst_input_peak_v": 0.5,
+      "rtl_fixed_bit_exact": true,
+      "analytical": {
+        "burst_output": {
+          "positive_peak_v": 71.18185720229413,
+          "negative_peak_v": -50.61018278226881,
+          "peak_to_peak_v": 121.79203998456293,
+          "absolute_peak_asymmetry_db": 2.9626281834877317
+        },
+        "burst_harmonics": {
+          "mean_v": 8.356982228409347,
+          "fundamental_peak_v": 55.375202607857815,
+          "fundamental_phase_deg": -48.04697474309312,
+          "harmonic_peak_v_h1_to_h10": [
+            55.375202607857815,
+            1.7718042764130206,
+            0.16577536583800076,
+            0.20169463824887932,
+            0.15750290684081464,
+            0.12842780031450782,
+            0.11068854026427885,
+            0.09675451263580331,
+            0.08599300858078983,
+            0.0773865408747944
+          ],
+          "harmonic_db_relative_to_h1": [
+            0.0,
+            -29.897991653585542,
+            -50.47590666479966,
+            -48.77241949887723,
+            -50.920535095820824,
+            -52.693125682595436,
+            -53.9842533626738,
+            -55.15288197114293,
+            -56.17704369298184,
+            -57.09299787620874
+          ],
+          "thd_percent_h2_to_h10": 3.2724252567547554
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          0.0
+        ],
+        "nonconvergence_count": 0,
+        "peak_post_burst_deviation_v": 35.982088504547896,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        }
+      },
+      "captured_rtl": {
+        "burst_output": {
+          "positive_peak_v": 71.18027814477682,
+          "negative_peak_v": -50.610095645766705,
+          "peak_to_peak_v": 121.79037379054353,
+          "absolute_peak_asymmetry_db": 2.962450453225889
+        },
+        "burst_harmonics": {
+          "mean_v": 8.356505098922671,
+          "fundamental_peak_v": 55.374540875118086,
+          "fundamental_phase_deg": -48.04660990673932,
+          "harmonic_peak_v_h1_to_h10": [
+            55.374540875118086,
+            1.7719743503905752,
+            0.16529865162143986,
+            0.20198711491712676,
+            0.15735714392579553,
+            0.12844360613384173,
+            0.11069234272567637,
+            0.0967517015201106,
+            0.0859927289440035,
+            0.07738611448785081
+          ],
+          "harmonic_db_relative_to_h1": [
+            0.0,
+            -29.89705414562355,
+            -50.50081654897788,
+            -48.759729448188594,
+            -50.928473479486996,
+            -52.69195296487861,
+            -53.98385118630529,
+            -55.153030538696484,
+            -56.17696814142528,
+            -57.092941937289716
+          ],
+          "thd_percent_h2_to_h10": 3.272724103127331
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          0.0
+        ],
+        "peak_post_burst_deviation_v": 35.98177178623155,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        },
+        "maximum_residual_a": 3.2138018468685914e-07,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "correction_scale_fallback_count": 0,
+        "minimum_correction_residual_fractional_bits": null
+      },
+      "rtl_vs_analytical": {
+        "burst_residual_rms_v": 0.0012100486823638336,
+        "burst_maximum_absolute_error_v": 0.005116938974239815,
+        "harmonic_window_fundamental_gain_error_db": -0.00010379685526086746,
+        "harmonic_window_phase_error_deg": 0.000364836353803355,
+        "harmonic_window_thd_error_percentage_points": 0.00029884637257548974,
+        "post_burst_residual_rms_v": 0.00019859549536338627,
+        "post_burst_residual_mean_v": -0.00019406297428794148,
+        "final_10ms_residual_rms_v": 0.00013256460213204835,
+        "maximum_post_burst_absolute_error_v": 0.0003021289169140573
+      }
+    },
+    {
+      "burst_input_peak_v": 1.0,
+      "rtl_fixed_bit_exact": true,
+      "analytical": {
+        "burst_output": {
+          "positive_peak_v": 101.98633350678111,
+          "negative_peak_v": -94.61857568924185,
+          "peak_to_peak_v": 196.60490919602296,
+          "absolute_peak_asymmetry_db": 0.6513114514196185
+        },
+        "burst_harmonics": {
+          "mean_v": 15.417467560243944,
+          "fundamental_peak_v": 98.89154117597313,
+          "fundamental_phase_deg": -48.17994057042213,
+          "harmonic_peak_v_h1_to_h10": [
+            98.89154117597313,
+            10.333240839807933,
+            2.984838218001943,
+            0.9198409853111951,
+            0.36931170974689653,
+            0.24351629254041052,
+            0.1512039046302533,
+            0.17619241933815669,
+            0.15088059754603905,
+            0.12943093346765774
+          ],
+          "harmonic_db_relative_to_h1": [
+            0.0,
+            -19.61845186953196,
+            -30.40476696831022,
+            -40.62892777404101,
+            -48.555321343766536,
+            -52.17262244134077,
+            -56.31192277699392,
+            -54.983438524200714,
+            -56.33051499675147,
+            -57.662421237076664
+          ],
+          "thd_percent_h2_to_h10": 10.929495169105747
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          6.402954766612786e-08
+        ],
+        "nonconvergence_count": 0,
+        "peak_post_burst_deviation_v": 66.44401925859611,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        }
+      },
+      "captured_rtl": {
+        "burst_output": {
+          "positive_peak_v": 101.98149538785219,
+          "negative_peak_v": -94.61812251107767,
+          "peak_to_peak_v": 196.59961789892986,
+          "absolute_peak_asymmetry_db": 0.650940994039597
+        },
+        "burst_harmonics": {
+          "mean_v": 15.416329717087223,
+          "fundamental_peak_v": 98.88949658796633,
+          "fundamental_phase_deg": -48.178616338311926,
+          "harmonic_peak_v_h1_to_h10": [
+            98.88949658796633,
+            10.334151319011921,
+            2.9852627505365206,
+            0.9192587615678978,
+            0.3699485497383015,
+            0.24395015429026243,
+            0.15201570185139826,
+            0.17575511021782916,
+            0.14976949417512908,
+            0.1302019043386708
+          ],
+          "harmonic_db_relative_to_h1": [
+            0.0,
+            -19.617506991825714,
+            -30.403352081899953,
+            -40.63424776360741,
+            -48.54017673805316,
+            -52.15698137859809,
+            -56.26523434177881,
+            -55.004844094528345,
+            -56.39453606058224,
+            -57.61065659532925
+          ],
+          "thd_percent_h2_to_h10": 10.930699811526718
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          6.426125764846802e-08
+        ],
+        "peak_post_burst_deviation_v": 66.44309095293283,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        },
+        "maximum_residual_a": 1.767239098171558e-06,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "correction_scale_fallback_count": 0,
+        "minimum_correction_residual_fractional_bits": null
+      },
+      "rtl_vs_analytical": {
+        "burst_residual_rms_v": 0.004708913462304587,
+        "burst_maximum_absolute_error_v": 0.031269546687241245,
+        "harmonic_window_fundamental_gain_error_db": -0.00017958309839740582,
+        "harmonic_window_phase_error_deg": 0.0013242321102069354,
+        "harmonic_window_thd_error_percentage_points": 0.0012046424209710693,
+        "post_burst_residual_rms_v": 7.022242178747736e-05,
+        "post_burst_residual_mean_v": -5.7108819899285024e-05,
+        "final_10ms_residual_rms_v": 3.6348301783756023e-05,
+        "maximum_post_burst_absolute_error_v": 0.0006824689835553954
+      }
+    },
+    {
+      "burst_input_peak_v": 1.5,
+      "rtl_fixed_bit_exact": true,
+      "analytical": {
+        "burst_output": {
+          "positive_peak_v": 102.52258378752212,
+          "negative_peak_v": -109.14470638093138,
+          "peak_to_peak_v": 211.66729016845352,
+          "absolute_peak_asymmetry_db": -0.5436626815233385
+        },
+        "burst_harmonics": {
+          "mean_v": 20.719926789966056,
+          "fundamental_peak_v": 113.07196971701292,
+          "fundamental_phase_deg": -47.849584121429615,
+          "harmonic_peak_v_h1_to_h10": [
+            113.07196971701292,
+            27.116839160603913,
+            8.186133021269203,
+            2.5393161524718537,
+            1.4272331701727523,
+            1.203183294047773,
+            0.7867475845668437,
+            0.2151186129157878,
+            0.27627891545728556,
+            0.17329557242457808
+          ],
+          "harmonic_db_relative_to_h1": [
+            0.0,
+            -12.402317849777626,
+            -22.80552320371539,
+            -32.97276364906089,
+            -37.977200542339716,
+            -39.46046328915435,
+            -43.150390788392926,
+            -54.413539375260825,
+            -52.24014430317405,
+            -56.29134981418325
+          ],
+          "thd_percent_h2_to_h10": 25.217442005470748
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          2.6403456354011517e-05
+        ],
+        "nonconvergence_count": 0,
+        "peak_post_burst_deviation_v": 73.10011889744999,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        }
+      },
+      "captured_rtl": {
+        "burst_output": {
+          "positive_peak_v": 102.51880548126064,
+          "negative_peak_v": -109.14446685719304,
+          "peak_to_peak_v": 211.66327233845368,
+          "absolute_peak_asymmetry_db": -0.5439637303693781
+        },
+        "burst_harmonics": {
+          "mean_v": 20.71705839645934,
+          "fundamental_peak_v": 113.07128439120154,
+          "fundamental_phase_deg": -47.84911091906655,
+          "harmonic_peak_v_h1_to_h10": [
+            113.07128439120154,
+            27.116735930815462,
+            8.185611752975493,
+            2.5397855074811164,
+            1.4273475910754745,
+            1.2025736353749388,
+            0.7867398535481005,
+            0.2153320561656258,
+            0.27632961388797933,
+            0.17303008816780768
+          ],
+          "harmonic_db_relative_to_h1": [
+            0.0,
+            -12.402298270659639,
+            -22.80602366753982,
+            -32.97110569418986,
+            -37.97645157971902,
+            -39.46481294091732,
+            -43.15042349611253,
+            -54.40487275977135,
+            -52.238497904286476,
+            -56.3046139265358
+          ],
+          "thd_percent_h2_to_h10": 25.21739521099636
+        },
+        "maximum_grid_current_a": [
+          0.0,
+          2.6381108909845352e-05
+        ],
+        "peak_post_burst_deviation_v": 73.10251152259298,
+        "recovery_s": {
+          "ten_percent_nominal_output_rms": null,
+          "one_percent_nominal_output_rms": null,
+          "one_millivolt_rms": null
+        },
+        "maximum_residual_a": 1.7060969526028202e-06,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0,
+        "correction_scale_fallback_count": 0,
+        "minimum_correction_residual_fractional_bits": null
+      },
+      "rtl_vs_analytical": {
+        "burst_residual_rms_v": 0.0036038886140944016,
+        "burst_maximum_absolute_error_v": 0.018903509622880676,
+        "harmonic_window_fundamental_gain_error_db": -5.264507568187163e-05,
+        "harmonic_window_phase_error_deg": 0.000473202363068026,
+        "harmonic_window_thd_error_percentage_points": -4.6794474386047114e-05,
+        "post_burst_residual_rms_v": 0.0008273251811531069,
+        "post_burst_residual_mean_v": -0.0007650851652443679,
+        "final_10ms_residual_rms_v": 0.00046061802379914824,
+        "maximum_post_burst_absolute_error_v": 0.002840014711765093
+      }
+    }
+  ]
+}

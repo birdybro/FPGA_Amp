@@ -93,6 +93,7 @@ or block RAM; measured structural resources are:
 | backward Euler, banked | 13,302 | 120 | 8 | +758 |
 | backward Euler, banked terminal correction | 13,296 | 120 | 8 | +752 |
 | trapezoidal, banked | 13,840 | 120 | 8 | +1,054 |
+| trapezoidal, banked terminal correction | 14,945 | 174 | 8 | +2,159 |
 
 Both checks report zero structural problems and 61 primitive-resize warnings.
 The selector includes a previous-Vgk slew comparison but adds no DSP or RAM.
@@ -102,6 +103,14 @@ optimization artifact, not an architectural saving. It measures 127 clocks and
 therefore has only one scheduling clock of margin before place-and-route.
 Full-Newton waveform error remains reported separately; no Fmax claim is
 inferred from Yosys.
+
+Trapezoidal terminal correction also updates ten Q4.44 companion-current
+histories after the final chord. A first parallel version inferred ten full
+48×44 variable multipliers and measured 210 DSP48E1s for the solver. The
+reproducible conductance generator now emits the frozen V1 coefficients as
+signed constants; bit-exact regression is unchanged and synthesis falls to 174
+DSP48E1s. This is an accepted constant-multiplier implementation, not a change
+to circuit values or numerical behavior.
 
 The complete wide stream measures 17,492 logic cells, 168 DSP48E1s, and 8
 RAMB18E1s, with zero structural check problems and 67 techmap resize warnings.
@@ -119,6 +128,13 @@ RAM. Its 127-clock solver latency leaves one clock between 768 kHz deadlines at
 98.304 MHz. This structural fit does not establish that the one-clock margin
 will close routing on XC7A100T; vendor place-and-route is required before this
 mode can be selected for hardware.
+
+The complete trapezoidal banked terminal stream measures 20,241 logic cells,
+222 DSP48E1s, and 8 RAMB18E1s with zero structural check problems. It occupies
+92.5% of the XC7A100T's DSPs, leaving 18 blocks and ruling out duplication for
+stereo. Its exact simulation latency is 127 clocks, but the terminal edge now
+contains constant-multiply current updates. Only named-part place-and-route can
+establish whether that path and the one-clock sample margin meet 98.304 MHz.
 
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.

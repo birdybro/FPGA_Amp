@@ -83,6 +83,7 @@ def harmonic_metrics(
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
+    parser.add_argument("--trapezoidal", action="store_true")
     parser.add_argument("--banked", action="store_true")
     parser.add_argument("--terminal-correction", action="store_true")
     args = parser.parse_args()
@@ -97,19 +98,29 @@ def main() -> int:
 
     control_q24 = input_trajectory_q24(NOMINAL_PEAK_V)
     control_stimulus = control_q24.astype(np.float64) / float(1 << 24)
-    analytical_control, _, _ = run_analytical(control_stimulus)
+    integration_method = "trapezoidal" if args.trapezoidal else "backward_euler"
+    analytical_control, _, _ = run_analytical(
+        control_stimulus, integration_method=integration_method
+    )
     control_capture = capture_wide_solver_rtl(
         control_q24,
         (
-            "wide_solver_rtl_banked_terminal_overload_control"
+            "wide_solver_rtl"
+            + ("_trapezoidal" if args.trapezoidal else "")
+            + "_banked_terminal_overload_control"
             if args.terminal_correction
             else (
-                "wide_solver_rtl_banked_overload_control"
+                "wide_solver_rtl"
+                + ("_trapezoidal" if args.trapezoidal else "")
+                + "_banked_overload_control"
                 if args.banked
-                else "wide_solver_rtl_overload_control"
+                else "wide_solver_rtl"
+                + ("_trapezoidal" if args.trapezoidal else "")
+                + "_overload_control"
             )
         ),
         args.verilator,
+        trapezoidal=args.trapezoidal,
         banked=args.banked,
         terminal_correction=args.terminal_correction,
     )
@@ -127,16 +138,20 @@ def main() -> int:
     for level_peak_v in LEVELS_PEAK_V:
         input_q24 = input_trajectory_q24(level_peak_v)
         stimulus = input_q24.astype(np.float64) / float(1 << 24)
-        analytical, analytical_grid, analytical_failures = run_analytical(stimulus)
+        analytical, analytical_grid, analytical_failures = run_analytical(
+            stimulus, integration_method=integration_method
+        )
         capture = capture_wide_solver_rtl(
             input_q24,
             (
                 "wide_solver_rtl"
+                + ("_trapezoidal" if args.trapezoidal else "")
                 + ("_banked" if args.banked else "")
                 + ("_terminal" if args.terminal_correction else "")
                 + f"_overload_{level_tag(level_peak_v)}v"
             ),
             args.verilator,
+            trapezoidal=args.trapezoidal,
             banked=args.banked,
             terminal_correction=args.terminal_correction,
         )
@@ -241,11 +256,13 @@ def main() -> int:
         "model": "12ax7_passive_riaa_v1",
         "implementation": (
             "captured SystemVerilog wide factorized"
+            + (" trapezoidal" if args.trapezoidal else " backward-Euler")
             + (" banked" if args.banked else "")
             + (" terminal-correction" if args.terminal_correction else "")
             + " solver"
         ),
         "banked_chord": args.banked,
+        "integration_method": integration_method,
         "terminal_correction": args.terminal_correction,
         "solver_latency_clocks": 127 if args.terminal_correction else 116,
         "residual_diagnostic_state": (
@@ -318,6 +335,8 @@ def main() -> int:
             raise RuntimeError("expected characterized 1.5 V range clips and fallbacks")
 
     result_stem = "wide_solver_rtl"
+    if args.trapezoidal:
+        result_stem += "_trapezoidal"
     if args.banked:
         result_stem += "_banked"
     if args.terminal_correction:

@@ -6,6 +6,15 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added exact trapezoidal terminal correction. Ten corrected Q4.44 capacitor
+  current histories commit on the existing final chord edge, remain full-state
+  bit-exact across 384,000 overload updates, and retain the 127-clock schedule.
+  Generated constant conductances reduce the measured solver from a rejected
+  210-DSP first implementation to 174 DSP48E1s.
+- Integrated that solver into the complete 48→768→48 kHz stream. All 64 Q8.24
+  outputs / 1,024 internal updates are exact with zero diagnostics; structural
+  synthesis measures 20,241 logic cells, 222 DSP48E1s, and 8 RAMB18E1s. Named-
+  part timing remains unproven.
 - Added a phase-coherent complete-stream alias-family decomposition covering all
   16 internal frequencies that fold to ±3 kHz. The combined out-of-band
   projection is captured bit-exactly in RTL; the 45 kHz fold is exactly zero in
@@ -26,7 +35,7 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added an optional backward-Euler terminal-correction contract that reuses the
   final diagnostic residual for one Q40 chord update. Fixed Python and RTL keep
   the preterminal residual semantics explicit, commit four-pass-exact persistent
-  state, and reject the unsupported trapezoidal hardware combination.
+  state, and preserve a distinct integration-mode selection.
 - Added exact sequential and 1.0/1.5 V overload RTL regressions for the terminal
   path, plus a dedicated synthesis wrapper and reproducible Make targets.
 - Added a full 100 ms banked correction-count study for both integrators at

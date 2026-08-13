@@ -24,8 +24,6 @@ def main() -> int:
     parser.add_argument("--banked", action="store_true")
     parser.add_argument("--terminal-correction", action="store_true")
     args = parser.parse_args()
-    if args.trapezoidal and args.terminal_correction:
-        parser.error("terminal correction currently supports backward Euler only")
     verilator = shutil.which(args.verilator)
     if verilator is None:
         print("ERROR: verilator unavailable", file=sys.stderr)
@@ -59,14 +57,16 @@ def main() -> int:
         "rtl/phono/v1_solver_mono_wide.sv",
         "sim/integration/v1_solver_mono_wide_tb.sv",
     ]
-    if args.trapezoidal:
+    if args.trapezoidal and not args.terminal_correction:
         sources.append("sim/integration/v1_solver_mono_wide_trapezoidal_tb.sv")
     top = (
         "v1_solver_mono_wide_trapezoidal_tb"
-        if args.trapezoidal
+        if args.trapezoidal and not args.terminal_correction
         else "v1_solver_mono_wide_tb"
     )
     parameter_args = ["-GBANKED=1"] if args.banked else []
+    if args.trapezoidal and args.terminal_correction:
+        parameter_args.append("-GTRAPEZOIDAL=1")
     if args.terminal_correction:
         parameter_args.append("-GTERMINAL_CORRECTION=1")
     subprocess.run(

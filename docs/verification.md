@@ -109,8 +109,11 @@ scripts/run_synthesis.py            XC7 structural resource report
 | backward-Euler terminal correction RTL | 512 sequential plus 18,432 overload updates | every state/diagnostic exact, constant 127 clocks, zero events; output-exact to four-pass |
 | backward-Euler terminal correction synthesis | Yosys 0.66 structural | 13,296 LC, 120 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | captured banked terminal RTL overload | 384,000 updates; 20 mV/0.5/1.0/1.5 V bursts | full state exact, zero diagnostics; burst RMS error 0.288/1.237/4.895/6.817 mV; H2--H10 ratio error <=0.00122 percentage points |
+| captured trapezoidal banked terminal overload | 384,000 updates; 20 mV/0.5/1.0/1.5 V bursts | full state/current history exact, zero diagnostics; burst RMS error 0.276/1.210/4.709/3.604 mV |
 | banked terminal 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 127-clock solver |
 | banked terminal stream synthesis | Yosys 0.66 structural | 18,466 LC, 168 DSP48E1, 8 RAMB18E1; no Fmax claim |
+| trapezoidal banked terminal solver synthesis | Yosys 0.66 structural | 14,945 LC, 174 DSP48E1, 8 RAMB18E1; no Fmax claim |
+| trapezoidal banked terminal stream | 64 outputs / 1,024 circuit samples plus synthesis | bit-exact, zero diagnostics, 127 clocks; 20,241 LC / 222 DSP48E1 / 8 RAMB18E1; no Fmax claim |
 | trapezoidal 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 116-clock solver |
 | trapezoidal stream synthesis | Yosys 0.66 structural | 17,735 LC, 168 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | wide factorized solver RTL vs fixed | 512 sequential samples | bit-exact all 19 states and diagnostics, latency 116, zero events |

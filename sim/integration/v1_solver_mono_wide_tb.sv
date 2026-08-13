@@ -80,7 +80,11 @@ module v1_solver_mono_wide_tb #(
         clk = 1'b0;
         input_q24 = '0;
         if (!$value$plusargs("VECTORS=%s", vector_path)) begin
-            if (TRAPEZOIDAL && BANKED)
+            if (TRAPEZOIDAL && BANKED && TERMINAL_CORRECTION)
+                vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_trapezoidal_banked_terminal.txt";
+            else if (TRAPEZOIDAL && TERMINAL_CORRECTION)
+                vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_trapezoidal_terminal.txt";
+            else if (TRAPEZOIDAL && BANKED)
                 vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_trapezoidal_banked.txt";
             else if (TRAPEZOIDAL)
                 vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_trapezoidal.txt";

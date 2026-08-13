@@ -19,6 +19,7 @@
   "latency_clocks": 10,
   "outputs": [
     "model/generated/v1_cap_conductance_q0_47_trapezoidal.mem",
+    "model/generated/v1_cap_conductance_q0_47_trapezoidal.svh",
     "model/generated/v1_cap_current_initial_q4_44_trapezoidal.mem",
     "sim/vectors/generated/network_kcl_wide_trapezoidal.txt"
   ]

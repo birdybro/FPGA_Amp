@@ -454,6 +454,16 @@ residual. Structural synthesis measures 17,735 logic cells, 168 DSP48E1s, and
 8 RAMB18E1s, versus 17,492 / 168 / 8 for backward Euler. The 243-cell delta is
 measured; timing closure remains unproven.
 
+The optional terminal chord now supports trapezoidal state without a serialized
+history pass. On the final chord-valid edge, RTL derives each saturated Q30
+branch voltage, evaluates `G*(v[n]-v[n-1])-i[n-1]` in Q4.44 with the same
+positive-half-LSB rounding as fixed Python, and saturates ten signed 48-bit
+histories. All 512 nominal samples and 384,000 overload updates match every
+fixed node and capacitor state at 127 clocks. Generated frozen-V1 conductance
+constants let Yosys reduce the parallel products; the solver measures 14,945
+logic cells / 174 DSP48E1s / 8 RAMB18E1s, and the complete stream measures
+20,241 / 222 / 8. No timing result is inferred from those structural counts.
+
 The overload gate passes only through the measured 0.5 V level. At 20 mV, the
 candidate matches analytical 10%/1% recovery within about 0.002/0.000 ms and
 reduces post-burst fixed/analytical RMS from 5.80 mV legacy to 0.258 mV. At

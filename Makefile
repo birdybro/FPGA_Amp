@@ -2,7 +2,7 @@ PYTHON ?= python3
 NGSPICE ?= ngspice
 VERILATOR ?= verilator
 
-.PHONY: all reference analysis arithmetic-bounds accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide factorized-frequency-trapezoidal factorized-domain state-drift state-wide state-wide-audio linear-modes wide-rtl-audio wide-rtl-frequency trapezoidal-rtl-frequency trapezoidal-rtl-recovery wide-rtl-overload terminal-banked-rtl-metrics banked-rtl-overload terminal-banked-rtl-overload banked-accuracy banked-selector banked-threshold banked-slew-selector banked-error-decomposition banked-iterations grid-current-resolution wide-stream-rtl-frequency trapezoidal-stream-rtl-frequency wide-stream-rtl-alias spice-python-frequency overload-study overload-wide overload-trapezoidal overload-long overload-severe-long overload-seven-second overload-iterations overload-banked trapezoidal-overload precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl guarded-stream-rtl mute-rtl lint synth synth-factorized synth-chord synth-wide-chord synth-network synth-wide-network synth-solver synth-solver-factorized synth-wide-solver synth-trapezoidal-solver synth-banked-solver synth-terminal-banked-solver synth-trapezoidal-banked-solver synth-halfband synth-stream synth-stream-factorized synth-stream-wide synth-stream-terminal-banked synth-stream-trapezoidal synth-stream-guarded synth-mute clean tools
+.PHONY: all reference analysis arithmetic-bounds accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide factorized-frequency-trapezoidal factorized-domain state-drift state-wide state-wide-audio linear-modes wide-rtl-audio wide-rtl-frequency trapezoidal-rtl-frequency trapezoidal-rtl-recovery wide-rtl-overload terminal-banked-rtl-metrics trapezoidal-terminal-banked-rtl-metrics banked-rtl-overload terminal-banked-rtl-overload banked-accuracy banked-selector banked-threshold banked-slew-selector banked-error-decomposition banked-iterations grid-current-resolution wide-stream-rtl-frequency trapezoidal-stream-rtl-frequency wide-stream-rtl-alias spice-python-frequency overload-study overload-wide overload-trapezoidal overload-long overload-severe-long overload-seven-second overload-iterations overload-banked trapezoidal-overload precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-terminal-banked-solver-rtl trapezoidal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl stream-trapezoidal-terminal-banked-rtl guarded-stream-rtl mute-rtl lint synth synth-factorized synth-chord synth-wide-chord synth-network synth-wide-network synth-solver synth-solver-factorized synth-wide-solver synth-trapezoidal-solver synth-banked-solver synth-terminal-banked-solver synth-trapezoidal-terminal-banked-solver synth-trapezoidal-banked-solver synth-halfband synth-stream synth-stream-factorized synth-stream-wide synth-stream-terminal-banked synth-stream-trapezoidal synth-stream-trapezoidal-terminal-banked synth-stream-guarded synth-mute clean tools
 
 all: reference test
 
@@ -65,6 +65,9 @@ wide-rtl-overload:
 
 terminal-banked-rtl-metrics:
 	$(PYTHON) scripts/characterize_wide_solver_rtl_overload.py --verilator $(VERILATOR) --banked --terminal-correction
+
+trapezoidal-terminal-banked-rtl-metrics:
+	$(PYTHON) scripts/characterize_wide_solver_rtl_overload.py --verilator $(VERILATOR) --trapezoidal --banked --terminal-correction
 
 banked-rtl-overload:
 	$(PYTHON) scripts/verify_banked_solver_rtl_overload.py --verilator $(VERILATOR)
@@ -208,6 +211,9 @@ stream-terminal-banked-rtl:
 stream-trapezoidal-rtl:
 	$(PYTHON) scripts/run_wide_stream_rtl.py --verilator $(VERILATOR) --trapezoidal
 
+stream-trapezoidal-terminal-banked-rtl:
+	$(PYTHON) scripts/run_wide_stream_rtl.py --verilator $(VERILATOR) --trapezoidal --banked --terminal-correction
+
 guarded-stream-rtl:
 	$(PYTHON) scripts/run_guarded_stream_rtl.py --verilator $(VERILATOR)
 
@@ -288,6 +294,14 @@ synth-trapezoidal-banked-solver:
 	$(PYTHON) scripts/generate_factorized_tube.py
 	$(PYTHON) scripts/run_synthesis.py --top v1_solver_mono_wide_trapezoidal_banked
 
+synth-trapezoidal-terminal-banked-solver:
+	$(PYTHON) scripts/generate_wide_network_vectors.py
+	$(PYTHON) scripts/generate_trapezoidal_network_vectors.py
+	$(PYTHON) scripts/generate_wide_chord_vectors.py --trapezoidal --banked
+	$(PYTHON) scripts/generate_factorized_tube.py
+	$(PYTHON) scripts/generate_wide_solver_vectors.py --trapezoidal --banked --terminal-correction
+	$(PYTHON) scripts/run_synthesis.py --top v1_solver_mono_wide_trapezoidal_banked_terminal
+
 synth-halfband:
 	$(PYTHON) scripts/generate_halfband_rtl_vectors.py
 	$(PYTHON) scripts/run_synthesis.py --top interpolator_16x
@@ -335,6 +349,16 @@ synth-stream-trapezoidal:
 	$(PYTHON) scripts/generate_stream_vectors.py --wide --trapezoidal
 	$(PYTHON) scripts/run_synthesis.py --top phono_stream_mono_wide_trapezoidal
 
+synth-stream-trapezoidal-terminal-banked:
+	$(PYTHON) scripts/generate_wide_network_vectors.py
+	$(PYTHON) scripts/generate_trapezoidal_network_vectors.py
+	$(PYTHON) scripts/generate_wide_chord_vectors.py --trapezoidal --banked
+	$(PYTHON) scripts/generate_factorized_tube.py
+	$(PYTHON) scripts/generate_wide_solver_vectors.py --trapezoidal --banked --terminal-correction
+	$(PYTHON) scripts/generate_halfband_rtl_vectors.py
+	$(PYTHON) scripts/generate_stream_vectors.py --wide --trapezoidal --banked --terminal-correction
+	$(PYTHON) scripts/run_synthesis.py --top phono_stream_mono_wide_trapezoidal_banked_terminal
+
 synth-stream-guarded:
 	$(PYTHON) scripts/generate_wide_network_vectors.py
 	$(PYTHON) scripts/generate_wide_chord_vectors.py
@@ -348,7 +372,7 @@ synth-mute:
 python-test:
 	$(PYTHON) -m unittest discover -s model/tests -v
 
-test: python-test arithmetic-bounds rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl guarded-stream-rtl mute-rtl
+test: python-test arithmetic-bounds rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-banked-solver-rtl trapezoidal-terminal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl stream-trapezoidal-terminal-banked-rtl guarded-stream-rtl mute-rtl
 
 tools:
 	bash scripts/bootstrap_tools.sh

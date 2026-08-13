@@ -29,8 +29,6 @@ def main() -> int:
         help="reuse an already built simulator for another vector file",
     )
     args = parser.parse_args()
-    if args.trapezoidal and args.terminal_correction:
-        parser.error("terminal correction currently supports backward Euler only")
     if args.terminal_correction and not args.banked:
         parser.error("terminal correction requires --banked")
     verilator = shutil.which(args.verilator)

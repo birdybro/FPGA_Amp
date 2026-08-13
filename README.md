@@ -150,6 +150,14 @@ The mono reference and complete 768 kHz circuit solver are operating:
   4.895, and 6.817 mV; harmonic-window phase error stays within 0.00221° and
   H2--H10 ratio within 0.00122 percentage points. This transient-window
   spectral fit is not mislabeled as settled continuous-drive THD.
+- Trapezoidal terminal correction now recomputes all ten Q4.44 companion-current
+  histories from the corrected, saturated branch voltages on that same final
+  edge. A second 384,000-update campaign is full-state exact and diagnostic-
+  clean; burst RMS error versus floating trapezoidal is 0.276, 1.210, 4.709,
+  and 3.604 mV. Its 64-output complete stream is exact at 127 clocks. Generated
+  constant multipliers reduce the solver to 14,945 logic cells / 174 DSPs; the
+  full stream measures 20,241 / 222 / 8 RAMB18E1s. This fits the provisional
+  A7-100T structurally with 18 DSPs free, but timing is not claimed.
 - Moving only the shallow trapezoidal threshold from -2.50 to -2.75 V prevents
   bank activation at 0.5 V, preserves zero 1.0 V failures, and reduces final
   10 ms mean error from 1.042 to 0.537 mV with the former 128-point grid-current
@@ -422,6 +430,7 @@ make trapezoidal-solver-rtl        # exact selectable integration-mode solver
 make banked-solver-rtl             # exact four-bank cutoff solver
 make terminal-banked-solver-rtl    # exact 127-clock terminal correction
 make trapezoidal-banked-solver-rtl # exact five-bank cutoff solver
+make trapezoidal-terminal-banked-solver-rtl # exact terminal current commit
 make banked-rtl-overload           # 1.0/1.5 V full-state bank-selection gate
 make terminal-banked-rtl-overload  # terminal full-state overload gate
 make banked-accuracy               # 100 ms banked/full-Newton waveform gate
@@ -433,6 +442,7 @@ make stream-factorized-rtl         # complete smooth-tube reference stream
 make stream-wide-rtl               # complete wide-state reference stream
 make stream-terminal-banked-rtl    # complete banked terminal-correction stream
 make stream-trapezoidal-rtl        # complete trapezoidal reference stream
+make stream-trapezoidal-terminal-banked-rtl # 127-clock trap terminal stream
 make guarded-stream-rtl            # mute/reset/warmup model-change sequence
 make mute-rtl                      # reset/ramp/fault output safety primitive
 make synth                         # generic XC7 structural estimate
@@ -447,7 +457,9 @@ make synth-trapezoidal-solver      # trapezoidal hierarchy estimate
 make synth-banked-solver           # backward-Euler banked hierarchy estimate
 make synth-terminal-banked-solver  # terminal-correction hierarchy estimate
 make synth-trapezoidal-banked-solver # trapezoidal banked hierarchy estimate
+make synth-trapezoidal-terminal-banked-solver # terminal-current hierarchy
 make synth-stream-wide             # complete wide-state stream estimate
+make synth-stream-trapezoidal-terminal-banked # accuracy-first mono stream
 make synth-stream-terminal-banked  # complete terminal-correction stream estimate
 make synth-stream-trapezoidal      # complete trapezoidal stream estimate
 make synth-stream-guarded          # wide stream plus safety/control guard

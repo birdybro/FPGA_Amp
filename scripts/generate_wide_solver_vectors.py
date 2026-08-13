@@ -30,8 +30,6 @@ def main() -> int:
     parser.add_argument("--banked", action="store_true")
     parser.add_argument("--terminal-correction", action="store_true")
     args = parser.parse_args()
-    if args.trapezoidal and args.terminal_correction:
-        parser.error("terminal correction currently supports backward Euler only")
     if args.banked:
         model = FixedWideStateBankedChordV1CircuitModel(
             tube_lut=FixedFactorizedKoren12AX7(),
@@ -114,7 +112,11 @@ def main() -> int:
     report = {
         "model": "12ax7_passive_riaa_v1",
         "algorithm": (
-            "wide trapezoidal Q30-voltage/Q4.44-current state, three adaptive Q30/Q34/Q40 chord corrections"
+            (
+                "wide trapezoidal Q30-voltage/Q4.44-current state, three adaptive Q30/Q34/Q40 chord corrections plus terminal Q40 correction with corrected current-history commit and preterminal residual diagnostic"
+                if args.terminal_correction
+                else "wide trapezoidal Q30-voltage/Q4.44-current state, three adaptive Q30/Q34/Q40 chord corrections"
+            )
             if args.trapezoidal
             else (
                 "wide branch-current state, three adaptive Q30/Q34/Q40 chord corrections plus terminal Q40 correction with preterminal residual diagnostic"
