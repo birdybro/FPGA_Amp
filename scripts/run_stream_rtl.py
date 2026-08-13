@@ -31,6 +31,7 @@ def main() -> int:
         subprocess.run([sys.executable, generator], cwd=REPOSITORY_ROOT, check=True)
     sources = [
         "rtl/tube/triode_12ax7.sv",
+        "rtl/tube/triode_12ax7_factorized.sv",
         "rtl/circuit/network_rhs_v1.sv",
         "rtl/circuit/network_kcl_v1.sv",
         "rtl/circuit/chord_corrector_v1.sv",

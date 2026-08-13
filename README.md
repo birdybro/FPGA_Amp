@@ -46,8 +46,8 @@ The mono reference and complete 768 kHz circuit solver are operating:
   at 5 mV versus 0.0191% analytical, using 233,472 raw table bits (12.67 raw
   RAMB18 equivalents). Its standalone RTL is exact across 4,107 vectors at the
   existing eight-clock latency; structural synthesis reports 1,597 logic cells,
-  37 DSP48E1s, and 8 RAMB18E1s. It is not the reference stream until complete
-  solver integration is exact and measured.
+  37 DSP48E1s, and 8 RAMB18E1s. Complete solver integration is also bit-exact at
+  126 clocks; the stream-level selectable mode remains the next gate.
 - The SystemVerilog tube lookup accepts physical Q-format voltages, is
   bit-exact for 4,096 randomized vectors, and has eight-clock latency.
 - The nine-node chord corrector is bit-exact for 1,024 randomized/boundary
@@ -61,6 +61,9 @@ The mono reference and complete 768 kHz circuit solver are operating:
 - Hierarchical out-of-context XC7 synthesis of that complete solver reports
   8,024 estimated logic cells, 89 DSP48E1, and 47 RAMB18E1 blocks. This is an
   accuracy-first baseline; no Fmax is claimed before place-and-route.
+- The selectable factorized solver also matches 512 persistent-state samples
+  exactly at 126 clocks. Its hierarchy measures 9,194 logic cells, 110 DSP48E1s,
+  and 8 RAMB18E1s: 39 fewer BRAMs at the cost of 21 DSPs and 1,170 logic cells.
 - The complete 48 kHz reference stream—16× interpolation, nonlinear circuit,
   saturating output-format conversion, and 16× decimation—matches 64 consecutive
   Python outputs exactly with zero diagnostic events. Structural synthesis is
@@ -121,12 +124,14 @@ make factorized-rtl                # smooth tube RTL + directed clip vectors
 make chord-rtl                     # lint + 1,024 circuit-correction vectors
 make network-rtl                   # RHS/KCL bit-exact unit tests
 make solver-rtl                    # 512-sample persistent-state integration
+make solver-factorized-rtl         # exact smooth-tube solver integration
 make halfband-rtl                  # exact 2x units and complete 16x streams
 make stream-rtl                    # complete 48 kHz reference stream
 make synth                         # generic XC7 structural estimate
 make synth-factorized              # factorized tube structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
 make synth-solver                  # hierarchical complete-solver estimate
+make synth-solver-factorized       # smooth-tube hierarchy/resource trade
 make synth-halfband                # complete interpolator/decimator estimates
 make synth-stream                  # complete reference-stream estimate
 ```

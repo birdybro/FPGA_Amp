@@ -17,6 +17,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
     parser.add_argument("--lint-only", action="store_true")
+    parser.add_argument("--factorized", action="store_true")
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
@@ -32,13 +33,23 @@ def main() -> int:
         cwd=REPOSITORY_ROOT,
         check=True,
     )
+    if args.factorized:
+        subprocess.run(
+            [sys.executable, "scripts/generate_factorized_tube.py"],
+            cwd=REPOSITORY_ROOT,
+            check=True,
+        )
+    generator_command = [sys.executable, "scripts/generate_solver_vectors.py"]
+    if args.factorized:
+        generator_command.append("--factorized")
     subprocess.run(
-        [sys.executable, "scripts/generate_solver_vectors.py"],
+        generator_command,
         cwd=REPOSITORY_ROOT,
         check=True,
     )
     sources = [
         "rtl/tube/triode_12ax7.sv",
+        "rtl/tube/triode_12ax7_factorized.sv",
         "rtl/circuit/network_rhs_v1.sv",
         "rtl/circuit/network_kcl_v1.sv",
         "rtl/circuit/chord_corrector_v1.sv",
@@ -52,7 +63,13 @@ def main() -> int:
     )
     if args.lint_only:
         return 0
-    build = REPOSITORY_ROOT / "build" / "verilator_v1_solver"
+    build_name = (
+        "verilator_v1_solver_factorized"
+        if args.factorized
+        else "verilator_v1_solver"
+    )
+    build = REPOSITORY_ROOT / "build" / build_name
+    parameter_args = ["-GUSE_FACTORIZED=1"] if args.factorized else []
     subprocess.run(
         [
             verilator,
@@ -65,6 +82,7 @@ def main() -> int:
             "v1_solver_mono_tb",
             "--Mdir",
             str(build),
+            *parameter_args,
             *sources,
         ],
         cwd=REPOSITORY_ROOT,

@@ -2,7 +2,7 @@ PYTHON ?= python3
 NGSPICE ?= ngspice
 VERILATOR ?= verilator
 
-.PHONY: all reference analysis accuracy-sweeps factorized-study precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl network-rtl solver-rtl halfband-rtl stream-rtl lint synth synth-factorized synth-chord synth-network synth-solver synth-halfband synth-stream clean tools
+.PHONY: all reference analysis accuracy-sweeps factorized-study precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl network-rtl solver-rtl solver-factorized-rtl halfband-rtl stream-rtl lint synth synth-factorized synth-chord synth-network synth-solver synth-solver-factorized synth-halfband synth-stream clean tools
 
 all: reference test
 
@@ -52,6 +52,9 @@ network-rtl:
 solver-rtl:
 	$(PYTHON) scripts/run_solver_rtl.py --verilator $(VERILATOR)
 
+solver-factorized-rtl:
+	$(PYTHON) scripts/run_solver_rtl.py --verilator $(VERILATOR) --factorized
+
 halfband-rtl:
 	$(PYTHON) scripts/run_halfband_rtl.py --verilator $(VERILATOR)
 
@@ -83,6 +86,12 @@ synth-solver:
 	$(PYTHON) scripts/generate_chord_vectors.py
 	$(PYTHON) scripts/run_synthesis.py --top v1_solver_mono
 
+synth-solver-factorized:
+	$(PYTHON) scripts/generate_factorized_tube.py
+	$(PYTHON) scripts/generate_network_vectors.py
+	$(PYTHON) scripts/generate_chord_vectors.py
+	$(PYTHON) scripts/run_synthesis.py --top v1_solver_mono_factorized
+
 synth-halfband:
 	$(PYTHON) scripts/generate_halfband_rtl_vectors.py
 	$(PYTHON) scripts/run_synthesis.py --top interpolator_16x
@@ -98,7 +107,7 @@ synth-stream:
 python-test:
 	$(PYTHON) -m unittest discover -s model/tests -v
 
-test: python-test rtl factorized-rtl chord-rtl network-rtl solver-rtl halfband-rtl stream-rtl
+test: python-test rtl factorized-rtl chord-rtl network-rtl solver-rtl solver-factorized-rtl halfband-rtl stream-rtl
 
 tools:
 	bash scripts/bootstrap_tools.sh

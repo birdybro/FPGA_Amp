@@ -15,6 +15,15 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPOSITORY_ROOT / "model" / "python"))
 
 from fpga_amp.fixed_circuit import FixedChordV1CircuitModel  # noqa: E402
+from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
+
+
+def write_memory(path: Path, values: list[int], width: int = 32) -> None:
+    digits = (width + 3) // 4
+    mask = (1 << width) - 1
+    with path.open("w", encoding="ascii") as handle:
+        for value in values:
+            handle.write(f"{value & mask:0{digits}x}\n")
 
 
 def stimulus_q24(index: int, rng: np.random.Generator) -> int:
@@ -43,12 +52,29 @@ def stimulus_q24(index: int, rng: np.random.Generator) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--vectors", type=int, default=512)
+    parser.add_argument("--factorized", action="store_true")
     args = parser.parse_args()
-    model = FixedChordV1CircuitModel()
+    tube = FixedFactorizedKoren12AX7() if args.factorized else None
+    model = FixedChordV1CircuitModel(tube_lut=tube)
     rng = np.random.default_rng(0x501A3)
     vector_directory = REPOSITORY_ROOT / "sim" / "vectors" / "generated"
     vector_directory.mkdir(parents=True, exist_ok=True)
-    vector_path = vector_directory / "v1_solver_stream.txt"
+    implementation = "factorized" if args.factorized else "surface"
+    vector_path = vector_directory / f"v1_solver_{implementation}_stream.txt"
+    if not args.factorized:
+        # Preserve the established path consumed by existing workflows.
+        vector_path = vector_directory / "v1_solver_stream.txt"
+
+    if args.factorized:
+        generated = REPOSITORY_ROOT / "model" / "generated"
+        write_memory(
+            generated / "v1_node_initial_factorized.mem",
+            [int(value) for value in model.voltage_q],
+        )
+        write_memory(
+            generated / "v1_cap_initial_factorized_q12_20.mem",
+            [int(capacitor.previous_voltage_q20) for capacitor in model.capacitors],
+        )
 
     maximum_residual = 0
     with vector_path.open("w", encoding="ascii") as handle:
@@ -74,6 +100,7 @@ def main() -> int:
     metadata = {
         "model": "12ax7_passive_riaa_v1",
         "algorithm": "three Q17.1 chord corrections plus diagnostic residual",
+        "tube_implementation": implementation,
         "sample_rate_hz": int(model.sample_rate_hz),
         "vectors": args.vectors,
         "seed": 0x501A3,
@@ -84,7 +111,12 @@ def main() -> int:
         "nonconvergence_count": model.nonconvergence_count,
         "output": str(vector_path.relative_to(REPOSITORY_ROOT)),
     }
-    metadata_path = REPOSITORY_ROOT / "model" / "generated" / "v1_solver_metadata.json"
+    metadata_name = (
+        "v1_solver_factorized_metadata.json"
+        if args.factorized
+        else "v1_solver_metadata.json"
+    )
+    metadata_path = REPOSITORY_ROOT / "model" / "generated" / metadata_name
     metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(metadata, indent=2))
     return 0

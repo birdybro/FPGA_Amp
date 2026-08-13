@@ -1,7 +1,9 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-module v1_solver_mono_tb;
+module v1_solver_mono_tb #(
+    parameter bit USE_FACTORIZED = 1'b0
+);
     logic clk;
     logic rst_n = 1'b0;
     logic ce_sample = 1'b0;
@@ -19,7 +21,19 @@ module v1_solver_mono_tb;
     logic [287:0] node_voltage_debug;
     logic [319:0] capacitor_state_debug;
 
-    v1_solver_mono dut (.*);
+    v1_solver_mono #(
+        .NODE_INITIAL_FILE(
+            USE_FACTORIZED
+                ? "model/generated/v1_node_initial_factorized.mem"
+                : "model/generated/v1_node_initial.mem"
+        ),
+        .CAP_INITIAL_FILE(
+            USE_FACTORIZED
+                ? "model/generated/v1_cap_initial_factorized_q12_20.mem"
+                : "model/generated/v1_cap_initial_q12_20.mem"
+        ),
+        .USE_FACTORIZED_TUBE(USE_FACTORIZED)
+    ) dut (.*);
 
     always #5 clk = ~clk;
 
@@ -39,8 +53,12 @@ module v1_solver_mono_tb;
 
     initial begin
         clk = 1'b0;
-        if (!$value$plusargs("VECTORS=%s", vector_path))
-            vector_path = "sim/vectors/generated/v1_solver_stream.txt";
+        if (!$value$plusargs("VECTORS=%s", vector_path)) begin
+            if (USE_FACTORIZED)
+                vector_path = "sim/vectors/generated/v1_solver_factorized_stream.txt";
+            else
+                vector_path = "sim/vectors/generated/v1_solver_stream.txt";
+        end
         file_handle = $fopen(vector_path, "r");
         if (file_handle == 0) $fatal(1, "cannot open %s", vector_path);
         vector_count = 0;

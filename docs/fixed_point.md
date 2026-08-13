@@ -44,8 +44,10 @@ bit-accurate Python contract. The standalone RTL passes 4,107 exact vectors,
 including five directed range clips, at eight clocks. Proven table bounds allow
 the Hermite coefficient and Horner states to remain signed 32-bit with full
 49-bit products. Generic XC7 synthesis reports 1,597 estimated logic cells,
-37 DSP48E1s, and 8 RAMB18E1s. Complete solver integration remains open, so the
-existing 2-D RTL is still the end-to-end baseline.
+37 DSP48E1s, and 8 RAMB18E1s. Selectable solver integration is exact for 512
+persistent-state samples at the unchanged 126-clock latency. Its hierarchy is
+9,194 logic cells, 110 DSP48E1s, and 8 RAMB18E1s; complete-stream verification
+remains open, so the existing 2-D RTL is still the end-to-end baseline.
 
 ## Circuit-state chord candidate
 
@@ -114,3 +116,9 @@ estimated logic cells, 89 DSP48E1s, and 47 RAMB18E1s. The RHS and KCL engines
 account for 10 and 54 DSP48E1s respectively; the correction uses nine and the
 tube primitive 16. These are structural results only. No named-device timing,
 routing, or 98.304 MHz closure is claimed.
+
+With `USE_FACTORIZED_TUBE=1`, the identical scheduler and network arithmetic
+match the factorized fixed model bit-for-bit for 512 samples at the same 126
+clocks. Structural resources become 9,194 logic cells, 110 DSP48E1s, and 8
+RAMB18E1s. Relative to the 2-D hierarchy this saves 39 BRAMs while adding 21
+DSPs and 1,170 logic cells. Both modes remain named and reproducible.

@@ -1,14 +1,14 @@
 {
   "model": "12ax7_passive_riaa_v1",
   "algorithm": "three Q17.1 chord corrections plus diagnostic residual",
-  "tube_implementation": "surface",
+  "tube_implementation": "factorized",
   "sample_rate_hz": 768000,
   "vectors": 512,
   "seed": 328099,
-  "maximum_residual_q44": 5758689,
-  "maximum_residual_a": 3.2734357091612765e-07,
+  "maximum_residual_q44": 5907014,
+  "maximum_residual_a": 3.35774871018657e-07,
   "saturation_count": 0,
   "lut_clip_count": 0,
   "nonconvergence_count": 0,
-  "output": "sim/vectors/generated/v1_solver_stream.txt"
+  "output": "sim/vectors/generated/v1_solver_factorized_stream.txt"
 }

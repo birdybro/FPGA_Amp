@@ -86,6 +86,12 @@ RHS/history stamping                12 clocks
 total                              126 clocks
 ```
 
+The surface-LUT and factorized/Hermite tube primitives deliberately share the
+same eight-clock request/valid contract, so selecting either implementation
+does not alter this schedule. The measured hierarchy trade is 8,024 LC / 89 DSP /
+47 RAMB18 for the surface mode and 9,194 LC / 110 DSP / 8 RAMB18 for factorized
+mode. These are generic structural counts, not timing closure.
+
 The KCL engine evaluates nine matrix rows in parallel while the single tube ROM
 engine serializes the two device evaluations. Completed RHS and chord results
 launch the following residual pass on the same edge, eliminating control

@@ -10,7 +10,8 @@
 // Python fixed-point reference.
 module v1_solver_mono #(
     parameter NODE_INITIAL_FILE = "model/generated/v1_node_initial.mem",
-    parameter CAP_INITIAL_FILE = "model/generated/v1_cap_initial_q12_20.mem"
+    parameter CAP_INITIAL_FILE = "model/generated/v1_cap_initial_q12_20.mem",
+    parameter bit USE_FACTORIZED_TUBE = 1'b0
 ) (
     input  logic                  clk,
     input  logic                  rst_n,
@@ -238,17 +239,33 @@ module v1_solver_mono #(
         tube_current_flat[127:96] = triode_i_g;
     end
 
-    triode_12ax7 tube_engine (
-        .clk,
-        .rst_n,
-        .ce(triode_ce),
-        .v_gk(triode_v_gk),
-        .v_pk(triode_v_pk),
-        .i_p(triode_i_p),
-        .i_g(triode_i_g),
-        .range_clipped(triode_range_clipped),
-        .valid(triode_valid)
-    );
+    generate
+        if (USE_FACTORIZED_TUBE) begin : generate_factorized_tube
+            triode_12ax7_factorized tube_engine (
+                .clk,
+                .rst_n,
+                .ce(triode_ce),
+                .v_gk(triode_v_gk),
+                .v_pk(triode_v_pk),
+                .i_p(triode_i_p),
+                .i_g(triode_i_g),
+                .range_clipped(triode_range_clipped),
+                .valid(triode_valid)
+            );
+        end else begin : generate_surface_tube
+            triode_12ax7 tube_engine (
+                .clk,
+                .rst_n,
+                .ce(triode_ce),
+                .v_gk(triode_v_gk),
+                .v_pk(triode_v_pk),
+                .i_p(triode_i_p),
+                .i_g(triode_i_g),
+                .range_clipped(triode_range_clipped),
+                .valid(triode_valid)
+            );
+        end
+    endgenerate
 
     logic chord_start;
     logic [287:0] corrected_voltage;

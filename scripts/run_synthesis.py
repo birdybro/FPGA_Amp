@@ -35,6 +35,7 @@ def main() -> int:
             "network_rhs_v1",
             "network_kcl_v1",
             "v1_solver_mono",
+            "v1_solver_mono_factorized",
             "halfband_interpolator_2x",
             "halfband_decimator_2x",
             "interpolator_16x",
@@ -59,6 +60,15 @@ def main() -> int:
         "network_kcl_v1": ["rtl/circuit/network_kcl_v1.sv"],
         "v1_solver_mono": [
             "rtl/tube/triode_12ax7.sv",
+            "rtl/tube/triode_12ax7_factorized.sv",
+            "rtl/circuit/network_rhs_v1.sv",
+            "rtl/circuit/network_kcl_v1.sv",
+            "rtl/circuit/chord_corrector_v1.sv",
+            "rtl/phono/v1_solver_mono.sv",
+        ],
+        "v1_solver_mono_factorized": [
+            "rtl/tube/triode_12ax7.sv",
+            "rtl/tube/triode_12ax7_factorized.sv",
             "rtl/circuit/network_rhs_v1.sv",
             "rtl/circuit/network_kcl_v1.sv",
             "rtl/circuit/chord_corrector_v1.sv",
@@ -78,6 +88,7 @@ def main() -> int:
         ],
         "phono_stream_mono": [
             "rtl/tube/triode_12ax7.sv",
+            "rtl/tube/triode_12ax7_factorized.sv",
             "rtl/circuit/network_rhs_v1.sv",
             "rtl/circuit/network_kcl_v1.sv",
             "rtl/circuit/chord_corrector_v1.sv",
@@ -90,14 +101,24 @@ def main() -> int:
         ],
     }[args.top]
     log_path = results / f"yosys_xc7_{args.top}.log"
+    actual_top = (
+        "v1_solver_mono" if args.top == "v1_solver_mono_factorized" else args.top
+    )
+    parameter_command = (
+        "chparam -set USE_FACTORIZED_TUBE 1 v1_solver_mono"
+        if args.top == "v1_solver_mono_factorized"
+        else None
+    )
 
     # The packaged Yosys has an absolute system ABC default. Stopping before
     # map_luts and invoking the identical documented steps with -exe keeps the
     # non-root bootstrap reproducible.
-    script = "; ".join(
+    commands = [f"read_verilog -sv {' '.join(sources)}"]
+    if parameter_command is not None:
+        commands.append(parameter_command)
+    commands.extend(
         [
-            f"read_verilog -sv {' '.join(sources)}",
-            f"synth_xilinx -family xc7 -top {args.top} -noiopad -noclkbuf -run begin:map_luts",
+            f"synth_xilinx -family xc7 -top {actual_top} -noiopad -noclkbuf -run begin:map_luts",
             "opt_expr -mux_undef -noclkinv",
             f"abc -exe {abc} -luts 2:2,3,6:5,10,20",
             "clean",
@@ -112,6 +133,7 @@ def main() -> int:
             "check -noinit",
         ]
     )
+    script = "; ".join(commands)
     environment = os.environ.copy()
     local_library = REPOSITORY_ROOT / ".tools" / "root" / "usr" / "lib"
     if local_library.exists():
@@ -130,7 +152,7 @@ def main() -> int:
         print(completed.stdout, file=sys.stderr)
         return completed.returncode
 
-    local_section = completed.stdout.split(f"=== {args.top} ===", 1)[1].split(
+    local_section = completed.stdout.split(f"=== {actual_top} ===", 1)[1].split(
         "=== design hierarchy ===", 1
     )[0]
     hierarchy_section = completed.stdout.split("=== design hierarchy ===", 1)[1].split(

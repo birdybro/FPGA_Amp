@@ -45,6 +45,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a synthesizable eight-clock factorized 12AX7 primitive, reproducible
   packed ROM generation, and an exact 4,107-vector RTL regression with directed
   endpoint and out-of-range cases.
+- Added an explicit factorized-tube solver mode with independent initialization,
+  persistent-state vectors, metadata, regression entry point, and synthesis path.
 - Added warning-free Verilator lint and a 4,096-vector bit-exact testbench with checked eight-clock latency.
 - Added non-root ngspice/Yosys bootstrap and a generic XC7 out-of-context synthesis report.
 - Added quantitative cartridge/front-end noise, ADC headroom, and analog-versus-digital RIAA partition analysis.
@@ -107,6 +109,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - The standalone factorized RTL is bit-exact to fixed Python for all 4,107 test
   vectors. XC7 structural synthesis reports 1,597 estimated logic cells,
   37 DSP48E1s, and 8 RAMB18E1s; no Fmax is claimed.
+- The complete factorized solver is bit-exact for 512 sequential samples and
+  retains the 126-clock schedule with no diagnostic events. Its hierarchy uses
+  9,194 estimated logic cells, 110 DSP48E1s, and 8 RAMB18E1s versus the 2-D
+  solver's 8,024 / 89 / 47; this is a measured resource trade, not a free win.
 
 ### Changed
 
