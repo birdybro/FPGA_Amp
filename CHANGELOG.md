@@ -139,6 +139,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added quantitative cartridge/front-end noise, ADC headroom, and analog-versus-digital RIAA partition analysis.
 - Added architecture, model, phono, fixed-point, gain, noise, analog front-end, converter/clock, hardware, controls, safety, verification, and annotated-reference documentation.
 
+### Fixed
+
+- Widened the wide-network capacitor difference from signed 43 to 44 bits and
+  its full product from 91 to 92 bits. Capacitor 6 can legally join opposite
+  signed-40 Q28 node extremes and subtract a full-range Q30 history; directed
+  backward-Euler and trapezoidal vectors now prevent this silent-wrap defect
+  from recurring.
+
 ### Reference decisions
 
 - V1 is one mono channel using both halves of one 12AX7, 300 V B+, unbypassed 1.21 kΩ cathode resistors, and the original two-pole passive equalizer values.

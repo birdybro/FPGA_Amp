@@ -127,6 +127,23 @@ def main() -> int:
                 ]
                 capacitor_current = [0] * 10
                 current_q31 = [0] * 4
+            elif index in (54, 55):
+                # Directed full-range check for capacitor 6, the only branch
+                # joining two Q28 nodes.  Include the worst legal Q30 voltage
+                # history and Q4.44 current history signs.
+                voltage = [0] * model.node_count
+                capacitor_voltage = [0] * len(model.capacitors)
+                capacitor_current = [0] * len(model.capacitors)
+                polarity = 1 if index == 54 else -1
+                voltage[1] = (1 << 39) - 1 if polarity > 0 else -(1 << 39)
+                voltage[3] = -(1 << 39) if polarity > 0 else (1 << 39) - 1
+                capacitor_voltage[6] = (
+                    -(1 << 39) if polarity > 0 else (1 << 39) - 1
+                )
+                capacitor_current[6] = (
+                    -(1 << 47) if polarity > 0 else (1 << 47) - 1
+                )
+                current_q31 = [0] * 4
 
             linear = [0] * model.node_count
             for row in range(model.node_count):

@@ -167,6 +167,17 @@ def main() -> int:
                 voltage = [int(value) for value in model.voltage_q]
                 capacitor_state = initial_capacitor.copy()
                 current_q31 = [0] * 4
+            elif index in (54, 55):
+                # Capacitor 6 joins the two Q28 plate/EQ-pre nodes.  Exercise
+                # the complete declared signed-40 node and Q30-state ranges:
+                # this exact branch delta requires 44 signed bits.
+                voltage = [0] * model.node_count
+                capacitor_state = [0] * len(model.capacitors)
+                polarity = 1 if index == 54 else -1
+                voltage[1] = (1 << 39) - 1 if polarity > 0 else -(1 << 39)
+                voltage[3] = -(1 << 39) if polarity > 0 else (1 << 39) - 1
+                capacitor_state[6] = -(1 << 39) if polarity > 0 else (1 << 39) - 1
+                current_q31 = [0] * 4
 
             linear = [0] * 9
             for row in range(9):

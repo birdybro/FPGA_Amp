@@ -106,11 +106,11 @@ module network_kcl_v1_wide #(
     endfunction
 
     function automatic logic signed [62:0] rounded_capacitor_q44(
-        input logic signed [90:0] product
+        input logic signed [91:0] product
     );
-        logic signed [90:0] biased;
+        logic signed [91:0] biased;
         begin
-            biased = product + (91'sd1 <<< 32);
+            biased = product + (92'sd1 <<< 32);
             rounded_capacitor_q44 = 63'($signed(biased) >>> 33);
         end
     endfunction
@@ -245,13 +245,16 @@ module network_kcl_v1_wide #(
     logic signed [62:0] matrix_current_by_row [0:8];
     logic signed [41:0] cap_voltage_a_q30;
     logic signed [41:0] cap_voltage_b_q30;
-    logic signed [42:0] cap_delta_q30;
-    logic signed [90:0] cap_product;
+    // A branch can join two full-range Q28 nodes and subtract a full-range
+    // Q30 history state.  After conversion, that exact difference requires
+    // 44 signed bits; 43 bits would silently wrap at the declared limits.
+    logic signed [43:0] cap_delta_q30;
+    logic signed [91:0] cap_product;
     logic signed [62:0] cap_current_q44;
     logic signed [41:0] cap9_voltage_a_q30;
     logic signed [41:0] cap9_voltage_b_q30;
-    logic signed [42:0] cap9_delta_q30;
-    logic signed [90:0] cap9_product;
+    logic signed [43:0] cap9_delta_q30;
+    logic signed [91:0] cap9_product;
     logic signed [62:0] cap9_current_q44;
     logic signed [62:0] final_residual_by_row [0:8];
     logic signed [62:0] q30_by_row [0:8];
@@ -285,9 +288,9 @@ module network_kcl_v1_wide #(
             cap_voltage_b_q30 = node_voltage_q30(
                 voltage_latched[cap_node_b(int'(column))], cap_node_b(int'(column))
             );
-        cap_delta_q30 = $signed({cap_voltage_a_q30[41], cap_voltage_a_q30})
-                         - $signed({cap_voltage_b_q30[41], cap_voltage_b_q30})
-                         - $signed({{3{capacitor_latched[column][39]}},
+        cap_delta_q30 = $signed({{2{cap_voltage_a_q30[41]}}, cap_voltage_a_q30})
+                         - $signed({{2{cap_voltage_b_q30[41]}}, cap_voltage_b_q30})
+                         - $signed({{4{capacitor_latched[column][39]}},
                                     capacitor_latched[column]});
         cap_product = capacitor_g[column] * cap_delta_q30;
         cap_current_q44 = rounded_capacitor_q44(cap_product);
@@ -299,9 +302,9 @@ module network_kcl_v1_wide #(
 
         cap9_voltage_a_q30 = node_voltage_q30(voltage_latched[6], 6);
         cap9_voltage_b_q30 = node_voltage_q30(voltage_latched[8], 8);
-        cap9_delta_q30 = $signed({cap9_voltage_a_q30[41], cap9_voltage_a_q30})
-                          - $signed({cap9_voltage_b_q30[41], cap9_voltage_b_q30})
-                          - $signed({{3{capacitor_latched[9][39]}},
+        cap9_delta_q30 = $signed({{2{cap9_voltage_a_q30[41]}}, cap9_voltage_a_q30})
+                          - $signed({{2{cap9_voltage_b_q30[41]}}, cap9_voltage_b_q30})
+                          - $signed({{4{capacitor_latched[9][39]}},
                                      capacitor_latched[9]});
         cap9_product = capacitor_g[9] * cap9_delta_q30;
         cap9_current_q44 = rounded_capacitor_q44(cap9_product);

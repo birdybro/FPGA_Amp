@@ -174,6 +174,15 @@ in the finish expression. Node voltages are rounded to Q30 before subtracting
 the corresponding Q30 history; the resulting branch difference is multiplied
 and rounded once to Q4.44 exactly as in Python.
 
+The branch-difference datapath is signed 44-bit Q30 and its conductance product
+is signed 92 bits. These widths are required by the declared state formats,
+not merely by nominal operation: capacitor 6 joins two signed-40 Q28 nodes, so
+the exact converted difference can span almost +/-4096 V before subtracting a
+signed-40 Q30 history spanning +/-512 V. A previous 43-bit/91-bit pair could
+therefore wrap at legal interface values. Directed positive and negative
+full-range vectors now exercise that branch in both backward-Euler and
+trapezoidal KCL regressions.
+
 RHS and KCL each match 1,024 vectors exactly. KCL coverage includes Q30/Q34/Q40,
 48 global scale fallbacks, 18 true Q30 overflow vectors, and tube currents
 arriving zero through eleven clocks after request. Its ordinary latency is ten
