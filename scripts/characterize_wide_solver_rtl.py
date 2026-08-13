@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""Measure nominal 1 kHz behavior from captured wide-solver RTL output."""
+"""Measure sine-wave behavior from captured wide-solver RTL output."""
 
 from __future__ import annotations
 
 import argparse
 import json
 from pathlib import Path
-import subprocess
 import sys
 
 import numpy as np
@@ -17,9 +16,8 @@ sys.path.insert(0, str(ROOT / "model" / "python"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from characterize_wide_state_audio import fit_harmonics  # noqa: E402
-from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
-from fpga_amp.fixed_circuit import FixedWideStateV1CircuitModel  # noqa: E402
 from fpga_amp.v1_circuit import V1CircuitModel  # noqa: E402
+from wide_solver_rtl_capture import capture_wide_solver_rtl  # noqa: E402
 
 
 def main() -> int:
@@ -43,64 +41,17 @@ def main() -> int:
     ).astype(np.int64)
     stimulus = input_q24.astype(np.float64) / float(1 << 24)
 
-    fixed = FixedWideStateV1CircuitModel(tube_lut=FixedFactorizedKoren12AX7())
     analytical = V1CircuitModel(sample_rate_hz)
     analytical_output = analytical.process(
         stimulus, max_iterations=8, tolerance_a=1.0e-12
     )
-    fixed_output = np.empty(sample_count, dtype=np.float64)
     frequency_tag = f"{frequency_hz:g}".replace(".", "p")
-    vector_path = (
-        ROOT
-        / "sim"
-        / "vectors"
-        / "generated"
-        / f"wide_solver_rtl_{frequency_tag}hz.txt"
+    capture = capture_wide_solver_rtl(
+        input_q24, f"wide_solver_rtl_{frequency_tag}hz", args.verilator
     )
-    vector_path.parent.mkdir(parents=True, exist_ok=True)
-    with vector_path.open("w", encoding="ascii") as handle:
-        for index, sample in enumerate(input_q24):
-            fixed_output[index] = fixed.process_sample(int(sample) / float(1 << 24))
-            fields = [
-                int(sample),
-                *[int(value) for value in fixed.voltage_q],
-                *[int(cap.previous_voltage_q20) for cap in fixed.capacitors],
-                fixed.last_residual_q44,
-                fixed.saturation_count,
-                fixed.lut_clip_count,
-                fixed.nonconvergence_count,
-                fixed.correction_scale_fallback_count,
-                fixed.minimum_correction_residual_fractional_bits or 0,
-            ]
-            handle.write(" ".join(str(value) for value in fields) + "\n")
-
-    capture_path = ROOT / "build" / f"wide_solver_rtl_{frequency_tag}hz_capture.txt"
-    capture_path.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run(
-        [
-            sys.executable,
-            "scripts/run_wide_solver_rtl.py",
-            "--verilator",
-            args.verilator,
-            "--skip-generate",
-            "--vectors-file",
-            str(vector_path.relative_to(ROOT)),
-            "--capture-file",
-            str(capture_path.relative_to(ROOT)),
-        ],
-        cwd=ROOT,
-        check=True,
-    )
-    captured = np.loadtxt(capture_path, dtype=np.int64)
-    if captured.shape != (sample_count, 2):
-        raise RuntimeError(f"expected {sample_count} captured samples, got {captured.shape}")
-    if not np.array_equal(captured[:, 0], np.arange(sample_count)):
-        raise RuntimeError("RTL capture indices are not contiguous")
-    rtl_output = captured[:, 1].astype(np.float64) / float(1 << 32)
-    fixed_q32 = np.rint(fixed_output * (1 << 32)).astype(np.int64)
-    bit_exact = bool(np.array_equal(captured[:, 1], fixed_q32))
-    if not bit_exact:
-        raise RuntimeError("captured RTL output is not Q32-exact to fixed Python")
+    fixed = capture.fixed_model
+    rtl_output = capture.rtl_output_q32.astype(np.float64) / float(1 << 32)
+    bit_exact = True
 
     selected = time_s >= analysis_start_s
     reference_metrics = fit_harmonics(

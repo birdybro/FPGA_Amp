@@ -140,6 +140,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   bit-exact to fixed Python. Against analytical float, maximum gain/phase error
   is 0.000194 dB / 0.000982 degrees with zero runtime diagnostics. This is an
   RTL-simulation result, not an FPGA or analog measurement.
+- A captured 100 ms overload campaign matches all fixed nodes, capacitor states,
+  outputs, and diagnostics for 384,000 total solver updates. The 20 mV burst
+  reaches the 10% / 1% recovery thresholds in 8.47 / 14.92 ms. Bursts at 0.5 V
+  and above remain outside even the 10% threshold after 85 ms in both analytical
+  and RTL trajectories. Solver residual failures begin at 1.0 V; the 1.5 V case
+  has 4,046 modeled-tube range clips and 729 safe scale fallbacks but no arithmetic
+  saturation.
 - A downstream, explicitly non-reference output guard now starts muted, applies
   a configurable sample-qualified linear ramp, bypasses exactly at unity, and
   synchronously clamps held output on a fault. Its warning-free RTL regression
@@ -202,6 +209,7 @@ make state-wide                     # wide-state candidate on the same audit
 make state-wide-audio               # 5 mV/1 kHz legacy/wide A/B
 make wide-rtl-audio                 # capture and measure 23,040 RTL samples
 make wide-rtl-frequency             # captured 100 Hz-20 kHz solver sweep
+make wide-rtl-overload              # captured 100 ms overload/recovery sweep
 make overload-study                 # grid conduction, clipping, recovery
 make overload-wide                  # same bursts with wide-state candidate
 make overload-iterations            # three-to-six-pass solver trade

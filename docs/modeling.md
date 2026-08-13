@@ -216,6 +216,25 @@ difference. No saturation, tube-range clip, residual-limit failure, or
 correction-scale fallback occurs. These are captured simulator values, not
 placed-FPGA or physical-audio measurements.
 
+The captured-RTL overload trajectory runs a 5 ms, 1 kHz burst inside a 100 ms
+record, extending observation after the burst from 35 ms to 85 ms. The 5 mV
+control plus 20 mV, 0.5 V, 1.0 V, and 1.5 V cases account for 384,000 exact
+full-state RTL comparisons. At 20 mV the captured trajectory reaches 10%, 1%,
+and 1 mV RMS recovery in 8.466, 14.918, and 18.297 ms. At 0.5 V and above,
+neither the analytical nor RTL trajectory returns below the 10% nominal-output
+threshold inside 85 ms, so this is a real modeled long-state response rather
+than solely fixed-point error. At the end of the run, RTL/analytical residual
+is 0.194 mV RMS for 0.5 V and 0.0548 mV RMS for 1.0 V, but 17.36 mV RMS for the
+range-clipped 1.5 V case.
+
+The captured diagnostics reproduce the previous fixed characterization exactly:
+zero residual-limit events through 0.5 V, 1,122 at 1.0 V, and 1,695 at 1.5 V.
+The last case also records 4,046 factorized-tube range clips and 729 correction-
+scale fallbacks. Adaptive scaling prevents arithmetic saturation. Stage-two
+grid current peaks at 0.0806 uA at 1.0 V and 26.30 uA at 1.5 V. These severe
+cases remain rejected as an accuracy claim even though RTL is exact to its
+fixed numerical contract.
+
 At 20 mV, fixed 10%/1%/1 mV recovery becomes 8.466/14.918/18.297 ms versus
 analytical 8.465/14.918/18.280 ms. Legacy fixed needed 8.668/24.612/34.643 ms.
 Post-burst wide fixed/analytical RMS is 0.258 mV at both 20 mV and 0.5 V,
@@ -286,6 +305,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | wide factorized stream vs fixed | 64 outputs / 1,024 updates | bit-exact, zero diagnostics; 16,993 LC / 170 DSP / 8 RAMB18 |
 | captured wide solver RTL vs analytical | 23,040 samples, 5 mV/1 kHz | Q32 exact to fixed; -0.000054 dB / -0.000187 degree gain/phase error; 0.019371% THD |
 | captured wide solver RTL frequency sweep | 5 mV, 100 Hz/1/10/20 kHz | Q32 exact to fixed; <=0.0001943 dB gain / <=0.0009814 degree phase; zero diagnostics |
+| captured wide solver RTL overload | 384,000 updates, 5 ms bursts, 85 ms observation | full state exact to fixed; clean through 0.5 V; failures at 1 V; range clips at 1.5 V |
 | wide-state frequency response | 5 mV, 20 Hz--20 kHz | <=0.000196 dB gain / <=0.000982 degree phase; zero diagnostics |
 | wide-state overload/recovery | 20 mV--1.5 V bursts | clean through 0.5 V; convergence fails at 1 V; adaptive scale prevents arithmetic saturation |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |

@@ -80,6 +80,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a captured wide-solver RTL frequency regression at 100 Hz, 1 kHz,
   10 kHz, and 20 kHz with fixed equivalence, analytical gain/phase bounds, and
   zero-diagnostic acceptance checks.
+- Added shared arbitrary-trajectory wide-solver vector/capture infrastructure
+  and a 100 ms captured overload/recovery regression through 1.5 V peak.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -206,6 +208,12 @@ All notable engineering changes are recorded here. The project is pre-release; d
   maximum gain/phase error versus analytical float is 0.0001943 dB /
   0.0009814 degrees. Every output is Q32-exact to fixed Python and no runtime
   diagnostic fires.
+- The captured 5 mV control and four overload records match fixed Python at all
+  state and diagnostic outputs for 384,000 updates. The 20 mV case recovers
+  below 10% / 1% nominal RMS in 8.466 / 14.918 ms; 0.5 V and above remain over
+  10% after 85 ms in both analytical and captured trajectories. Residual-limit
+  failures begin at 1.0 V; 1.5 V records 4,046 range clips and 729 adaptive-scale
+  fallbacks with zero arithmetic saturation.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.
