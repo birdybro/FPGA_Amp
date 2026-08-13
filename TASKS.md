@@ -12,8 +12,9 @@ RTL, then prove frequency, level, and overload behavior through the complete
 ## Active, highest value first
 
 - [ ] Diagnose the fixed circuit's low-level raw waveform residual/phase error;
-  the factorized candidate fixes THD but retains -42.90 dB unaligned residual at
-  5 mV despite only +0.00026 dB fundamental gain error.
+  the factorized candidate fixes THD but retains -42.90 dB raw residual at
+  5 mV. A -2.840 mV mean offset dominates it; mean-removed residual is -59.63 dB,
+  phase error 0.00958°, and fundamental gain error +0.00026 dB.
 - [ ] Extend factorized-fixed-vs-float comparison across frequency, silence,
   impulse, grid conduction, overload/recovery, and capacitor-state drift.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.

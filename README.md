@@ -72,6 +72,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   updates with zero diagnostics. It synthesizes to 14,366 logic cells, 158
   DSP48E1s, and 8 RAMB18E1s. Both modes remain explicit while broader accuracy
   and overload tests determine the preferred hardware configuration.
+- At 5 mV the factorized fixed raw null is -42.90 dB, but its mean-removed null
+  is -59.63 dB: a -2.840 mV DC difference dominates the raw result. Fundamental
+  phase error is 0.00958°. These are reported separately; no DC/gain alignment
+  is used to conceal implementation error.
 - A four-stage 16× half-band reference provides at least 91.6 dB per-stage image
   rejection and suppresses the measured cubic 45 kHz→3 kHz decimation alias to
   -137.8 dB with bit-accurate Q8.24/Q1.23 MACs. The complete interpolation and

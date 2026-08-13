@@ -41,16 +41,32 @@ def fit_harmonics(
 
 def waveform_metrics(reference: np.ndarray, candidate: np.ndarray) -> dict[str, float]:
     residual = candidate - reference
+    residual_mean = float(np.mean(residual))
+    ac_residual = residual - residual_mean
+    reference_rms = np.sqrt(np.mean(np.square(reference)))
     return {
         "normalized_residual_db": float(
             20.0
             * np.log10(
-                np.sqrt(np.mean(np.square(residual)))
-                / np.sqrt(np.mean(np.square(reference)))
+                np.sqrt(np.mean(np.square(residual))) / reference_rms
             )
         ),
+        "mean_removed_normalized_residual_db": float(
+            20.0 * np.log10(np.sqrt(np.mean(np.square(ac_residual))) / reference_rms)
+        ),
+        "residual_mean_v": residual_mean,
         "max_absolute_error_v": float(np.max(np.abs(residual))),
     }
+
+
+def fundamental_phase_deg(time_s: np.ndarray, waveform: np.ndarray) -> float:
+    angle = 2.0 * np.pi * 1_000.0 * time_s
+    coefficient, *_ = np.linalg.lstsq(
+        np.column_stack((np.sin(angle), np.cos(angle), np.ones_like(time_s))),
+        waveform,
+        rcond=None,
+    )
+    return float(np.degrees(np.arctan2(coefficient[1], coefficient[0])))
 
 
 def main() -> int:
@@ -112,6 +128,15 @@ def main() -> int:
         fixed_metrics = waveform_metrics(
             analytical[selected], fixed_candidate[selected]
         )
+        analytical_phase = fundamental_phase_deg(
+            time_s[selected], analytical[selected]
+        )
+        factorized_phase = fundamental_phase_deg(
+            time_s[selected], candidate[selected]
+        )
+        fixed_phase = fundamental_phase_deg(
+            time_s[selected], fixed_candidate[selected]
+        )
         circuit_measurements.append(
             {
                 "input_peak_v": input_peak_v,
@@ -120,15 +145,21 @@ def main() -> int:
                 "fundamental_gain_error_db": float(
                     20.0 * np.log10(factorized_h1 / analytical_h1)
                 ),
+                "fundamental_phase_error_deg": factorized_phase - analytical_phase,
                 **waveform_metrics(analytical[selected], candidate[selected]),
                 "factorized_nonconvergence_count": factorized_model.nonconvergence_count,
                 "fixed_factorized_thd_percent_h2_to_h10": 100.0 * fixed_thd,
                 "fixed_fundamental_gain_error_db": float(
                     20.0 * np.log10(fixed_h1 / analytical_h1)
                 ),
+                "fixed_fundamental_phase_error_deg": fixed_phase - analytical_phase,
                 "fixed_normalized_residual_db": fixed_metrics[
                     "normalized_residual_db"
                 ],
+                "fixed_mean_removed_normalized_residual_db": fixed_metrics[
+                    "mean_removed_normalized_residual_db"
+                ],
+                "fixed_residual_mean_v": fixed_metrics["residual_mean_v"],
                 "fixed_max_absolute_error_v": fixed_metrics[
                     "max_absolute_error_v"
                 ],
@@ -181,7 +212,7 @@ def main() -> int:
         },
         "circuit_analysis_window_s": [0.020, 0.030],
         "circuit_measurements": circuit_measurements,
-        "status": "floating and bit-accurate Python arithmetic verified; RTL latency and equivalence not yet implemented",
+        "status": "floating and bit-accurate Python arithmetic verified; standalone, solver, and complete-stream RTL equivalence pass separately",
     }
     result_path = REPOSITORY_ROOT / "reference" / "results" / "factorized_tube_study.json"
     result_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

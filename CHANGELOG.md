@@ -118,6 +118,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - The complete factorized stream matches 64 outputs spanning 1,024 nonlinear
   updates with zero diagnostics. It synthesizes to 14,366 estimated logic cells,
   158 DSP48E1s, and 8 RAMB18E1s versus the surface stream's 13,170 / 137 / 47.
+- Decomposed the 5 mV factorized fixed null: -42.90 dB raw, -59.63 dB after
+  reporting (not correcting) its -2.840 mV mean difference, with 0.00958°
+  fundamental phase error. This prevents the DC/state discrepancy from being
+  misidentified as low-level harmonic error.
 
 ### Changed
 

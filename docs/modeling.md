@@ -123,6 +123,14 @@ integration is exact at 126 clocks, and its complete stream matches the fixed
 composition exactly. Wider frequency/overload evidence remains open before
 choosing it as the default implementation.
 
+Residual decomposition at 5 mV shows the raw null is dominated by a -2.840 mV
+mean difference. Removing that mean for diagnosis—not for acceptance—gives a
+-59.63 dB AC residual; the fundamental phase error is 0.00958°. The fixed
+initial state is obtained by quantizing a floating DC solution, and the very
+slow output coupling network preserves small operating-point discrepancies.
+The raw result remains the primary unaligned metric while fixed-domain DC
+initialization and coefficient error are investigated.
+
 ## Explicit error budget status
 
 | Layer | Present evidence | Status |

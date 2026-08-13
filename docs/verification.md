@@ -42,6 +42,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | LUT vs analytical tube | 100,000 random full-range points | 0.139 µA mean, 9.33 µA worst |
 | factorized fixed vs analytical tube | 100,000 quantized full-range points | 10.5 nA mean, 51.8 nA worst; 12.67 raw RAMB18 equivalents |
 | factorized fixed circuit vs analytical | 5 mV / 0.5 V, 1 kHz, 20–30 ms | 0.0188% / 2.2419% THD vs 0.0191% / 2.2417% |
+| factorized fixed low-level null | 5 mV, 1 kHz, 20–30 ms | -42.90 dB raw; -59.63 dB mean-removed diagnostic; -2.840 mV mean; 0.00958° phase error |
 | factorized RTL vs fixed tube | 4,107 randomized/directed vectors | bit-exact, 5 clip cases, latency 8 |
 | RTL vs fixed LUT | 4,096 deterministic vectors | bit-exact, latency 8 |
 | chord RTL vs fixed correction | 1,024 deterministic vectors | bit-exact, latency 10, 18 saturation cases |
