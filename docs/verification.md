@@ -76,7 +76,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | fixed trapezoidal overload | 20 mV/0.5/1.0/1.5 V, 5 ms burst | clean through 0.5 V; 1,107/1,690 failures at 1/1.5 V; 203.34 uA max capacitor current |
 | 2-pass vs converged solver | 20 mV peak, 1 kHz | all samples ≤100 pA residual; -136.84 dB output residual |
 | LUT vs analytical tube | 100,000 random full-range points | 0.139 µA mean, 9.33 µA worst |
-| factorized fixed vs analytical tube | 100,000 quantized full-range points | 10.5 nA mean, 51.8 nA worst; 12.67 raw RAMB18 equivalents |
+| factorized fixed vs analytical tube | 100,000 quantized full-range points plus dense grid probe | plate 8.31 nA mean / 50.56 nA worst; grid 12.55 nA worst / 2.82 nA active RMS; 14.22 raw RAMB18 equivalents |
 | factorized fixed circuit vs analytical | 5 mV / 0.5 V, 1 kHz, 20–30 ms | 0.0188% / 2.2419% THD vs 0.0191% / 2.2417% |
 | factorized fixed low-level null | 5 mV, 1 kHz, 20–30 ms | -42.90 dB raw; -59.63 dB mean-removed diagnostic; -2.840 mV mean; 0.00958° phase error |
 | factorized fixed frequency sweep | 5 mV, 20/50/100/1k/10k/20k Hz | ≤0.00846 dB gain, ≤0.0729° phase; zero fixed diagnostics |
@@ -95,20 +95,20 @@ scripts/run_synthesis.py            XC7 structural resource report
 | wide KCL RTL vs fixed network | 1,024 deterministic vectors | bit-exact, latency 10; 48 fallback / 18 overflow vectors; delayed tube current |
 | trapezoidal wide KCL RTL vs fixed | 1,024 deterministic vectors | bit-exact residual/current state, latency 10; 1,013 deliberate current-saturation vectors |
 | trapezoidal wide solver RTL vs fixed | 512 sequential samples | bit-exact all 29 state words and diagnostics, latency 116, zero events |
-| trapezoidal wide solver synthesis | Yosys 0.66 structural | 12,543 LC, 122 DSP48E1, 8 RAMB18E1; no Fmax claim |
+| trapezoidal wide solver synthesis | Yosys 0.66 structural | 12,786 LC, 120 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | factorized cutoff-domain audit | paired 12 ms / 1.5 V runs per integrator | -5 V flags classified; -8 V outputs bit-exact; zero expanded-domain events |
 | banked wide solver RTL vs fixed | 36,864 total 1.0/1.5 V updates | every state exact, every bank selected, latency 116; zero residual/range/arithmetic events |
-| banked wide solver synthesis | Yosys 0.66 structural | BE 13,369 LC; trap 13,914 LC; both 122 DSP48E1 / 8 RAMB18E1 |
-| banked solver vs full Newton | 100 ms, 20 mV/0.5/1.0 V per mode | raw burst error <=-75.28 dB; no alignment or diagnostics; trapezoidal 1 V final mean error 0.537 mV |
-| Vgk-slew-qualified bank selector | 100 ms, 0.5/1.0/1.5 V per mode | <=1 V bit-exact to prior selector; zero 1.5 V residual failures; severe burst error -61.80/-62.12 dB |
-| banked error decomposition | 100 ms, 1.0/1.5 V per mode | all floating layers converge; grid coefficients dominate 1.5 V final error |
-| grid-current resolution study | 128/256/512/1,024 entries | 1,024: 12.3 nA direct worst error; <1 mV 1.5 V final error in both modes |
+| banked wide solver synthesis | Yosys 0.66 structural | BE 13,302 LC; trap 13,840 LC; both 120 DSP48E1 / 8 RAMB18E1 |
+| banked solver vs full Newton | 100 ms, 20 mV/0.5/1.0 V per mode | raw burst error <=-75.28 dB; no alignment or diagnostics; 1 V final RMS 0.372/0.291 mV |
+| Vgk-slew-qualified bank selector | 100 ms, 0.5/1.0/1.5 V per mode | <=1 V bit-exact to prior selector; zero 1.5 V residual failures; pre-resolution severe baseline -61.80/-62.12 dB |
+| banked error decomposition | 100 ms, 1.0/1.5 V per mode | all floating layers converge; after grid refinement fixed evaluation/state/chord dominates burst RMS |
+| grid-current resolution study | 128/256/512/1,024 entries | implemented 1,024: 12.55 nA exact-mapping worst; 1.5 V burst -72.87/-81.77 dB and final 0.631/0.321 mV |
 | trapezoidal 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 116-clock solver |
-| trapezoidal stream synthesis | Yosys 0.66 structural | 17,651 LC, 170 DSP48E1, 8 RAMB18E1; no Fmax claim |
+| trapezoidal stream synthesis | Yosys 0.66 structural | 17,735 LC, 168 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | wide factorized solver RTL vs fixed | 512 sequential samples | bit-exact all 19 states and diagnostics, latency 116, zero events |
-| wide factorized solver synthesis | Yosys 0.66 structural | 12,439 LC, 122 DSP48E1, 8 RAMB18E1; no Fmax claim |
+| wide factorized solver synthesis | Yosys 0.66 structural | 12,544 LC, 120 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | wide 48 kHz stream vs fixed composition | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 116-clock solver |
-| wide stream synthesis | Yosys 0.66 structural | 17,552 LC, 170 DSP48E1, 8 RAMB18E1; no Fmax claim |
+| wide stream synthesis | Yosys 0.66 structural | 17,492 LC, 168 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | captured wide RTL nominal audio | 23,040 samples, 5 mV/1 kHz | Q32 exact; -63.834 dB raw null; 0.019371% THD; zero diagnostics |
 | captured wide RTL frequency sweep | 5 mV, 100 Hz/1/10/20 kHz | Q32 exact; <=0.0001943 dB gain, <=0.0009814 degree phase; zero diagnostics |
 | captured trapezoidal RTL frequency sweep | 5 mV, 100 Hz/1/10/20 kHz | all states exact; <=0.000128 dB / <=0.000784 degree vs float; zero diagnostics |
@@ -121,15 +121,15 @@ scripts/run_synthesis.py            XC7 structural resource report
 | full mono RTL vs fixed circuit | 512 sequential samples | bit-exact all state/diagnostics, latency 126 |
 | full mono XC7 synthesis | Yosys 0.66 structural | 8,024 LC, 89 DSP48E1, 47 RAMB18E1; no Fmax claim |
 | factorized mono RTL vs fixed circuit | 512 sequential samples | bit-exact all state/diagnostics, latency 126 |
-| factorized mono XC7 synthesis | Yosys 0.66 structural | 9,194 LC, 110 DSP48E1, 8 RAMB18E1; no Fmax claim |
+| factorized mono XC7 synthesis | Yosys 0.66 structural | 9,148 LC, 108 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | 48 kHz RTL stream vs fixed composition | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics |
 | full stream XC7 synthesis | Yosys 0.66 structural | 13,170 LC, 137 DSP48E1, 47 RAMB18E1; no Fmax claim |
 | factorized 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics |
-| factorized stream XC7 synthesis | Yosys 0.66 structural | 14,366 LC, 158 DSP48E1, 8 RAMB18E1; no Fmax claim |
+| factorized stream XC7 synthesis | Yosys 0.66 structural | 14,290 LC, 156 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | output mute/ramp RTL | directed reset/ramp/fault sequence | exact expected samples and gain; warning-free Verilator |
 | output mute/ramp XC7 synthesis | Yosys 0.66 structural | 171 LC, 2 DSP48E1, no RAM; no Fmax claim |
 | guarded wide stream RTL | startup plus one state-reset transaction | warning-free; mute precedes reset; phase clean; one ack; unity restored |
-| guarded wide stream synthesis | Yosys 0.66 structural | 17,142 LC, 172 DSP48E1, 8 RAMB18E1; no Fmax claim |
+| guarded wide stream synthesis | Yosys 0.66 structural | 17,562 LC, 170 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | fixed vs analytical level sweep | 0.5 mV–5 V, 1 kHz, 20–30 ms | first ≥1 dB compression 1.1 V; residual-limit failure 1.0 V; LUT clip 1.1 V |
 | fixed vs analytical at 5 mV | H2–H10 least-squares fit | 0.0733% vs 0.0191% THD; +0.0324 dB gain error |
 | fixed vs analytical at 0.5 V | H2–H10 / waveform | 2.2395% vs 2.2417% THD; -55.98 dB residual |

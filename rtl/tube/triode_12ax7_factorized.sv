@@ -26,7 +26,7 @@ module triode_12ax7_factorized #(
     localparam int RECIPROCAL_POINTS = 512;
     localparam int SOFTPLUS_POINTS = 1024;
     localparam int POWER_POINTS = 2048;
-    localparam int GRID_POINTS = 128;
+    localparam int GRID_POINTS = 1024;
     localparam logic signed [31:0] VG_MIN_Q24 = -32'sd134217728;
     localparam logic signed [31:0] VG_MAX_Q24 = 32'sd16777216;
     localparam logic signed [31:0] GRID_MIN_Q24 = -32'sd83886080;
@@ -40,7 +40,7 @@ module triode_12ax7_factorized #(
     localparam logic signed [31:0] RECIPROCAL_SCALE_Q24 = 32'sd1339556;
     localparam logic signed [31:0] SOFTPLUS_SCALE_Q24 = 32'sd2756716;
     localparam logic signed [31:0] POWER_SCALE_Q24 = 32'sd357739179;
-    localparam logic signed [31:0] GRID_SCALE_Q24 = 32'sd1387179;
+    localparam logic signed [31:0] GRID_SCALE_Q24 = 32'sd11173888;
 
     // Low word is the function value; high word is derivative times axis step.
     logic [63:0] reciprocal_lut [0:RECIPROCAL_POINTS-1];
@@ -163,7 +163,7 @@ module triode_12ax7_factorized #(
             if (value_q24 <= GRID_MIN_Q24)
                 map_grid_coordinate = 32'd0;
             else if (value_q24 >= VG_MAX_Q24)
-                map_grid_coordinate = 32'd8323072;
+                map_grid_coordinate = 32'd67043328;
             else begin
                 offset = $signed({{32{value_q24[31]}}, value_q24}) -
                          $signed({{32{GRID_MIN_Q24[31]}}, GRID_MIN_Q24});
@@ -200,8 +200,8 @@ module triode_12ax7_factorized #(
     logic [9:0] softplus_address_1;
     logic [10:0] power_address_0;
     logic [10:0] power_address_1;
-    logic [6:0] grid_address_0;
-    logic [6:0] grid_address_1;
+    logic [9:0] grid_address_0;
+    logic [9:0] grid_address_1;
     logic [63:0] reciprocal_read_0;
     logic [63:0] reciprocal_read_1;
     logic [63:0] softplus_read_0;
@@ -316,13 +316,13 @@ module triode_12ax7_factorized #(
                             reciprocal_address_1 <= plate_coordinate_comb[24:16] + 1'b1;
                             reciprocal_fraction <= plate_coordinate_comb[15:0];
                         end
-                        if (grid_coordinate_comb[31:16] >= 16'd127) begin
-                            grid_address_0 <= 7'd126;
-                            grid_address_1 <= 7'd127;
+                        if (grid_coordinate_comb[31:16] >= 16'd1023) begin
+                            grid_address_0 <= 10'd1022;
+                            grid_address_1 <= 10'd1023;
                             grid_fraction <= 16'hffff;
                         end else begin
-                            grid_address_0 <= grid_coordinate_comb[22:16];
-                            grid_address_1 <= grid_coordinate_comb[22:16] + 1'b1;
+                            grid_address_0 <= grid_coordinate_comb[25:16];
+                            grid_address_1 <= grid_coordinate_comb[25:16] + 1'b1;
                             grid_fraction <= grid_coordinate_comb[15:0];
                         end
                         state <= RECIPROCAL_WAIT;

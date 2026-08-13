@@ -98,11 +98,11 @@ total                              126 clocks
 The surface-LUT and factorized/Hermite tube primitives deliberately share the
 same eight-clock request/valid contract, so selecting either implementation
 does not alter this schedule. The measured hierarchy trade is 8,024 LC / 89 DSP /
-47 RAMB18 for the surface mode and 9,194 LC / 110 DSP / 8 RAMB18 for factorized
+47 RAMB18 for the surface mode and 9,148 LC / 108 DSP / 8 RAMB18 for factorized
 mode. These are generic structural counts, not timing closure.
 
 At complete-stream scope the corresponding counts are 13,170 LC / 137 DSP /
-47 RAMB18 for the surface mode and 14,366 LC / 158 DSP / 8 RAMB18 for the
+47 RAMB18 for the surface mode and 14,290 LC / 156 DSP / 8 RAMB18 for the
 factorized mode. Both produce exact mode-specific fixed-model outputs.
 
 The KCL engine evaluates nine matrix rows in parallel while the single tube ROM
@@ -122,14 +122,14 @@ therefore has a simulation-proven 12-clock margin. Named-part timing closure is
 still required before that margin is a hardware claim.
 
 The complete wide stream is also simulation-proven exact for 64 external
-outputs and 1,024 internal solves. Its 170-DSP structural result leaves no room
+outputs and 1,024 internal solves. Its 168-DSP structural result leaves no room
 for full channel duplication on the 240-DSP A7-100T. The 12-clock-per-solve
 margin is insufficient to serialize a second complete solver, so stereo now
 requires a finer-grained shared schedule or a larger reference part.
 
 The guarded hierarchy adds the model-change state machine and output multiplier.
-Generic XC7 synthesis reports 17,142 logic cells, 172 DSP48E1s, and 8 RAMB18s.
-The separately synthesized unguarded hierarchy reports 17,552 / 170 / 8;
+Generic XC7 synthesis reports 17,562 logic cells, 170 DSP48E1s, and 8 RAMB18s.
+The separately synthesized unguarded hierarchy reports 17,492 / 168 / 8;
 out-of-context logic-cell estimates are optimization-dependent and are not
 additive. No placed timing result is implied by their small difference.
 

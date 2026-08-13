@@ -162,6 +162,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Fixed
 
+- Corrected the synthesis driver's `_factorized` alias detection so the real
+  `triode_12ax7_factorized` top is synthesized directly while the legacy solver
+  and stream wrapper aliases still receive their parameter override.
 - Widened the wide-network capacitor difference from signed 43 to 44 bits and
   its full product from 91 to 92 bits. Capacitor 6 can legally join opposite
   signed-40 Q28 node extremes and subtract a full-range Q30 history; directed
@@ -217,9 +220,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   clocks.
 - Banked RTL is bit-exact across all 9,216 captured overload states per mode,
   selects every generated bank, retains 116 clocks, and records no diagnostic
-  event. XC7 structural synthesis measures 13,369/13,914 logic cells for
-  backward Euler/trapezoidal with 122 DSP48E1s and 8 RAMB18E1s in either mode:
-  +930/+1,371 logic cells and no DSP/RAM increase over the nominal solvers.
+  event. XC7 structural synthesis measures 13,302/13,840 logic cells for
+  backward Euler/trapezoidal with 120 DSP48E1s and 8 RAMB18E1s in either mode:
+  +758/+1,054 logic cells and no DSP/RAM increase over the nominal solvers.
 - At 1.0 V, the bank improves raw full-Newton burst error from -53.45 to
   -76.43 dB for backward Euler and from -53.65 to -76.79 dB for trapezoidal.
   The latter retains 0.537 mV final-window mean error after 85 ms recovery;
@@ -238,10 +241,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
   error. This severe waveform discrepancy remains separate from the closed
   fixed-schedule residual gate.
 - The 128-entry linear grid-current table, not the factorized plate law,
-  dominates the remaining 1.5 V error. A 1,024-entry candidate reduces direct
-  grid-current worst error from 716 to 12.3 nA and final-window circuit error
-  from 18.27/17.36 to 0.631/0.321 mV for backward Euler/trapezoidal. All fixed
-  diagnostics remain zero; implementation is tracked separately.
+  dominated the former 1.5 V error. The implemented 1,024-entry branch reduces
+  exact fixed-mapping worst error from 716 to 12.55 nA, raw burst error to
+  -72.87/-81.77 dB, and final-window circuit error from 18.27/17.36 to
+  0.631/0.321 mV for backward Euler/trapezoidal. All fixed diagnostics remain
+  zero and integrated RTL is full-state exact.
 
 - ngspice bias is 179.994 V/0.9918 mA for stage 1 and 192.808 V/1.0719 mA for stage 2; circuit gain is 41.087 dB at 1 kHz.
 - The physical passive network's ideal-RIAA error is -0.919 to +0.000 dB over 20 Hz–20 kHz (0.364 dB RMS), retained as reference behavior.
@@ -281,23 +285,24 @@ All notable engineering changes are recorded here. The project is pre-release; d
   versus 0.0191% analytical. Doubling either LUT axis does not resolve it.
 - The fixed residual limit first fails at 1.0 V peak and LUT clipping begins at
   1.1 V; first tested ≥1 dB fixed gain compression is 1.1 V.
-- The fixed factorized candidate uses 233,472 raw table bits including grid
-  current (12.67 raw RAMB18 equivalents). Its 100,000-point error is 10.5 nA
-  mean, 16.0 nA RMS, and 51.8 nA worst at quantized inputs.
+- The fixed factorized candidate uses 262,144 raw table bits including grid
+  current (14.22 raw RAMB18 equivalents). Its 100,000-point plate error is
+  8.31 nA mean, 14.11 nA RMS, and 50.56 nA worst at quantized inputs; the dense
+  grid-current probe measures 12.55 nA worst and 2.82 nA active-region RMS.
 - At 5 mV/1 kHz, factorized fixed THD is 0.0188% versus 0.0191% analytical with
   +0.00026 dB fundamental gain error. At 0.5 V it is 2.2419% versus 2.2417%.
   The unaligned 5 mV waveform residual remains -42.90 dB and is tracked
   separately; the 1.0 V fixed solve still exceeds its residual limit.
 - The standalone factorized RTL is bit-exact to fixed Python for all 4,110 test
-  vectors. XC7 structural synthesis reports 1,597 estimated logic cells,
-  37 DSP48E1s, and 8 RAMB18E1s; no Fmax is claimed.
+  vectors. XC7 structural synthesis reports 1,496 estimated logic cells,
+  35 DSP48E1s, and 8 RAMB18E1s; no Fmax is claimed.
 - The complete factorized solver is bit-exact for 512 sequential samples and
   retains the 126-clock schedule with no diagnostic events. Its hierarchy uses
-  9,194 estimated logic cells, 110 DSP48E1s, and 8 RAMB18E1s versus the 2-D
+  9,148 estimated logic cells, 108 DSP48E1s, and 8 RAMB18E1s versus the 2-D
   solver's 8,024 / 89 / 47; this is a measured resource trade, not a free win.
 - The complete factorized stream matches 64 outputs spanning 1,024 nonlinear
-  updates with zero diagnostics. It synthesizes to 14,366 estimated logic cells,
-  158 DSP48E1s, and 8 RAMB18E1s versus the surface stream's 13,170 / 137 / 47.
+  updates with zero diagnostics. It synthesizes to 14,290 estimated logic cells,
+  156 DSP48E1s, and 8 RAMB18E1s versus the surface stream's 13,170 / 137 / 47.
 - Decomposed the 5 mV factorized fixed null: -42.90 dB raw, -59.63 dB after
   reporting (not correcting) its -2.840 mV mean difference, with 0.00958°
   fundamental phase error. This prevents the DC/state discrepancy from being
@@ -339,11 +344,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
   72 DSP for KCL; the pre-bound KCL's 99-DSP result was rejected.
 - The integrated wide solver matches every node, capacitor history, output,
   residual, and diagnostic across 512 sequential samples. Measured latency is
-  116 clocks with zero test events. XC7 structural synthesis reports 12,439
-  logic cells, 122 DSP48E1s, and 8 RAMB18E1s.
+  116 clocks with zero test events. XC7 structural synthesis reports 12,544
+  logic cells, 120 DSP48E1s, and 8 RAMB18E1s.
 - The complete wide stream matches 64 outputs spanning 1,024 nonlinear updates
-  exactly with zero diagnostics. Structural synthesis reports 17,552 logic
-  cells, 170 DSP48E1s, and 8 RAMB18E1s; mono fits the A7-100T, naive stereo does
+  exactly with zero diagnostics. Structural synthesis reports 17,492 logic
+  cells, 168 DSP48E1s, and 8 RAMB18E1s; mono fits the A7-100T, naive stereo does
   not fit its 240-DSP budget.
 - Captured wide solver RTL is Q32-exact to fixed Python for 23,040 samples at
   5 mV/1 kHz. Versus analytical float it measures -0.000054 dB gain error,
@@ -366,7 +371,7 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - The guarded stream passes a warning-free reset transaction regression: core
   reset follows zero gain, warmup output remains muted, the 48 kHz phase counter
   stays aligned, one acknowledgment fires, and unity gain returns. Structural
-  synthesis reports 17,142 logic cells, 172 DSP48E1s, and 8 RAMB18E1s.
+  synthesis reports 17,562 logic cells, 170 DSP48E1s, and 8 RAMB18E1s.
 - At 768 kHz, backward-Euler gain/phase error versus ngspice reaches -0.0646 dB /
   +4.72 degrees at 20 kHz. Quadrupling rate leaves +1.235 degrees. The floating
   trapezoidal candidate measures -0.00846 dB / +0.0582 degrees at 20 kHz and
@@ -385,11 +390,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
   existing backward-Euler KCL's 47-bit coefficient.
 - Trapezoidal solver RTL matches fixed Python at all nine node, ten voltage-
   history, and ten current-history states for 512 samples at 116 clocks.
-  Structural synthesis is 12,543 logic cells, 122 DSP48E1s, and 8 RAMB18E1s,
+  Structural synthesis is 12,786 logic cells, 120 DSP48E1s, and 8 RAMB18E1s,
   adding 104 cells but no DSP/BRAM versus backward Euler; no Fmax is claimed.
 - The complete trapezoidal stream is bit-exact with zero diagnostics and a
-  5.02 nA maximum residual. Structural synthesis is 17,651 logic cells,
-  170 DSP48E1s, and 8 RAMB18E1s, adding 563 cells but no DSP/BRAM.
+  5.02 nA maximum residual. Structural synthesis is 17,735 logic cells,
+  168 DSP48E1s, and 8 RAMB18E1s, adding 243 cells but no DSP/BRAM.
 - Captured trapezoidal RTL at 100 Hz/1/10/20 kHz is state-exact to fixed and
   remains within 0.000128 dB / 0.000784 degrees of floating trapezoidal with
   zero diagnostics. The separate float/SPICE layer remains within 0.00846 dB /
@@ -400,6 +405,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Changed
 
+- Increased the factorized grid-current table from 128 to 1,024 entries after a
+  gated resolution sweep. This is an FPGA approximation change only: the Koren
+  equation and frozen physical circuit are unchanged. Added dense exact-mapping
+  regression limits and refreshed every affected hierarchy's resource report.
 - Split factorized-tube cutoff handling into a -8 V plate-law acceptance bound
   and the unchanged -5 V grid-current lookup clamp. This changes only range
   diagnostics on the audited overload trajectory; fixed current, audio, and RTL

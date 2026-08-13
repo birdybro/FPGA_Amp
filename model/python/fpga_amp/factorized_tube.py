@@ -156,7 +156,7 @@ class FixedFactorizedKoren12AX7:
     reciprocal_points: int = 512
     softplus_points: int = 1024
     power_points: int = 2048
-    grid_points: int = 128
+    grid_points: int = 1024
     plate_min_v: float = 0.0
     plate_max_v: float = 400.0
     transformed_min: float = -0.30

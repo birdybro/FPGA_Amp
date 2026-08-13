@@ -26,6 +26,7 @@ interfaces, but evaluates three scalar tables in sequence:
 | `1/sqrt(Kvb+Vpk²)` | Q12.20, 0…400 V | unsigned Q0.32 value/slope-step | 512 |
 | `softplus(Kp*z)/Kp` | signed Q2.30, -0.30…0.08 | unsigned Q0.32 value/slope-step | 1024 |
 | `2*E1^Ex/Kg1` | Q12.20, 0…6 V | unsigned Q0.31 value/slope-step | 2048 |
+| grid current | Q8.24, -5…+1 V | unsigned Q0.31 value | 1024 |
 
 For endpoints `y0/y1`, derivative-times-axis-step values `m0/m1`, and Q0.16
 fraction `t`, fixed Python defines the exact Horner sequence:
@@ -38,22 +39,24 @@ y  = round(round(round(c3*t) + c2)*t + m0)*t + y0
 ```
 
 Each multiply is rounded back to the table format with add-half then arithmetic
-shift. `z` is Q2.30 and `E1` is Q12.20. The 128-entry linear grid-current table
-is unchanged. Plate-current evaluation accepts `Vgk` from -8 to +1 V; the
+shift. `z` is Q2.30 and `E1` is Q12.20. The linear grid-current table uses 1,024
+entries; its exact fixed mapping measures 12.55 nA worst absolute error and
+2.82 nA RMS in the nonnegative-grid conduction region. Plate-current evaluation
+accepts `Vgk` from -8 to +1 V; the
 independent grid-current table retains its -5 to +1 V axis and clamps more
 negative inputs to the modeled leakage-floor entry. The transformed-coordinate,
 `Vpk`, and `E1` guards remain independent, so an externally bounded pair can
 still assert `range_clipped` if an internal factor leaves its table. Total raw
-table storage is 233,472 bits. These formats are a bit-accurate Python contract.
+table storage is 262,144 bits. These formats are a bit-accurate Python contract.
 The standalone RTL passes 4,110 exact randomized/directed vectors, including
 independent-coordinate clip cases, at eight clocks. Proven table bounds allow
 the Hermite coefficient and Horner states to remain signed 32-bit with full
-49-bit products. Generic XC7 synthesis reports 1,597 estimated logic cells,
-37 DSP48E1s, and 8 RAMB18E1s. Selectable solver integration is exact for 512
+49-bit products. Generic XC7 synthesis reports 1,496 estimated logic cells,
+35 DSP48E1s, and 8 RAMB18E1s. Selectable solver integration is exact for 512
 persistent-state samples at the unchanged 126-clock latency. Its hierarchy is
-9,194 logic cells, 110 DSP48E1s, and 8 RAMB18E1s. The complete factorized stream
+9,148 logic cells, 108 DSP48E1s, and 8 RAMB18E1s. The complete factorized stream
 also matches 64 outputs / 1,024 nonlinear updates exactly and synthesizes to
-14,366 logic cells, 158 DSP48E1s, and 8 RAMB18E1s. Both implementations remain
+14,290 logic cells, 156 DSP48E1s, and 8 RAMB18E1s. Both implementations remain
 named while wider equivalence testing is open.
 
 ## Circuit-state chord candidate
@@ -126,9 +129,9 @@ routing, or 98.304 MHz closure is claimed.
 
 With `USE_FACTORIZED_TUBE=1`, the identical scheduler and network arithmetic
 match the factorized fixed model bit-for-bit for 512 samples at the same 126
-clocks. Structural resources become 9,194 logic cells, 110 DSP48E1s, and 8
-RAMB18E1s. Relative to the 2-D hierarchy this saves 39 BRAMs while adding 21
-DSPs and 1,170 logic cells. Both modes remain named and reproducible.
+clocks. Structural resources become 9,148 logic cells, 108 DSP48E1s, and 8
+RAMB18E1s. Relative to the 2-D hierarchy this saves 39 BRAMs while adding 19
+DSPs and 1,124 logic cells. Both modes remain named and reproducible.
 
 The uniform Q12.20 capacitor/output-state choice is now known to be inadequate
 for long settling. In a one-second silence/click regression, a one-sample
@@ -299,19 +302,22 @@ at the (-2.25 V, 261 V) representative; trapezoidal reuses its fourth
 cutoff matrix. The <=1.0 V output is bit-exact to the previous selector.
 
 The production 100 ms gate reduces the 1.5 V failure counts from 72/67 to zero,
-with maximum residual 1.703/1.774 uA and no arithmetic, range, or scale event.
+with maximum residual below 1.9 uA and no arithmetic, range, or scale event.
 In the 12 ms RTL gate, all 36,864 states across 1.0/1.5 V and both integration
 modes are exact, every generated bank is selected in aggregate, and latency
-remains 116 clocks. Structural synthesis measures 13,369 logic cells / 122
-DSP48E1 / 8 RAMB18E1 for backward Euler and 13,914 / 122 / 8 for trapezoidal.
+remains 116 clocks. Structural synthesis measures 13,302 logic cells / 120
+DSP48E1 / 8 RAMB18E1 for backward Euler and 13,840 / 120 / 8 for trapezoidal.
 No Fmax is claimed from the structural flow.
 
-This closes fixed-schedule residual convergence, not severe-overload waveform
-accuracy. At 1.5 V the unaligned raw burst residual versus full Newton is
--61.80/-62.12 dB, and final 10 ms RMS error is 18.26/17.36 mV for backward
-Euler/trapezoidal. These errors remain explicit. The 1.0 V trapezoidal final
-mean error also remains 0.537 mV because the slew qualifier deliberately does
-not alter accepted <=1.0 V behavior.
+The first converged waveform gate used a 128-point linear grid-current table.
+At 1.5 V its unaligned raw burst residual versus full Newton was
+-61.80/-62.12 dB and final 10 ms RMS error was 18.26/17.36 mV for backward
+Euler/trapezoidal. A layer decomposition and 128/256/512/1,024-point sweep
+identified that branch as the severe recovery limit. The implemented
+1,024-point table improves 1.5 V burst residual to -72.87/-81.77 dB and final
+RMS error to 0.631/0.321 mV; at 1.0 V final RMS error is 0.372/0.291 mV. All
+fixed diagnostics remain zero. The larger table adds 28,672 raw bits but no
+mapped RAMB18E1 to the measured standalone or banked hierarchies.
 
 `v1_solver_mono_wide.sv` composes those blocks with the factorized tube and
 matches 512 sequential fixed-Python samples exactly across all nine nodes, ten
@@ -320,7 +326,7 @@ set covers silence, tone, multitone, bounded noise, and bipolar 100 mV clicks.
 The scheduler passes Q30, Q34, and Q40 in the intended order; a regression found
 and fixed an initial handoff bug that had latched the previous pass's format.
 Measured latency is 116 clocks, leaving 12 clocks at 98.304 MHz / 768 kHz.
-Hierarchical synthesis reports 12,439 logic cells, 122 DSP48E1s, and 8
+Hierarchical synthesis reports 12,544 logic cells, 120 DSP48E1s, and 8
 RAMB18E1s with zero structural check problems. This establishes numerical and
 cycle equivalence, not placed timing closure.
 
@@ -328,8 +334,8 @@ The complete wide stream rounds solver Q8.32 output to external Q8.24 using the
 same add-half/arithmetic-shift rule before the existing bit-accurate decimator.
 It matches 64 fixed-composition outputs spanning 1,024 solver updates exactly,
 with zero rate-converter, numerical, LUT, convergence, deadline, or fallback
-events and a maximum 4.598 nA residual. Generic XC7 synthesis reports 17,552
-logic cells, 170 DSP48E1s, and 8 RAMB18E1s. This is now the best-accuracy
+events and a maximum 4.598 nA residual. Generic XC7 synthesis reports 17,492
+logic cells, 168 DSP48E1s, and 8 RAMB18E1s. This is now the best-accuracy
 complete RTL path, while the legacy modes remain reproducible for comparison.
 
 On the same 768,000-sample bipolar-click audit, late raw output residual falls
@@ -389,15 +395,15 @@ that initially reused the backward-Euler inverse failed on sample zero and is
 now prevented by explicit integration-mode assets. With the matched inverse,
 RTL equals fixed Python across 512 sequential samples at all nine nodes, ten
 Q30 voltage histories, ten Q4.44 current histories, and every diagnostic. The
-latency remains 116 clocks. Generic XC7 synthesis is 12,543 estimated logic
-cells, 122 DSP48E1s, and 8 RAMB18E1s, versus 12,439 / 122 / 8 for backward
+latency remains 116 clocks. Generic XC7 synthesis is 12,786 estimated logic
+cells, 120 DSP48E1s, and 8 RAMB18E1s, versus 12,544 / 120 / 8 for backward
 Euler. No Fmax is inferred from structural synthesis.
 
 The complete selectable 48 kHz path retains the established Q8.24 boundary and
 Q8.32-to-Q8.24 output rounding. It matches fixed Python for 64 outputs spanning
 1,024 internal circuit updates with zero diagnostic events and 5.02 nA maximum
-residual. Structural synthesis measures 17,651 logic cells, 170 DSP48E1s, and
-8 RAMB18E1s, versus 17,552 / 170 / 8 for backward Euler. The 99-cell delta is
+residual. Structural synthesis measures 17,735 logic cells, 168 DSP48E1s, and
+8 RAMB18E1s, versus 17,492 / 168 / 8 for backward Euler. The 243-cell delta is
 measured; timing closure remains unproven.
 
 The overload gate passes only through the measured 0.5 V level. At 20 mV, the

@@ -11,10 +11,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
-- [ ] Reduce the remaining 0.537 mV trapezoidal 1.0 V post-burst mean error and
-  17--18 mV 1.5 V final-window waveform error versus full Newton without
-  regressing the now-clean fixed residual gate. Extra chord passes remain
-  rejected.
+- [ ] Isolate and reduce the remaining fixed evaluator/circuit/chord error. With
+  the implemented 1,024-point grid branch, raw final-window error is now
+  0.372/0.291 mV at 1.0 V and 0.631/0.321 mV at 1.5 V for backward Euler/
+  trapezoidal; the decomposition identifies fixed evaluation/state/chord as the
+  dominant burst layer. Extra serialized chord passes remain rejected.
 - [ ] Extend integrated-solver RTL capture beyond nominal frequency response to
   level-dependent harmonics, clipping asymmetry, and recovery metrics.
 - [ ] Separate folded nonlinear harmonics from preexisting in-band solver energy
@@ -23,10 +24,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Completed this milestone
 
-- [x] Decompose banked severe-overload error and sweep the grid-current table.
-  Identify the 128-entry positive-grid branch as the dominant 1.5 V error;
-  select 1,024 entries after reducing final error from 18.27/17.36 mV to
-  0.631/0.321 mV with zero diagnostics and improved worst-case 1.0 V error.
+- [x] Decompose banked severe-overload error, sweep the grid-current table, and
+  implement the selected 1,024-entry branch in fixed Python and RTL. Reduce
+  direct worst error from 716 to 12.55 nA and 1.5 V final error from
+  18.27/17.36 mV to 0.631/0.321 mV, preserve zero diagnostics, prove standalone
+  and 36,864-state integrated RTL exactness, and retain eight mapped RAMB18E1s.
 - [x] Add a Vgk-slew-qualified shallow bank for the severe cutoff arc. Preserve
   bit-exact <=1.0 V behavior, remove all 1.5 V residual-limit misses in both
   integration modes, prove 36,864 RTL states exact with every bank exercised,
@@ -168,13 +170,14 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   error and 0.0188% versus 0.0191% analytical THD at 5 mV.
 - [x] Implement the standalone factorized tube RTL and pass 4,110 bit-exact
   randomized/boundary vectors at eight clocks, including five clip cases;
-  synthesize at 1,597 LC, 37 DSP48E1, and 8 RAMB18E1.
+  after the grid-resolution implementation, synthesize at 1,496 LC,
+  35 DSP48E1, and 8 RAMB18E1.
 - [x] Integrate the factorized primitive as a selectable solver mode; match all
   state and diagnostics for 512 samples at 126 clocks and synthesize the full
-  hierarchy at 9,194 LC, 110 DSP48E1, and 8 RAMB18E1.
+  hierarchy at 9,148 LC, 108 DSP48E1, and 8 RAMB18E1.
 - [x] Propagate factorized mode through the complete stream; match 64 outputs /
-  1,024 circuit updates exactly with zero diagnostics and synthesize at 14,366
-  LC, 158 DSP48E1, and 8 RAMB18E1.
+  1,024 circuit updates exactly with zero diagnostics and synthesize at 14,290
+  LC, 156 DSP48E1, and 8 RAMB18E1.
 - [x] Sweep 5 mV factorized fixed vs analytical at 20/50/100 Hz and
   1/10/20 kHz: ≤0.00846 dB gain error, ≤0.0729° phase error, and no diagnostic
   failures across 683,520 nonlinear samples.
@@ -203,10 +206,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   tube-current coverage. Synthesize at 31 LC / 4 DSP and 8,034 LC / 72 DSP.
 - [x] Integrate the wide factorized solver; match all 19 persistent states and
   diagnostics across 512 sequential samples at 116 clocks. Synthesize the
-  hierarchy at 12,439 LC / 122 DSP48E1 / 8 RAMB18E1.
+  hierarchy at 12,544 LC / 120 DSP48E1 / 8 RAMB18E1.
 - [x] Integrate the wide solver into 16x interpolation/decimation; match 64
-  outputs / 1,024 solves exactly with zero diagnostics and synthesize at 17,552
-  LC / 170 DSP48E1 / 8 RAMB18E1.
+  outputs / 1,024 solves exactly with zero diagnostics and synthesize at 17,492
+  LC / 168 DSP48E1 / 8 RAMB18E1.
 - [x] Capture 23,040 wide-solver RTL samples at 5 mV/1 kHz; prove Q32 exactness
   and measure -0.000054 dB gain, -0.000187 degree phase, 0.019371% THD, and
   -63.834 dB raw residual directly from RTL output.

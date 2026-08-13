@@ -76,11 +76,11 @@ structural check has zero problems and 12 primitive-resize warnings. RHS has
 zero synthesis warnings. Subsystem counts were not added to form a hierarchy
 claim.
 
-Hierarchical synthesis of the integrated wide factorized solver measures 12,439
-logic cells, 1,366 FDRE plus 282 FDSE, 122 DSP48E1s, and 8 RAMB18E1s. Structural
-check reports zero problems and 57 techmap resize warnings. Its 116-clock
+Hierarchical synthesis of the integrated wide factorized solver measures 12,544
+logic cells, 1,366 FDRE plus 282 FDSE, 120 DSP48E1s, and 8 RAMB18E1s. Structural
+check reports zero problems and 61 techmap resize warnings. Its 116-clock
 simulation schedule leaves 12 clocks, versus two for the legacy hierarchy, but
-no named-part Fmax or routing closure is claimed. The solver consumes 50.8% of
+no named-part Fmax or routing closure is claimed. The solver consumes 50.0% of
 the Arty A7-100T's DSP count before resampling; this materially constrains stereo
 duplication and makes a complete-stream resource measurement mandatory.
 
@@ -90,19 +90,19 @@ or block RAM; measured structural resources are:
 
 | Solver | Logic cells | DSP48E1 | RAMB18E1 | Delta logic vs nominal |
 |---|---:|---:|---:|---:|
-| backward Euler, banked | 13,369 | 122 | 8 | +930 |
-| trapezoidal, banked | 13,914 | 122 | 8 | +1,371 |
+| backward Euler, banked | 13,302 | 120 | 8 | +758 |
+| trapezoidal, banked | 13,840 | 120 | 8 | +1,054 |
 
-Both checks report zero structural problems and 57 primitive-resize warnings.
+Both checks report zero structural problems and 61 primitive-resize warnings.
 The selector includes a previous-Vgk slew comparison but adds no DSP or RAM.
 Full-Newton waveform error remains reported separately; no Fmax claim is
 inferred from Yosys.
 
-The complete wide stream measures 17,552 logic cells, 170 DSP48E1s, and 8
-RAMB18E1s, with zero structural check problems and 61 techmap resize warnings.
-This is 17.3% of nominal A7-100T logic cells, 70.8% of DSPs, and about 3.3% of
+The complete wide stream measures 17,492 logic cells, 168 DSP48E1s, and 8
+RAMB18E1s, with zero structural check problems and 67 techmap resize warnings.
+This is 17.2% of nominal A7-100T logic cells, 70.0% of DSPs, and about 3.3% of
 18 Kib RAM blocks. The mono design fits structurally, but two identical channels
-would require 340 DSPs and therefore cannot be naively duplicated on this part.
+would require 336 DSPs and therefore cannot be naively duplicated on this part.
 Stereo needs filter/KCL resource sharing, a larger device, or a separately
 measured arithmetic trade; none is silently selected here.
 

@@ -173,12 +173,15 @@ Ip(E1)  = 2*E1^Ex/Kg1
 
 The three scalar functions use 512, 1024, and 2048 uniformly spaced value and
 derivative-times-step entries. A Q0.16 cubic Hermite coordinate is evaluated in
-Horner form. Including the unchanged 128-entry grid-current branch, the fixed
-candidate contains 233,472 raw bits, 22.2% of the present 2-D-plus-grid raw
-table bits. This is a storage comparison rather than a placed-BRAM claim.
+Horner form. The independently linear-interpolated grid-current branch now uses
+1,024 entries after the overload-resolution study below. The fixed candidate
+contains 262,144 raw bits, 25.0% of the original 2-D-plus-grid raw table bits.
+This is a storage comparison rather than a placed-BRAM claim.
 
-On 100,000 random quantized inputs it has 10.5 nA mean, 16.0 nA RMS, and
-51.8 nA worst plate-current error. Circuit-level 5 mV/1 kHz THD is 0.0188%
+On 100,000 random quantized inputs it has 8.31 nA mean, 14.11 nA RMS, and
+50.56 nA worst plate-current error. The exact fixed grid mapping measures
+12.55 nA worst absolute and 2.82 nA active-region RMS error. Circuit-level
+5 mV/1 kHz THD is 0.0188%
 versus 0.0191% analytical; 0.5 V results are 2.2419% and 2.2417%. The 5 mV
 unaligned waveform residual is still only -42.90 dB, despite +0.00026 dB
 fundamental gain error, demonstrating a separate state/phase error that requires
@@ -254,12 +257,12 @@ integrated persistent-state solver then matches 512 sequential samples exactly
 at 116 clocks, including all node, capacitor, output, residual, and diagnostic
 values. The test has zero saturation, range, convergence, missed-request, or
 deadline events and maximum residual 4.705 nA. Generic XC7 synthesis reports
-12,439 logic cells, 122 DSPs, and 8 RAMB18s. Timing closure remains separate.
+12,544 logic cells, 120 DSPs, and 8 RAMB18s. Timing closure remains separate.
 
 Composition with the existing 16x interpolator and decimator also remains
 bit-exact: 64 external samples exercise 1,024 nonlinear updates with zero
 diagnostics and a 4.598 nA maximum residual. Structural synthesis measures
-17,552 logic cells, 170 DSP48E1s, and 8 RAMB18E1s. These counts fit mono on the
+17,492 logic cells, 168 DSP48E1s, and 8 RAMB18E1s. These counts fit mono on the
 provisional A7-100T but rule out simple stereo duplication on its 240 DSPs.
 
 A longer 23,040-sample solver capture now closes the nominal measurement loop.
@@ -421,14 +424,14 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | fixed trapezoidal state | six 5 mV points, 20 Hz--20 kHz | <=0.000131 dB / <=0.000784 degree vs float trapezoidal; zero diagnostics; RTL open |
 | fixed trapezoidal overload | 20 mV--1.5 V bursts | clean through 0.5 V; 203.34 uA history-current peak; severe solver/range limit unchanged |
 | trapezoidal KCL RTL | 1,024 randomized/directed vectors | exact residual and Q4.44 next current; 10 clocks; integrated |
-| trapezoidal solver RTL | 512 persistent samples | exact 9 node + 20 capacitor states; 116 clocks; 12,543 LC / 122 DSP / 8 RAMB18 structural |
-| trapezoidal 48 kHz RTL stream | 64 outputs / 1,024 updates | exact fixed composition; zero diagnostics; 17,651 LC / 170 DSP / 8 RAMB18 structural |
+| trapezoidal solver RTL | 512 persistent samples | exact 9 node + 20 capacitor states; 116 clocks; 12,786 LC / 120 DSP / 8 RAMB18 structural |
+| trapezoidal 48 kHz RTL stream | 64 outputs / 1,024 updates | exact fixed composition; zero diagnostics; 17,735 LC / 168 DSP / 8 RAMB18 structural |
 | chord vs full Newton | -137.28 dB normalized residual, 3-pass multitone | float architecture candidate |
 | fixed tube LUT | 0.139 µA mean / 9.33 µA worst full range | measured |
-| fixed factorized tube | 10.5 nA mean / 51.8 nA worst; 233,472 raw table bits | measured; standalone RTL passing |
-| factorized RTL vs fixed | 4,110 vectors exact at 8 clocks; 1,597 LC / 37 DSP / 8 RAMB18 | standalone and solver passing |
-| factorized solver vs fixed | 512 stateful samples exact at 126 clocks; 9,194 LC / 110 DSP / 8 RAMB18 | passing |
-| factorized stream vs fixed | 64 outputs / 1,024 updates exact; 14,366 LC / 158 DSP / 8 RAMB18 | passing; broader stimuli open |
+| fixed factorized tube | plate 8.31 nA mean / 50.56 nA worst; grid 12.55 nA worst; 262,144 raw table bits | measured; standalone RTL passing |
+| factorized RTL vs fixed | 4,110 vectors exact at 8 clocks; 1,496 LC / 35 DSP / 8 RAMB18 | standalone and solver passing |
+| factorized solver vs fixed | 512 stateful samples exact at 126 clocks; 9,148 LC / 108 DSP / 8 RAMB18 | passing |
+| factorized stream vs fixed | 64 outputs / 1,024 updates exact; 14,290 LC / 156 DSP / 8 RAMB18 | passing; broader stimuli open |
 | factorized frequency response | six 5 mV points, 20 Hz–20 kHz | ≤0.00846 dB gain / ≤0.0729° phase; zero diagnostics |
 | factorized overload/recovery | 5 ms bursts, 20 mV–1.5 V | clean at 20/500 mV; residual failure at 1 V; legacy -5 V flags reclassified without output change |
 | overload iteration count | 3–6 corrections at 1.0/1.5 V | improved but still failing; projected 213 clocks at six |
@@ -437,15 +440,15 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | banked cutoff RTL | 36,864 updates at 1.0/1.5 V | fixed full-state exact, all banks selected, 116 clocks; zero residual/range/arithmetic events |
 | banked cutoff vs full Newton | 100 ms, 20 mV/0.5/1.0 V bursts | <=-75.28 dB raw burst error; 1 V improves 22.98/23.13 dB vs DC chord |
 | trapezoidal shallow-bank threshold | -2.50 to -2.90 V, 0.5/1.0 V bursts | select -2.75 V; no 0.5 V activation, zero 1 V failures, 0.537 mV final mean error |
-| slew-qualified shallow-bank selector | 100 ms, 0.5/1.0/1.5 V bursts | <=1 V bit-exact; zero 1.5 V residual failures; -61.80/-62.12 dB severe burst error |
-| grid-current error decomposition | 100 ms, 1.0/1.5 V bursts | 128-entry grid branch dominates severe recovery; plate coefficient error only ~5 uV final |
-| grid-current resolution | 128--1,024 entries, linear interpolation | 1,024 reduces 1.5 V final error to 0.631/0.321 mV; selected for RTL implementation |
+| slew-qualified shallow-bank selector | 100 ms, 0.5/1.0/1.5 V bursts | <=1 V bit-exact; zero 1.5 V residual failures; old 128-point severe burst baseline -61.80/-62.12 dB |
+| grid-current error decomposition | 100 ms, 1.0/1.5 V bursts | 128-entry grid branch dominated old severe recovery; at 1,024 points fixed evaluator/state/chord dominates burst RMS |
+| grid-current resolution | 128--1,024 entries, linear interpolation | implemented 1,024 points: 1.5 V burst -72.87/-81.77 dB, final 0.631/0.321 mV |
 | long fixed state / click recovery | 1 s silence with +/-100 mV single-sample clicks | Q12.20 deadband leaves -5.368 mV late output; must be redesigned |
 | wide-state Python candidate | same 1 s click audit; 5 mV/1 kHz | 38.74 uV late residual; -63.83 dB nominal raw null; complete-RTL proof open |
 | wide chord RTL vs fixed | 1,024 randomized/directed vectors | bit-exact, latency 10; 1,701 LC / 9 DSP / 0 RAMB18 structural |
 | wide RHS/KCL RTL vs fixed | 1,024 vectors each | bit-exact, latency 2/10; KCL fallback/overflow/delayed-current coverage |
-| wide factorized solver RTL vs fixed | 512 persistent samples | bit-exact all state/diagnostics, latency 116; 12,439 LC / 122 DSP / 8 RAMB18 |
-| wide factorized stream vs fixed | 64 outputs / 1,024 updates | bit-exact, zero diagnostics; 17,552 LC / 170 DSP / 8 RAMB18 |
+| wide factorized solver RTL vs fixed | 512 persistent samples | bit-exact all state/diagnostics, latency 116; 12,544 LC / 120 DSP / 8 RAMB18 |
+| wide factorized stream vs fixed | 64 outputs / 1,024 updates | bit-exact, zero diagnostics; 17,492 LC / 168 DSP / 8 RAMB18 |
 | captured wide solver RTL vs analytical | 23,040 samples, 5 mV/1 kHz | Q32 exact to fixed; -0.000054 dB / -0.000187 degree gain/phase error; 0.019371% THD |
 | captured wide solver RTL frequency sweep | 5 mV, 100 Hz/1/10/20 kHz | Q32 exact to fixed; <=0.0001943 dB gain / <=0.0009814 degree phase; zero diagnostics |
 | captured trapezoidal solver RTL frequency | 5 mV, 100 Hz/1/10/20 kHz | all fixed states exact; <=0.000128 dB / <=0.000784 degree vs float; zero diagnostics |

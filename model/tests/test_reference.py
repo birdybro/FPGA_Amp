@@ -105,7 +105,38 @@ class TubeModelTests(unittest.TestCase):
             self.assertFalse(clipped)
             worst = max(worst, abs(approximate_q31 / (1 << 31) - reference))
         self.assertLess(worst, 60.0e-9)
-        self.assertLess(factorized.raw_table_bits, 0.23 * (128 * 256 * 32))
+        self.assertEqual(factorized.grid_points, 1024)
+        self.assertEqual(factorized.raw_table_bits, 262_144)
+
+        # Grid conduction strongly affects overload recovery even though it is
+        # negligible at nominal negative grid bias.  Exercise the exact Q24
+        # coordinate and Q31 linear interpolation contract densely so a table
+        # resolution regression cannot hide behind the plate-current test.
+        grid_low_q = int(round(-5.0 * (1 << 24)))
+        grid_high_q = int(round(1.0 * (1 << 24)))
+        grid_worst = 0.0
+        grid_active_squared_error: list[float] = []
+        for grid_q24 in np.linspace(
+            grid_low_q, grid_high_q, 16 * (factorized.grid_points - 1) + 1
+        ).astype(np.int64):
+            coordinate = factorized._coordinate(
+                int(grid_q24),
+                grid_low_q,
+                grid_high_q,
+                factorized.grid_points,
+            )
+            approximate = factorized._linear(
+                factorized.grid_value_q31, coordinate
+            ) / (1 << 31)
+            reference = float(tube.grid_current(grid_q24 / (1 << 24)))
+            error = approximate - reference
+            grid_worst = max(grid_worst, abs(error))
+            if grid_q24 >= 0:
+                grid_active_squared_error.append(error * error)
+        self.assertLess(grid_worst, 13.0e-9)
+        self.assertLess(
+            float(np.sqrt(np.mean(grid_active_squared_error))), 3.0e-9
+        )
 
         for vg, clipped_expected in ((-8.0, False), (-8.01, True)):
             vg_q24 = int(round(vg * (1 << 24)))

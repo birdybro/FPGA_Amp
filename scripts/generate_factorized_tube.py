@@ -96,6 +96,28 @@ def main() -> int:
         grid_q24[in_range] / (1 << 24), plate_q20[in_range] / (1 << 20)
     )
     error = approximate[in_range] - reference
+    grid_probe_v = np.linspace(
+        factorized.grid_v_gk_min_v,
+        factorized.v_gk_max_v,
+        200_001,
+    )
+    grid_coordinate_q16 = [
+        factorized._coordinate(
+            factorized._fixed_limit(float(value), 24),
+            factorized._fixed_limit(factorized.grid_v_gk_min_v, 24),
+            factorized._fixed_limit(factorized.v_gk_max_v, 24),
+            factorized.grid_points,
+        )
+        for value in grid_probe_v
+    ]
+    fixed_grid_current = np.asarray(
+        [
+            factorized._linear(factorized.grid_value_q31, coordinate)
+            / float(1 << 31)
+            for coordinate in grid_coordinate_q16
+        ]
+    )
+    grid_error = fixed_grid_current - Koren12AX7().grid_current(grid_probe_v)
     report = {
         "algorithm": "three value/slope 1-D LUTs with fixed cubic Hermite interpolation",
         "seed": args.seed,
@@ -123,6 +145,14 @@ def main() -> int:
         "latency_clocks": 8,
         "raw_table_bits": factorized.raw_table_bits,
         "raw_ramb18_equivalents": factorized.raw_table_bits / 18_432.0,
+        "grid_current_points": factorized.grid_points,
+        "grid_current_storage_bits": factorized.grid_points * 32,
+        "grid_current_maximum_absolute_error_a": float(
+            np.max(np.abs(grid_error))
+        ),
+        "grid_current_active_region_rms_error_a": float(
+            np.sqrt(np.mean(np.square(grid_error[grid_probe_v >= 0.0])))
+        ),
         "mean_absolute_error_a": float(np.mean(np.abs(error))),
         "rms_error_a": float(np.sqrt(np.mean(np.square(error)))),
         "worst_absolute_error_a": float(np.max(np.abs(error))),

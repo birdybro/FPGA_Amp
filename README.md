@@ -66,11 +66,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   not fix the existing 2-D implementation.
 - A new factorized Koren candidate replaces that current surface with three
   value/slope 1-D tables and cubic Hermite interpolation. Its bit-accurate Python
-  model measures 51.8 nA worst current error in 100,000 points and 0.0188% THD
-  at 5 mV versus 0.0191% analytical, using 233,472 raw table bits (12.67 raw
-  RAMB18 equivalents). Its standalone RTL is exact across 4,110 vectors at the
-  existing eight-clock latency; structural synthesis reports 1,597 logic cells,
-  37 DSP48E1s, and 8 RAMB18E1s. Solver and complete-stream modes are also
+  model measures 50.6 nA worst plate-current error in 100,000 points and 0.0188%
+  THD at 5 mV versus 0.0191% analytical. Its 1,024-point grid-current branch
+  measures 12.55 nA worst / 2.82 nA active-region RMS error; total raw storage
+  is 262,144 bits (14.22 raw RAMB18 equivalents). Standalone RTL is exact across
+  4,110 vectors at the existing eight-clock latency; structural synthesis
+  reports 1,496 logic cells, 35 DSP48E1s, and 8 RAMB18E1s. Solver and
+  complete-stream modes are also
   bit-exact at the unchanged 126-clock solver schedule.
 - The SystemVerilog tube lookup accepts physical Q-format voltages, is
   bit-exact for 4,096 randomized vectors, and has eight-clock latency.
@@ -86,14 +88,14 @@ The mono reference and complete 768 kHz circuit solver are operating:
   8,024 estimated logic cells, 89 DSP48E1, and 47 RAMB18E1 blocks. This is an
   accuracy-first baseline; no Fmax is claimed before place-and-route.
 - The selectable factorized solver also matches 512 persistent-state samples
-  exactly at 126 clocks. Its hierarchy measures 9,194 logic cells, 110 DSP48E1s,
-  and 8 RAMB18E1s: 39 fewer BRAMs at the cost of 21 DSPs and 1,170 logic cells.
+  exactly at 126 clocks. Its hierarchy measures 9,148 logic cells, 108 DSP48E1s,
+  and 8 RAMB18E1s: 39 fewer BRAMs at the cost of 19 DSPs and 1,124 logic cells.
 - The complete 48 kHz reference stream—16× interpolation, nonlinear circuit,
   saturating output-format conversion, and 16× decimation—matches 64 consecutive
   Python outputs exactly with zero diagnostic events. Structural synthesis is
   13,170 estimated XC7 logic cells, 137 DSP48E1s, and 47 RAMB18E1s.
 - The factorized stream independently matches 64 outputs / 1,024 nonlinear
-  updates with zero diagnostics. It synthesizes to 14,366 logic cells, 158
+  updates with zero diagnostics. It synthesizes to 14,290 logic cells, 156
   DSP48E1s, and 8 RAMB18E1s. Both modes remain explicit while broader accuracy
   and overload tests determine the preferred hardware configuration.
 - At 5 mV the factorized fixed raw null is -42.90 dB, but its mean-removed null
@@ -118,8 +120,8 @@ The mono reference and complete 768 kHz circuit solver are operating:
   every fixed state, retains the 116-clock schedule, and records zero
   diagnostics. A Vgk-slew-qualified shallow matrix extends that result through
   the tested 1.5 V peak burst without activating at 0.5 or 1.0 V. Structural
-  synthesis is 13,369 logic cells / 122 DSPs / 8 RAMs for backward Euler and
-  13,914 / 122 / 8 for trapezoidal.
+  synthesis is 13,302 logic cells / 120 DSPs / 8 RAMs for backward Euler and
+  13,840 / 120 / 8 for trapezoidal.
 - A fixed-intermediate domain audit proves that all former 1.5 V range events
   were only `Vgk < -5 V`: measured `Vpk`, transformed coordinate, and `E1`
   remained inside their tables. The plate-law acceptance bound is now -8 V,
@@ -134,21 +136,24 @@ The mono reference and complete 768 kHz circuit solver are operating:
   chord by 22.98 and 23.13 dB. No gain, DC, or delay alignment is applied.
 - Moving only the shallow trapezoidal threshold from -2.50 to -2.75 V prevents
   bank activation at 0.5 V, preserves zero 1.0 V failures, and reduces final
-  10 ms mean error from 1.042 to 0.537 mV. Mean-removed error is -89.75 dB; the
-  remaining slow-state displacement keeps the bank optional.
+  10 ms mean error from 1.042 to 0.537 mV with the former 128-point grid-current
+  branch. This historical selector A/B remains reproducible; the denser branch
+  below supersedes its absolute final-window figure.
 - A 20 mV/sample previous-Vgk slew qualifier separates the measured severe
   cutoff arc from every accepted <=1.0 V trajectory. Backward Euler adds a
   fourth matrix evaluated at (-2.25 V, 261 V); trapezoidal reuses its shallow
   matrix. The 100 ms 1.5 V residual-failure counts fall from 72/67 to zero and
-  the 12 ms RTL proof is full-state exact across 36,864 total updates. Severe
-  burst error versus full Newton remains -61.80/-62.12 dB and final 10 ms error
-  remains 18.27/17.36 mV, so convergence is not mislabeled waveform accuracy.
-- A converged layer decomposition localizes that severe recovery error to the
-  128-entry linear grid-current table, not the factorized plate law. A
-  1,024-entry candidate reduces direct grid-current worst error from 716 to
-  12.3 nA and the 1.5 V final-window circuit error to 0.631/0.321 mV, with all
-  fixed diagnostics clean. This is selected numerical work; the checked-in RTL
-  table remains 128 entries until the exact/synthesis regression is complete.
+  the 12 ms RTL proof is full-state exact across 36,864 total updates. With the
+  old 128-point grid-current branch, severe burst error remained
+  -61.80/-62.12 dB and final 10 ms error remained 18.27/17.36 mV. Those results
+  are retained as the pre-resolution baseline, not current accuracy.
+- A converged layer decomposition localized that severe recovery error to the
+  128-entry linear grid-current table, not the factorized plate law. The
+  implemented 1,024-entry branch reduces direct worst error from 716 to
+  12.55 nA. At 1.5 V it improves raw burst error to -72.87/-81.77 dB and the
+  final-window circuit error to 0.631/0.321 mV for backward Euler/trapezoidal,
+  with all fixed diagnostics clean. Standalone and 36,864-state integrated RTL
+  regressions are bit-exact and structural RAM use remains eight RAMB18E1s.
 - Removing the shallowest cutoff matrix is not a valid optimization: the 100 ms
   selector study leaves 289 backward-Euler or 119 trapezoidal 1.0 V residual
   failures. All generated matrices remain required; activation thresholds are
@@ -194,22 +199,22 @@ The mono reference and complete 768 kHz circuit solver are operating:
 - The integrated wide factorized solver matches Python bit-for-bit for 512
   sequential samples, including every node, capacitor, residual, and diagnostic.
   The measured schedule is 116 clocks, leaving 12 of 128 clocks, with zero test
-  diagnostics. Hierarchical XC7 synthesis is 12,439 logic cells, 122 DSP48E1s,
+  diagnostics. Hierarchical XC7 synthesis is 12,544 logic cells, 120 DSP48E1s,
   and 8 RAMB18E1s; Fmax remains unmeasured.
 - The explicitly selectable trapezoidal solver also matches 512 persistent
   samples exactly, including ten Q4.44 current histories, at the unchanged
   116-clock latency. Its separate chord-inverse ROM is required by the doubled
-  capacitor companions. Structural synthesis measures 12,543 logic cells,
-  122 DSP48E1s, and 8 RAMB18E1s: +104 cells and no DSP/BRAM change versus
+  capacitor companions. Structural synthesis measures 12,786 logic cells,
+  120 DSP48E1s, and 8 RAMB18E1s: +242 cells and no DSP/BRAM change versus
   backward Euler. This is structural evidence only; Fmax remains unmeasured.
 - The corresponding complete 48 kHz stream matches 64 outputs spanning 1,024
   nonlinear updates exactly with zero diagnostics. Structural synthesis is
-  17,552 logic cells, 170 DSP48E1s, and 8 RAMB18E1s, so the mono reference fits
-  the provisional A7-100T resource envelope but leaves only 70 of 240 DSPs.
+  17,492 logic cells, 168 DSP48E1s, and 8 RAMB18E1s, so the mono reference fits
+  the provisional A7-100T resource envelope but leaves only 72 of 240 DSPs.
 - The selectable trapezoidal 48 kHz stream likewise matches all 64 outputs /
   1,024 nonlinear updates exactly with zero diagnostics and 5.02 nA maximum
-  residual. Structural synthesis is 17,651 logic cells, 170 DSP48E1s, and
-  8 RAMB18E1s: +99 cells with unchanged DSP/BRAM versus backward Euler.
+  residual. Structural synthesis is 17,735 logic cells, 168 DSP48E1s, and
+  8 RAMB18E1s: +243 cells with unchanged DSP/BRAM versus backward Euler.
 - A 23,040-sample captured RTL run at 5 mV / 1 kHz is Q32 bit-exact to fixed
   Python. Measured directly from RTL output, gain/phase error versus analytical
   float is -0.000054 dB / -0.000187 degrees, THD is 0.019371% versus 0.019059%,
@@ -279,8 +284,8 @@ The mono reference and complete 768 kHz circuit solver are operating:
 - The guarded wide-stream top now enforces model-change sequencing: linear
   ramp-down, frame-aligned core reset, 64-output muted warmup, acknowledgment,
   and ramp-up. A warning-free integration regression proves no reset or warmup
-  sample escapes before mute. Structural synthesis reports 17,142 logic cells,
-  172 DSP48E1s, and 8 RAMB18s; this remains an unplaced estimate.
+  sample escapes before mute. Structural synthesis reports 17,562 logic cells,
+  170 DSP48E1s, and 8 RAMB18s; this remains an unplaced estimate.
 - A four-stage 16× half-band reference provides at least 91.6 dB per-stage image
   rejection and suppresses the measured cubic 45 kHz→3 kHz decimation alias to
   -137.8 dB with bit-accurate Q8.24/Q1.23 MACs. An 8,192-output RTL capture now

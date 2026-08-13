@@ -72,7 +72,7 @@
       "samples": 9216,
       "full_state_rtl_fixed_bit_exact": true,
       "latency_clocks": 116,
-      "maximum_residual_a": 1.6872463675099425e-06,
+      "maximum_residual_a": 1.8014199554272636e-06,
       "residual_limit_exceedance_count": 0,
       "saturation_count": 0,
       "range_clip_count": 0,
@@ -80,10 +80,10 @@
       "bank_selection_count": [
         1258,
         141,
-        80,
-        7737
+        77,
+        7740
       ],
-      "slew_qualified_selection_count": 80,
+      "slew_qualified_selection_count": 77,
       "all_cutoff_banks_exercised": true,
       "nominal_bank_exercised": true
     },
@@ -93,7 +93,7 @@
       "samples": 9216,
       "full_state_rtl_fixed_bit_exact": true,
       "latency_clocks": 116,
-      "maximum_residual_a": 1.7750975302988081e-06,
+      "maximum_residual_a": 1.770022663549753e-06,
       "residual_limit_exceedance_count": 0,
       "saturation_count": 0,
       "range_clip_count": 0,
