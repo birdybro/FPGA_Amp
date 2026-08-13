@@ -27,6 +27,12 @@ and 98.304 MHz fabric. The fabric rate is a refinement of the original “about
 clocks per 48 kHz sample when derived from a 24.576 MHz audio master. Datapath
 logic uses enables, not derived fabric clocks.
 
+`phono_stream_mono.sv` now implements this digital reference boundary from
+48 kHz Q8.24 physical input volts through 16× interpolation, the complete V1
+solver, saturating Q12.20-to-Q8.24 line-voltage conversion, and anti-alias
+decimation. Volume, muting, converter serialization, and enhancements remain
+outside the circuit reference.
+
 ## Solver shape
 
 The floating reference has nine dynamic nodes and ten capacitor branches

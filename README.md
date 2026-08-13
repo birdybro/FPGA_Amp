@@ -50,13 +50,17 @@ The mono reference and complete 768 kHz circuit solver are operating:
 - Hierarchical out-of-context XC7 synthesis of that complete solver reports
   8,024 estimated logic cells, 89 DSP48E1, and 47 RAMB18E1 blocks. This is an
   accuracy-first baseline; no Fmax is claimed before place-and-route.
+- The complete 48 kHz reference stream—16× interpolation, nonlinear circuit,
+  saturating output-format conversion, and 16× decimation—matches 64 consecutive
+  Python outputs exactly with zero diagnostic events. Structural synthesis is
+  13,170 estimated XC7 logic cells, 137 DSP48E1s, and 47 RAMB18E1s.
 - A four-stage 16× half-band reference provides at least 91.6 dB per-stage image
   rejection and suppresses the measured cubic 45 kHz→3 kHz decimation alias to
   -137.8 dB with bit-accurate Q8.24/Q1.23 MACs. The complete interpolation and
   decimation RTL chains match 2,048 and 128 stream outputs exactly.
 
-There is no end-to-end resampler/solver wrapper, serial-audio interface,
-fabricated analog front end, converter board, or physical audio measurement yet.
+There is no serial-audio interface, mute/control wrapper, fabricated analog
+front end, converter board, named-part timing result, or physical measurement yet.
 
 ## Verification chain
 
@@ -104,10 +108,12 @@ make chord-rtl                     # lint + 1,024 circuit-correction vectors
 make network-rtl                   # RHS/KCL bit-exact unit tests
 make solver-rtl                    # 512-sample persistent-state integration
 make halfband-rtl                  # exact 2x units and complete 16x streams
+make stream-rtl                    # complete 48 kHz reference stream
 make synth                         # generic XC7 structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
 make synth-solver                  # hierarchical complete-solver estimate
 make synth-halfband                # complete interpolator/decimator estimates
+make synth-stream                  # complete reference-stream estimate
 ```
 
 Generated CSV, plots, logs, ROM images, and reports are intentionally ignored;

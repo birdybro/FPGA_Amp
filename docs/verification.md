@@ -12,6 +12,10 @@ for 1,024 vectors, including forced positive/negative limits, at ten clocks.
 The network tests require 1,024 exact RHS and 1,024 exact KCL vectors. The
 integration test then carries one persistent circuit state through 512 samples
 and compares every node, capacitor, residual, output, and diagnostic count.
+The complete stream test independently composes the fixed interpolator, 1,024
+fixed nonlinear updates, output format conversion, and decimator, then requires
+64 consecutive 48 kHz RTL outputs to be exactly equal without latency/gain
+alignment.
 
 The analog/reference commands are intentionally separate so a missing external
 tool is not reported as a pass:
@@ -41,6 +45,8 @@ scripts/run_synthesis.py            XC7 structural resource report
 | KCL RTL vs fixed residual | 1,024 deterministic vectors | bit-exact, latency 10, 18 saturation vectors |
 | full mono RTL vs fixed circuit | 512 sequential samples | bit-exact all state/diagnostics, latency 126 |
 | full mono XC7 synthesis | Yosys 0.66 structural | 8,024 LC, 89 DSP48E1, 47 RAMB18E1; no Fmax claim |
+| 48 kHz RTL stream vs fixed composition | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics |
+| full stream XC7 synthesis | Yosys 0.66 structural | 13,170 LC, 137 DSP48E1, 47 RAMB18E1; no Fmax claim |
 | synthesized RTL vs hardware | none | not validated |
 
 ## A/B and null methodology

@@ -38,6 +38,7 @@ def main() -> int:
             "halfband_decimator_2x",
             "interpolator_16x",
             "decimator_16x",
+            "phono_stream_mono",
         ),
         default="triode_12ax7",
     )
@@ -72,6 +73,18 @@ def main() -> int:
         "decimator_16x": [
             "rtl/filters/halfband_decimator_2x.sv",
             "rtl/audio/decimator_16x.sv",
+        ],
+        "phono_stream_mono": [
+            "rtl/tube/triode_12ax7.sv",
+            "rtl/circuit/network_rhs_v1.sv",
+            "rtl/circuit/network_kcl_v1.sv",
+            "rtl/circuit/chord_corrector_v1.sv",
+            "rtl/phono/v1_solver_mono.sv",
+            "rtl/filters/halfband_interpolator_2x.sv",
+            "rtl/filters/halfband_decimator_2x.sv",
+            "rtl/audio/interpolator_16x.sv",
+            "rtl/audio/decimator_16x.sv",
+            "rtl/top/phono_stream_mono.sv",
         ],
     }[args.top]
     log_path = results / f"yosys_xc7_{args.top}.log"
