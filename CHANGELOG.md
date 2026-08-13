@@ -6,6 +6,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a phase-coherent complete-stream alias-family decomposition covering all
+  16 internal frequencies that fold to ±3 kHz. The combined out-of-band
+  projection is captured bit-exactly in RTL; the 45 kHz fold is exactly zero in
+  the Q8.24 window and the family-removed difference is -176.96 dBc, below fixed
+  rounding closure.
 - Extended overload capture to the banked terminal RTL and added coherent
   H1--H10, clipping-asymmetry, grid-current, recovery, and direct analytical
   null metrics. The 384,000-update campaign is full-state bit-exact with zero
@@ -399,8 +404,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - The captured 16× decimator matches all 8,192 fixed outputs for the cubic
   15 kHz stimulus and measures the 45 kHz to 3 kHz alias at -137.814 dBc with
   zero saturation. A full-stream 0.5 V / 15 kHz stress run is also exact, but
-  contains 1.402 mV at 3 kHz before decimation; that output bin is explicitly
-  rejected as a pure alias measurement.
+  contains a 1.402 mV finite-window 3 kHz projection before decimation; the
+  later phase-coherent family decomposition supersedes this initially
+  unresolved raw-bin observation.
 - The guarded stream passes a warning-free reset transaction regression: core
   reset follows zero gain, warmup output remains muted, the 48 kHz phase counter
   stays aligned, one acknowledgment fires, and unity gain returns. Structural

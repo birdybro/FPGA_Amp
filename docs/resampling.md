@@ -40,10 +40,23 @@ or decimation saturation. The regression fails if rejection rises above
 
 An additional 8,192-output full phono-stream capture uses a 0.5 V / 15 kHz
 stress tone. It is exact and produces an internal 45 kHz third harmonic at
--80.54 dBc, but also has a 1.402 mV component already at 3 kHz before the
-decimator. The captured output's -74.59 dBc 3 kHz bin therefore cannot be used
-as a pure alias measurement. That confound is retained in the report rather
-than crediting the decimator with an invalid 1.82 dB rejection number.
+-80.54 dBc, but also has a 1.402 mV finite-window projection at 3 kHz before the
+decimator. The raw captured output's -74.59 dBc 3 kHz bin therefore remains an
+invalid direct alias measurement.
+
+The automated phase-coherent decomposition resolves that confound. It fits all
+16 internal frequencies that map to ±3 kHz after 16× downsampling (3, 45, 51,
+..., 381 kHz), decimates each through the exact fixed chain, and captures the
+combined out-of-band projection in RTL. The isolated 45 kHz component produces
+exactly zero Q8.24 output samples in the analysis window. The independent
+phase-sum of all out-of-band components is -166.18 dBc; subtracting their input
+projection from the original nonstationary trajectory changes the captured
+3 kHz output by only 10.77 nV, or -176.96 dBc relative to the 15 kHz output.
+That difference is below the 18.96 nV fixed-rounding superposition closure, so
+it is treated as a quantization-floor bound rather than a more precise physical
+alias claim. The family-removed 3 kHz output is 102.37 dB above the observed
+fold effect. Regression gates require at least 150 dB rejection and 90 dB
+dominance, with zero saturation and exact fixed/RTL combined projection.
 
 ## RTL implementation
 

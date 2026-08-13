@@ -460,13 +460,13 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | captured trapezoidal solver RTL recovery | 0.5 V, 384,000 control/overload updates | all states exact; zero diagnostics; 10% recovery 146.570 ms |
 | captured trapezoidal complete stream | 4,800 Q8.24 outputs per 100 Hz/1/10/20 kHz point | exact to fixed; <=0.000111 dB / <=0.001185 degree vs composed float; 51-sample converter delay separated |
 | captured wide solver RTL overload | 384,000 updates, 5 ms bursts, 85 ms observation | full state exact to fixed; clean through 0.5 V; failures at 1 V; range clips at 1.5 V |
-| captured nonlinear decimation alias | 131,072 internal / 8,192 external samples | exact to fixed; 45 kHz to 3 kHz alias -137.814 dBc; zero saturation |
+| captured nonlinear decimation alias | 131,072 internal / 8,192 external samples | cubic -137.814 dBc; full-tube fold-family effect -176.96 dBc below rounding closure; exact and zero saturation |
 | wide-state frequency response | 5 mV, 20 Hz--20 kHz | <=0.000196 dB gain / <=0.000982 degree phase; zero diagnostics |
 | wide-state overload/recovery | 20 mV--1.5 V bursts | clean through 0.5 V; convergence fails at 1 V; adaptive scale prevents arithmetic saturation |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |
 | fixed chord/state vs float LUT circuit | -70.33 dB initial multitone; -34.58 dB at 5 mV/1 kHz | signal-dependent; low-level improvement required |
 | low-level complete fixed model | 2-D: 0.0733%; factorized: 0.0188%; analytical: 0.0191% THD | device error improved; RTL/state-phase work open |
-| interpolation/decimation | exact fixed/RTL streams; captured alias -137.814 dB; measured 51-sample group delay | implemented; full-tube 3 kHz bin has pre-decimation content |
+| interpolation/decimation | exact fixed/RTL streams; cubic alias -137.814 dB; measured 51-sample group delay | implemented; full-tube 45 kHz fold Q24-zero and aggregate family bounded below rounding closure |
 | ADC/front end/DAC | analytical requirements only | unvalidated |
 | physical FPGA/audio chain | absent | unvalidated |
 

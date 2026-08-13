@@ -30,7 +30,397 @@
     "alias_peak_v": 0.001415550561282414,
     "alias_relative_db": -74.59244051798385,
     "observed_3khz_change_vs_naive_db": -1.8199807256640341,
-    "interpretation": "not an isolated alias measurement because 3 kHz exists at the internal solver output"
+    "interpretation": "raw bin is not an isolated alias measurement because 3 kHz exists at the internal solver output; the phase-coherent family decomposition below separates the contributions"
+  },
+  "phase_coherent_3khz_decomposition": {
+    "method": "least-squares sine/cosine projection of every internal frequency that maps to +/-3 kHz, followed by independent exact fixed decimation; the combined out-of-band projection is captured from RTL and subtracted before a second full fixed decimation",
+    "alias_family_hz": [
+      3000.0,
+      45000.0,
+      51000.0,
+      93000.0,
+      99000.0,
+      141000.0,
+      147000.0,
+      189000.0,
+      195000.0,
+      237000.0,
+      243000.0,
+      285000.0,
+      291000.0,
+      333000.0,
+      339000.0,
+      381000.0
+    ],
+    "components": [
+      {
+        "internal_frequency_hz": 3000.0,
+        "in_band_preexisting_component": true,
+        "internal": {
+          "sine_coefficient_v": 0.0014020686129513785,
+          "cosine_coefficient_v": 2.0475017860612996e-05,
+          "peak_v": 0.0014022181077777433,
+          "phase_deg": 0.8366557203602587
+        },
+        "isolated_3khz_output": {
+          "sine_coefficient_v": -0.001315479170228835,
+          "cosine_coefficient_v": 0.0004854933262007883,
+          "peak_v": 0.0014022086924175906,
+          "phase_deg": 159.74281444428166
+        },
+        "decimator_attenuation_db": -5.8322634190198066e-05,
+        "output_is_exact_zero_in_analysis_window": false,
+        "decimation_saturation_count": 0
+      },
+      {
+        "internal_frequency_hz": 45000.0,
+        "in_band_preexisting_component": false,
+        "internal": {
+          "sine_coefficient_v": 2.9655572992100395e-05,
+          "cosine_coefficient_v": 0.0007129276194841595,
+          "peak_v": 0.0007135441427359911,
+          "phase_deg": 87.61804686251592
+        },
+        "isolated_3khz_output": {
+          "sine_coefficient_v": 0.0,
+          "cosine_coefficient_v": 0.0,
+          "peak_v": 0.0,
+          "phase_deg": 0.0
+        },
+        "decimator_attenuation_db": null,
+        "output_is_exact_zero_in_analysis_window": true,
+        "decimation_saturation_count": 0
+      },
+      {
+        "internal_frequency_hz": 51000.0,
+        "in_band_preexisting_component": false,
+        "internal": {
+          "sine_coefficient_v": 8.209974891837595e-05,
+          "cosine_coefficient_v": 1.7040214772476936e-05,
+          "peak_v": 8.384949428560983e-05,
+          "phase_deg": 11.72554305106768
+        },
+        "isolated_3khz_output": {
+          "sine_coefficient_v": 0.0,
+          "cosine_coefficient_v": 0.0,
+          "peak_v": 0.0,
+          "phase_deg": 0.0
+        },
+        "decimator_attenuation_db": null,
+        "output_is_exact_zero_in_analysis_window": true,
+        "decimation_saturation_count": 0
+      },
+      {
+        "internal_frequency_hz": 93000.0,
+        "in_band_preexisting_component": false,
+        "internal": {
+          "sine_coefficient_v": 4.340040412652083e-05,
+          "cosine_coefficient_v": 1.7281300961330984e-05,
+          "peak_v": 4.671443504165951e-05,
+          "phase_deg": 21.711603914347982
+        },
+        "isolated_3khz_output": {
+          "sine_coefficient_v": 0.0,
+          "cosine_coefficient_v": 0.0,
+          "peak_v": 0.0,
+          "phase_deg": 0.0
+        },
+        "decimator_attenuation_db": null,
+        "output_is_exact_zero_in_analysis_window": true,
+        "decimation_saturation_count": 0
+      },
+      {
+        "internal_frequency_hz": 99000.0,
+        "in_band_preexisting_component": false,
+        "internal": {
+          "sine_coefficient_v": 4.0541583857100075e-05,
+          "cosine_coefficient_v": 1.7252819756413944e-05,
+          "peak_v": 4.405995700394616e-05,
+          "phase_deg": 23.052595543051293
+        },
+        "isolated_3khz_output": {
+          "sine_coefficient_v": 0.0,
+          "cosine_coefficient_v": 0.0,
+          "peak_v": 0.0,
+          "phase_deg": 0.0
+        },
+        "decimator_attenuation_db": null,
+        "output_is_exact_zero_in_analysis_window": true,
+        "decimation_saturation_count": 0
+      },
+      {
+        "internal_frequency_hz": 141000.0,
+        "in_band_preexisting_component": false,
+        "internal": {
+          "sine_coefficient_v": 2.6573838594375566e-05,
+          "cosine_coefficient_v": 1.7325888013838296e-05,
+          "peak_v": 3.1723103459592186e-05,
+          "phase_deg": 33.10396498431973
+        },
+        "isolated_3khz_output": {
+          "sine_coefficient_v": -9.198733681958769e-09,
+          "cosine_coefficient_v": -1.3766877837648663e-08,
+          "peak_v": 1.6557283193457334e-08,
+          "phase_deg": -123.74999999999226
+        },
+        "decimator_attenuation_db": -65.64773181266942,
+        "output_is_exact_zero_in_analysis_window": false,
+        "decimation_saturation_count": 0
+      },
+      {
+        "internal_frequency_hz": 147000.0,
+        "in_band_preexisting_component": false,
+        "internal": {
+          "sine_coefficient_v": 2.5275769835316765e-05,
+          "cosine_coefficient_v": 1.745718096412661e-05,
+          "peak_v": 3.071836108880442e-05,
+          "phase_deg": 34.631620195251756
+        },
+        "isolated_3khz_output": {
+          "sine_coefficient_v": -1.3766877837646566e-08,
+          "cosine_coefficient_v": -5.702427511888995e-09,
+          "peak_v": 1.4901161193847703e-08,
+          "phase_deg": -157.49999999999218
+        },
+        "decimator_attenuation_db": -66.28355856811352,
+        "output_is_exact_zero_in_analysis_window": false,
+        "decimation_saturation_count": 0
+      },
+      {
+        "internal_frequency_hz": 189000.0,
+        "in_band_preexisting_component": false,
+        "internal": {
+          "sine_coefficient_v": 1.7763151486948896e-05,
+          "cosine_coefficient_v": 1.73187173112942e-05,
+          "peak_v": 2.4808617858655813e-05,
+          "phase_deg": 44.274188026886506
+        },
+        "isolated_3khz_output": {
+          "sine_coefficient_v": 0.0,
+          "cosine_coefficient_v": 0.0,
+          "peak_v": 0.0,
+          "phase_deg": 0.0
+        },
+        "decimator_attenuation_db": null,
+        "output_is_exact_zero_in_analysis_window": true,
+        "decimation_saturation_count": 0
+      },
+      {
+        "internal_frequency_hz": 195000.0,
+        "in_band_preexisting_component": false,
+        "internal": {
+          "sine_coefficient_v": 1.6721702670706812e-05,
+          "cosine_coefficient_v": 1.69661708327994e-05,
+          "peak_v": 2.382155101867333e-05,
+          "phase_deg": 45.415780118644925
+        },
+        "isolated_3khz_output": {
+          "sine_coefficient_v": 0.0,
+          "cosine_coefficient_v": 0.0,
+          "peak_v": 0.0,
+          "phase_deg": 0.0
+        },
+        "decimator_attenuation_db": null,
+        "output_is_exact_zero_in_analysis_window": true,
+        "decimation_saturation_count": 0
+      },
+      {
+        "internal_frequency_hz": 237000.0,
+        "in_band_preexisting_component": false,
+        "internal": {
+          "sine_coefficient_v": 1.1885604093102891e-05,
+          "cosine_coefficient_v": 1.742822637205482e-05,
+          "peak_v": 2.1095275753911615e-05,
+          "phase_deg": 55.70701358824172
+        },
+        "isolated_3khz_output": {
+          "sine_coefficient_v": 0.0,
+          "cosine_coefficient_v": 0.0,
+          "peak_v": 0.0,
+          "phase_deg": 0.0
+        },
+        "decimator_attenuation_db": null,
+        "output_is_exact_zero_in_analysis_window": true,
+        "decimation_saturation_count": 0
+      },
+      {
+        "internal_frequency_hz": 243000.0,
+        "in_band_preexisting_component": false,
+        "internal": {
+          "sine_coefficient_v": 1.135837547121621e-05,
+          "cosine_coefficient_v": 1.737201878108911e-05,
+          "peak_v": 2.075571559536406e-05,
+          "phase_deg": 56.82207101808217
+        },
+        "isolated_3khz_output": {
+          "sine_coefficient_v": 0.0,
+          "cosine_coefficient_v": 0.0,
+          "peak_v": 0.0,
+          "phase_deg": 0.0
+        },
+        "decimator_attenuation_db": null,
+        "output_is_exact_zero_in_analysis_window": true,
+        "decimation_saturation_count": 0
+      },
+      {
+        "internal_frequency_hz": 285000.0,
+        "in_band_preexisting_component": false,
+        "internal": {
+          "sine_coefficient_v": 7.644385707111793e-06,
+          "cosine_coefficient_v": 1.747203083900111e-05,
+          "peak_v": 1.907114297775833e-05,
+          "phase_deg": 66.36959777420641
+        },
+        "isolated_3khz_output": {
+          "sine_coefficient_v": -6.883438918823288e-09,
+          "cosine_coefficient_v": -2.8512137559445158e-09,
+          "peak_v": 7.450580596923863e-09,
+          "phase_deg": -157.4999999999921
+        },
+        "decimator_attenuation_db": -68.16373210054827,
+        "output_is_exact_zero_in_analysis_window": false,
+        "decimation_saturation_count": 0
+      },
+      {
+        "internal_frequency_hz": 291000.0,
+        "in_band_preexisting_component": false,
+        "internal": {
+          "sine_coefficient_v": 7.096446059377496e-06,
+          "cosine_coefficient_v": 1.7441652830074536e-05,
+          "peak_v": 1.8830050454486347e-05,
+          "phase_deg": 67.86017765773954
+        },
+        "isolated_3khz_output": {
+          "sine_coefficient_v": 0.0,
+          "cosine_coefficient_v": 0.0,
+          "peak_v": 0.0,
+          "phase_deg": 0.0
+        },
+        "decimator_attenuation_db": null,
+        "output_is_exact_zero_in_analysis_window": true,
+        "decimation_saturation_count": 0
+      },
+      {
+        "internal_frequency_hz": 333000.0,
+        "in_band_preexisting_component": false,
+        "internal": {
+          "sine_coefficient_v": 3.864428219046596e-06,
+          "cosine_coefficient_v": 1.7423086681039736e-05,
+          "peak_v": 1.7846505398962225e-05,
+          "phase_deg": 77.49428636313658
+        },
+        "isolated_3khz_output": {
+          "sine_coefficient_v": 0.0,
+          "cosine_coefficient_v": 0.0,
+          "peak_v": 0.0,
+          "phase_deg": 0.0
+        },
+        "decimator_attenuation_db": null,
+        "output_is_exact_zero_in_analysis_window": true,
+        "decimation_saturation_count": 0
+      },
+      {
+        "internal_frequency_hz": 339000.0,
+        "in_band_preexisting_component": false,
+        "internal": {
+          "sine_coefficient_v": 3.0443369277679154e-06,
+          "cosine_coefficient_v": 1.7228341658022913e-05,
+          "peak_v": 1.749524917271369e-05,
+          "phase_deg": 79.97898646627078
+        },
+        "isolated_3khz_output": {
+          "sine_coefficient_v": 0.0,
+          "cosine_coefficient_v": 0.0,
+          "peak_v": 0.0,
+          "phase_deg": 0.0
+        },
+        "decimator_attenuation_db": null,
+        "output_is_exact_zero_in_analysis_window": true,
+        "decimation_saturation_count": 0
+      },
+      {
+        "internal_frequency_hz": 381000.0,
+        "in_band_preexisting_component": false,
+        "internal": {
+          "sine_coefficient_v": 1.5258030368807223e-07,
+          "cosine_coefficient_v": 1.7424595946978846e-05,
+          "peak_v": 1.7425263976897026e-05,
+          "phase_deg": 89.49829631460861
+        },
+        "isolated_3khz_output": {
+          "sine_coefficient_v": 0.0,
+          "cosine_coefficient_v": 0.0,
+          "peak_v": 0.0,
+          "phase_deg": 0.0
+        },
+        "decimator_attenuation_db": null,
+        "output_is_exact_zero_in_analysis_window": true,
+        "decimation_saturation_count": 0
+      }
+    ],
+    "actual_complete_stream_3khz_output": {
+      "sine_coefficient_v": 0.0013879121113146745,
+      "cosine_coefficient_v": 0.0002783583352275684,
+      "peak_v": 0.0014155505612745245,
+      "phase_deg": 11.340728424022071
+    },
+    "output_from_isolated_preexisting_3khz": {
+      "sine_coefficient_v": -0.001315479170228835,
+      "cosine_coefficient_v": 0.0004854933262007883,
+      "peak_v": 0.0014022086924175906,
+      "phase_deg": 159.74281444428166
+    },
+    "output_from_isolated_45khz_fold": {
+      "sine_coefficient_v": 0.0,
+      "cosine_coefficient_v": 0.0,
+      "peak_v": 0.0,
+      "phase_deg": 0.0
+    },
+    "phase_sum_of_all_out_of_band_folded_components": {
+      "sine_coefficient_v": -2.984905043842862e-08,
+      "cosine_coefficient_v": -2.2320519105482172e-08,
+      "peak_v": 3.7271589518211464e-08,
+      "phase_deg": -143.21159969817532
+    },
+    "output_from_combined_out_of_band_components_rtl": {
+      "sine_coefficient_v": 1.3766877837646566e-08,
+      "cosine_coefficient_v": 5.702427511888995e-09,
+      "peak_v": 1.4901161193847703e-08,
+      "phase_deg": 22.500000000007816
+    },
+    "isolated_fixed_superposition_closure": {
+      "sine_coefficient_v": 4.3615928276075184e-08,
+      "cosine_coefficient_v": 2.802294661737117e-08,
+      "peak_v": 5.184240288126862e-08,
+      "phase_deg": 32.720477706336034
+    },
+    "output_with_out_of_band_family_removed": {
+      "sine_coefficient_v": 0.001387916883000153,
+      "cosine_coefficient_v": 0.00027834867612551895,
+      "peak_v": 0.0014155533404353541,
+      "phase_deg": 11.34030711743437
+    },
+    "complete_minus_family_removed_output": {
+      "sine_coefficient_v": -4.771685458020859e-09,
+      "cosine_coefficient_v": 9.659102127429154e-09,
+      "peak_v": 1.0773450515892953e-08,
+      "phase_deg": 116.2897963279735
+    },
+    "subtraction_rounding_closure": {
+      "sine_coefficient_v": -1.8538563295667426e-08,
+      "cosine_coefficient_v": 3.956674615540159e-09,
+      "peak_v": 1.8956096725874958e-08,
+      "phase_deg": 167.95215982852847
+    },
+    "45khz_fold_is_exact_zero_in_fixed_output_window": true,
+    "aggregate_folded_alias_relative_to_output_fundamental_db": -166.18338995477626,
+    "family_removed_3khz_to_aggregate_folded_alias_ratio_db": 91.59096648979828,
+    "observed_fold_effect_relative_to_output_fundamental_db": -176.96385181974395,
+    "family_removed_3khz_to_observed_fold_effect_ratio_db": 102.37142835476601,
+    "rtl_fixed_bit_exact": true,
+    "isolated_component_decimation_saturation_total": 0,
+    "isolated_combined_decimation_saturation_count": 0,
+    "family_removed_decimation_saturation_count": 0
   },
   "captured_cubic_decimator_test": {
     "stimulus": "interpolated 0.8-peak 15 kHz, y=x+0.5*x^3",

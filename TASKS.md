@@ -21,12 +21,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   cuts 1.0/1.5 V burst RMS to 4.895/6.817 mV at 127 clocks. Seek further
   contraction without consuming the final schedule clock; trapezoidal terminal
   current-history commit remains open.
-- [ ] Separate folded nonlinear harmonics from preexisting in-band solver energy
-  in the complete stream; the present full-tube 3 kHz bin is intentionally not
-  reported as pure 45 kHz-to-3 kHz aliasing.
-
 ## Completed this milestone
 
+- [x] Separate all 16 internal frequencies that fold to ±3 kHz in the captured
+  complete-stream stress test. Prove the isolated 45 kHz third-harmonic output
+  is exactly zero in Q8.24, capture the combined out-of-band projection exactly,
+  and measure only a -176.96 dBc complete-vs-family-removed effect below fixed
+  rounding closure; the nonfolded 3 kHz bin dominates by 102.37 dB.
 - [x] Capture the banked terminal RTL through 384,000 control/overload updates
   at 20 mV, 0.5 V, 1.0 V, and 1.5 V. Preserve H1--H10, clipping asymmetry,
   grid current, recovery, and null metrics; prove full-state fixed equivalence
@@ -291,9 +292,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - The full-phono circuit RTL is bit-exact to fixed Python and now has nominal
   four-point solver and complete-stream captures. SPICE comparison remains at
   four frequencies and large-signal cross-layer coverage is still incomplete.
-- WAV/null, CDC, and formal infrastructure remain absent. The cubic alias test
-  is captured from RTL, while a full-tube alias decomposition still needs a
-  method that separates preexisting in-band energy from folded harmonics.
+- WAV/null, CDC, and formal infrastructure remain absent. The cubic and
+  full-tube alias-family tests are captured from RTL; the latter is now bounded
+  below fixed rounding closure rather than inferred from the confounded raw bin.
 - No vendor place-and-route/Fmax, FPGA capture, analog converter, or physical tube
   measurement exists.
 - GE curve digitization has ±0.05 mA visual uncertainty; production tube spread

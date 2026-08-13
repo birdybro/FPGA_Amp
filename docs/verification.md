@@ -123,7 +123,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | captured trapezoidal RTL recovery | 384,000 updates, 0.5 V burst / 235 ms post | all states exact; zero diagnostics; 10% recovery 146.570 ms, +18.23 us vs float |
 | captured trapezoidal complete stream | 4,800 outputs each at 5 mV, 100 Hz/1/10/20 kHz | Q24 exact; <=0.000111 dB / <=0.001185 degree vs composed float; zero diagnostics; converter delay 51 samples |
 | captured wide RTL overload/recovery | 384,000 updates; 20 mV/0.5/1.0/1.5 V bursts | full state exact; zero saturation; failures at 1 V; range clips at 1.5 V |
-| captured RTL nonlinear alias | 131,072 cubic internal / 8,192 outputs | bit-exact; -137.814 dBc 45 kHz to 3 kHz alias; zero saturation |
+| captured RTL nonlinear alias | 131,072 internal / 8,192 outputs | cubic -137.814 dBc; full-tube 45 kHz fold Q24-zero; complete family effect -176.96 dBc below rounding closure; zero saturation |
 | RHS RTL vs fixed network | 1,024 deterministic vectors | bit-exact, latency 12 |
 | KCL RTL vs fixed residual | 1,024 deterministic vectors | bit-exact, latency 10, 18 saturation vectors |
 | full mono RTL vs fixed circuit | 512 sequential samples | bit-exact all state/diagnostics, latency 126 |

@@ -321,9 +321,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   rejection and suppresses the measured cubic 45 kHz→3 kHz decimation alias to
   -137.8 dB with bit-accurate Q8.24/Q1.23 MACs. An 8,192-output RTL capture now
   reproduces -137.814 dB exactly with zero saturation. A separate complete-tube
-  0.5 V / 15 kHz capture is also exact, but already contains a 1.402 mV 3 kHz
-  component before decimation; its output 3 kHz bin is therefore not mislabeled
-  as isolated 45→3 kHz alias energy.
+  0.5 V / 15 kHz capture is also exact, but has a 1.402 mV finite-window 3 kHz
+  projection before decimation. A phase-aware decomposition now isolates all 16
+  internal frequencies that fold to ±3 kHz. The 45 kHz component produces zero
+  Q8.24 output in the analysis window; removing the complete out-of-band family
+  changes the 3 kHz output by only 10.77 nV (-176.96 dBc), below the measured
+  fixed-rounding closure. The remaining 3 kHz output dominates by 102.37 dB, so
+  the raw -74.59 dBc bin is no longer left ambiguous or mislabeled as aliasing.
 
 There is no serial-audio interface, control/sequencing wrapper, fabricated
 analog front end, converter board, named-part timing result, or physical
