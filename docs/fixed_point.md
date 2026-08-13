@@ -154,3 +154,11 @@ from 5.375 mV RMS to 38.74 uV RMS and between-click residual falls from
 error from +0.000257 to -0.000058 dB. Candidate THD is 0.01937% versus
 0.01906% analytical. This is a successful Python architecture candidate, but
 it is not yet an RTL result and has no synthesis/cycle-cost claim.
+
+The six-point 5 mV sweep bounds the wide candidate to 0.000196 dB gain error
+and 0.000982 degrees phase error from 20 Hz through 20 kHz, with zero residual,
+saturation, or tube-range events across 683,520 samples. Raw residual is
+-95.26 dB at 20 Hz and -44.75 dB at 20 kHz; the latter remains dominated by a
+-0.234 mV mean difference relative to the small RIAA-attenuated output, while
+the 20 kHz mean-removed null is -68.37 dB. Frequency behavior passes the Python
+gate; overload and hardware scheduling remain open.

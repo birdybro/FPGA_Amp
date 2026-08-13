@@ -15,9 +15,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   the factorized candidate fixes THD but retains -42.90 dB raw residual at
   5 mV. A -2.840 mV mean offset dominates it; mean-removed residual is -59.63 dB,
   phase error 0.00958°, and fundamental gain error +0.00026 dB.
-- [ ] Sweep the successful 40-bit state candidate across 20 Hz--20 kHz and
-  overload, then derive an RTL branch-current/correction schedule and measure
-  whether it can still meet 128 clocks with realistic XC7 resources.
+- [ ] Sweep the successful 40-bit state candidate through overload, then derive
+  an RTL branch-current/correction schedule and measure whether it can still
+  meet 128 clocks with realistic XC7 resources.
 - [ ] Lengthen severe-overload recovery windows.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
 - [ ] Evaluate overload-specific solver strategies (adaptive Jacobian, parallel
@@ -111,6 +111,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   candidate with staged Q30/Q34/Q40 correction precision. Reduce the click
   audit's late residual from 5.375 mV to 38.74 uV and the nominal 1 kHz raw null
   from -42.90 to -63.83 dB with zero diagnostics.
+- [x] Sweep the wide-state candidate at 20/50/100 Hz and 1/10/20 kHz: bound
+  gain/phase error to 0.000196 dB / 0.000982 degrees with zero diagnostics.
 - [x] Implement and test a downstream Q0.16 output mute/ramp with reset-muted
   startup, symmetric rounding, exact-unity bypass, and synchronous fault clamp;
   synthesize at 171 XC7 logic cells, 2 DSP48E1s, and no block RAM.

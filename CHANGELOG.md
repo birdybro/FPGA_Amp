@@ -158,6 +158,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   At 5 mV/1 kHz its raw null is -63.83 dB, mean-removed null -88.43 dB, gain
   error -0.000058 dB, phase error -0.000187 degrees, and THD 0.01937% versus
   0.01906% analytical. No RTL or synthesis equivalence is claimed yet.
+- Across six 5 mV frequencies from 20 Hz to 20 kHz, wide-state gain and phase
+  error remain within 0.000196 dB and 0.000982 degrees with no diagnostic
+  events. Raw null ranges from -95.26 dB at 20 Hz to -44.75 dB at 20 kHz.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.

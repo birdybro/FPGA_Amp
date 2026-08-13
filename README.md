@@ -100,6 +100,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   At 5 mV/1 kHz it improves raw fixed/analytical null from -42.90 to -63.83 dB,
   with -0.000058 dB gain and -0.000187 degree phase error. This is not RTL yet;
   frequency, overload, schedule, and synthesis gates remain.
+- Across 20 Hz, 50 Hz, 100 Hz, 1 kHz, 10 kHz, and 20 kHz at 5 mV, that
+  candidate stays within 0.000196 dB gain and 0.000982 degree phase of the
+  analytical model with zero diagnostics. Raw null spans -95.26 to -44.75 dB;
+  high-frequency values remain reported separately from their DC-dominated
+  mean-removed residuals.
 - A downstream, explicitly non-reference output guard now starts muted, applies
   a configurable sample-qualified linear ramp, bypasses exactly at unity, and
   synchronously clamps held output on a fault. Its warning-free RTL regression
@@ -156,6 +161,7 @@ python3 scripts/compare_fixed_float.py
 make accuracy-sweeps                # settled level and low-level LUT studies
 make factorized-study               # smooth 1-D/Hermite tube candidate
 make factorized-frequency           # 20 Hz-20 kHz fixed/analytical sweep
+make factorized-frequency-wide      # same sweep with wide-state candidate
 make state-drift                    # one-second silence/click state audit
 make state-wide                     # wide-state candidate on the same audit
 make state-wide-audio               # 5 mV/1 kHz legacy/wide A/B

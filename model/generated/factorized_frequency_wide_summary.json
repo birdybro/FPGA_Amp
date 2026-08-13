@@ -1,0 +1,209 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "stimulus": "5 mV peak sine at the 768 kHz circuit input",
+  "tube_implementation": "fixed factorized 1-D cubic-Hermite",
+  "state_implementation": "40-bit Q28/Q32 nodes, Q30 branch history, staged Q30/Q34/Q40 corrections",
+  "frequencies_hz": [
+    20.0,
+    50.0,
+    100.0,
+    1000.0,
+    10000.0,
+    20000.0
+  ],
+  "maximum_absolute_gain_error_db": 0.00019536194393388628,
+  "maximum_absolute_phase_error_deg": 0.0009813761178634195,
+  "worst_raw_normalized_residual_db": -44.75494316444977,
+  "worst_mean_removed_normalized_residual_db": -68.36794755766795,
+  "total_residual_limit_exceedances": 0,
+  "total_saturations": 0,
+  "total_range_clips": 0,
+  "measurements": [
+    {
+      "frequency_hz": 20.0,
+      "duration_s": 0.5,
+      "analysis_duration_s": 0.25,
+      "samples": 384000,
+      "analytical": {
+        "fundamental_peak_v": 4.683355814678086,
+        "gain_db": 59.43174299837256,
+        "phase_deg": -14.66417172398373,
+        "mean_v": -0.029456866582658447,
+        "thd_percent_h2_to_h10": 0.17740750966689445,
+        "nonconvergence_count": 0
+      },
+      "fixed_factorized": {
+        "fundamental_peak_v": 4.68331441235709,
+        "gain_db": 59.431666212069175,
+        "phase_deg": -14.664853382340672,
+        "mean_v": -0.029471914507160742,
+        "thd_percent_h2_to_h10": 0.17767724526041917,
+        "fundamental_gain_error_db": -7.678630339596568e-05,
+        "fundamental_phase_error_deg": -0.0006816583569424495,
+        "normalized_residual_db": -95.26216525176457,
+        "mean_removed_normalized_residual_db": -95.57429876370988,
+        "residual_mean_v": -1.5047924498911255e-05,
+        "max_absolute_error_v": 0.00018314505868577413,
+        "max_residual_a": 6.771699645469198e-09,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0
+      }
+    },
+    {
+      "frequency_hz": 50.0,
+      "duration_s": 0.2,
+      "analysis_duration_s": 0.1,
+      "samples": 153600,
+      "analytical": {
+        "fundamental_peak_v": 3.702811489088886,
+        "gain_db": 57.3912319650574,
+        "phase_deg": -36.44011763405069,
+        "mean_v": -0.0496127575105182,
+        "thd_percent_h2_to_h10": 0.12638825682864302,
+        "nonconvergence_count": 0
+      },
+      "fixed_factorized": {
+        "fundamental_peak_v": 3.702770092792483,
+        "gain_db": 57.39113485893333,
+        "phase_deg": -36.44045876929531,
+        "mean_v": -0.04971271172853718,
+        "thd_percent_h2_to_h10": 0.12661984010952232,
+        "fundamental_gain_error_db": -9.710612407867357e-05,
+        "fundamental_phase_error_deg": -0.00034113524462497935,
+        "normalized_residual_db": -87.712817997065,
+        "mean_removed_normalized_residual_db": -96.26325338173496,
+        "residual_mean_v": -9.995421801928084e-05,
+        "max_absolute_error_v": 0.00024062113172718114,
+        "max_residual_a": 6.533923624374438e-09,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0
+      }
+    },
+    {
+      "frequency_hz": 100.0,
+      "duration_s": 0.1,
+      "analysis_duration_s": 0.05,
+      "samples": 76800,
+      "analytical": {
+        "fundamental_peak_v": 2.4453930653466927,
+        "gain_db": 53.78757343924917,
+        "phase_deg": -51.617594099599955,
+        "mean_v": -0.0398210198579001,
+        "thd_percent_h2_to_h10": 0.08420010465632188,
+        "nonconvergence_count": 0
+      },
+      "fixed_factorized": {
+        "fundamental_peak_v": 2.445361077361984,
+        "gain_db": 53.78745981910111,
+        "phase_deg": -51.61777663108364,
+        "mean_v": -0.039996172091728406,
+        "thd_percent_h2_to_h10": 0.08427030337666945,
+        "fundamental_gain_error_db": -0.0001136201480666086,
+        "fundamental_phase_error_deg": -0.00018253148368785332,
+        "normalized_residual_db": -79.7264449103224,
+        "mean_removed_normalized_residual_db": -94.0313142162494,
+        "residual_mean_v": -0.00017515223382994042,
+        "max_absolute_error_v": 0.00027936415604079556,
+        "max_residual_a": 5.647393663821276e-09,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0
+      }
+    },
+    {
+      "frequency_hz": 1000.0,
+      "duration_s": 0.03,
+      "analysis_duration_s": 0.01,
+      "samples": 23040,
+      "analytical": {
+        "fundamental_peak_v": 0.5667779056774709,
+        "gain_db": 41.08885815518399,
+        "phase_deg": -48.54631993524749,
+        "mean_v": -0.005073709508079177,
+        "thd_percent_h2_to_h10": 0.019058643568062868,
+        "nonconvergence_count": 0
+      },
+      "fixed_factorized": {
+        "fundamental_peak_v": 0.5667741240112492,
+        "gain_db": 41.08880020083415,
+        "phase_deg": -48.54650650080288,
+        "mean_v": -0.00533101778006918,
+        "thd_percent_h2_to_h10": 0.019370847156964032,
+        "fundamental_gain_error_db": -5.7954349848628414e-05,
+        "fundamental_phase_error_deg": -0.00018656555538854036,
+        "normalized_residual_db": -63.83447477471627,
+        "mean_removed_normalized_residual_db": -88.42873036165858,
+        "residual_mean_v": -0.0002573082719900002,
+        "max_absolute_error_v": 0.00030511825985668484,
+        "max_residual_a": 4.960838850820437e-09,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0
+      }
+    },
+    {
+      "frequency_hz": 10000.0,
+      "duration_s": 0.03,
+      "analysis_duration_s": 0.01,
+      "samples": 23040,
+      "analytical": {
+        "fundamental_peak_v": 0.1133277819173776,
+        "gain_db": 27.107327687666867,
+        "phase_deg": -79.80531669035271,
+        "mean_v": -0.00019545546480342188,
+        "thd_percent_h2_to_h10": 0.005396618370242377,
+        "nonconvergence_count": 0
+      },
+      "fixed_factorized": {
+        "fundamental_peak_v": 0.11332597633108062,
+        "gain_db": 27.107189299286027,
+        "phase_deg": -79.80531615373093,
+        "mean_v": -0.0004643962945920073,
+        "thd_percent_h2_to_h10": 0.006175257674059906,
+        "fundamental_gain_error_db": -0.00013838838084347425,
+        "fundamental_phase_error_deg": 5.366217834534837e-07,
+        "normalized_residual_db": -49.46965824786353,
+        "mean_removed_normalized_residual_db": -74.49962592448921,
+        "residual_mean_v": -0.00026894082978858535,
+        "max_absolute_error_v": 0.00031565333128919654,
+        "max_residual_a": 4.6708237277925946e-09,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0
+      }
+    },
+    {
+      "frequency_hz": 20000.0,
+      "duration_s": 0.03,
+      "analysis_duration_s": 0.01,
+      "samples": 23040,
+      "analytical": {
+        "fundamental_peak_v": 0.057358759425815045,
+        "gain_db": 21.192594907217426,
+        "phase_deg": -83.07375522276867,
+        "mean_v": 7.295635766416684e-05,
+        "thd_percent_h2_to_h10": 0.004370430999887146,
+        "nonconvergence_count": 0
+      },
+      "fixed_factorized": {
+        "fundamental_peak_v": 0.057357469334276684,
+        "gain_db": 21.192399545273496,
+        "phase_deg": -83.0727738466508,
+        "mean_v": -0.00016113813159489152,
+        "thd_percent_h2_to_h10": 0.0062342128477648135,
+        "fundamental_gain_error_db": -0.00019536194393388628,
+        "fundamental_phase_error_deg": 0.0009813761178634195,
+        "normalized_residual_db": -44.75494316444977,
+        "mean_removed_normalized_residual_db": -68.36794755766795,
+        "residual_mean_v": -0.0002340944892590586,
+        "max_absolute_error_v": 0.00027987290514929625,
+        "max_residual_a": 4.666503627959173e-09,
+        "residual_limit_exceedance_count": 0,
+        "saturation_count": 0,
+        "range_clip_count": 0
+      }
+    }
+  ]
+}

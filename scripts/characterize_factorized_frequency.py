@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import math
 from pathlib import Path
@@ -15,7 +16,10 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPOSITORY_ROOT / "model" / "python"))
 
 from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
-from fpga_amp.fixed_circuit import FixedChordV1CircuitModel  # noqa: E402
+from fpga_amp.fixed_circuit import (  # noqa: E402
+    FixedChordV1CircuitModel,
+    FixedWideStateV1CircuitModel,
+)
 from fpga_amp.v1_circuit import V1CircuitModel  # noqa: E402
 
 
@@ -39,6 +43,9 @@ def fit_harmonics(
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--wide-candidate", action="store_true")
+    args = parser.parse_args()
     sample_rate_hz = 768_000.0
     input_peak_v = 0.005
     frequencies_hz = (20.0, 50.0, 100.0, 1_000.0, 10_000.0, 20_000.0)
@@ -55,7 +62,12 @@ def main() -> int:
         analytical = analytical_model.process(
             stimulus, max_iterations=8, tolerance_a=1.0e-12
         )
-        fixed_model = FixedChordV1CircuitModel(
+        fixed_type = (
+            FixedWideStateV1CircuitModel
+            if args.wide_candidate
+            else FixedChordV1CircuitModel
+        )
+        fixed_model = fixed_type(
             sample_rate_hz, tube_lut=FixedFactorizedKoren12AX7()
         )
         fixed = fixed_model.process(
@@ -129,6 +141,11 @@ def main() -> int:
         "model": "12ax7_passive_riaa_v1",
         "stimulus": "5 mV peak sine at the 768 kHz circuit input",
         "tube_implementation": "fixed factorized 1-D cubic-Hermite",
+        "state_implementation": (
+            "40-bit Q28/Q32 nodes, Q30 branch history, staged Q30/Q34/Q40 corrections"
+            if args.wide_candidate
+            else "legacy 32-bit heterogeneous nodes, Q12.20 matrix/history stamp"
+        ),
         "frequencies_hz": list(frequencies_hz),
         "maximum_absolute_gain_error_db": max(
             abs(float(entry["fundamental_gain_error_db"])) for entry in fixed_entries
@@ -151,9 +168,16 @@ def main() -> int:
         "total_range_clips": sum(int(entry["range_clip_count"]) for entry in fixed_entries),
         "measurements": measurements,
     }
-    results_path = REPOSITORY_ROOT / "reference" / "results" / "factorized_frequency_sweep.json"
+    report_stem = (
+        "factorized_frequency_wide" if args.wide_candidate else "factorized_frequency"
+    )
+    results_path = (
+        REPOSITORY_ROOT / "reference" / "results" / f"{report_stem}_sweep.json"
+    )
     results_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    summary_path = REPOSITORY_ROOT / "model" / "generated" / "factorized_frequency_summary.json"
+    summary_path = (
+        REPOSITORY_ROOT / "model" / "generated" / f"{report_stem}_summary.json"
+    )
     summary_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
     return 0
