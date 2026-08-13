@@ -12,8 +12,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 ## Active, highest value first
 
 - [ ] Evaluate overload-specific solver strategies (adaptive Jacobian, parallel
-  tube evaluation, or higher-rate schedule); six chord passes still fail at
-  1.0/1.5 V and cannot meet the present 128-clock budget.
+  tube evaluation, or higher-rate schedule); implement and verify the measured
+  cutoff-Jacobian bank in RTL. Extra chord passes remain rejected.
 - [ ] Extend integrated-solver RTL capture beyond nominal frequency response to
   level-dependent harmonics, clipping asymmetry, and recovery metrics.
 - [ ] Separate folded nonlinear harmonics from preexisting in-band solver energy
@@ -22,6 +22,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Completed this milestone
 
+- [x] Derive fixed cutoff-region Jacobian banks from the analytical stage-two
+  trajectory. In the 100 ms Python gate, remove all 1.0 V residual failures in
+  both integration modes without extra corrections, arithmetic/range events,
+  or fallbacks; retain the 1.5 V tube-domain limitation explicitly.
 - [x] Prove wide RHS, backward-Euler/trapezoidal KCL, tube-stamp, and chord
   arithmetic bounds with conservative full-interface integer intervals. All 37
   checks pass; directed regressions cover the corrected 44-bit capacitor delta,

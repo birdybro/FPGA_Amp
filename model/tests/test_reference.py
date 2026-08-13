@@ -14,6 +14,7 @@ from fpga_amp.fixed import TubeLUT  # noqa: E402
 from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
 from fpga_amp.fixed_circuit import (  # noqa: E402
     FixedChordV1CircuitModel,
+    FixedWideStateBankedChordV1CircuitModel,
     FixedWideStateV1CircuitModel,
     FixedWideStateTrapezoidalV1CircuitModel,
 )
@@ -194,6 +195,21 @@ class ResamplerTests(unittest.TestCase):
 
 
 class V1CircuitTests(unittest.TestCase):
+    def test_banked_chord_selection_uses_previous_stage_two_vgk(self) -> None:
+        model = FixedWideStateBankedChordV1CircuitModel(
+            tube_lut=FixedFactorizedKoren12AX7()
+        )
+        grid = model.node["g2"]
+        cathode = model.node["k2"]
+        model.voltage_q[cathode] = 0
+        expected = ((-4.0, 0), (-3.0, 1), (-2.5, 2))
+        for v_gk_v, bank_index in expected:
+            model.voltage_q[grid] = int(round(v_gk_v * (1 << 32)))
+            self.assertEqual(model._select_chord_bank(), bank_index)
+        for bank in model.chord_inverse_banks_q:
+            self.assertGreaterEqual(int(np.min(bank)), -(1 << 17))
+            self.assertLess(int(np.max(bank)), 1 << 17)
+
     def test_wide_tube_pin_conversion_saturates_instead_of_wrapping(self) -> None:
         model = FixedWideStateV1CircuitModel(
             tube_lut=FixedFactorizedKoren12AX7()

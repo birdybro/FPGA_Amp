@@ -525,6 +525,102 @@ class FixedWideStateV1CircuitModel(FixedChordV1CircuitModel):
         super().__init__(*args, **kwargs)
 
 
+class FixedWideStateBankedChordV1CircuitModel(FixedWideStateV1CircuitModel):
+    """Wide candidate with physically derived second-stage cutoff Jacobians.
+
+    The bank is selected once from the previous sample's stage-two Vgk and held
+    for all three chord corrections. This keeps the real-time schedule fixed
+    while replacing the DC Jacobian only in cutoff regions where its measured
+    residual contraction fails.
+    """
+
+    # Selection upper bound, representative Vgk, representative Vpk, all volts.
+    # Points follow the analytical 1 V trajectory through the second-stage
+    # cutoff arc. Stage one remains at its nominal operating point.
+    BACKWARD_EULER_CUTOFF_JACOBIAN_REGIMES = (
+        (-3.25, -3.50, 284.0),
+        (-2.75, -3.00, 270.0),
+    )
+    TRAPEZOIDAL_CUTOFF_JACOBIAN_REGIMES = (
+        (-4.00, -4.25, 293.0),
+        (-3.50, -3.75, 289.0),
+        (-3.00, -3.25, 278.0),
+        (-2.50, -2.75, 261.0),
+    )
+
+    def __init__(self, *args: object, **kwargs: object):
+        super().__init__(*args, **kwargs)
+        self.cutoff_jacobian_regimes = (
+            self.TRAPEZOIDAL_CUTOFF_JACOBIAN_REGIMES
+            if self.integration_method == "trapezoidal"
+            else self.BACKWARD_EULER_CUTOFF_JACOBIAN_REGIMES
+        )
+        self.nominal_chord_inverse_q = self.chord_inverse_q.copy()
+        self.chord_inverse_banks_q: list[NDArray[np.int64]] = []
+        for _, v_gk_v, v_pk_v in self.cutoff_jacobian_regimes:
+            voltage = self.reference.voltage.copy()
+            grid = self.node["g2"]
+            plate = self.node["p2"]
+            cathode = self.node["k2"]
+            voltage[grid] = voltage[cathode] + v_gk_v
+            voltage[plate] = voltage[cathode] + v_pk_v
+            jacobian, _ = self.reference._linear_system(0.0, dynamic=True)
+            residual = np.zeros(self.node_count, dtype=np.float64)
+            self.reference._tube_stamp(
+                residual, jacobian, voltage, "g1", "p1", "k1"
+            )
+            self.reference._tube_stamp(
+                residual, jacobian, voltage, "g2", "p2", "k2"
+            )
+            inverse_scale = 1 << self.inverse_fractional_bits
+            inverse_q = np.rint(np.linalg.inv(jacobian) * inverse_scale).astype(
+                np.int64
+            )
+            self.chord_inverse_banks_q.append(inverse_q)
+        self.chord_bank_selection_count = [0] * (
+            len(self.chord_inverse_banks_q) + 1
+        )
+
+    def _select_chord_bank(self) -> int:
+        grid = self.node["g2"]
+        cathode = self.node["k2"]
+        grid_q32 = self._convert_fraction(
+            int(self.voltage_q[grid]),
+            int(self.VOLTAGE_FRACTIONAL_BITS[grid]),
+            32,
+        )
+        cathode_q32 = self._convert_fraction(
+            int(self.voltage_q[cathode]),
+            int(self.VOLTAGE_FRACTIONAL_BITS[cathode]),
+            32,
+        )
+        v_gk_q32 = grid_q32 - cathode_q32
+        for bank_index, (upper_v, _, _) in enumerate(
+            self.cutoff_jacobian_regimes
+        ):
+            if v_gk_q32 < int(round(upper_v * (1 << 32))):
+                return bank_index
+        return len(self.chord_inverse_banks_q)
+
+    def process_sample(
+        self,
+        input_v: float,
+        max_iterations: int = 3,
+        residual_limit_a: float = 2.0e-6,
+    ) -> float:
+        bank_index = self._select_chord_bank()
+        self.chord_bank_selection_count[bank_index] += 1
+        if bank_index < len(self.chord_inverse_banks_q):
+            self.chord_inverse_q = self.chord_inverse_banks_q[bank_index]
+        else:
+            self.chord_inverse_q = self.nominal_chord_inverse_q
+        return super().process_sample(
+            input_v,
+            max_iterations=max_iterations,
+            residual_limit_a=residual_limit_a,
+        )
+
+
 class FixedWideStateTrapezoidalV1CircuitModel(FixedWideStateV1CircuitModel):
     """Wide factorized candidate with Q4.44 trapezoidal current history."""
 

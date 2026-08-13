@@ -216,6 +216,35 @@ grid or 0..400 V plate domain, RTL exposes the event through the existing LUT
 clip counter. A unit regression forces both positive and negative full-range
 node combinations.
 
+### Cutoff-Jacobian bank candidate
+
+Residual instrumentation localizes the 1 V convergence failure to second-stage
+cutoff rather than grid conduction: every failing backward-Euler sample has
+previous-sample Vgk2 below approximately -2.75 V. The DC Jacobian retains the
+quiescent tube transconductance there even though the physical device-current
+derivative is collapsing. Adding iterations does not repair this within the
+128-clock schedule.
+
+`FixedWideStateBankedChordV1CircuitModel` instead selects a small inverse bank
+once per sample from the previous Vgk2 and holds it for all three corrections.
+The inverse matrices are generated from the same frozen circuit and Koren
+derivatives at measured cutoff-arc Vgk/Vpk points. Backward Euler needs two
+cutoff matrices plus nominal; trapezoidal needs four plus nominal. All remain
+within the existing signed-18 Q17.1 coefficient interface, so the projected
+serialized schedule stays at 116 clocks. The integration modes deliberately
+use separate assets because sharing the two-entry backward-Euler partition left
+309 trapezoidal failures.
+
+In a 100 ms, 1 kHz campaign with a 5 ms burst, the bank reduces 1.0 V residual
+failures from 1,122 to zero for backward Euler and from 1,107 to zero for
+trapezoidal. Maximum residual becomes 1.887/1.587 uA, below the 2 uA gate, with
+zero arithmetic saturation, tube-range clips, or scale fallbacks. At 1.5 V,
+backward-Euler failures fall from 1,695 to 72 and trapezoidal from 1,690 to zero,
+but both still record 4,052 tube-range clips. This improves the FPGA
+approximation only; it neither changes the physical reference circuit nor
+claims behavior outside the factorized tube table. RTL and floating-error
+equivalence remain open before acceptance.
+
 `v1_solver_mono_wide.sv` composes those blocks with the factorized tube and
 matches 512 sequential fixed-Python samples exactly across all nine nodes, ten
 capacitor histories, output, residual, and cumulative diagnostics. The vector

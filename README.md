@@ -111,6 +111,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   residual from 6.93 to 2.31 µA but still leaves 30 failures and projects a
   213-clock serialized schedule. At 1.5 V it remains inadequate. Overload needs
   a different solver/range strategy rather than an unbudgeted extra pass.
+- A physically derived, fixed-schedule cutoff-Jacobian bank removes the 1.0 V
+  residual failure in Python for both backward-Euler and trapezoidal state.
+  Over the 100 ms burst gate, failures fall from 1,122/1,107 to zero, with no
+  arithmetic, range, or scale-fallback event through 1.0 V and the same
+  projected 116-clock schedule. At 1.5 V, backward Euler retains 72 residual
+  failures while trapezoidal has none, but both retain 4,052 tube-table range
+  clips. This is an FPGA-solver candidate, not yet RTL or a tube-domain change.
 - A new one-second silence/click audit exposes a Q12.20 state deadband that the
   KCL diagnostics miss: after bipolar 100 mV one-sample clicks, fixed output is
   still -5.368 mV in the final 100 ms while analytical output is about 7.2 uV
@@ -315,6 +322,7 @@ make overload-severe-long           # direct 850 ms multimode recovery test
 make overload-seven-second          # complete severe floating recovery timing
 make overload-wide                  # same bursts with wide-state candidate
 make overload-iterations            # three-to-six-pass solver trade
+make overload-banked                # cutoff-Jacobian bank convergence study
 python3 scripts/study_lut_resolution.py
 python3 scripts/analyze_frontend.py
 python3 scripts/design_resampler.py

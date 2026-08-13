@@ -137,6 +137,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added warning-free Verilator lint and a 4,096-vector bit-exact testbench with checked eight-clock latency.
 - Added non-root ngspice/Yosys bootstrap and a generic XC7 out-of-context synthesis report.
 - Added quantitative cartridge/front-end noise, ADC headroom, and analog-versus-digital RIAA partition analysis.
+- Added a reproducible fixed cutoff-Jacobian bank study using integration-mode-
+  specific matrices derived from the analytical second-stage trajectory and a
+  previous-sample Vgk selector held across the fixed three-correction schedule.
 - Added architecture, model, phono, fixed-point, gain, noise, analog front-end, converter/clock, hardware, controls, safety, verification, and annotated-reference documentation.
 
 ### Fixed
@@ -169,6 +172,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
   capacitor-delta bits, 34/34
   cathode-sum bits, 57/63 KCL-accumulator bits, and 89/92 capacitor-product
   bits. The proof is now a default regression gate.
+- The cutoff-Jacobian bank reduces 100 ms / 1 V residual failures from
+  1,122/1,107 to zero for backward-Euler/trapezoidal state at 1.887/1.587 uA
+  maximum residual, with zero saturation, tube-range clips, or correction
+  fallbacks. At 1.5 V it leaves 72/0 residual failures but 4,052/4,052 tube-table
+  clips, so tube-domain expansion remains separate from solver convergence.
 
 - ngspice bias is 179.994 V/0.9918 mA for stage 1 and 192.808 V/1.0719 mA for stage 2; circuit gain is 41.087 dB at 1 kHz.
 - The physical passive network's ideal-RIAA error is -0.919 to +0.000 dB over 20 Hz–20 kHz (0.364 dB RMS), retained as reference behavior.

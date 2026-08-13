@@ -1,0 +1,250 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "sample_rate_hz": 768000.0,
+  "tube_implementation": "fixed factorized 1-D cubic-Hermite",
+  "candidate": {
+    "selection_state": "previous-sample second-stage Vgk",
+    "selection_held_for_all_corrections": true,
+    "corrections_per_sample": 3,
+    "projected_rtl_latency_clocks": 116,
+    "cutoff_regimes_by_integration_method": {
+      "backward_euler": [
+        {
+          "upper_v_gk_v": -3.25,
+          "representative_v_gk_v": -3.5,
+          "representative_v_pk_v": 284.0
+        },
+        {
+          "upper_v_gk_v": -2.75,
+          "representative_v_gk_v": -3.0,
+          "representative_v_pk_v": 270.0
+        }
+      ],
+      "trapezoidal": [
+        {
+          "upper_v_gk_v": -4.0,
+          "representative_v_gk_v": -4.25,
+          "representative_v_pk_v": 293.0
+        },
+        {
+          "upper_v_gk_v": -3.5,
+          "representative_v_gk_v": -3.75,
+          "representative_v_pk_v": 289.0
+        },
+        {
+          "upper_v_gk_v": -3.0,
+          "representative_v_gk_v": -3.25,
+          "representative_v_pk_v": 278.0
+        },
+        {
+          "upper_v_gk_v": -2.5,
+          "representative_v_gk_v": -2.75,
+          "representative_v_pk_v": 261.0
+        }
+      ]
+    },
+    "nominal_bank": "existing DC operating-point Jacobian"
+  },
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_start_s": 0.01,
+    "burst_end_s": 0.015,
+    "duration_s": 0.1,
+    "burst_levels_peak_v": [
+      0.5,
+      1.0,
+      1.5
+    ]
+  },
+  "residual_limit_a": 2e-06,
+  "gates": {
+    "baseline_reproduces_one_volt_failure": true,
+    "banked_one_volt_has_no_residual_failure": true,
+    "banked_through_one_volt_has_no_arithmetic_or_range_event": true,
+    "all_outputs_finite": true
+  },
+  "all_gates_pass": true,
+  "measurements": [
+    {
+      "integration_method": "backward_euler",
+      "solver": "banked_cutoff_chord",
+      "burst_input_peak_v": 0.5,
+      "output_finite": true,
+      "maximum_absolute_output_v": 71.16774461325258,
+      "maximum_residual_a": 3.5147769494869863e-07,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "bank_selection_count": [
+        0,
+        0,
+        76800
+      ]
+    },
+    {
+      "integration_method": "backward_euler",
+      "solver": "banked_cutoff_chord",
+      "burst_input_peak_v": 1.0,
+      "output_finite": true,
+      "maximum_absolute_output_v": 101.98025236232206,
+      "maximum_residual_a": 1.8867026483349036e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "bank_selection_count": [
+        1038,
+        312,
+        75450
+      ]
+    },
+    {
+      "integration_method": "backward_euler",
+      "solver": "banked_cutoff_chord",
+      "burst_input_peak_v": 1.5,
+      "output_finite": true,
+      "maximum_absolute_output_v": 109.0458920407109,
+      "maximum_residual_a": 3.151303246795578e-06,
+      "residual_limit_exceedance_count": 72,
+      "saturation_count": 0,
+      "range_clip_count": 4052,
+      "correction_scale_fallback_count": 0,
+      "bank_selection_count": [
+        1559,
+        176,
+        75065
+      ]
+    },
+    {
+      "integration_method": "backward_euler",
+      "solver": "dc_chord_baseline",
+      "burst_input_peak_v": 0.5,
+      "output_finite": true,
+      "maximum_absolute_output_v": 71.16774461325258,
+      "maximum_residual_a": 3.5147769494869863e-07,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0
+    },
+    {
+      "integration_method": "backward_euler",
+      "solver": "dc_chord_baseline",
+      "burst_input_peak_v": 1.0,
+      "output_finite": true,
+      "maximum_absolute_output_v": 102.12876039883122,
+      "maximum_residual_a": 6.698764480006503e-06,
+      "residual_limit_exceedance_count": 1122,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0
+    },
+    {
+      "integration_method": "backward_euler",
+      "solver": "dc_chord_baseline",
+      "burst_input_peak_v": 1.5,
+      "output_finite": true,
+      "maximum_absolute_output_v": 109.04576705978252,
+      "maximum_residual_a": 1.718929235039468e-05,
+      "residual_limit_exceedance_count": 1695,
+      "saturation_count": 0,
+      "range_clip_count": 4046,
+      "correction_scale_fallback_count": 729
+    },
+    {
+      "integration_method": "trapezoidal",
+      "solver": "banked_cutoff_chord",
+      "burst_input_peak_v": 0.5,
+      "output_finite": true,
+      "maximum_absolute_output_v": 71.18061967892572,
+      "maximum_residual_a": 1.3574322679232864e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "bank_selection_count": [
+        0,
+        0,
+        0,
+        231,
+        76569
+      ]
+    },
+    {
+      "integration_method": "trapezoidal",
+      "solver": "banked_cutoff_chord",
+      "burst_input_peak_v": 1.0,
+      "output_finite": true,
+      "maximum_absolute_output_v": 101.98156797559932,
+      "maximum_residual_a": 1.5871409004830639e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0,
+      "bank_selection_count": [
+        417,
+        456,
+        323,
+        307,
+        75297
+      ]
+    },
+    {
+      "integration_method": "trapezoidal",
+      "solver": "banked_cutoff_chord",
+      "burst_input_peak_v": 1.5,
+      "output_finite": true,
+      "maximum_absolute_output_v": 109.06942370114848,
+      "maximum_residual_a": 1.7738649944476492e-06,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 4052,
+      "correction_scale_fallback_count": 0,
+      "bank_selection_count": [
+        1321,
+        156,
+        167,
+        188,
+        74968
+      ]
+    },
+    {
+      "integration_method": "trapezoidal",
+      "solver": "dc_chord_baseline",
+      "burst_input_peak_v": 0.5,
+      "output_finite": true,
+      "maximum_absolute_output_v": 71.18033072911203,
+      "maximum_residual_a": 3.329976721033745e-07,
+      "residual_limit_exceedance_count": 0,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0
+    },
+    {
+      "integration_method": "trapezoidal",
+      "solver": "dc_chord_baseline",
+      "burst_input_peak_v": 1.0,
+      "output_finite": true,
+      "maximum_absolute_output_v": 102.12297485140152,
+      "maximum_residual_a": 6.4429397639287345e-06,
+      "residual_limit_exceedance_count": 1107,
+      "saturation_count": 0,
+      "range_clip_count": 0,
+      "correction_scale_fallback_count": 0
+    },
+    {
+      "integration_method": "trapezoidal",
+      "solver": "dc_chord_baseline",
+      "burst_input_peak_v": 1.5,
+      "output_finite": true,
+      "maximum_absolute_output_v": 109.07020917441696,
+      "maximum_residual_a": 1.665187227217757e-05,
+      "residual_limit_exceedance_count": 1690,
+      "saturation_count": 0,
+      "range_clip_count": 4048,
+      "correction_scale_fallback_count": 728
+    }
+  ]
+}
