@@ -143,6 +143,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   the 12 ms RTL proof is full-state exact across 36,864 total updates. Severe
   burst error versus full Newton remains -61.80/-62.12 dB and final 10 ms error
   remains 18.27/17.36 mV, so convergence is not mislabeled waveform accuracy.
+- A converged layer decomposition localizes that severe recovery error to the
+  128-entry linear grid-current table, not the factorized plate law. A
+  1,024-entry candidate reduces direct grid-current worst error from 716 to
+  12.3 nA and the 1.5 V final-window circuit error to 0.631/0.321 mV, with all
+  fixed diagnostics clean. This is selected numerical work; the checked-in RTL
+  table remains 128 entries until the exact/synthesis regression is complete.
 - Removing the shallowest cutoff matrix is not a valid optimization: the 100 ms
   selector study leaves 289 backward-Euler or 119 trapezoidal 1.0 V residual
   failures. All generated matrices remain required; activation thresholds are
@@ -354,6 +360,8 @@ make overload-wide                  # same bursts with wide-state candidate
 make overload-iterations            # three-to-six-pass solver trade
 make overload-banked                # cutoff-Jacobian bank convergence study
 make banked-slew-selector           # qualify the severe shallow-bank selector
+make banked-error-decomposition     # localize tube/circuit/chord error
+make grid-current-resolution        # sweep grid-conduction table accuracy
 python3 scripts/study_lut_resolution.py
 python3 scripts/analyze_frontend.py
 python3 scripts/design_resampler.py

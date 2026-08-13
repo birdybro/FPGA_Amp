@@ -155,6 +155,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added a 100 ms previous-Vgk-slew selector study, a reproducible
   backward-Euler shallow Jacobian, matched fixed/RTL selector history, and
   1.0/1.5 V full-state overload gates for both integration modes.
+- Added a converged four-layer banked error decomposition and a 128/256/512/
+  1,024-entry grid-current resolution study with direct-current, burst,
+  recovery, storage, and fixed-diagnostic measurements.
 - Added architecture, model, phono, fixed-point, gain, noise, analog front-end, converter/clock, hardware, controls, safety, verification, and annotated-reference documentation.
 
 ### Fixed
@@ -234,6 +237,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
   burst error to -61.80/-62.12 dB but retains 18.26/17.36 mV final-window RMS
   error. This severe waveform discrepancy remains separate from the closed
   fixed-schedule residual gate.
+- The 128-entry linear grid-current table, not the factorized plate law,
+  dominates the remaining 1.5 V error. A 1,024-entry candidate reduces direct
+  grid-current worst error from 716 to 12.3 nA and final-window circuit error
+  from 18.27/17.36 to 0.631/0.321 mV for backward Euler/trapezoidal. All fixed
+  diagnostics remain zero; implementation is tracked separately.
 
 - ngspice bias is 179.994 V/0.9918 mA for stage 1 and 192.808 V/1.0719 mA for stage 2; circuit gain is 41.087 dB at 1 kHz.
 - The physical passive network's ideal-RIAA error is -0.919 to +0.000 dB over 20 Hz–20 kHz (0.364 dB RMS), retained as reference behavior.

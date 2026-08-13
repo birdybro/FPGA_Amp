@@ -23,6 +23,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Completed this milestone
 
+- [x] Decompose banked severe-overload error and sweep the grid-current table.
+  Identify the 128-entry positive-grid branch as the dominant 1.5 V error;
+  select 1,024 entries after reducing final error from 18.27/17.36 mV to
+  0.631/0.321 mV with zero diagnostics and improved worst-case 1.0 V error.
 - [x] Add a Vgk-slew-qualified shallow bank for the severe cutoff arc. Preserve
   bit-exact <=1.0 V behavior, remove all 1.5 V residual-limit misses in both
   integration modes, prove 36,864 RTL states exact with every bank exercised,

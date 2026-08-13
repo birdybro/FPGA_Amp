@@ -1,0 +1,1062 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "study": "banked fixed severe-overload error decomposition",
+  "sample_rate_hz": 768000.0,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_start_s": 0.01,
+    "burst_end_s": 0.015,
+    "duration_s": 0.1,
+    "burst_levels_peak_v": [
+      1.0,
+      1.5
+    ],
+    "input_format": "Q8.24"
+  },
+  "layers": [
+    "analytical Koren full Newton",
+    "floating cubic-Hermite factorized Koren full Newton",
+    "quantized fixed-table coefficients with continuous interpolation",
+    "bit-accurate banked fixed circuit and three-pass chord"
+  ],
+  "rejected_intermediate": "The exact integer tube law is discontinuous in floating nodal voltage and cannot serve as a converged Newton reference; use the continuous quantized-coefficient layer above.",
+  "alignment": {
+    "gain": false,
+    "dc": false,
+    "delay": false
+  },
+  "gates": {
+    "analytical_and_factorized_float_converged": true,
+    "quantized_table_float_converged": true,
+    "banked_fixed_diagnostics_clean": true,
+    "component_sum_is_numerically_exact": true
+  },
+  "all_gates_pass": true,
+  "measurements": [
+    {
+      "integration_method": "backward_euler",
+      "burst_input_peak_v": 1.0,
+      "windows": {
+        "burst": {
+          "layers": {
+            "factorized_tables": {
+              "reference_rms_v": 71.92743922943026,
+              "candidate_rms_v": 71.92743169477036,
+              "raw_error_rms_v": 3.068188477185342e-05,
+              "raw_normalized_error_db": -127.4002512837785,
+              "error_mean_v": 2.4482753581377384e-05,
+              "mean_removed_error_rms_v": 1.849250740778123e-05,
+              "mean_removed_normalized_error_db": -131.79797594838655,
+              "maximum_absolute_error_v": 5.880106967026677e-05
+            },
+            "quantized_table_coefficients": {
+              "reference_rms_v": 71.92743169477036,
+              "candidate_rms_v": 71.92540496192638,
+              "raw_error_rms_v": 0.002327420345010902,
+              "raw_normalized_error_db": -89.8003945381962,
+              "error_mean_v": -0.0010495477373231499,
+              "mean_removed_error_rms_v": 0.0020773384436462254,
+              "mean_removed_normalized_error_db": -90.78774589894216,
+              "maximum_absolute_error_v": 0.005934845637099784
+            },
+            "fixed_evaluation_circuit_and_chord": {
+              "reference_rms_v": 71.92540496192638,
+              "candidate_rms_v": 71.92545908618813,
+              "raw_error_rms_v": 0.010601529275080478,
+              "raw_normalized_error_db": -76.63027597666212,
+              "error_mean_v": -0.0002570381095030964,
+              "mean_removed_error_rms_v": 0.010598412823656733,
+              "mean_removed_normalized_error_db": -76.63282967734658,
+              "maximum_absolute_error_v": 0.06506792067578715
+            },
+            "total_fixed_vs_analytical": {
+              "reference_rms_v": 71.92743922943026,
+              "candidate_rms_v": 71.92545908618813,
+              "raw_error_rms_v": 0.010846032726986258,
+              "raw_normalized_error_db": -76.43247376431906,
+              "error_mean_v": -0.001282103093244869,
+              "mean_removed_error_rms_v": 0.01076998781675954,
+              "mean_removed_normalized_error_db": -76.4935877349834,
+              "maximum_absolute_error_v": 0.06362818267997739
+            }
+          },
+          "coefficient_ab_vs_floating_factorized": {
+            "plate_coefficients_only": {
+              "reference_rms_v": 71.92743169477036,
+              "candidate_rms_v": 71.92742775426433,
+              "raw_error_rms_v": 1.490982816882126e-05,
+              "raw_normalized_error_db": -133.66843829797295,
+              "error_mean_v": 1.0646133181227647e-05,
+              "mean_removed_error_rms_v": 1.0438525964490371e-05,
+              "mean_removed_normalized_error_db": -136.7651075493323,
+              "maximum_absolute_error_v": 3.0726361700317284e-05
+            },
+            "grid_coefficients_only": {
+              "reference_rms_v": 71.92743169477036,
+              "candidate_rms_v": 71.92540889731384,
+              "raw_error_rms_v": 0.0023254682801887557,
+              "raw_normalized_error_db": -89.80768266476534,
+              "error_mean_v": -0.0010601816852841674,
+              "mean_removed_error_rms_v": 0.0020697385140041416,
+              "mean_removed_normalized_error_db": -90.81958144224231,
+              "maximum_absolute_error_v": 0.005911349398914467
+            },
+            "all_coefficients": {
+              "reference_rms_v": 71.92743169477036,
+              "candidate_rms_v": 71.92540496192638,
+              "raw_error_rms_v": 0.002327420345010902,
+              "raw_normalized_error_db": -89.8003945381962,
+              "error_mean_v": -0.0010495477373231499,
+              "mean_removed_error_rms_v": 0.0020773384436462254,
+              "mean_removed_normalized_error_db": -90.78774589894216,
+              "maximum_absolute_error_v": 0.005934845637099784
+            }
+          },
+          "dominant_coefficient_group_by_independent_raw_rms": "grid_coefficients_only",
+          "dominant_component_by_raw_rms": "fixed_evaluation_circuit_and_chord",
+          "component_sum_closure_maximum_absolute_v": 0.0
+        },
+        "complete_post_burst": {
+          "layers": {
+            "factorized_tables": {
+              "reference_rms_v": 4.305844226520843,
+              "candidate_rms_v": 4.305838740778591,
+              "raw_error_rms_v": 6.030561881192998e-06,
+              "raw_normalized_error_db": -117.07401071944435,
+              "error_mean_v": -1.6403681862064593e-07,
+              "mean_removed_error_rms_v": 6.028330492353157e-06,
+              "mean_removed_normalized_error_db": -117.07722520993373,
+              "maximum_absolute_error_v": 5.355488954705834e-05
+            },
+            "quantized_table_coefficients": {
+              "reference_rms_v": 4.305838740778591,
+              "candidate_rms_v": 4.3054880909814,
+              "raw_error_rms_v": 0.0004381753085167055,
+              "raw_normalized_error_db": -79.84819719569325,
+              "error_mean_v": 0.000358429815914248,
+              "mean_removed_error_rms_v": 0.0002520429885106674,
+              "mean_removed_normalized_error_db": -84.65166280871743,
+              "maximum_absolute_error_v": 0.0036018496484757634
+            },
+            "fixed_evaluation_circuit_and_chord": {
+              "reference_rms_v": 4.3054880909814,
+              "candidate_rms_v": 4.305582652515496,
+              "raw_error_rms_v": 0.0002828657909968551,
+              "raw_normalized_error_db": -83.64883928084167,
+              "error_mean_v": -0.00027465515625343,
+              "mean_removed_error_rms_v": 6.765796966862376e-05,
+              "mean_removed_normalized_error_db": -96.07406862590281,
+              "maximum_absolute_error_v": 0.0017649401745529758
+            },
+            "total_fixed_vs_analytical": {
+              "reference_rms_v": 4.305844226520843,
+              "candidate_rms_v": 4.305582652515496,
+              "raw_error_rms_v": 0.00028817076416552434,
+              "raw_normalized_error_db": -83.48816792077115,
+              "error_mean_v": 8.36106228421973e-05,
+              "mean_removed_error_rms_v": 0.0002757746418140763,
+              "mean_removed_normalized_error_db": -83.8700797004064,
+              "maximum_absolute_error_v": 0.002220310708935358
+            }
+          },
+          "coefficient_ab_vs_floating_factorized": {
+            "plate_coefficients_only": {
+              "reference_rms_v": 4.305838740778591,
+              "candidate_rms_v": 4.30583462705321,
+              "raw_error_rms_v": 4.630939283596807e-06,
+              "raw_normalized_error_db": -119.36777347842815,
+              "error_mean_v": 5.877297164124612e-07,
+              "mean_removed_error_rms_v": 4.593492399994348e-06,
+              "mean_removed_normalized_error_db": -119.43829517476087,
+              "maximum_absolute_error_v": 2.785810603711525e-05
+            },
+            "grid_coefficients_only": {
+              "reference_rms_v": 4.305838740778591,
+              "candidate_rms_v": 4.305492191422911,
+              "raw_error_rms_v": 0.00043526557420377275,
+              "raw_normalized_error_db": -79.90606882756515,
+              "error_mean_v": 0.0003578571882655834,
+              "mean_removed_error_rms_v": 0.0002477788386718907,
+              "mean_removed_normalized_error_db": -84.79987095614676,
+              "maximum_absolute_error_v": 0.0035779438061638302
+            },
+            "all_coefficients": {
+              "reference_rms_v": 4.305838740778591,
+              "candidate_rms_v": 4.3054880909814,
+              "raw_error_rms_v": 0.0004381753085167055,
+              "raw_normalized_error_db": -79.84819719569325,
+              "error_mean_v": 0.000358429815914248,
+              "mean_removed_error_rms_v": 0.0002520429885106674,
+              "mean_removed_normalized_error_db": -84.65166280871743,
+              "maximum_absolute_error_v": 0.0036018496484757634
+            }
+          },
+          "dominant_coefficient_group_by_independent_raw_rms": "grid_coefficients_only",
+          "dominant_component_by_raw_rms": "quantized_table_coefficients",
+          "component_sum_closure_maximum_absolute_v": 0.0
+        },
+        "final_10ms": {
+          "layers": {
+            "factorized_tables": {
+              "reference_rms_v": 0.4951931302179847,
+              "candidate_rms_v": 0.4951939708945918,
+              "raw_error_rms_v": 1.2988414964803775e-06,
+              "raw_normalized_error_db": -111.6243691146775,
+              "error_mean_v": -1.2942445272332298e-06,
+              "mean_removed_error_rms_v": 1.0918029449594071e-07,
+              "mean_removed_normalized_error_db": -133.1326069941029,
+              "maximum_absolute_error_v": 1.536065177054624e-06
+            },
+            "quantized_table_coefficients": {
+              "reference_rms_v": 0.4951939708945918,
+              "candidate_rms_v": 0.4950646966147247,
+              "raw_error_rms_v": 0.0002158186202027099,
+              "raw_normalized_error_db": -67.21372873553749,
+              "error_mean_v": 0.00021572978266261496,
+              "mean_removed_error_rms_v": 6.191744386071748e-06,
+              "mean_removed_normalized_error_db": -98.05924658698149,
+              "maximum_absolute_error_v": 0.00022888478063232132
+            },
+            "fixed_evaluation_circuit_and_chord": {
+              "reference_rms_v": 0.4950646966147247,
+              "candidate_rms_v": 0.4952722803940338,
+              "raw_error_rms_v": 0.0003566862890343779,
+              "raw_normalized_error_db": -62.84751084334427,
+              "error_mean_v": -0.0003563361513290615,
+              "mean_removed_error_rms_v": 1.5800507621844896e-05,
+              "mean_removed_normalized_error_db": -89.9198183577152,
+              "maximum_absolute_error_v": 0.0004079253773867919
+            },
+            "total_fixed_vs_analytical": {
+              "reference_rms_v": 0.4951931302179847,
+              "candidate_rms_v": 0.4952722803940338,
+              "raw_error_rms_v": 0.00014305134979790033,
+              "raw_normalized_error_db": -70.78565302113246,
+              "error_mean_v": -0.00014190061319367968,
+              "mean_removed_error_rms_v": 1.810813779103007e-05,
+              "mean_removed_normalized_error_db": -88.73801641166776,
+              "maximum_absolute_error_v": 0.00020385069190836935
+            }
+          },
+          "coefficient_ab_vs_floating_factorized": {
+            "plate_coefficients_only": {
+              "reference_rms_v": 0.4951939708945918,
+              "candidate_rms_v": 0.4951947676797786,
+              "raw_error_rms_v": 1.117087484376745e-06,
+              "raw_normalized_error_db": -112.9337632462607,
+              "error_mean_v": -9.171675675652564e-07,
+              "mean_removed_error_rms_v": 6.377210211037388e-07,
+              "mean_removed_normalized_error_db": -117.80289231193458,
+              "maximum_absolute_error_v": 2.087174096887523e-06
+            },
+            "grid_coefficients_only": {
+              "reference_rms_v": 0.4951939708945918,
+              "candidate_rms_v": 0.49506389212307983,
+              "raw_error_rms_v": 0.00021675498741428656,
+              "raw_normalized_error_db": -67.17612498523727,
+              "error_mean_v": 0.0002166622546597231,
+              "mean_removed_error_rms_v": 6.339714089200727e-06,
+              "mean_removed_normalized_error_db": -97.85411352112976,
+              "maximum_absolute_error_v": 0.00022995132227621173
+            },
+            "all_coefficients": {
+              "reference_rms_v": 0.4951939708945918,
+              "candidate_rms_v": 0.4950646966147247,
+              "raw_error_rms_v": 0.0002158186202027099,
+              "raw_normalized_error_db": -67.21372873553749,
+              "error_mean_v": 0.00021572978266261496,
+              "mean_removed_error_rms_v": 6.191744386071748e-06,
+              "mean_removed_normalized_error_db": -98.05924658698149,
+              "maximum_absolute_error_v": 0.00022888478063232132
+            }
+          },
+          "dominant_coefficient_group_by_independent_raw_rms": "grid_coefficients_only",
+          "dominant_component_by_raw_rms": "fixed_evaluation_circuit_and_chord",
+          "component_sum_closure_maximum_absolute_v": 0.0
+        }
+      },
+      "diagnostics": {
+        "analytical_nonconvergence_count": 0,
+        "factorized_float_nonconvergence_count": 0,
+        "quantized_table_float_nonconvergence_count": {
+          "plate_coefficients_only": 0,
+          "grid_coefficients_only": 0,
+          "all_coefficients": 0
+        },
+        "fixed_residual_limit_exceedance_count": 0,
+        "fixed_saturation_count": 0,
+        "fixed_range_clip_count": 0,
+        "fixed_correction_scale_fallback_count": 0
+      }
+    },
+    {
+      "integration_method": "backward_euler",
+      "burst_input_peak_v": 1.5,
+      "windows": {
+        "burst": {
+          "layers": {
+            "factorized_tables": {
+              "reference_rms_v": 84.7569532698624,
+              "candidate_rms_v": 84.75744076904328,
+              "raw_error_rms_v": 0.000952317775437618,
+              "raw_normalized_error_db": -98.98786892345355,
+              "error_mean_v": 0.00042157966975110695,
+              "mean_removed_error_rms_v": 0.0008539202114173204,
+              "mean_removed_normalized_error_db": -99.93516087790647,
+              "maximum_absolute_error_v": 0.0030677325264463207
+            },
+            "quantized_table_coefficients": {
+              "reference_rms_v": 84.75744076904328,
+              "candidate_rms_v": 84.73058826701235,
+              "raw_error_rms_v": 0.06595270737963872,
+              "raw_normalized_error_db": -62.17890413284152,
+              "error_mean_v": 0.043218740489200956,
+              "mean_removed_error_rms_v": 0.049818672013928214,
+              "mean_removed_normalized_error_db": -64.61571376373044,
+              "maximum_absolute_error_v": 0.19680658129856
+            },
+            "fixed_evaluation_circuit_and_chord": {
+              "reference_rms_v": 84.73058826701235,
+              "candidate_rms_v": 84.7306879838281,
+              "raw_error_rms_v": 0.019041808121055406,
+              "raw_normalized_error_db": -72.96664074109603,
+              "error_mean_v": -0.00011918645156353564,
+              "mean_removed_error_rms_v": 0.01904143511158902,
+              "mean_removed_normalized_error_db": -72.96681089042072,
+              "maximum_absolute_error_v": 0.05066178131973231
+            },
+            "total_fixed_vs_analytical": {
+              "reference_rms_v": 84.7569532698624,
+              "candidate_rms_v": 84.7306879838281,
+              "raw_error_rms_v": 0.06892747744426761,
+              "raw_normalized_error_db": -61.7956590415126,
+              "error_mean_v": 0.04352113370738853,
+              "mean_removed_error_rms_v": 0.05345005208279623,
+              "mean_removed_normalized_error_db": -64.00454408298366,
+              "maximum_absolute_error_v": 0.19718286874602597
+            }
+          },
+          "coefficient_ab_vs_floating_factorized": {
+            "plate_coefficients_only": {
+              "reference_rms_v": 84.75744076904328,
+              "candidate_rms_v": 84.75743918814219,
+              "raw_error_rms_v": 7.79344856279523e-06,
+              "raw_normalized_error_db": -140.72896322868672,
+              "error_mean_v": 3.623806254225711e-06,
+              "mean_removed_error_rms_v": 6.89970062631486e-06,
+              "mean_removed_normalized_error_db": -141.78695174872888,
+              "maximum_absolute_error_v": 2.151482381407277e-05
+            },
+            "grid_coefficients_only": {
+              "reference_rms_v": 84.75744076904328,
+              "candidate_rms_v": 84.73058985049184,
+              "raw_error_rms_v": 0.06594867744254193,
+              "raw_normalized_error_db": -62.17943488676695,
+              "error_mean_v": 0.04321510406945436,
+              "mean_removed_error_rms_v": 0.04981649161358785,
+              "mean_removed_normalized_error_db": -64.61609392503166,
+              "maximum_absolute_error_v": 0.19680087125121304
+            },
+            "all_coefficients": {
+              "reference_rms_v": 84.75744076904328,
+              "candidate_rms_v": 84.73058826701235,
+              "raw_error_rms_v": 0.06595270737963872,
+              "raw_normalized_error_db": -62.17890413284152,
+              "error_mean_v": 0.043218740489200956,
+              "mean_removed_error_rms_v": 0.049818672013928214,
+              "mean_removed_normalized_error_db": -64.61571376373044,
+              "maximum_absolute_error_v": 0.19680658129856
+            }
+          },
+          "dominant_coefficient_group_by_independent_raw_rms": "grid_coefficients_only",
+          "dominant_component_by_raw_rms": "quantized_table_coefficients",
+          "component_sum_closure_maximum_absolute_v": 0.0
+        },
+        "complete_post_burst": {
+          "layers": {
+            "factorized_tables": {
+              "reference_rms_v": 3.584857347756908,
+              "candidate_rms_v": 3.584850708381396,
+              "raw_error_rms_v": 1.6187880562382257e-05,
+              "raw_normalized_error_db": -106.90563774102114,
+              "error_mean_v": -1.5545417906193132e-05,
+              "mean_removed_error_rms_v": 4.515247415564638e-06,
+              "mean_removed_normalized_error_db": -117.99580651498978,
+              "maximum_absolute_error_v": 2.0588265696286356e-05
+            },
+            "quantized_table_coefficients": {
+              "reference_rms_v": 3.584850708381396,
+              "candidate_rms_v": 3.58096195896156,
+              "raw_error_rms_v": 0.0283934075217564,
+              "raw_normalized_error_db": -42.02507116696207,
+              "error_mean_v": 0.026234242230596644,
+              "mean_removed_error_rms_v": 0.01086048457864163,
+              "mean_removed_normalized_error_db": -50.37243741733852,
+              "maximum_absolute_error_v": 0.12448569336140736
+            },
+            "fixed_evaluation_circuit_and_chord": {
+              "reference_rms_v": 3.58096195896156,
+              "candidate_rms_v": 3.5811453087066143,
+              "raw_error_rms_v": 0.0014294345386444472,
+              "raw_normalized_error_db": -67.97670871912318,
+              "error_mean_v": 0.0014004411381677647,
+              "mean_removed_error_rms_v": 0.00028643972978104786,
+              "mean_removed_normalized_error_db": -81.93932904228483,
+              "maximum_absolute_error_v": 0.002832602727373512
+            },
+            "total_fixed_vs_analytical": {
+              "reference_rms_v": 3.584857347756908,
+              "candidate_rms_v": 3.5811453087066143,
+              "raw_error_rms_v": 0.029757868861015283,
+              "raw_normalized_error_db": -41.617401058072545,
+              "error_mean_v": 0.027619137950858217,
+              "mean_removed_error_rms_v": 0.011077634133733003,
+              "mean_removed_normalized_error_db": -50.20049722134999,
+              "maximum_absolute_error_v": 0.12685475858349093
+            }
+          },
+          "coefficient_ab_vs_floating_factorized": {
+            "plate_coefficients_only": {
+              "reference_rms_v": 3.584850708381396,
+              "candidate_rms_v": 3.584846746382757,
+              "raw_error_rms_v": 6.926841521997518e-06,
+              "raw_normalized_error_db": -114.27871645044485,
+              "error_mean_v": -5.655910491996216e-06,
+              "mean_removed_error_rms_v": 3.9989761161322315e-06,
+              "mean_removed_normalized_error_db": -119.05044527610988,
+              "maximum_absolute_error_v": 1.1930241665680796e-05
+            },
+            "grid_coefficients_only": {
+              "reference_rms_v": 3.584850708381396,
+              "candidate_rms_v": 3.580965991363799,
+              "raw_error_rms_v": 0.02839771098955651,
+              "raw_normalized_error_db": -42.023754783435066,
+              "error_mean_v": 0.02623998694005117,
+              "mean_removed_error_rms_v": 0.010857857745997714,
+              "mean_removed_normalized_error_db": -50.37453853336412,
+              "maximum_absolute_error_v": 0.12448079826430103
+            },
+            "all_coefficients": {
+              "reference_rms_v": 3.584850708381396,
+              "candidate_rms_v": 3.58096195896156,
+              "raw_error_rms_v": 0.0283934075217564,
+              "raw_normalized_error_db": -42.02507116696207,
+              "error_mean_v": 0.026234242230596644,
+              "mean_removed_error_rms_v": 0.01086048457864163,
+              "mean_removed_normalized_error_db": -50.37243741733852,
+              "maximum_absolute_error_v": 0.12448569336140736
+            }
+          },
+          "dominant_coefficient_group_by_independent_raw_rms": "grid_coefficients_only",
+          "dominant_component_by_raw_rms": "quantized_table_coefficients",
+          "component_sum_closure_maximum_absolute_v": 6.938893903907228e-18
+        },
+        "final_10ms": {
+          "layers": {
+            "factorized_tables": {
+              "reference_rms_v": 1.189854462196492,
+              "candidate_rms_v": 1.1898424466732422,
+              "raw_error_rms_v": 1.266193226988134e-05,
+              "raw_normalized_error_db": -99.45987715069853,
+              "error_mean_v": -1.2655487585193558e-05,
+              "mean_removed_error_rms_v": 4.039341382876292e-07,
+              "mean_removed_normalized_error_db": -129.38366569476483,
+              "maximum_absolute_error_v": 1.3507096150444653e-05
+            },
+            "quantized_table_coefficients": {
+              "reference_rms_v": 1.1898424466732422,
+              "candidate_rms_v": 1.2061350934335833,
+              "raw_error_rms_v": 0.01729074205865733,
+              "raw_normalized_error_db": -36.75351651771538,
+              "error_mean_v": 0.01728523836450421,
+              "mean_removed_error_rms_v": 0.00043622886343442404,
+              "mean_removed_normalized_error_db": -68.71550120668206,
+              "maximum_absolute_error_v": 0.01807035899195275
+            },
+            "fixed_evaluation_circuit_and_chord": {
+              "reference_rms_v": 1.2061350934335833,
+              "candidate_rms_v": 1.2070665839891968,
+              "raw_error_rms_v": 0.0009888788643211768,
+              "raw_normalized_error_db": -61.72505718256427,
+              "error_mean_v": 0.0009885282863914858,
+              "mean_removed_error_rms_v": 2.6329362032777937e-05,
+              "mean_removed_normalized_error_db": -93.21911235227212,
+              "maximum_absolute_error_v": 0.001070214772628808
+            },
+            "total_fixed_vs_analytical": {
+              "reference_rms_v": 1.189854462196492,
+              "candidate_rms_v": 1.2070665839891968,
+              "raw_error_rms_v": 0.01826683381728742,
+              "raw_normalized_error_db": -36.27661131684742,
+              "error_mean_v": 0.018261111163310504,
+              "mean_removed_error_rms_v": 0.00045720541292933534,
+              "mean_removed_normalized_error_db": -68.30764960398285,
+              "maximum_absolute_error_v": 0.019124480503937336
+            }
+          },
+          "coefficient_ab_vs_floating_factorized": {
+            "plate_coefficients_only": {
+              "reference_rms_v": 1.1898424466732422,
+              "candidate_rms_v": 1.189837224277684,
+              "raw_error_rms_v": 5.231426905240213e-06,
+              "raw_normalized_error_db": -107.13738592683173,
+              "error_mean_v": -4.950567692222374e-06,
+              "mean_removed_error_rms_v": 1.69106681996757e-06,
+              "mean_removed_normalized_error_db": -116.94657379081013,
+              "maximum_absolute_error_v": 7.33557940479912e-06
+            },
+            "grid_coefficients_only": {
+              "reference_rms_v": 1.1898424466732422,
+              "candidate_rms_v": 1.2061403770306858,
+              "raw_error_rms_v": 0.017295766825743197,
+              "raw_normalized_error_db": -36.75099272597811,
+              "error_mean_v": 0.017290260580500216,
+              "mean_removed_error_rms_v": 0.0004363933419280962,
+              "mean_removed_normalized_error_db": -68.7122268410929,
+              "maximum_absolute_error_v": 0.018074225427015422
+            },
+            "all_coefficients": {
+              "reference_rms_v": 1.1898424466732422,
+              "candidate_rms_v": 1.2061350934335833,
+              "raw_error_rms_v": 0.01729074205865733,
+              "raw_normalized_error_db": -36.75351651771538,
+              "error_mean_v": 0.01728523836450421,
+              "mean_removed_error_rms_v": 0.00043622886343442404,
+              "mean_removed_normalized_error_db": -68.71550120668206,
+              "maximum_absolute_error_v": 0.01807035899195275
+            }
+          },
+          "dominant_coefficient_group_by_independent_raw_rms": "grid_coefficients_only",
+          "dominant_component_by_raw_rms": "quantized_table_coefficients",
+          "component_sum_closure_maximum_absolute_v": 0.0
+        }
+      },
+      "diagnostics": {
+        "analytical_nonconvergence_count": 0,
+        "factorized_float_nonconvergence_count": 0,
+        "quantized_table_float_nonconvergence_count": {
+          "plate_coefficients_only": 0,
+          "grid_coefficients_only": 0,
+          "all_coefficients": 0
+        },
+        "fixed_residual_limit_exceedance_count": 0,
+        "fixed_saturation_count": 0,
+        "fixed_range_clip_count": 0,
+        "fixed_correction_scale_fallback_count": 0
+      }
+    },
+    {
+      "integration_method": "trapezoidal",
+      "burst_input_peak_v": 1.0,
+      "windows": {
+        "burst": {
+          "layers": {
+            "factorized_tables": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.93511760677127,
+              "raw_error_rms_v": 3.0684888023246564e-05,
+              "raw_normalized_error_db": -127.40032921460353,
+              "error_mean_v": 2.4476049539496512e-05,
+              "mean_removed_error_rms_v": 1.8506359770070755e-05,
+              "mean_removed_normalized_error_db": -131.79240005511272,
+              "maximum_absolute_error_v": 5.881229928661469e-05
+            },
+            "quantized_table_coefficients": {
+              "reference_rms_v": 71.93511760677127,
+              "candidate_rms_v": 71.93308391570902,
+              "raw_error_rms_v": 0.0023386498282612295,
+              "raw_normalized_error_db": -89.75951518527724,
+              "error_mean_v": -0.001043025940640221,
+              "mean_removed_error_rms_v": 0.002093174600069918,
+              "mean_removed_normalized_error_db": -90.72271003758564,
+              "maximum_absolute_error_v": 0.006153739486876475
+            },
+            "fixed_evaluation_circuit_and_chord": {
+              "reference_rms_v": 71.93308391570902,
+              "candidate_rms_v": 71.93320513535326,
+              "raw_error_rms_v": 0.010185724519347964,
+              "raw_normalized_error_db": -76.97873507202274,
+              "error_mean_v": 0.00018190341808178208,
+              "mean_removed_error_rms_v": 0.010184100113929385,
+              "mean_removed_normalized_error_db": -76.98012039629305,
+              "maximum_absolute_error_v": 0.06513374141549377
+            },
+            "total_fixed_vs_analytical": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.93320513535326,
+              "raw_error_rms_v": 0.010413026773103679,
+              "raw_normalized_error_db": -76.7872803698153,
+              "error_mean_v": -0.0008366464730189424,
+              "mean_removed_error_rms_v": 0.010379361697934944,
+              "mean_removed_normalized_error_db": -76.8154071416385,
+              "maximum_absolute_error_v": 0.06655570733883565
+            }
+          },
+          "coefficient_ab_vs_floating_factorized": {
+            "plate_coefficients_only": {
+              "reference_rms_v": 71.93511760677127,
+              "candidate_rms_v": 71.93511366602344,
+              "raw_error_rms_v": 1.4957178067083349e-05,
+              "raw_normalized_error_db": -133.64182587906132,
+              "error_mean_v": 1.0645662518626933e-05,
+              "mean_removed_error_rms_v": 1.0506523938484167e-05,
+              "mean_removed_normalized_error_db": -136.70963807201028,
+              "maximum_absolute_error_v": 3.095661658392146e-05
+            },
+            "grid_coefficients_only": {
+              "reference_rms_v": 71.93511760677127,
+              "candidate_rms_v": 71.9330878513472,
+              "raw_error_rms_v": 0.002336641126074997,
+              "raw_normalized_error_db": -89.76697883481235,
+              "error_mean_v": -0.0010536601064774747,
+              "mean_removed_error_rms_v": 0.002085591554471514,
+              "mean_removed_normalized_error_db": -90.75423396931605,
+              "maximum_absolute_error_v": 0.00613005554291135
+            },
+            "all_coefficients": {
+              "reference_rms_v": 71.93511760677127,
+              "candidate_rms_v": 71.93308391570902,
+              "raw_error_rms_v": 0.0023386498282612295,
+              "raw_normalized_error_db": -89.75951518527724,
+              "error_mean_v": -0.001043025940640221,
+              "mean_removed_error_rms_v": 0.002093174600069918,
+              "mean_removed_normalized_error_db": -90.72271003758564,
+              "maximum_absolute_error_v": 0.006153739486876475
+            }
+          },
+          "dominant_coefficient_group_by_independent_raw_rms": "grid_coefficients_only",
+          "dominant_component_by_raw_rms": "fixed_evaluation_circuit_and_chord",
+          "component_sum_closure_maximum_absolute_v": 0.0
+        },
+        "complete_post_burst": {
+          "layers": {
+            "factorized_tables": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.3066336981477304,
+              "raw_error_rms_v": 6.031159642534371e-06,
+              "raw_normalized_error_db": -117.07475326589211,
+              "error_mean_v": -1.6493742438076192e-07,
+              "mean_removed_error_rms_v": 6.028903903677182e-06,
+              "mean_removed_normalized_error_db": -117.07800251891955,
+              "maximum_absolute_error_v": 5.3645030263282933e-05
+            },
+            "quantized_table_coefficients": {
+              "reference_rms_v": 4.3066336981477304,
+              "candidate_rms_v": 4.306270289578498,
+              "raw_error_rms_v": 0.0004545270957786817,
+              "raw_normalized_error_db": -79.53156312647808,
+              "error_mean_v": 0.00037211234236988187,
+              "mean_removed_error_rms_v": 0.00026101204081996424,
+              "mean_removed_normalized_error_db": -84.34954783883134,
+              "maximum_absolute_error_v": 0.0037473549841138265
+            },
+            "fixed_evaluation_circuit_and_chord": {
+              "reference_rms_v": 4.306270289578498,
+              "candidate_rms_v": 4.3062141220411725,
+              "raw_error_rms_v": 0.00023839210777200283,
+              "raw_normalized_error_db": -85.13618823950786,
+              "error_mean_v": 0.00022838020516706127,
+              "mean_removed_error_rms_v": 6.836138482966258e-05,
+              "mean_removed_normalized_error_db": -95.98580867285452,
+              "maximum_absolute_error_v": 0.0010580316465365058
+            },
+            "total_fixed_vs_analytical": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.3062141220411725,
+              "raw_error_rms_v": 0.000647470571700466,
+              "raw_normalized_error_db": -76.45836907046586,
+              "error_mean_v": 0.0006003276101125623,
+              "mean_removed_error_rms_v": 0.00024253845417720373,
+              "mean_removed_normalized_error_db": -84.98715764539915,
+              "maximum_absolute_error_v": 0.0030403300863000027
+            }
+          },
+          "coefficient_ab_vs_floating_factorized": {
+            "plate_coefficients_only": {
+              "reference_rms_v": 4.3066336981477304,
+              "candidate_rms_v": 4.3066295851319865,
+              "raw_error_rms_v": 4.630388955652436e-06,
+              "raw_normalized_error_db": -119.37040921473556,
+              "error_mean_v": 5.87319036771455e-07,
+              "mean_removed_error_rms_v": 4.592990118612701e-06,
+              "mean_removed_normalized_error_db": -119.44084846455858,
+              "maximum_absolute_error_v": 2.7848458913126706e-05
+            },
+            "grid_coefficients_only": {
+              "reference_rms_v": 4.3066336981477304,
+              "candidate_rms_v": 4.306274389569875,
+              "raw_error_rms_v": 0.0004516215400060968,
+              "raw_normalized_error_db": -79.58726573921723,
+              "error_mean_v": 0.0003715395005698136,
+              "mean_removed_error_rms_v": 0.0002567497125875936,
+              "mean_removed_normalized_error_db": -84.49255936388296,
+              "maximum_absolute_error_v": 0.003723446197454905
+            },
+            "all_coefficients": {
+              "reference_rms_v": 4.3066336981477304,
+              "candidate_rms_v": 4.306270289578498,
+              "raw_error_rms_v": 0.0004545270957786817,
+              "raw_normalized_error_db": -79.53156312647808,
+              "error_mean_v": 0.00037211234236988187,
+              "mean_removed_error_rms_v": 0.00026101204081996424,
+              "mean_removed_normalized_error_db": -84.34954783883134,
+              "maximum_absolute_error_v": 0.0037473549841138265
+            }
+          },
+          "dominant_coefficient_group_by_independent_raw_rms": "grid_coefficients_only",
+          "dominant_component_by_raw_rms": "quantized_table_coefficients",
+          "component_sum_closure_maximum_absolute_v": 0.0
+        },
+        "final_10ms": {
+          "layers": {
+            "factorized_tables": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.49525533001099276,
+              "raw_error_rms_v": 1.299414389503351e-06,
+              "raw_normalized_error_db": -111.62161498115341,
+              "error_mean_v": -1.2948153205608923e-06,
+              "mean_removed_error_rms_v": 1.0922930599962724e-07,
+              "mean_removed_normalized_error_db": -133.1297849299052,
+              "maximum_absolute_error_v": 1.5369903573203558e-06
+            },
+            "quantized_table_coefficients": {
+              "reference_rms_v": 0.49525533001099276,
+              "candidate_rms_v": 0.49512117847119425,
+              "raw_error_rms_v": 0.00022417930257132655,
+              "raw_normalized_error_db": -66.88467288899548,
+              "error_mean_v": 0.00022408864560828458,
+              "mean_removed_error_rms_v": 6.374842022436172e-06,
+              "mean_removed_normalized_error_db": -97.80719462733339,
+              "maximum_absolute_error_v": 0.00023756063424340557
+            },
+            "fixed_evaluation_circuit_and_chord": {
+              "reference_rms_v": 0.49512117847119425,
+              "candidate_rms_v": 0.4949353785635411,
+              "raw_error_rms_v": 0.0003150271337954217,
+              "raw_normalized_error_db": -63.92727082988506,
+              "error_mean_v": 0.0003145998173878404,
+              "mean_removed_error_rms_v": 1.6402741444527234e-05,
+              "mean_removed_normalized_error_db": -89.5959012837927,
+              "maximum_absolute_error_v": 0.00036841676516252697
+            },
+            "total_fixed_vs_analytical": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.4949353785635411,
+              "raw_error_rms_v": 0.0005376352237122154,
+              "raw_normalized_error_db": -59.28681413205045,
+              "error_mean_v": 0.000537393647675564,
+              "mean_removed_error_rms_v": 1.611524787384945e-05,
+              "mean_removed_normalized_error_db": -89.75182861792283,
+              "maximum_absolute_error_v": 0.0005951047497835815
+            }
+          },
+          "coefficient_ab_vs_floating_factorized": {
+            "plate_coefficients_only": {
+              "reference_rms_v": 0.49525533001099276,
+              "candidate_rms_v": 0.4952561267904015,
+              "raw_error_rms_v": 1.1176006151267662e-06,
+              "raw_normalized_error_db": -112.93085052070886,
+              "error_mean_v": -9.17720333815447e-07,
+              "mean_removed_error_rms_v": 6.378248378931248e-07,
+              "mean_removed_normalized_error_db": -117.80255461673883,
+              "maximum_absolute_error_v": 2.0894452322783863e-06
+            },
+            "grid_coefficients_only": {
+              "reference_rms_v": 0.49525533001099276,
+              "candidate_rms_v": 0.49512037456517016,
+              "raw_error_rms_v": 0.00022511511625683276,
+              "raw_normalized_error_db": -66.84848999507174,
+              "error_mean_v": 0.0002250207130870549,
+              "mean_removed_error_rms_v": 6.518761317967552e-06,
+              "mean_removed_normalized_error_db": -97.61328156754934,
+              "maximum_absolute_error_v": 0.00023869283127986307
+            },
+            "all_coefficients": {
+              "reference_rms_v": 0.49525533001099276,
+              "candidate_rms_v": 0.49512117847119425,
+              "raw_error_rms_v": 0.00022417930257132655,
+              "raw_normalized_error_db": -66.88467288899548,
+              "error_mean_v": 0.00022408864560828458,
+              "mean_removed_error_rms_v": 6.374842022436172e-06,
+              "mean_removed_normalized_error_db": -97.80719462733339,
+              "maximum_absolute_error_v": 0.00023756063424340557
+            }
+          },
+          "dominant_coefficient_group_by_independent_raw_rms": "grid_coefficients_only",
+          "dominant_component_by_raw_rms": "fixed_evaluation_circuit_and_chord",
+          "component_sum_closure_maximum_absolute_v": 0.0
+        }
+      },
+      "diagnostics": {
+        "analytical_nonconvergence_count": 0,
+        "factorized_float_nonconvergence_count": 0,
+        "quantized_table_float_nonconvergence_count": {
+          "plate_coefficients_only": 0,
+          "grid_coefficients_only": 0,
+          "all_coefficients": 0
+        },
+        "fixed_residual_limit_exceedance_count": 0,
+        "fixed_saturation_count": 0,
+        "fixed_range_clip_count": 0,
+        "fixed_correction_scale_fallback_count": 0
+      }
+    },
+    {
+      "integration_method": "trapezoidal",
+      "burst_input_peak_v": 1.5,
+      "windows": {
+        "burst": {
+          "layers": {
+            "factorized_tables": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.75758346204466,
+              "raw_error_rms_v": 0.0009518151208261862,
+              "raw_normalized_error_db": -98.99246939938081,
+              "error_mean_v": 0.0004212659348702559,
+              "mean_removed_error_rms_v": 0.0008535145202931564,
+              "mean_removed_normalized_error_db": -99.93930311870999,
+              "maximum_absolute_error_v": 0.0030693601347877575
+            },
+            "quantized_table_coefficients": {
+              "reference_rms_v": 84.75758346204466,
+              "candidate_rms_v": 84.73074427902189,
+              "raw_error_rms_v": 0.06595248929524157,
+              "raw_normalized_error_db": -62.17894747741064,
+              "error_mean_v": 0.0432014857785376,
+              "mean_removed_error_rms_v": 0.049833346975351425,
+              "mean_removed_normalized_error_db": -64.61317018281804,
+              "maximum_absolute_error_v": 0.1963955815181464
+            },
+            "fixed_evaluation_circuit_and_chord": {
+              "reference_rms_v": 84.73074427902189,
+              "candidate_rms_v": 84.73093997142186,
+              "raw_error_rms_v": 0.006373890289364855,
+              "raw_normalized_error_db": -82.4727287476548,
+              "error_mean_v": -4.901093574238073e-05,
+              "mean_removed_error_rms_v": 0.006373701855988971,
+              "mean_removed_normalized_error_db": -82.47298553520943,
+              "maximum_absolute_error_v": 0.051379329369382276
+            },
+            "total_fixed_vs_analytical": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.73093997142186,
+              "raw_error_rms_v": 0.06641103038799044,
+              "raw_normalized_error_db": -62.11871702630404,
+              "error_mean_v": 0.04357374077766547,
+              "mean_removed_error_rms_v": 0.05011740288398236,
+              "mean_removed_normalized_error_db": -64.56375024670899,
+              "maximum_absolute_error_v": 0.19685337358360755
+            }
+          },
+          "coefficient_ab_vs_floating_factorized": {
+            "plate_coefficients_only": {
+              "reference_rms_v": 84.75758346204466,
+              "candidate_rms_v": 84.7575818832642,
+              "raw_error_rms_v": 7.81579179101215e-06,
+              "raw_normalized_error_db": -140.70411169010634,
+              "error_mean_v": 3.6156480929455337e-06,
+              "mean_removed_error_rms_v": 6.929191164084898e-06,
+              "mean_removed_normalized_error_db": -141.7499204611693,
+              "maximum_absolute_error_v": 2.232929362833147e-05
+            },
+            "grid_coefficients_only": {
+              "reference_rms_v": 84.75758346204466,
+              "candidate_rms_v": 84.7307458662741,
+              "raw_error_rms_v": 0.06594846982998356,
+              "raw_normalized_error_db": -62.17947685387428,
+              "error_mean_v": 0.0431978619583777,
+              "mean_removed_error_rms_v": 0.049831168912049396,
+              "mean_removed_normalized_error_db": -64.61354982480599,
+              "maximum_absolute_error_v": 0.19639002037358466
+            },
+            "all_coefficients": {
+              "reference_rms_v": 84.75758346204466,
+              "candidate_rms_v": 84.73074427902189,
+              "raw_error_rms_v": 0.06595248929524157,
+              "raw_normalized_error_db": -62.17894747741064,
+              "error_mean_v": 0.0432014857785376,
+              "mean_removed_error_rms_v": 0.049833346975351425,
+              "mean_removed_normalized_error_db": -64.61317018281804,
+              "maximum_absolute_error_v": 0.1963955815181464
+            }
+          },
+          "dominant_coefficient_group_by_independent_raw_rms": "grid_coefficients_only",
+          "dominant_component_by_raw_rms": "quantized_table_coefficients",
+          "component_sum_closure_maximum_absolute_v": 6.938893903907228e-18
+        },
+        "complete_post_burst": {
+          "layers": {
+            "factorized_tables": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.5842511616474595,
+              "raw_error_rms_v": 1.6196575250627805e-05,
+              "raw_normalized_error_db": -106.89952099601557,
+              "error_mean_v": -1.555354813109721e-05,
+              "mean_removed_error_rms_v": 4.518427866292828e-06,
+              "mean_removed_normalized_error_db": -117.98823778951487,
+              "maximum_absolute_error_v": 2.0601173781997772e-05
+            },
+            "quantized_table_coefficients": {
+              "reference_rms_v": 3.5842511616474595,
+              "candidate_rms_v": 3.5803883696588645,
+              "raw_error_rms_v": 0.028451124894013986,
+              "raw_normalized_error_db": -42.00597985121477,
+              "error_mean_v": 0.026281899577273716,
+              "mean_removed_error_rms_v": 0.01089624992118307,
+              "mean_removed_normalized_error_db": -50.34242757628103,
+              "maximum_absolute_error_v": 0.12536431125225533
+            },
+            "fixed_evaluation_circuit_and_chord": {
+              "reference_rms_v": 3.5803883696588645,
+              "candidate_rms_v": 3.5802547584655553,
+              "raw_error_rms_v": 0.00015076979322214715,
+              "raw_normalized_error_db": -87.51231597027345,
+              "error_mean_v": -2.5709529323442165e-05,
+              "mean_removed_error_rms_v": 0.000148561605572288,
+              "mean_removed_normalized_error_db": -87.64047106692603,
+              "maximum_absolute_error_v": 0.002042188210438667
+            },
+            "total_fixed_vs_analytical": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.5802547584655553,
+              "raw_error_rms_v": 0.028445865885635836,
+              "raw_normalized_error_db": -42.00760169589327,
+              "error_mean_v": 0.02624063649981918,
+              "mean_removed_error_rms_v": 0.010981633852389093,
+              "mean_removed_normalized_error_db": -50.27464566951807,
+              "maximum_absolute_error_v": 0.1269266584954778
+            }
+          },
+          "coefficient_ab_vs_floating_factorized": {
+            "plate_coefficients_only": {
+              "reference_rms_v": 3.5842511616474595,
+              "candidate_rms_v": 3.584247182131905,
+              "raw_error_rms_v": 6.944512755962832e-06,
+              "raw_normalized_error_db": -114.25513309378358,
+              "error_mean_v": -5.673533024187126e-06,
+              "mean_removed_error_rms_v": 4.004657343792172e-06,
+              "mean_removed_normalized_error_db": -119.03666145629086,
+              "maximum_absolute_error_v": 1.1934443911343351e-05
+            },
+            "grid_coefficients_only": {
+              "reference_rms_v": 3.5842511616474595,
+              "candidate_rms_v": 3.580392418491839,
+              "raw_error_rms_v": 0.028455438735288743,
+              "raw_normalized_error_db": -42.00466297151194,
+              "error_mean_v": 0.02628766025326109,
+              "mean_removed_error_rms_v": 0.010893617949372372,
+              "mean_removed_normalized_error_db": -50.34452589251913,
+              "maximum_absolute_error_v": 0.1253593714280612
+            },
+            "all_coefficients": {
+              "reference_rms_v": 3.5842511616474595,
+              "candidate_rms_v": 3.5803883696588645,
+              "raw_error_rms_v": 0.028451124894013986,
+              "raw_normalized_error_db": -42.00597985121477,
+              "error_mean_v": 0.026281899577273716,
+              "mean_removed_error_rms_v": 0.01089624992118307,
+              "mean_removed_normalized_error_db": -50.34242757628103,
+              "maximum_absolute_error_v": 0.12536431125225533
+            }
+          },
+          "dominant_coefficient_group_by_independent_raw_rms": "grid_coefficients_only",
+          "dominant_component_by_raw_rms": "quantized_table_coefficients",
+          "component_sum_closure_maximum_absolute_v": 1.3877787807814457e-17
+        },
+        "final_10ms": {
+          "layers": {
+            "factorized_tables": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.1938968877885539,
+              "raw_error_rms_v": 1.2668347160955678e-05,
+              "raw_normalized_error_db": -99.48502477137437,
+              "error_mean_v": -1.2661887687756293e-05,
+              "mean_removed_error_rms_v": 4.0449965777413806e-07,
+              "mean_removed_normalized_error_db": -129.40106072479188,
+              "maximum_absolute_error_v": 1.351397521864861e-05
+            },
+            "quantized_table_coefficients": {
+              "reference_rms_v": 1.1938968877885539,
+              "candidate_rms_v": 1.210222673013543,
+              "raw_error_rms_v": 0.017319075255659115,
+              "raw_normalized_error_db": -36.768842415110804,
+              "error_mean_v": 0.017313562568178693,
+              "mean_removed_error_rms_v": 0.00043694268382188926,
+              "mean_removed_normalized_error_db": -68.73084696374083,
+              "maximum_absolute_error_v": 0.018099987660522232
+            },
+            "fixed_evaluation_circuit_and_chord": {
+              "reference_rms_v": 1.210222673013543,
+              "candidate_rms_v": 1.2102699884504582,
+              "raw_error_rms_v": 5.477632982330415e-05,
+              "raw_normalized_error_db": -86.88544710248092,
+              "error_mean_v": 5.167888675035457e-05,
+              "mean_removed_error_rms_v": 1.815871617585963e-05,
+              "mean_removed_normalized_error_db": -96.47560288832645,
+              "maximum_absolute_error_v": 0.00010874303458408008
+            },
+            "total_fixed_vs_analytical": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.2102699884504582,
+              "raw_error_rms_v": 0.017357853351672798,
+              "raw_normalized_error_db": -36.74950359713479,
+              "error_mean_v": 0.017352579567241296,
+              "mean_removed_error_rms_v": 0.000427849670723894,
+              "mean_removed_normalized_error_db": -68.91359985329967,
+              "maximum_absolute_error_v": 0.018151450627167498
+            }
+          },
+          "coefficient_ab_vs_floating_factorized": {
+            "plate_coefficients_only": {
+              "reference_rms_v": 1.1938968877885539,
+              "candidate_rms_v": 1.1938916542257254,
+              "raw_error_rms_v": 5.242725485995071e-06,
+              "raw_normalized_error_db": -107.14819403701028,
+              "error_mean_v": -4.9636615384233e-06,
+              "mean_removed_error_rms_v": 1.6876713701071944e-06,
+              "mean_removed_normalized_error_db": -116.99357874145502,
+              "maximum_absolute_error_v": 7.337689011954751e-06
+            },
+            "grid_coefficients_only": {
+              "reference_rms_v": 1.1938968877885539,
+              "candidate_rms_v": 1.2102279681115722,
+              "raw_error_rms_v": 0.017324113257382753,
+              "raw_normalized_error_db": -36.76631611605147,
+              "error_mean_v": 0.017318598004311105,
+              "mean_removed_error_rms_v": 0.0004371079039508386,
+              "mean_removed_normalized_error_db": -68.72756320913165,
+              "maximum_absolute_error_v": 0.01810386960043109
+            },
+            "all_coefficients": {
+              "reference_rms_v": 1.1938968877885539,
+              "candidate_rms_v": 1.210222673013543,
+              "raw_error_rms_v": 0.017319075255659115,
+              "raw_normalized_error_db": -36.768842415110804,
+              "error_mean_v": 0.017313562568178693,
+              "mean_removed_error_rms_v": 0.00043694268382188926,
+              "mean_removed_normalized_error_db": -68.73084696374083,
+              "maximum_absolute_error_v": 0.018099987660522232
+            }
+          },
+          "dominant_coefficient_group_by_independent_raw_rms": "grid_coefficients_only",
+          "dominant_component_by_raw_rms": "quantized_table_coefficients",
+          "component_sum_closure_maximum_absolute_v": 0.0
+        }
+      },
+      "diagnostics": {
+        "analytical_nonconvergence_count": 0,
+        "factorized_float_nonconvergence_count": 0,
+        "quantized_table_float_nonconvergence_count": {
+          "plate_coefficients_only": 0,
+          "grid_coefficients_only": 0,
+          "all_coefficients": 0
+        },
+        "fixed_residual_limit_exceedance_count": 0,
+        "fixed_saturation_count": 0,
+        "fixed_range_clip_count": 0,
+        "fixed_correction_scale_fallback_count": 0
+      }
+    }
+  ]
+}

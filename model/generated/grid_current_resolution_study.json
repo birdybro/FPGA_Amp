@@ -1,0 +1,755 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "study": "factorized grid-current linear-table resolution",
+  "sample_rate_hz": 768000.0,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_start_s": 0.01,
+    "burst_end_s": 0.015,
+    "duration_s": 0.1,
+    "burst_levels_peak_v": [
+      1.0,
+      1.5
+    ],
+    "input_format": "Q8.24"
+  },
+  "alignment": {
+    "gain": false,
+    "dc": false,
+    "delay": false
+  },
+  "grid_points": [
+    128,
+    256,
+    512,
+    1024
+  ],
+  "direct_grid_current_error": {
+    "128": {
+      "spacing_v": 0.047244094488188976,
+      "storage_bits": 4096,
+      "maximum_absolute_error_a": 7.161858981470435e-07,
+      "active_region_rms_error_a": 1.8160469244892096e-07
+    },
+    "256": {
+      "spacing_v": 0.023529411764705882,
+      "storage_bits": 8192,
+      "maximum_absolute_error_a": 1.9614279890638978e-07,
+      "active_region_rms_error_a": 4.526497454292856e-08
+    },
+    "512": {
+      "spacing_v": 0.011741682974559686,
+      "storage_bits": 16384,
+      "maximum_absolute_error_a": 4.917242326953765e-08,
+      "active_region_rms_error_a": 1.1279713724239135e-08
+    },
+    "1024": {
+      "spacing_v": 0.005865102639296188,
+      "storage_bits": 32768,
+      "maximum_absolute_error_a": 1.2325581969404872e-08,
+      "active_region_rms_error_a": 2.8135449330273884e-09
+    }
+  },
+  "selection": {
+    "grid_points": 1024,
+    "selected_for_implementation": true,
+    "reason": "32,768 table bits put direct grid-current error below the measured fixed plate-law error and reduce both 1.5 V final windows below 1 mV without a 1.0 V burst regression",
+    "known_tradeoff": "backward-Euler 1.0 V final error loses a favorable 128-entry cancellation, while the worst error across modes improves"
+  },
+  "gates": {
+    "analytical_newton_converged": true,
+    "all_fixed_candidates_diagnostic_clean": true,
+    "direct_grid_error_decreases_monotonically": true,
+    "selected_one_point_five_volt_final_error_below_one_millivolt": true,
+    "selected_one_volt_burst_error_does_not_regress": true,
+    "selected_worst_one_volt_final_error_improves": true
+  },
+  "all_gates_pass": true,
+  "measurements": [
+    {
+      "integration_method": "backward_euler",
+      "burst_input_peak_v": 1.0,
+      "analytical_nonconvergence_count": 0,
+      "candidates": {
+        "128": {
+          "grid_storage_bits": 4096,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.92743922943026,
+              "candidate_rms_v": 71.92545908618813,
+              "raw_error_rms_v": 0.010846032726986258,
+              "raw_normalized_error_db": -76.43247376431906,
+              "error_mean_v": -0.001282103093244869,
+              "mean_removed_error_rms_v": 0.01076998781675954,
+              "mean_removed_normalized_error_db": -76.4935877349834,
+              "maximum_absolute_error_v": 0.06362818267997739
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.305844226520843,
+              "candidate_rms_v": 4.305582652515496,
+              "raw_error_rms_v": 0.00028817076416552434,
+              "raw_normalized_error_db": -83.48816792077115,
+              "error_mean_v": 8.36106228421973e-05,
+              "mean_removed_error_rms_v": 0.0002757746418140763,
+              "mean_removed_normalized_error_db": -83.8700797004064,
+              "maximum_absolute_error_v": 0.002220310708935358
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.4951931302179847,
+              "candidate_rms_v": 0.4952722803940338,
+              "raw_error_rms_v": 0.00014305134979790033,
+              "raw_normalized_error_db": -70.78565302113246,
+              "error_mean_v": -0.00014190061319367968,
+              "mean_removed_error_rms_v": 1.810813779103007e-05,
+              "mean_removed_normalized_error_db": -88.73801641166776,
+              "maximum_absolute_error_v": 0.00020385069190836935
+            }
+          },
+          "maximum_residual_a": 1.8867026483349036e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "slew_qualified_selection_count": 0
+        },
+        "256": {
+          "grid_storage_bits": 8192,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.92743922943026,
+              "candidate_rms_v": 71.92560131344919,
+              "raw_error_rms_v": 0.010828174239035291,
+              "raw_normalized_error_db": -76.44678726522737,
+              "error_mean_v": -0.0014532491629903634,
+              "mean_removed_error_rms_v": 0.010730210819046163,
+              "mean_removed_normalized_error_db": -76.52572688051538,
+              "maximum_absolute_error_v": 0.06362818267997739
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.305844226520843,
+              "candidate_rms_v": 4.305838673650119,
+              "raw_error_rms_v": 0.00022911403399438667,
+              "raw_normalized_error_db": -85.48013244445393,
+              "error_mean_v": -0.00020125523567859132,
+              "mean_removed_error_rms_v": 0.00010949689806170598,
+              "mean_removed_normalized_error_db": -91.89312995969482,
+              "maximum_absolute_error_v": 0.0007429651859780506
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.4951931302179847,
+              "candidate_rms_v": 0.49537675449556845,
+              "raw_error_rms_v": 0.00032087335684525533,
+              "raw_normalized_error_db": -63.76881906801232,
+              "error_mean_v": -0.00032039446711723936,
+              "mean_removed_error_rms_v": 1.7524171130264507e-05,
+              "mean_removed_normalized_error_db": -89.02274251070965,
+              "maximum_absolute_error_v": 0.0003783668811943586
+            }
+          },
+          "maximum_residual_a": 1.8867026483349036e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "slew_qualified_selection_count": 0
+        },
+        "512": {
+          "grid_storage_bits": 16384,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.92743922943026,
+              "candidate_rms_v": 71.92563491059578,
+              "raw_error_rms_v": 0.010828759860368143,
+              "raw_normalized_error_db": -76.4463175180097,
+              "error_mean_v": -0.001494981653829179,
+              "mean_removed_error_rms_v": 0.010725067364274896,
+              "mean_removed_normalized_error_db": -76.52989140180247,
+              "maximum_absolute_error_v": 0.06362818267997739
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.305844226520843,
+              "candidate_rms_v": 4.305897523186685,
+              "raw_error_rms_v": 0.00027873480885621946,
+              "raw_normalized_error_db": -83.77734213405714,
+              "error_mean_v": -0.0002658620410445508,
+              "mean_removed_error_rms_v": 8.372854232422045e-05,
+              "mean_removed_normalized_error_db": -94.22369567598183,
+              "maximum_absolute_error_v": 0.0013369615599145845
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.4951931302179847,
+              "candidate_rms_v": 0.4954077684062887,
+              "raw_error_rms_v": 0.0003731209457971499,
+              "raw_normalized_error_db": -62.45849963018044,
+              "error_mean_v": -0.00037273287070537767,
+              "mean_removed_error_rms_v": 1.701315045157472e-05,
+              "mean_removed_normalized_error_db": -89.2797973703336,
+              "maximum_absolute_error_v": 0.00043226998091253077
+            }
+          },
+          "maximum_residual_a": 1.8867026483349036e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "slew_qualified_selection_count": 0
+        },
+        "1024": {
+          "grid_storage_bits": 32768,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.92743922943026,
+              "candidate_rms_v": 71.92563790983684,
+              "raw_error_rms_v": 0.010828576736253138,
+              "raw_normalized_error_db": -76.44646440549478,
+              "error_mean_v": -0.0014935659458966655,
+              "mean_removed_error_rms_v": 0.010725079715236641,
+              "mean_removed_normalized_error_db": -76.52988139915865,
+              "maximum_absolute_error_v": 0.06362818267997739
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.305844226520843,
+              "candidate_rms_v": 4.305906080489728,
+              "raw_error_rms_v": 0.0002885030129987062,
+              "raw_normalized_error_db": -83.47815922215855,
+              "error_mean_v": -0.00027775711768406394,
+              "mean_removed_error_rms_v": 7.800623106632375e-05,
+              "mean_removed_normalized_error_db": -94.83858038164782,
+              "maximum_absolute_error_v": 0.0014516076016803936
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.4951931302179847,
+              "candidate_rms_v": 0.4954074246515623,
+              "raw_error_rms_v": 0.0003721809397853738,
+              "raw_normalized_error_db": -62.48040965875994,
+              "error_mean_v": -0.0003717940902126193,
+              "mean_removed_error_rms_v": 1.6964858457847376e-05,
+              "mean_removed_normalized_error_db": -89.30448741096981,
+              "maximum_absolute_error_v": 0.0004264209974734201
+            }
+          },
+          "maximum_residual_a": 1.8867026483349036e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "slew_qualified_selection_count": 0
+        }
+      }
+    },
+    {
+      "integration_method": "backward_euler",
+      "burst_input_peak_v": 1.5,
+      "analytical_nonconvergence_count": 0,
+      "candidates": {
+        "128": {
+          "grid_storage_bits": 4096,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.7569532698624,
+              "candidate_rms_v": 84.7306879838281,
+              "raw_error_rms_v": 0.06892747744426761,
+              "raw_normalized_error_db": -61.7956590415126,
+              "error_mean_v": 0.04352113370738853,
+              "mean_removed_error_rms_v": 0.05345005208279623,
+              "mean_removed_normalized_error_db": -64.00454408298366,
+              "maximum_absolute_error_v": 0.19718286874602597
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584857347756908,
+              "candidate_rms_v": 3.5811453087066143,
+              "raw_error_rms_v": 0.029757868861015283,
+              "raw_normalized_error_db": -41.617401058072545,
+              "error_mean_v": 0.027619137950858217,
+              "mean_removed_error_rms_v": 0.011077634133733003,
+              "mean_removed_normalized_error_db": -50.20049722134999,
+              "maximum_absolute_error_v": 0.12685475858349093
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.189854462196492,
+              "candidate_rms_v": 1.2070665839891968,
+              "raw_error_rms_v": 0.01826683381728742,
+              "raw_normalized_error_db": -36.27661131684742,
+              "error_mean_v": 0.018261111163310504,
+              "mean_removed_error_rms_v": 0.00045720541292933534,
+              "mean_removed_normalized_error_db": -68.30764960398285,
+              "maximum_absolute_error_v": 0.019124480503937336
+            }
+          },
+          "maximum_residual_a": 1.7026283103405149e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "slew_qualified_selection_count": 99
+        },
+        "256": {
+          "grid_storage_bits": 8192,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.7569532698624,
+              "candidate_rms_v": 84.74973319927875,
+              "raw_error_rms_v": 0.024152149337469925,
+              "raw_normalized_error_db": -70.90439103056396,
+              "error_mean_v": 0.008061287198628973,
+              "mean_removed_error_rms_v": 0.022767124682767245,
+              "mean_removed_normalized_error_db": -71.41734301879167,
+              "maximum_absolute_error_v": 0.06526038249435828
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584857347756908,
+              "candidate_rms_v": 3.5841189435088703,
+              "raw_error_rms_v": 0.007579479823899092,
+              "raw_normalized_error_db": -53.49664954469688,
+              "error_mean_v": 0.007110080967693838,
+              "mean_removed_error_rms_v": 0.0026258832863878903,
+              "mean_removed_normalized_error_db": -62.70392919063327,
+              "maximum_absolute_error_v": 0.03048691117625424
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.189854462196492,
+              "candidate_rms_v": 1.1943229715425079,
+              "raw_error_rms_v": 0.00474797242651996,
+              "raw_normalized_error_db": -47.97971310954829,
+              "error_mean_v": 0.004746549762387189,
+              "mean_removed_error_rms_v": 0.00011622184035691272,
+              "mean_removed_normalized_error_db": -80.20412190970232,
+              "maximum_absolute_error_v": 0.004985062148718633
+            }
+          },
+          "maximum_residual_a": 1.7984526721193106e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "slew_qualified_selection_count": 96
+        },
+        "512": {
+          "grid_storage_bits": 16384,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.7569532698624,
+              "candidate_rms_v": 84.75430344111608,
+              "raw_error_rms_v": 0.01937496891571386,
+              "raw_normalized_error_db": -72.81868644924118,
+              "error_mean_v": -0.00035146796756843553,
+              "mean_removed_error_rms_v": 0.019371780784240043,
+              "mean_removed_normalized_error_db": -72.82011582117096,
+              "maximum_absolute_error_v": 0.053763642799509626
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584857347756908,
+              "candidate_rms_v": 3.5849010340295853,
+              "raw_error_rms_v": 0.0021736685179350626,
+              "raw_normalized_error_db": -64.34557126196015,
+              "error_mean_v": 0.0021030486561967633,
+              "mean_removed_error_rms_v": 0.0005495645326356137,
+              "mean_removed_normalized_error_db": -76.28906363332045,
+              "maximum_absolute_error_v": 0.006462732364241219
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.189854462196492,
+              "candidate_rms_v": 1.1912325865036963,
+              "raw_error_rms_v": 0.0014666881751803805,
+              "raw_normalized_error_db": -58.18312106065608,
+              "error_mean_v": 0.0014662291368967048,
+              "mean_removed_error_rms_v": 3.6692251622094987e-05,
+              "mean_removed_normalized_error_db": -90.21838961113595,
+              "maximum_absolute_error_v": 0.001555142169881396
+            }
+          },
+          "maximum_residual_a": 1.799444476091594e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "slew_qualified_selection_count": 96
+        },
+        "1024": {
+          "grid_storage_bits": 32768,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.7569532698624,
+              "candidate_rms_v": 84.7554581025064,
+              "raw_error_rms_v": 0.019250809695455593,
+              "raw_normalized_error_db": -72.8745267216084,
+              "error_mean_v": -0.0024864707211833103,
+              "mean_removed_error_rms_v": 0.019089555712046975,
+              "mean_removed_normalized_error_db": -72.94759032168058,
+              "maximum_absolute_error_v": 0.051503190156367396
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584857347756908,
+              "candidate_rms_v": 3.5850983948917623,
+              "raw_error_rms_v": 0.0008664024658860568,
+              "raw_normalized_error_db": -72.33504397583991,
+              "error_mean_v": 0.0008463367106281885,
+              "mean_removed_error_rms_v": 0.00018538447922223083,
+              "mean_removed_normalized_error_db": -85.72797014361642,
+              "maximum_absolute_error_v": 0.0011530082401760566
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.189854462196492,
+              "candidate_rms_v": 1.1904454695618183,
+              "raw_error_rms_v": 0.0006313472852355716,
+              "raw_normalized_error_db": -65.50451052549181,
+              "error_mean_v": 0.0006310128582134235,
+              "mean_removed_error_rms_v": 2.054671126122346e-05,
+              "mean_removed_normalized_error_db": -95.25503051431932,
+              "maximum_absolute_error_v": 0.0006968346014061266
+            }
+          },
+          "maximum_residual_a": 1.7997328427554748e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "slew_qualified_selection_count": 96
+        }
+      }
+    },
+    {
+      "integration_method": "trapezoidal",
+      "burst_input_peak_v": 1.0,
+      "analytical_nonconvergence_count": 0,
+      "candidates": {
+        "128": {
+          "grid_storage_bits": 4096,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.93320513535326,
+              "raw_error_rms_v": 0.010413026773103679,
+              "raw_normalized_error_db": -76.7872803698153,
+              "error_mean_v": -0.0008366464730189424,
+              "mean_removed_error_rms_v": 0.010379361697934944,
+              "mean_removed_normalized_error_db": -76.8154071416385,
+              "maximum_absolute_error_v": 0.06655570733883565
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.3062141220411725,
+              "raw_error_rms_v": 0.000647470571700466,
+              "raw_normalized_error_db": -76.45836907046586,
+              "error_mean_v": 0.0006003276101125623,
+              "mean_removed_error_rms_v": 0.00024253845417720373,
+              "mean_removed_normalized_error_db": -84.98715764539915,
+              "maximum_absolute_error_v": 0.0030403300863000027
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.4949353785635411,
+              "raw_error_rms_v": 0.0005376352237122154,
+              "raw_normalized_error_db": -59.28681413205045,
+              "error_mean_v": 0.000537393647675564,
+              "mean_removed_error_rms_v": 1.611524787384945e-05,
+              "mean_removed_normalized_error_db": -89.75182861792283,
+              "maximum_absolute_error_v": 0.0005951047497835815
+            }
+          },
+          "maximum_residual_a": 1.8740750533652317e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "slew_qualified_selection_count": 0
+        },
+        "256": {
+          "grid_storage_bits": 8192,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.9333528364234,
+              "raw_error_rms_v": 0.010380811569653082,
+              "raw_normalized_error_db": -76.8141939122891,
+              "error_mean_v": -0.001015124377065246,
+              "mean_removed_error_rms_v": 0.010331058578080525,
+              "mean_removed_normalized_error_db": -76.85592358924204,
+              "maximum_absolute_error_v": 0.06655570733883565
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.3064787046353095,
+              "raw_error_rms_v": 0.00032891052367087215,
+              "raw_normalized_error_db": -82.34121436673968,
+              "error_mean_v": 0.0003184080828791987,
+              "mean_removed_error_rms_v": 8.245256417262412e-05,
+              "mean_removed_normalized_error_db": -94.35868642637516,
+              "maximum_absolute_error_v": 0.0010374141625533184
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.4950372896942594,
+              "raw_error_rms_v": 0.00036494176745371367,
+              "raw_normalized_error_db": -62.65209699527852,
+              "error_mean_v": 0.0003645860691439931,
+              "mean_removed_error_rms_v": 1.6108749745770163e-05,
+              "mean_removed_normalized_error_db": -89.75533172295542,
+              "maximum_absolute_error_v": 0.00041576779784635587
+            }
+          },
+          "maximum_residual_a": 1.8740750533652317e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "slew_qualified_selection_count": 0
+        },
+        "512": {
+          "grid_storage_bits": 16384,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.9333875334624,
+              "raw_error_rms_v": 0.010378528072051191,
+              "raw_normalized_error_db": -76.81610478311457,
+              "error_mean_v": -0.0010579080244091893,
+              "mean_removed_error_rms_v": 0.010324469746880238,
+              "mean_removed_normalized_error_db": -76.86146494956846,
+              "maximum_absolute_error_v": 0.06655570733883565
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.306541997776152,
+              "raw_error_rms_v": 0.00025204958861171965,
+              "raw_normalized_error_db": -84.65304989196693,
+              "error_mean_v": 0.00024204468008405395,
+              "mean_removed_error_rms_v": 7.03090887605941e-05,
+              "mean_removed_normalized_error_db": -95.742540364442,
+              "maximum_absolute_error_v": 0.0006401236974440394
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.4950688270408251,
+              "raw_error_rms_v": 0.00031115282806237,
+              "raw_normalized_error_db": -64.03709336373963,
+              "error_mean_v": 0.0003106868154626717,
+              "mean_removed_error_rms_v": 1.702307577597496e-05,
+              "mean_removed_normalized_error_db": -89.27580776929167,
+              "maximum_absolute_error_v": 0.00037209143593153193
+            }
+          },
+          "maximum_residual_a": 1.8740750533652317e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "slew_qualified_selection_count": 0
+        },
+        "1024": {
+          "grid_storage_bits": 32768,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.93338939697277,
+              "raw_error_rms_v": 0.010378917813007203,
+              "raw_normalized_error_db": -76.81577861129648,
+              "error_mean_v": -0.0010537694350406187,
+              "mean_removed_error_rms_v": 0.010325284739266631,
+              "mean_removed_normalized_error_db": -76.86077933038277,
+              "maximum_absolute_error_v": 0.06655570733883565
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.306548985498043,
+              "raw_error_rms_v": 0.00023068946140804774,
+              "raw_normalized_error_db": -85.42221464880639,
+              "error_mean_v": 0.00022138280491146157,
+              "mean_removed_error_rms_v": 6.486355906261157e-05,
+              "mean_removed_normalized_error_db": -96.44275425613374,
+              "maximum_absolute_error_v": 0.0006552689164323056
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.49508012293021486,
+              "raw_error_rms_v": 0.00029121428078360376,
+              "raw_normalized_error_db": -64.61231504798681,
+              "error_mean_v": 0.00029077042001730125,
+              "mean_removed_error_rms_v": 1.6072341934945898e-05,
+              "mean_removed_normalized_error_db": -89.77498514956011,
+              "maximum_absolute_error_v": 0.0003493322993094461
+            }
+          },
+          "maximum_residual_a": 1.8740750533652317e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "slew_qualified_selection_count": 0
+        }
+      }
+    },
+    {
+      "integration_method": "trapezoidal",
+      "burst_input_peak_v": 1.5,
+      "analytical_nonconvergence_count": 0,
+      "candidates": {
+        "128": {
+          "grid_storage_bits": 4096,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.73093997142186,
+              "raw_error_rms_v": 0.06641103038799044,
+              "raw_normalized_error_db": -62.11871702630404,
+              "error_mean_v": 0.04357374077766547,
+              "mean_removed_error_rms_v": 0.05011740288398236,
+              "mean_removed_normalized_error_db": -64.56375024670899,
+              "maximum_absolute_error_v": 0.19685337358360755
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.5802547584655553,
+              "raw_error_rms_v": 0.028445865885635836,
+              "raw_normalized_error_db": -42.00760169589327,
+              "error_mean_v": 0.02624063649981918,
+              "mean_removed_error_rms_v": 0.010981633852389093,
+              "mean_removed_normalized_error_db": -50.27464566951807,
+              "maximum_absolute_error_v": 0.1269266584954778
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.2102699884504582,
+              "raw_error_rms_v": 0.017357853351672798,
+              "raw_normalized_error_db": -36.74950359713479,
+              "error_mean_v": 0.017352579567241296,
+              "mean_removed_error_rms_v": 0.000427849670723894,
+              "mean_removed_normalized_error_db": -68.91359985329967,
+              "maximum_absolute_error_v": 0.018151450627167498
+            }
+          },
+          "maximum_residual_a": 1.7738649944476492e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "slew_qualified_selection_count": 97
+        },
+        "256": {
+          "grid_storage_bits": 8192,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.74995246436757,
+              "raw_error_rms_v": 0.016016528677234146,
+              "raw_normalized_error_db": -74.47215348316719,
+              "error_mean_v": 0.008156919267646208,
+              "mean_removed_error_rms_v": 0.013783825990259952,
+              "mean_removed_normalized_error_db": -75.77612575932531,
+              "maximum_absolute_error_v": 0.06510230764430958
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.5832130613625295,
+              "raw_error_rms_v": 0.006197457546019883,
+              "raw_normalized_error_db": -55.2437136497819,
+              "error_mean_v": 0.005669398979752805,
+              "mean_removed_error_rms_v": 0.0025032769010032907,
+              "mean_removed_normalized_error_db": -63.117807019922424,
+              "maximum_absolute_error_v": 0.029849724431670666
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.1974603644978628,
+              "raw_error_rms_v": 0.003773074739360936,
+              "raw_normalized_error_db": -50.00551573397424,
+              "error_mean_v": 0.0037721139395206107,
+              "mean_removed_error_rms_v": 8.514350285191715e-05,
+              "mean_removed_normalized_error_db": -82.9363936284959,
+              "maximum_absolute_error_v": 0.003958495624983405
+            }
+          },
+          "maximum_residual_a": 1.7682958173281804e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "slew_qualified_selection_count": 97
+        },
+        "512": {
+          "grid_storage_bits": 16384,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.75454488942721,
+              "raw_error_rms_v": 0.007187481045890342,
+              "raw_normalized_error_db": -81.43198714801133,
+              "error_mean_v": -0.00028239941996274293,
+              "mean_removed_error_rms_v": 0.00718193110191386,
+              "mean_removed_normalized_error_db": -81.43869670617256,
+              "maximum_absolute_error_v": 0.05292179296910149
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.5839938114769474,
+              "raw_error_rms_v": 0.0007892974055209198,
+              "raw_normalized_error_db": -73.1431713534913,
+              "error_mean_v": 0.0006711740671351944,
+              "mean_removed_error_rms_v": 0.00041535017270642467,
+              "mean_removed_normalized_error_db": -78.71969695078371,
+              "maximum_absolute_error_v": 0.005693725597211596
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.1943800218849572,
+              "raw_error_rms_v": 0.0005040095567712944,
+              "raw_normalized_error_db": -67.49064846722052,
+              "error_mean_v": 0.000503668985062093,
+              "mean_removed_error_rms_v": 1.852530170652316e-05,
+              "mean_removed_normalized_error_db": -96.18411810088695,
+              "maximum_absolute_error_v": 0.000559314982506276
+            }
+          },
+          "maximum_residual_a": 1.7843295836428297e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "slew_qualified_selection_count": 96
+        },
+        "1024": {
+          "grid_storage_bits": 32768,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.75569884648095,
+              "raw_error_rms_v": 0.006909355153961202,
+              "raw_normalized_error_db": -81.77477106007503,
+              "error_mean_v": -0.0024195909971175757,
+              "mean_removed_error_rms_v": 0.006471844254170353,
+              "mean_removed_normalized_error_db": -82.34296024897111,
+              "maximum_absolute_error_v": 0.04953871389105302
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.584190576719187,
+              "raw_error_rms_v": 0.0006123655389614797,
+              "raw_normalized_error_db": -75.34777000502447,
+              "error_mean_v": -0.0005832301396880915,
+              "mean_removed_error_rms_v": 0.00018663911022878546,
+              "mean_removed_normalized_error_db": -85.66793175121789,
+              "maximum_absolute_error_v": 0.0009848690322158404
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.1936043194301016,
+              "raw_error_rms_v": 0.0003207026350064245,
+              "raw_normalized_error_db": -71.4173733298796,
+              "error_mean_v": -0.0003195796006358803,
+              "mean_removed_error_rms_v": 2.6815274704452233e-05,
+              "mean_removed_normalized_error_db": -92.97177888755257,
+              "maximum_absolute_error_v": 0.00040084805506368504
+            }
+          },
+          "maximum_residual_a": 1.7844226931629237e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "slew_qualified_selection_count": 96
+        }
+      }
+    }
+  ]
+}
