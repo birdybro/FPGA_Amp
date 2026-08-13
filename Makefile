@@ -2,7 +2,7 @@ PYTHON ?= python3
 NGSPICE ?= ngspice
 VERILATOR ?= verilator
 
-.PHONY: all reference analysis precision-study resampler test python-test plots spice spice-all rtl chord-rtl network-rtl solver-rtl lint synth synth-chord synth-network synth-solver clean tools
+.PHONY: all reference analysis precision-study resampler test python-test plots spice spice-all rtl chord-rtl network-rtl solver-rtl halfband-rtl lint synth synth-chord synth-network synth-solver synth-halfband clean tools
 
 all: reference test
 
@@ -42,6 +42,9 @@ network-rtl:
 solver-rtl:
 	$(PYTHON) scripts/run_solver_rtl.py --verilator $(VERILATOR)
 
+halfband-rtl:
+	$(PYTHON) scripts/run_halfband_rtl.py --verilator $(VERILATOR)
+
 lint:
 	$(PYTHON) scripts/run_rtl.py --verilator $(VERILATOR) --lint-only
 
@@ -63,10 +66,15 @@ synth-solver:
 	$(PYTHON) scripts/generate_chord_vectors.py
 	$(PYTHON) scripts/run_synthesis.py --top v1_solver_mono
 
+synth-halfband:
+	$(PYTHON) scripts/generate_halfband_rtl_vectors.py
+	$(PYTHON) scripts/run_synthesis.py --top interpolator_16x
+	$(PYTHON) scripts/run_synthesis.py --top decimator_16x
+
 python-test:
 	$(PYTHON) -m unittest discover -s model/tests -v
 
-test: python-test rtl chord-rtl network-rtl solver-rtl
+test: python-test rtl chord-rtl network-rtl solver-rtl halfband-rtl
 
 tools:
 	bash scripts/bootstrap_tools.sh

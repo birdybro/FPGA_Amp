@@ -1,0 +1,29 @@
+{
+  "format": {
+    "sample": "signed Q8.24",
+    "coefficient": "signed Q1.23"
+  },
+  "stage_under_test": 1,
+  "taps": 79,
+  "nonzero_taps": 41,
+  "vectors": 256,
+  "seed": 296808,
+  "interpolation_saturations": 0,
+  "decimation_saturations": 0,
+  "interpolator_pair_delay": 1,
+  "outputs": [
+    "model/generated/halfband_stage1_q1_23.mem",
+    "model/generated/halfband_stage2_q1_23.mem",
+    "model/generated/halfband_stage3_q1_23.mem",
+    "model/generated/halfband_stage4_q1_23.mem",
+    "sim/vectors/generated/halfband_interpolator_stage1.txt",
+    "sim/vectors/generated/halfband_decimator_stage1.txt",
+    "sim/vectors/generated/interpolator_16x_stream.txt",
+    "sim/vectors/generated/decimator_16x_stream.txt"
+  ],
+  "chain_input_vectors": 128,
+  "chain_interpolation_output_vectors": 2048,
+  "chain_pipeline_delay_internal_samples": 18,
+  "chain_interpolation_saturations": 0,
+  "chain_decimation_saturations": 0
+}

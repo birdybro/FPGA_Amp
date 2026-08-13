@@ -16,8 +16,8 @@ against the floating and SPICE references. The circuit is frozen at version 0.1.
   resolution must increase before circuit RTL is frozen.
 - [ ] Automate RTL frequency and level comparisons through the integrated solver,
   including DC, gain, harmonics, clipping asymmetry, and recovery.
-- [ ] Implement polyphase half-band RTL against the bit-accurate Q8.24/Q1.23
-  model; prove sample timing, alias rejection, latency, and synthesis resources.
+- [ ] Wrap the exact half-band chains around the solver, resolve Q20/Q24 output
+  scaling, and reproduce the nonlinear alias measurement through RTL captures.
 - [ ] Add reset/state-initialization and post-model mute ramp regressions.
 
 ## Completed this milestone
@@ -62,6 +62,10 @@ against the floating and SPICE references. The circuit is frozen at version 0.1.
   sequential fixed-model/RTL samples at a measured 126-clock latency.
 - [x] Synthesize the complete hierarchy: 8,024 estimated XC7 logic cells,
   89 DSP48E1s, and 47 RAMB18E1s, with no structural check problems.
+- [x] Implement serial-MAC half-band interpolator/decimator primitives and the
+  complete 48↔768 kHz four-stage chains with saturation/overrun diagnostics.
+- [x] Match 2,048 interpolation and 128 decimation stream outputs exactly;
+  record the visible 18-internal-sample scheduler delay and structural resources.
 - [x] Quantify flat/partial/full-analog RIAA front-end architectures.
 - [x] Produce initial gain/headroom, MM loading, noise, converter, clock, control,
   safety, stereo schedule, and hardware-verification engineering documents.
@@ -93,8 +97,9 @@ against the floating and SPICE references. The circuit is frozen at version 0.1.
 
 - The full-phono circuit RTL is bit-exact to fixed Python, but fixed versus float/
   SPICE still has only the initial multitone and one SPICE transient comparison.
-- No oversampling/decimator RTL, WAV/null tool, CDC, or formal infrastructure
-  exists yet; aliasing is measured only in the bit-accurate Python resampler.
+- The resampler RTL is not yet wrapped around the solver, and its measured alias
+  rejection still derives from the bit-accurate Python chain. WAV/null, CDC, and
+  formal infrastructure remain absent.
 - No vendor place-and-route/Fmax, FPGA capture, analog converter, or physical tube
   measurement exists.
 - GE curve digitization has ±0.05 mA visual uncertainty; production tube spread

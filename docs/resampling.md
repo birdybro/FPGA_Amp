@@ -27,12 +27,33 @@ which would alias to 3 kHz if downsampled without filtering. Measured 3 kHz alia
 is -144.34 dB relative to the 15 kHz fundamental with float coefficients and
 -137.91 dB when coefficients are rounded to Q1.23 but MACs remain floating.
 The bit-accurate Q8.24 sample/Q1.23 coefficient chain, with add-half shift after
-every stage, gives -137.81 dB and zero saturation. The intended convolution
-accumulator is signed 64 bit. The cubic itself remains floating and is requantized
-to Q8.24 because it is only an alias stimulus; it is not tube-model arithmetic.
-Polyphase RTL, cycle timing, and synthesis remain open.
+every stage, gives -137.81 dB and zero saturation. The convolution accumulator
+is signed 63 bit. The cubic itself remains floating and is requantized to Q8.24
+because it is only an alias stimulus; it is not tube-model arithmetic.
 
-Stage tap counts shrink as physical image transitions widen. Symmetry and
-half-band zeros reduce unique multiply work further. `design_resampler.py`
-regenerates coefficients and the complete report; no hand-edited coefficient
-asset exists.
+## RTL implementation
+
+The synthesizable implementation exploits half-band zeros. The interpolator
+serially evaluates only the even-indexed off-center phase and implements the
+other phase as the exact delayed center sample. The decimator evaluates the
+even-indexed taps plus the exact center product. Both use Q8.24 samples, Q1.23
+coefficients, add-half/arithmetic-shift rounding, output saturation, and explicit
+overrun counters.
+
+At 98.304 MHz the four interpolation output phases are staggered so all MACs
+complete before consumption; all signals remain in one clock domain. The
+hardware schedule adds 18 samples at 768 kHz (23.44 µs) beyond the FIR state
+latency, and this delay is present in—not aligned out of—the exact regression.
+The decimator is self-timed by upstream valid pulses.
+
+Stage-1 unit tests match 256 input pairs exactly in each direction. Complete
+chain tests match 2,048 interpolation outputs and 128 decimation outputs exactly,
+with zero saturation, overrun, or input-phase errors. Generic XC7 synthesis
+reports 2,053 estimated logic cells / 16 DSP48E1s for interpolation and 3,002 /
+32 DSP48E1s for decimation. No Fmax is claimed without place-and-route.
+
+Stage tap counts shrink as physical image transitions widen. Symmetry can reduce
+resource use further; the present serial cores exploit zeros but do not pre-add
+symmetric samples. `design_resampler.py` regenerates the response/alias report,
+and `generate_halfband_rtl_vectors.py` regenerates ROMs and exact streams; no
+hand-edited coefficient asset exists.

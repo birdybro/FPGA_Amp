@@ -52,10 +52,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   accuracy-first baseline; no Fmax is claimed before place-and-route.
 - A four-stage 16× half-band reference provides at least 91.6 dB per-stage image
   rejection and suppresses the measured cubic 45 kHz→3 kHz decimation alias to
-  -137.8 dB with bit-accurate Q8.24/Q1.23 MACs; polyphase RTL is not implemented yet.
+  -137.8 dB with bit-accurate Q8.24/Q1.23 MACs. The complete interpolation and
+  decimation RTL chains match 2,048 and 128 stream outputs exactly.
 
-There is no 48/768 kHz resampler RTL, serial-audio wrapper, fabricated analog
-front end, converter board, or physical audio measurement yet.
+There is no end-to-end resampler/solver wrapper, serial-audio interface,
+fabricated analog front end, converter board, or physical audio measurement yet.
 
 ## Verification chain
 
@@ -102,9 +103,11 @@ make rtl                           # lint + 4,096 bit-exact vectors
 make chord-rtl                     # lint + 1,024 circuit-correction vectors
 make network-rtl                   # RHS/KCL bit-exact unit tests
 make solver-rtl                    # 512-sample persistent-state integration
+make halfband-rtl                  # exact 2x units and complete 16x streams
 make synth                         # generic XC7 structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
 make synth-solver                  # hierarchical complete-solver estimate
+make synth-halfband                # complete interpolator/decimator estimates
 ```
 
 Generated CSV, plots, logs, ROM images, and reports are intentionally ignored;

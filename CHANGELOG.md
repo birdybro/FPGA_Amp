@@ -31,6 +31,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   request/deadline/saturation/LUT/convergence diagnostics.
 - Added a 512-sample persistent-state integration regression covering silence,
   tones, multitone, noise, and ±100 mV clicks.
+- Added serial-MAC Q8.24/Q1.23 half-band interpolation and decimation primitives,
+  four-stage 48↔768 kHz chains, coefficient ROM generation, and exact unit/stream
+  regressions with phase, overrun, and saturation diagnostics.
 - Added warning-free Verilator lint and a 4,096-vector bit-exact testbench with checked eight-clock latency.
 - Added non-root ngspice/Yosys bootstrap and a generic XC7 out-of-context synthesis report.
 - Added quantitative cartridge/front-end noise, ADC headroom, and analog-versus-digital RIAA partition analysis.
@@ -71,6 +74,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   126 clocks, leaving two clocks at the 98.304 MHz/768 kHz target.
 - Complete hierarchical XC7 synthesis reports 8,024 estimated logic cells,
   89 DSP48E1s, and 47 RAMB18E1s. Structural checks pass; Fmax is not claimed.
+- The complete half-band chains match 2,048 interpolation and 128 decimation
+  outputs exactly with zero diagnostics. Interpolation uses 2,053 estimated XC7
+  logic cells / 16 DSP48E1s and decimation 3,002 / 32 DSP48E1s.
 
 ### Changed
 
