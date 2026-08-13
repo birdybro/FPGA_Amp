@@ -154,8 +154,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   logic cells, 2 DSP48E1s, and no block RAM.
 - A four-stage 16× half-band reference provides at least 91.6 dB per-stage image
   rejection and suppresses the measured cubic 45 kHz→3 kHz decimation alias to
-  -137.8 dB with bit-accurate Q8.24/Q1.23 MACs. The complete interpolation and
-  decimation RTL chains match 2,048 and 128 stream outputs exactly.
+  -137.8 dB with bit-accurate Q8.24/Q1.23 MACs. An 8,192-output RTL capture now
+  reproduces -137.814 dB exactly with zero saturation. A separate complete-tube
+  0.5 V / 15 kHz capture is also exact, but already contains a 1.402 mV 3 kHz
+  component before decimation; its output 3 kHz bin is therefore not mislabeled
+  as isolated 45→3 kHz alias energy.
 
 There is no serial-audio interface, control/sequencing wrapper, fabricated
 analog front end, converter board, named-part timing result, or physical
@@ -210,6 +213,7 @@ make state-wide-audio               # 5 mV/1 kHz legacy/wide A/B
 make wide-rtl-audio                 # capture and measure 23,040 RTL samples
 make wide-rtl-frequency             # captured 100 Hz-20 kHz solver sweep
 make wide-rtl-overload              # captured 100 ms overload/recovery sweep
+make wide-stream-rtl-alias          # captured nonlinear decimation-alias test
 make overload-study                 # grid conduction, clipping, recovery
 make overload-wide                  # same bursts with wide-state candidate
 make overload-iterations            # three-to-six-pass solver trade

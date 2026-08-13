@@ -1,0 +1,56 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "implementation": "captured SystemVerilog wide stream and 16x decimator",
+  "stimulus": {
+    "input_peak_v": 0.5,
+    "input_frequency_hz": 15000.0,
+    "external_rate_hz": 48000.0,
+    "internal_rate_hz": 768000.0,
+    "vectors": 8192,
+    "analysis_vectors": 4096,
+    "quantized_input": "Q8.24"
+  },
+  "rtl_fixed_bit_exact": true,
+  "internal_solver_output": {
+    "fundamental_peak_v": 7.595483286916796,
+    "preexisting_3khz_peak_v": 0.0014022181077774402,
+    "third_harmonic_frequency_hz": 45000.0,
+    "third_harmonic_peak_v": 0.0007135441427011211,
+    "third_harmonic_relative_db": -80.5426913394797
+  },
+  "naive_16x_downsample": {
+    "fundamental_peak_v": 7.595353591924853,
+    "alias_frequency_hz": 3000.0,
+    "alias_peak_v": 0.0017455183654179844,
+    "alias_relative_db": -72.77247148201121
+  },
+  "captured_filtered_output": {
+    "fundamental_peak_v": 7.595343369911511,
+    "alias_frequency_hz": 3000.0,
+    "alias_peak_v": 0.001415550561282414,
+    "alias_relative_db": -74.59244051798385,
+    "observed_3khz_change_vs_naive_db": -1.8199807256640341,
+    "interpretation": "not an isolated alias measurement because 3 kHz exists at the internal solver output"
+  },
+  "captured_cubic_decimator_test": {
+    "stimulus": "interpolated 0.8-peak 15 kHz, y=x+0.5*x^3",
+    "generated_internal_harmonic_hz": 45000.0,
+    "alias_frequency_hz": 3000.0,
+    "fundamental_peak": 0.9919623866694718,
+    "alias_peak": 1.2758638470591507e-07,
+    "alias_relative_db": -137.81381746851824,
+    "rtl_fixed_bit_exact": true,
+    "interpolation_saturation_count": 0,
+    "decimation_saturation_count": 0
+  },
+  "diagnostics": {
+    "interpolation_saturation_count": 0,
+    "output_conversion_saturation_count": 0,
+    "decimation_saturation_count": 0,
+    "solver_saturation_count": 0,
+    "solver_range_clip_count": 0,
+    "solver_residual_limit_exceedance_count": 0,
+    "solver_correction_scale_fallback_count": 0,
+    "maximum_solver_residual_a": 1.8367018128628843e-08
+  }
+}

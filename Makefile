@@ -2,7 +2,7 @@ PYTHON ?= python3
 NGSPICE ?= ngspice
 VERILATOR ?= verilator
 
-.PHONY: all reference analysis accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide state-drift state-wide state-wide-audio wide-rtl-audio wide-rtl-frequency wide-rtl-overload overload-study overload-wide overload-iterations precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl mute-rtl lint synth synth-factorized synth-chord synth-wide-chord synth-network synth-wide-network synth-solver synth-solver-factorized synth-wide-solver synth-halfband synth-stream synth-stream-factorized synth-stream-wide synth-mute clean tools
+.PHONY: all reference analysis accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide state-drift state-wide state-wide-audio wide-rtl-audio wide-rtl-frequency wide-rtl-overload wide-stream-rtl-alias overload-study overload-wide overload-iterations precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl mute-rtl lint synth synth-factorized synth-chord synth-wide-chord synth-network synth-wide-network synth-solver synth-solver-factorized synth-wide-solver synth-halfband synth-stream synth-stream-factorized synth-stream-wide synth-mute clean tools
 
 all: reference test
 
@@ -44,6 +44,9 @@ wide-rtl-frequency:
 
 wide-rtl-overload:
 	$(PYTHON) scripts/characterize_wide_solver_rtl_overload.py --verilator $(VERILATOR)
+
+wide-stream-rtl-alias:
+	$(PYTHON) scripts/characterize_wide_stream_rtl_alias.py --verilator $(VERILATOR)
 
 overload-study:
 	$(PYTHON) scripts/characterize_overload_recovery.py

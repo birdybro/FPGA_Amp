@@ -37,6 +37,7 @@ scripts/characterize_wide_state_audio.py      nominal-level state-format A/B
 scripts/characterize_wide_solver_rtl.py       captured 1 kHz RTL metrics/null
 scripts/sweep_wide_solver_rtl.py              captured four-point RTL sweep
 scripts/characterize_wide_solver_rtl_overload.py  captured 100 ms burst/recovery
+scripts/characterize_wide_stream_rtl_alias.py     captured cubic alias/full stream
 scripts/characterize_overload_recovery.py     grid conduction and recovery
 scripts/study_overload_iterations.py          pass-count/deadline trade
 scripts/run_synthesis.py            XC7 structural resource report
@@ -76,6 +77,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | captured wide RTL nominal audio | 23,040 samples, 5 mV/1 kHz | Q32 exact; -63.834 dB raw null; 0.019371% THD; zero diagnostics |
 | captured wide RTL frequency sweep | 5 mV, 100 Hz/1/10/20 kHz | Q32 exact; <=0.0001943 dB gain, <=0.0009814 degree phase; zero diagnostics |
 | captured wide RTL overload/recovery | 384,000 updates; 20 mV/0.5/1.0/1.5 V bursts | full state exact; zero saturation; failures at 1 V; range clips at 1.5 V |
+| captured RTL nonlinear alias | 131,072 cubic internal / 8,192 outputs | bit-exact; -137.814 dBc 45 kHz to 3 kHz alias; zero saturation |
 | RHS RTL vs fixed network | 1,024 deterministic vectors | bit-exact, latency 12 |
 | KCL RTL vs fixed residual | 1,024 deterministic vectors | bit-exact, latency 10, 18 saturation vectors |
 | full mono RTL vs fixed circuit | 512 sequential samples | bit-exact all state/diagnostics, latency 126 |

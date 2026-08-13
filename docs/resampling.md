@@ -31,6 +31,20 @@ every stage, gives -137.81 dB and zero saturation. The convolution accumulator
 is signed 63 bit. The cubic itself remains floating and is requantized to Q8.24
 because it is only an alias stimulus; it is not tube-model arithmetic.
 
+The same fixed cubic trajectory now drives the synthesizable complete 16×
+decimator for 131,072 internal samples. All 8,192 captured 48 kHz outputs are
+bit-exact to the fixed model. Over the final 4,096 samples, the measured 3 kHz
+alias is -137.814 dB relative to the 15 kHz fundamental, with zero interpolation
+or decimation saturation. The regression fails if rejection rises above
+-120 dB.
+
+An additional 8,192-output full phono-stream capture uses a 0.5 V / 15 kHz
+stress tone. It is exact and produces an internal 45 kHz third harmonic at
+-80.54 dBc, but also has a 1.402 mV component already at 3 kHz before the
+decimator. The captured output's -74.59 dBc 3 kHz bin therefore cannot be used
+as a pure alias measurement. That confound is retained in the report rather
+than crediting the decimator with an invalid 1.82 dB rejection number.
+
 ## RTL implementation
 
 The synthesizable implementation exploits half-band zeros. The interpolator
@@ -48,7 +62,9 @@ The decimator is self-timed by upstream valid pulses.
 
 Stage-1 unit tests match 256 input pairs exactly in each direction. Complete
 chain tests match 2,048 interpolation outputs and 128 decimation outputs exactly,
-with zero saturation, overrun, or input-phase errors. Generic XC7 synthesis
+with zero saturation, overrun, or input-phase errors. The decimator bench also
+supports 131,072 custom inputs / 8,192 captured outputs for spectral tests.
+Generic XC7 synthesis
 reports 2,053 estimated logic cells / 16 DSP48E1s for interpolation and 3,002 /
 32 DSP48E1s for decimation. No Fmax is claimed without place-and-route.
 

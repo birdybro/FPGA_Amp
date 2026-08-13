@@ -306,12 +306,13 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | captured wide solver RTL vs analytical | 23,040 samples, 5 mV/1 kHz | Q32 exact to fixed; -0.000054 dB / -0.000187 degree gain/phase error; 0.019371% THD |
 | captured wide solver RTL frequency sweep | 5 mV, 100 Hz/1/10/20 kHz | Q32 exact to fixed; <=0.0001943 dB gain / <=0.0009814 degree phase; zero diagnostics |
 | captured wide solver RTL overload | 384,000 updates, 5 ms bursts, 85 ms observation | full state exact to fixed; clean through 0.5 V; failures at 1 V; range clips at 1.5 V |
+| captured nonlinear decimation alias | 131,072 internal / 8,192 external samples | exact to fixed; 45 kHz to 3 kHz alias -137.814 dBc; zero saturation |
 | wide-state frequency response | 5 mV, 20 Hz--20 kHz | <=0.000196 dB gain / <=0.000982 degree phase; zero diagnostics |
 | wide-state overload/recovery | 20 mV--1.5 V bursts | clean through 0.5 V; convergence fails at 1 V; adaptive scale prevents arithmetic saturation |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |
 | fixed chord/state vs float LUT circuit | -70.33 dB initial multitone; -34.58 dB at 5 mV/1 kHz | signal-dependent; low-level improvement required |
 | low-level complete fixed model | 2-D: 0.0733%; factorized: 0.0188%; analytical: 0.0191% THD | device error improved; RTL/state-phase work open |
-| interpolation/decimation | exact fixed/RTL streams; Python alias -137.81 dB | implemented; RTL alias capture open |
+| interpolation/decimation | exact fixed/RTL streams; captured alias -137.814 dB | implemented; full-tube 3 kHz bin has pre-decimation content |
 | ADC/front end/DAC | analytical requirements only | unvalidated |
 | physical FPGA/audio chain | absent | unvalidated |
 

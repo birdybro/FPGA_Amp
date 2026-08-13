@@ -15,8 +15,6 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   the factorized candidate fixes THD but retains -42.90 dB raw residual at
   5 mV. A -2.840 mV mean offset dominates it; mean-removed residual is -59.63 dB,
   phase error 0.00958°, and fundamental gain error +0.00026 dB.
-- [ ] Extend captured wide RTL measurement beyond the completed nominal,
-  frequency, and burst-overload sweeps to nonlinear alias measurements.
 - [ ] Lengthen severe-overload recovery beyond the new 85 ms post-burst window;
   neither analytical nor RTL trajectories reach 10% nominal output at >=0.5 V.
 - [ ] Prove fixed residual/overflow bounds beyond the measured level sweep.
@@ -25,8 +23,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   1.0/1.5 V and cannot meet the present 128-clock budget.
 - [ ] Automate RTL frequency and level comparisons through the integrated solver,
   including DC, gain, harmonics, clipping asymmetry, and recovery.
-- [ ] Reproduce the nonlinear alias measurement through RTL captures and automate
-  complete-stream frequency, phase, and level comparisons.
+- [ ] Automate complete-stream frequency, phase, and level comparisons. The
+  isolated cubic alias path is now captured; a full-tube 3 kHz bin is confounded
+  by 3 kHz content already present before decimation.
 - [ ] Integrate mute/model-change sequencing around the stream and prove that
   state reinitialization cannot escape before a completed ramp-down.
 
@@ -37,6 +36,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   fixed equivalence and <=0.0001943 dB / <=0.0009814 degree analytical error.
 - [x] Capture 100 ms overload/recovery trajectories through 1.5 V; compare all
   state exactly and extend post-burst observation to 85 ms.
+- [x] Capture the 16× decimator's cubic nonlinear alias trajectory; match 8,192
+  outputs exactly and measure -137.814 dBc with zero saturation.
 - [x] Select, document, and version the Kennedy 1998 two-stage passive-RIAA circuit.
 - [x] Implement AT-VM95E R/L/47.5 kΩ/150 pF cartridge loading.
 - [x] Build ngspice DC, 10 Hz–100 kHz AC, transient, and 1 kHz H1–H10 level sweeps.
@@ -184,9 +185,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 - The full-phono circuit RTL is bit-exact to fixed Python, but fixed versus float/
   SPICE still has only the initial multitone and one SPICE transient comparison.
-- The resampler alias measurement still derives from the bit-accurate Python
-  chain rather than captured RTL output. WAV/null, CDC, and formal infrastructure
-  remain absent.
+- WAV/null, CDC, and formal infrastructure remain absent. The cubic alias test
+  is captured from RTL, while a full-tube alias decomposition still needs a
+  method that separates preexisting in-band energy from folded harmonics.
 - No vendor place-and-route/Fmax, FPGA capture, analog converter, or physical tube
   measurement exists.
 - GE curve digitization has ±0.05 mA visual uncertainty; production tube spread

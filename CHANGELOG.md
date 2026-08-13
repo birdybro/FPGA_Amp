@@ -84,6 +84,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
   and a 100 ms captured overload/recovery regression through 1.5 V peak.
 - Extended the wide complete-stream testbench and runner with bounded dynamic
   vector counts, alternate vector files, and direct 48 kHz output capture.
+- Extended the complete decimator bench to 131,072 custom inputs / 8,192
+  captured outputs and added a captured cubic nonlinear-alias regression.
 - Added a standalone downstream output mute/ramp with reset-muted startup,
   sample-qualified linear transitions, symmetric signed rounding, exact-unity
   bypass, synchronous fault clamp, and a self-checking RTL regression.
@@ -216,6 +218,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
   10% after 85 ms in both analytical and captured trajectories. Residual-limit
   failures begin at 1.0 V; 1.5 V records 4,046 range clips and 729 adaptive-scale
   fallbacks with zero arithmetic saturation.
+- The captured 16× decimator matches all 8,192 fixed outputs for the cubic
+  15 kHz stimulus and measures the 45 kHz to 3 kHz alias at -137.814 dBc with
+  zero saturation. A full-stream 0.5 V / 15 kHz stress run is also exact, but
+  contains 1.402 mV at 3 kHz before decimation; that output bin is explicitly
+  rejected as a pure alias measurement.
 - The output mute/ramp passes its warning-free directed Verilator regression;
   generic XC7 synthesis reports 171 estimated logic cells, 2 DSP48E1s, no block
   RAM, and no structural check errors. No placed timing is claimed.
