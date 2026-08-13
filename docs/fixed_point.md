@@ -46,8 +46,10 @@ the Hermite coefficient and Horner states to remain signed 32-bit with full
 49-bit products. Generic XC7 synthesis reports 1,597 estimated logic cells,
 37 DSP48E1s, and 8 RAMB18E1s. Selectable solver integration is exact for 512
 persistent-state samples at the unchanged 126-clock latency. Its hierarchy is
-9,194 logic cells, 110 DSP48E1s, and 8 RAMB18E1s; complete-stream verification
-remains open, so the existing 2-D RTL is still the end-to-end baseline.
+9,194 logic cells, 110 DSP48E1s, and 8 RAMB18E1s. The complete factorized stream
+also matches 64 outputs / 1,024 nonlinear updates exactly and synthesizes to
+14,366 logic cells, 158 DSP48E1s, and 8 RAMB18E1s. Both implementations remain
+named while wider equivalence testing is open.
 
 ## Circuit-state chord candidate
 

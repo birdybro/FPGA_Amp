@@ -92,6 +92,10 @@ does not alter this schedule. The measured hierarchy trade is 8,024 LC / 89 DSP 
 47 RAMB18 for the surface mode and 9,194 LC / 110 DSP / 8 RAMB18 for factorized
 mode. These are generic structural counts, not timing closure.
 
+At complete-stream scope the corresponding counts are 13,170 LC / 137 DSP /
+47 RAMB18 for the surface mode and 14,366 LC / 158 DSP / 8 RAMB18 for the
+factorized mode. Both produce exact mode-specific fixed-model outputs.
+
 The KCL engine evaluates nine matrix rows in parallel while the single tube ROM
 engine serializes the two device evaluations. Completed RHS and chord results
 launch the following residual pass on the same edge, eliminating control

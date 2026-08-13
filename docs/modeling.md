@@ -118,9 +118,10 @@ On 100,000 random quantized inputs it has 10.5 nA mean, 16.0 nA RMS, and
 versus 0.0191% analytical; 0.5 V results are 2.2419% and 2.2417%. The 5 mV
 unaligned waveform residual is still only -42.90 dB, despite +0.00026 dB
 fundamental gain error, demonstrating a separate state/phase error that requires
-diagnosis. The standalone factorized RTL is exact at eight clocks and its solver
-integration is exact at 126 clocks. Complete 48 kHz stream verification is not
-yet complete, so the 2-D primitive remains the end-to-end baseline.
+diagnosis. The standalone factorized RTL is exact at eight clocks, its solver
+integration is exact at 126 clocks, and its complete stream matches the fixed
+composition exactly. Wider frequency/overload evidence remains open before
+choosing it as the default implementation.
 
 ## Explicit error budget status
 
@@ -135,7 +136,8 @@ yet complete, so the 2-D primitive remains the end-to-end baseline.
 | fixed tube LUT | 0.139 µA mean / 9.33 µA worst full range | measured |
 | fixed factorized tube | 10.5 nA mean / 51.8 nA worst; 233,472 raw table bits | measured; standalone RTL passing |
 | factorized RTL vs fixed | 4,107 vectors exact at 8 clocks; 1,597 LC / 37 DSP / 8 RAMB18 | standalone and solver passing |
-| factorized solver vs fixed | 512 stateful samples exact at 126 clocks; 9,194 LC / 110 DSP / 8 RAMB18 | passing; stream open |
+| factorized solver vs fixed | 512 stateful samples exact at 126 clocks; 9,194 LC / 110 DSP / 8 RAMB18 | passing |
+| factorized stream vs fixed | 64 outputs / 1,024 updates exact; 14,366 LC / 158 DSP / 8 RAMB18 | passing; broader stimuli open |
 | RTL LUT | 4,096 vectors bit-exact to fixed Python | passing |
 | fixed chord/state vs float LUT circuit | -70.33 dB initial multitone; -34.58 dB at 5 mV/1 kHz | signal-dependent; low-level improvement required |
 | low-level complete fixed model | 2-D: 0.0733%; factorized: 0.0188%; analytical: 0.0191% THD | device error improved; RTL/state-phase work open |

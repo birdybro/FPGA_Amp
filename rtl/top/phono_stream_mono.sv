@@ -5,7 +5,9 @@
 // Input and output are physical volts in signed Q8.24 at 48 kHz. The circuit
 // runs at 768 kHz. Volume, mute, converter framing, and modern enhancements are
 // intentionally outside this reference-mode boundary.
-module phono_stream_mono (
+module phono_stream_mono #(
+    parameter bit USE_FACTORIZED_TUBE = 1'b0
+) (
     input  logic                 clk,
     input  logic                 rst_n,
     input  logic                 ce_input_48k,
@@ -48,7 +50,19 @@ module phono_stream_mono (
     logic [287:0] unused_node_voltage_debug;
     logic [319:0] unused_capacitor_state_debug;
 
-    v1_solver_mono solver (
+    v1_solver_mono #(
+        .NODE_INITIAL_FILE(
+            USE_FACTORIZED_TUBE
+                ? "model/generated/v1_node_initial_factorized.mem"
+                : "model/generated/v1_node_initial.mem"
+        ),
+        .CAP_INITIAL_FILE(
+            USE_FACTORIZED_TUBE
+                ? "model/generated/v1_cap_initial_factorized_q12_20.mem"
+                : "model/generated/v1_cap_initial_q12_20.mem"
+        ),
+        .USE_FACTORIZED_TUBE(USE_FACTORIZED_TUBE)
+    ) solver (
         .clk,
         .rst_n,
         .ce_sample(interpolated_valid),

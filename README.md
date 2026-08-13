@@ -46,8 +46,8 @@ The mono reference and complete 768 kHz circuit solver are operating:
   at 5 mV versus 0.0191% analytical, using 233,472 raw table bits (12.67 raw
   RAMB18 equivalents). Its standalone RTL is exact across 4,107 vectors at the
   existing eight-clock latency; structural synthesis reports 1,597 logic cells,
-  37 DSP48E1s, and 8 RAMB18E1s. Complete solver integration is also bit-exact at
-  126 clocks; the stream-level selectable mode remains the next gate.
+  37 DSP48E1s, and 8 RAMB18E1s. Solver and complete-stream modes are also
+  bit-exact at the unchanged 126-clock solver schedule.
 - The SystemVerilog tube lookup accepts physical Q-format voltages, is
   bit-exact for 4,096 randomized vectors, and has eight-clock latency.
 - The nine-node chord corrector is bit-exact for 1,024 randomized/boundary
@@ -68,6 +68,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   saturating output-format conversion, and 16× decimation—matches 64 consecutive
   Python outputs exactly with zero diagnostic events. Structural synthesis is
   13,170 estimated XC7 logic cells, 137 DSP48E1s, and 47 RAMB18E1s.
+- The factorized stream independently matches 64 outputs / 1,024 nonlinear
+  updates with zero diagnostics. It synthesizes to 14,366 logic cells, 158
+  DSP48E1s, and 8 RAMB18E1s. Both modes remain explicit while broader accuracy
+  and overload tests determine the preferred hardware configuration.
 - A four-stage 16× half-band reference provides at least 91.6 dB per-stage image
   rejection and suppresses the measured cubic 45 kHz→3 kHz decimation alias to
   -137.8 dB with bit-accurate Q8.24/Q1.23 MACs. The complete interpolation and
@@ -127,6 +131,7 @@ make solver-rtl                    # 512-sample persistent-state integration
 make solver-factorized-rtl         # exact smooth-tube solver integration
 make halfband-rtl                  # exact 2x units and complete 16x streams
 make stream-rtl                    # complete 48 kHz reference stream
+make stream-factorized-rtl         # complete smooth-tube reference stream
 make synth                         # generic XC7 structural estimate
 make synth-factorized              # factorized tube structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
@@ -134,6 +139,7 @@ make synth-solver                  # hierarchical complete-solver estimate
 make synth-solver-factorized       # smooth-tube hierarchy/resource trade
 make synth-halfband                # complete interpolator/decimator estimates
 make synth-stream                  # complete reference-stream estimate
+make synth-stream-factorized       # smooth-tube stream resource estimate
 ```
 
 Generated CSV, plots, logs, ROM images, and reports are intentionally ignored;

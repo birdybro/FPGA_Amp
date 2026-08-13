@@ -16,19 +16,31 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
+    parser.add_argument("--factorized", action="store_true")
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
         print("ERROR: verilator unavailable", file=sys.stderr)
         return 2
-    for generator in (
+    generators = [
         "scripts/generate_tube_lut.py",
         "scripts/generate_network_vectors.py",
         "scripts/generate_chord_vectors.py",
         "scripts/generate_halfband_rtl_vectors.py",
-        "scripts/generate_stream_vectors.py",
-    ):
-        subprocess.run([sys.executable, generator], cwd=REPOSITORY_ROOT, check=True)
+    ]
+    if args.factorized:
+        generators.extend(
+            (
+                "scripts/generate_factorized_tube.py",
+                "scripts/generate_solver_vectors.py --factorized",
+                "scripts/generate_stream_vectors.py --factorized",
+            )
+        )
+    else:
+        generators.append("scripts/generate_stream_vectors.py")
+    for generator in generators:
+        command = [sys.executable, *generator.split()]
+        subprocess.run(command, cwd=REPOSITORY_ROOT, check=True)
     sources = [
         "rtl/tube/triode_12ax7.sv",
         "rtl/tube/triode_12ax7_factorized.sv",
@@ -48,7 +60,13 @@ def main() -> int:
         cwd=REPOSITORY_ROOT,
         check=True,
     )
-    build = REPOSITORY_ROOT / "build" / "verilator_phono_stream"
+    build_name = (
+        "verilator_phono_stream_factorized"
+        if args.factorized
+        else "verilator_phono_stream"
+    )
+    build = REPOSITORY_ROOT / "build" / build_name
+    parameter_args = ["-GUSE_FACTORIZED=1"] if args.factorized else []
     subprocess.run(
         [
             verilator,
@@ -61,6 +79,7 @@ def main() -> int:
             "phono_stream_mono_tb",
             "--Mdir",
             str(build),
+            *parameter_args,
             *sources,
         ],
         cwd=REPOSITORY_ROOT,

@@ -47,6 +47,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
   endpoint and out-of-range cases.
 - Added an explicit factorized-tube solver mode with independent initialization,
   persistent-state vectors, metadata, regression entry point, and synthesis path.
+- Added factorized mode to the complete interpolator/circuit/decimator stream,
+  including independent exact output vectors, metadata, and structural synthesis.
 - Added warning-free Verilator lint and a 4,096-vector bit-exact testbench with checked eight-clock latency.
 - Added non-root ngspice/Yosys bootstrap and a generic XC7 out-of-context synthesis report.
 - Added quantitative cartridge/front-end noise, ADC headroom, and analog-versus-digital RIAA partition analysis.
@@ -113,6 +115,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   retains the 126-clock schedule with no diagnostic events. Its hierarchy uses
   9,194 estimated logic cells, 110 DSP48E1s, and 8 RAMB18E1s versus the 2-D
   solver's 8,024 / 89 / 47; this is a measured resource trade, not a free win.
+- The complete factorized stream matches 64 outputs spanning 1,024 nonlinear
+  updates with zero diagnostics. It synthesizes to 14,366 estimated logic cells,
+  158 DSP48E1s, and 8 RAMB18E1s versus the surface stream's 13,170 / 137 / 47.
 
 ### Changed
 

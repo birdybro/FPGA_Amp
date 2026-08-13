@@ -11,9 +11,6 @@ RTL, then prove frequency, level, and overload behavior through the complete
 
 ## Active, highest value first
 
-- [ ] Propagate the verified factorized/Hermite solver mode through the complete
-  48 kHz stream regression and synthesis while retaining the 2-D mode as an
-  explicit implementation baseline.
 - [ ] Diagnose the fixed circuit's low-level raw waveform residual/phase error;
   the factorized candidate fixes THD but retains -42.90 dB unaligned residual at
   5 mV despite only +0.00026 dB fundamental gain error.
@@ -89,6 +86,9 @@ RTL, then prove frequency, level, and overload behavior through the complete
 - [x] Integrate the factorized primitive as a selectable solver mode; match all
   state and diagnostics for 512 samples at 126 clocks and synthesize the full
   hierarchy at 9,194 LC, 110 DSP48E1, and 8 RAMB18E1.
+- [x] Propagate factorized mode through the complete stream; match 64 outputs /
+  1,024 circuit updates exactly with zero diagnostics and synthesize at 14,366
+  LC, 158 DSP48E1, and 8 RAMB18E1.
 - [x] Quantify flat/partial/full-analog RIAA front-end architectures.
 - [x] Produce initial gain/headroom, MM loading, noise, converter, clock, control,
   safety, stereo schedule, and hardware-verification engineering documents.

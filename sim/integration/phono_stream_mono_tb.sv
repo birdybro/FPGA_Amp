@@ -1,7 +1,9 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-module phono_stream_mono_tb;
+module phono_stream_mono_tb #(
+    parameter bit USE_FACTORIZED = 1'b0
+);
     localparam int VECTOR_COUNT = 64;
 
     logic clk;
@@ -24,7 +26,9 @@ module phono_stream_mono_tb;
     logic signed [31:0] input_vector [0:VECTOR_COUNT-1];
     logic signed [31:0] expected_vector [0:VECTOR_COUNT-1];
 
-    phono_stream_mono dut (.*);
+    phono_stream_mono #(
+        .USE_FACTORIZED_TUBE(USE_FACTORIZED)
+    ) dut (.*);
     always #5 clk = ~clk;
 
     integer file_handle;
@@ -38,8 +42,12 @@ module phono_stream_mono_tb;
 
     initial begin
         clk = 1'b0;
-        if (!$value$plusargs("VECTORS=%s", vector_path))
-            vector_path = "sim/vectors/generated/phono_stream_mono.txt";
+        if (!$value$plusargs("VECTORS=%s", vector_path)) begin
+            if (USE_FACTORIZED)
+                vector_path = "sim/vectors/generated/phono_stream_mono_factorized.txt";
+            else
+                vector_path = "sim/vectors/generated/phono_stream_mono.txt";
+        end
         file_handle = $fopen(vector_path, "r");
         if (file_handle == 0) $fatal(1, "cannot open %s", vector_path);
         for (input_index = 0; input_index < VECTOR_COUNT; input_index = input_index + 1) begin

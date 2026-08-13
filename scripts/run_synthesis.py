@@ -41,6 +41,7 @@ def main() -> int:
             "interpolator_16x",
             "decimator_16x",
             "phono_stream_mono",
+            "phono_stream_mono_factorized",
         ),
         default="triode_12ax7",
     )
@@ -99,16 +100,26 @@ def main() -> int:
             "rtl/audio/decimator_16x.sv",
             "rtl/top/phono_stream_mono.sv",
         ],
+        "phono_stream_mono_factorized": [
+            "rtl/tube/triode_12ax7.sv",
+            "rtl/tube/triode_12ax7_factorized.sv",
+            "rtl/circuit/network_rhs_v1.sv",
+            "rtl/circuit/network_kcl_v1.sv",
+            "rtl/circuit/chord_corrector_v1.sv",
+            "rtl/phono/v1_solver_mono.sv",
+            "rtl/filters/halfband_interpolator_2x.sv",
+            "rtl/filters/halfband_decimator_2x.sv",
+            "rtl/audio/interpolator_16x.sv",
+            "rtl/audio/decimator_16x.sv",
+            "rtl/top/phono_stream_mono.sv",
+        ],
     }[args.top]
     log_path = results / f"yosys_xc7_{args.top}.log"
-    actual_top = (
-        "v1_solver_mono" if args.top == "v1_solver_mono_factorized" else args.top
-    )
-    parameter_command = (
-        "chparam -set USE_FACTORIZED_TUBE 1 v1_solver_mono"
-        if args.top == "v1_solver_mono_factorized"
-        else None
-    )
+    factorized_top = args.top.endswith("_factorized")
+    actual_top = args.top.removesuffix("_factorized") if factorized_top else args.top
+    parameter_command = None
+    if factorized_top:
+        parameter_command = f"chparam -set USE_FACTORIZED_TUBE 1 {actual_top}"
 
     # The packaged Yosys has an absolute system ABC default. Stopping before
     # map_luts and invoking the identical documented steps with -exe keeps the
