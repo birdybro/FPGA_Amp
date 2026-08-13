@@ -15,7 +15,7 @@
   },
   "fallback_vectors": 48,
   "correction_saturation_vectors": 18,
-  "current_saturation_vectors": 1015,
+  "current_saturation_vectors": 1013,
   "latency_clocks": 10,
   "outputs": [
     "model/generated/v1_cap_conductance_q0_47_trapezoidal.mem",

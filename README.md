@@ -318,6 +318,7 @@ make overload-iterations            # three-to-six-pass solver trade
 python3 scripts/study_lut_resolution.py
 python3 scripts/analyze_frontend.py
 python3 scripts/design_resampler.py
+make arithmetic-bounds             # prove wide RHS/KCL/chord integer widths
 make rtl                           # lint + 4,096 bit-exact vectors
 make factorized-rtl                # smooth tube RTL + directed clip vectors
 make chord-rtl                     # lint + 1,024 circuit-correction vectors

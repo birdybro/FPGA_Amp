@@ -144,6 +144,15 @@ def main() -> int:
                     -(1 << 47) if polarity > 0 else (1 << 47) - 1
                 )
                 current_q31 = [0] * 4
+            elif index in (56, 57):
+                # Full signed-current boundary for the cathode sum.
+                voltage = [0] * model.node_count
+                capacitor_voltage = [0] * len(model.capacitors)
+                capacitor_current = [0] * len(model.capacitors)
+                current_q31 = [0] * 4
+                pair = 0 if index == 56 else 2
+                current_q31[pair] = -(1 << 31)
+                current_q31[pair + 1] = -(1 << 31)
 
             linear = [0] * model.node_count
             for row in range(model.node_count):

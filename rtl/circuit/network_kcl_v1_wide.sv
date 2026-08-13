@@ -165,15 +165,17 @@ module network_kcl_v1_wide #(
                 0: tube_stamp = {{18{ig1[31]}}, ig1, 13'b0};
                 1: tube_stamp = {{18{ip1[31]}}, ip1, 13'b0};
                 2: begin
-                    summed_current = -$signed({ip1[31], ip1})
-                                     - $signed({ig1[31], ig1});
+                    // Widen before negation: (-INT32_MIN)+(-INT32_MIN) is
+                    // +2^32 and cannot be represented by a 33-bit expression.
+                    summed_current = -$signed({{2{ip1[31]}}, ip1})
+                                     - $signed({{2{ig1[31]}}, ig1});
                     tube_stamp = {{16{summed_current[33]}}, summed_current, 13'b0};
                 end
                 4: tube_stamp = {{18{ig2[31]}}, ig2, 13'b0};
                 6: tube_stamp = {{18{ip2[31]}}, ip2, 13'b0};
                 7: begin
-                    summed_current = -$signed({ip2[31], ip2})
-                                     - $signed({ig2[31], ig2});
+                    summed_current = -$signed({{2{ip2[31]}}, ip2})
+                                     - $signed({{2{ig2[31]}}, ig2});
                     tube_stamp = {{16{summed_current[33]}}, summed_current, 13'b0};
                 end
                 default: tube_stamp = '0;

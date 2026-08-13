@@ -178,6 +178,15 @@ def main() -> int:
                 voltage[3] = -(1 << 39) if polarity > 0 else (1 << 39) - 1
                 capacitor_state[6] = -(1 << 39) if polarity > 0 else (1 << 39) - 1
                 current_q31 = [0] * 4
+            elif index in (56, 57):
+                # Negating and summing two INT32_MIN tube currents requires a
+                # 34-bit expression before conversion from Q31 to Q44.
+                voltage = [0] * model.node_count
+                capacitor_state = [0] * len(model.capacitors)
+                current_q31 = [0] * 4
+                pair = 0 if index == 56 else 2
+                current_q31[pair] = -(1 << 31)
+                current_q31[pair + 1] = -(1 << 31)
 
             linear = [0] * 9
             for row in range(9):

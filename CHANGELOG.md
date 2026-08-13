@@ -146,6 +146,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   signed-40 Q28 node extremes and subtract a full-range Q30 history; directed
   backward-Euler and trapezoidal vectors now prevent this silent-wrap defect
   from recurring.
+- Widened signed Q31 tube currents before cathode-stamp negation so the legal
+  `INT32_MIN` pair produces positive `2^32` instead of wrapping in a 33-bit
+  expression; both triodes now have directed boundary vectors.
 
 ### Reference decisions
 
@@ -155,6 +158,12 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - The Koren 12AX7 parameter set is the first analytical and SPICE tube model. Model error against manufacturer curves is tracked separately from numerical implementation error.
 
 ### Measured
+
+- Added a conservative full-interface integer interval proof for wide RHS,
+  backward-Euler/trapezoidal KCL, tube stamps, and chord correction. All 33
+  checks pass; the tightest cases require 44/44 capacitor-delta bits, 34/34
+  cathode-sum bits, 57/63 KCL-accumulator bits, and 89/92 capacitor-product
+  bits. The proof is now a default regression gate.
 
 - ngspice bias is 179.994 V/0.9918 mA for stage 1 and 192.808 V/1.0719 mA for stage 2; circuit gain is 41.087 dB at 1 kHz.
 - The physical passive network's ideal-RIAA error is -0.919 to +0.000 dB over 20 Hz–20 kHz (0.364 dB RMS), retained as reference behavior.
