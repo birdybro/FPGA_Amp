@@ -71,11 +71,12 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   than baseline. Timing weight 20 raises the complete candidate only to 32.56
   MHz and disperses its 34 terminal DSPs across a 91-by-167 coordinate region;
   it remains slower than the selected baseline's 34.20 MHz. Resource sharing
-  in one block and placer-weight tuning are therefore both insufficient.
-  Develop an explicit
-  hierarchy placement strategy or a broader cross-block time-multiplexed
-  schedule; only one clock remains in this candidate, so do not add a per-pass
-  stage or alter the frozen numerical contract.
+  in one block and placer-weight tuning are therefore both insufficient. An
+  overlapping hierarchy floorplan improves the candidate to 36.83 MHz by
+  reserving left/center DSP columns for KCL/RHS and center/right columns for
+  nonlinear blocks, but still misses by 2.67x. Develop a broader cross-block
+  time-multiplexed schedule; only one clock remains in this candidate, so do
+  not add a per-pass stage or alter the frozen numerical contract.
 ## Completed this milestone
 
 - [x] Implement and measure two-batch terminal-current resource sharing. Use
@@ -92,6 +93,12 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   directory, then place the complete shared-terminal solver at the same weight.
   Measure only 32.56 MHz versus the 98.304 MHz target and retain the default
   25.02 MHz evidence separately.
+
+- [x] Add and measure a nextpnr pre-place hierarchy floorplan. Reject a strict
+  76-of-80-DSP left partition after it fails to complete a first heap iteration;
+  retain overlapping two-column regions with 80 sites of slack per group.
+  Measure 36.83 MHz, 13.1% above the unconstrained weight-20 candidate but still
+  2.67x short, and skip routing.
 
 - [x] Extend the pinned nextpnr-Himbaechel bootstrap and device-qualified runner
   to XC7A200T, add a Nexys Video timing-only harness, and place the unchanged

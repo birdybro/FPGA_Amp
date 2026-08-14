@@ -208,6 +208,11 @@ def main() -> int:
     parser.add_argument("--yosys", default="yosys")
     parser.add_argument("--nextpnr", default="nextpnr-himbaechel")
     parser.add_argument(
+        "--pre-place-script",
+        type=Path,
+        help="nextpnr Python hook to run after packing and before placement",
+    )
+    parser.add_argument(
         "--timing-allow-fail",
         action="store_true",
         help="finish routing and emit a report even when the timing target fails",
@@ -273,6 +278,16 @@ def main() -> int:
     if not xdc.exists():
         print(f"ERROR: missing XDC: {xdc}", file=sys.stderr)
         return 2
+    pre_place_script = args.pre_place_script
+    if pre_place_script is not None:
+        if not pre_place_script.is_absolute():
+            pre_place_script = REPOSITORY_ROOT / pre_place_script
+        if not pre_place_script.exists():
+            print(
+                f"ERROR: missing pre-place script: {pre_place_script}",
+                file=sys.stderr,
+            )
+            return 2
 
     device_tag = "" if args.device == DEFAULT_DEVICE else f"_{args.device}"
     output_dir = REPOSITORY_ROOT / "build" / "openxc7"
@@ -341,6 +356,8 @@ def main() -> int:
         command.extend(["--no-route", "--write", str(placed_netlist)])
     else:
         command.extend(["-o", f"fasm={fasm}"])
+    if pre_place_script is not None:
+        command.extend(["--pre-place", str(pre_place_script)])
     if args.timing_allow_fail:
         command.append("--timing-allow-fail")
     placed = subprocess.run(
@@ -370,6 +387,11 @@ def main() -> int:
             else None
         ),
         "constraints": str(xdc.relative_to(REPOSITORY_ROOT)),
+        "pre_place_script": (
+            str(pre_place_script.relative_to(REPOSITORY_ROOT))
+            if pre_place_script is not None
+            else None
+        ),
         "fasm": (
             str(fasm.relative_to(REPOSITORY_ROOT))
             if not args.place_only and fasm.exists()

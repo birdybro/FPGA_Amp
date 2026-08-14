@@ -132,6 +132,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
   expands to 91 by 167 coordinates, rejecting placer-weight tuning as the
   hierarchy-congestion fix.
 
+- Added nextpnr pre-place hook support and an XC7A100T overlapping hierarchy
+  floorplan. KCL/RHS are constrained to the left/center DSP columns and tube,
+  chord, and terminal-current blocks to the center/right columns, with control
+  logic left free. The hook matches 61,934 packed hierarchy cells and improves
+  the shared solver from 32.56 to 36.83 MHz while reducing annealed wire length
+  from 3,010,517 to 2,006,868 units. The remaining 2.67x timing gap rejects
+  floorplanning alone; routing remains skipped.
+
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,
   0--80 bit-count bound/transition, one-cycle request decode and exact fields,

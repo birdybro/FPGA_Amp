@@ -281,6 +281,30 @@ Routing remains unjustified. The open-flow runner's `--run-tag` option retains
 the netlist, placed design, logs, reports, and compact summary for tuning runs
 without overwriting the untagged baseline evidence.
 
+### Overlapping hierarchy-region experiment
+
+The A100T exposes DSP columns at tile X coordinates 28, 88, and 119. A strict
+left/right partition was over-constrained: forcing KCL plus RHS into 76 of the
+left column's 80 DSP sites did not complete even its first heap iteration in
+more than six minutes. That exploratory partition was stopped and is not a
+timing result.
+
+The retained V2 floorplan instead uses overlapping rectangular regions. KCL
+plus RHS may use the left and center columns (76 of 160 DSP sites); the tube,
+chord, and terminal-current blocks may use the center and right columns (113 of
+160 sites). Solver control remains unconstrained. The pre-place hook matches
+36,360 packed KCL/RHS cells and 25,574 nonlinear cells, proving the hierarchy
+selectors are active after packing.
+
+At seed 1 and timing weight 20, this placement reaches 36.83 MHz. It improves
+the same candidate's unconstrained 32.56 MHz by 13.1% and the selected
+209-DSP/default-weight baseline's 34.20 MHz by 7.7%, but still falls 62.5% below
+98.304 MHz. KCL remains 60 by 197 hard-block coordinates, while the terminal
+DSP span contracts from 91 by 167 to 31 by 161. Total annealed wire length falls
+from 3,010,517 to 2,006,868 units. This validates explicit hierarchy placement
+as a useful optimization, but its 2.67x remaining frequency gap requires a
+broader arithmetic/scheduling change; routing is deliberately skipped.
+
 ### XC7A200T capacity experiment
 
 The pinned bootstrap now generates both `xc7a100t` and `xc7a200t` chip
