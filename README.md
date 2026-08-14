@@ -574,9 +574,11 @@ second, explicitly selectable terminal-current schedule reuses five arithmetic
 workers over two registered batches. It is bit-exact across 1,027 standalone
 and 512 stateful solver vectors, uses 34 rather than 54 DSPs, and consumes the
 last schedule clock (127 total). Fixed lane-pair muxes let the isolated block
-route at 90.50 MHz, but the complete 189-DSP hierarchy places at only 25.02 MHz
-with 59,514 LUTX and 14,590 FFX. It is retained as resource-sharing evidence,
-not promoted as the default timing solution. None
+route at 90.50 MHz with the default placement weight and 99.59 MHz with a
+measured timing weight of 20, closing its 98.304 MHz isolated constraint. The
+complete 189-DSP hierarchy still places at only 25.02 MHz with 59,514 LUTX and
+14,590 FFX under the default weight. It is retained as resource-sharing
+evidence, not promoted as the default full-solver timing solution. None
 of these experiments is timing closure or a reference-mode change.
 All figures use the backend's unqualified `DEFAULT` timing grade. The implemented digital mute
 primitive is not independent analog speaker protection.
@@ -761,6 +763,7 @@ make openxc7-linear-solver-pnr     # route the value-only complete solver
 make openxc7-terminal-current-pnr  # isolate terminal companion-current timing
 make terminal-current-half-parallel-rtl # exact two-batch resource-sharing test
 make openxc7-terminal-current-half-parallel-pnr # route 34-DSP shared block
+make openxc7-terminal-current-half-parallel-timing-pnr # measured weight-20 closure
 make openxc7-kcl-pnr               # isolate wide KCL timing
 make openxc7-chord-pnr             # isolate banked chord-correction timing
 make openxc7-pipelined-kcl-pnr     # route bit-exact staged KCL candidate

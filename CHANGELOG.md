@@ -117,10 +117,12 @@ All notable engineering changes are recorded here. The project is pre-release; d
   variable-index LUT explosion found by synthesis. The engine is bit-exact for
   1,027 standalone vectors; the complete solver is exact for 512 stateful
   vectors at 127 clocks. The isolated route uses 4,296 LUTX / 2,412 FFX / 334
-  CARRY4 / 34 DSP and reaches 90.50 MHz. Whole-solver synthesis falls from 209
-  to 189 DSPs, but seed-1 placement reaches only 25.02 MHz with 59,514 LUTX /
-  14,590 FFX / 3,964 CARRY4. The candidate is retained for reproducible
-  resource evidence but is not promoted because it worsens full placement.
+  CARRY4 / 34 DSP and reaches 90.50 MHz at the default placement weight. A
+  reproducible timing-weight-20 run closes the isolated 98.304 MHz constraint
+  at 99.59 MHz. Whole-solver synthesis falls from 209 to 189 DSPs, but seed-1
+  default-weight placement reaches only 25.02 MHz with 59,514 LUTX / 14,590 FFX
+  / 3,964 CARRY4. The candidate is retained for reproducible resource evidence
+  but is not promoted because it worsens full placement.
 
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,

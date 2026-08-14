@@ -251,10 +251,12 @@ corrected implementation uses five explicit fixed lane-pair muxes and latches
 only the second-batch inputs. The isolated candidate is exact against the
 original all-lane arithmetic for 1,027 directed/random vectors. Its named-part
 route uses 4,296 `SLICE_LUTX`, 2,412 `SLICE_FFX`, 334 CARRY4s, and 34 DSP48E1s,
-reaching 90.50 MHz under the experimental `DEFAULT` grade. The established
-all-lane block uses 54 DSPs and reaches 88.83 MHz, so sharing removes 20 DSPs
-without creating a worse isolated limit, although neither block closes
-98.304 MHz.
+reaching 90.50 MHz with the default heap timing weight under the experimental
+`DEFAULT` grade. A second deterministic seed-1 route with heap timing weight 20
+reaches 99.59 MHz and closes the 98.304 MHz isolated-block constraint. The
+established all-lane block uses 54 DSPs and reaches 88.83 MHz, so sharing
+removes 20 DSPs and can meet the isolated deadline when placement is instructed
+to prioritize timing.
 
 The complete selectable schedule remains bit-exact for all 512 stateful solver
 vectors at 127 clocks. Yosys measures 15,072 estimated logic cells, 14,590
@@ -265,7 +267,9 @@ seed-1 placement reaches only 25.02 MHz, worse than the 209-DSP schedule's
 promoted. Region analysis confirms terminal hard-block occupancy falls from 54
 to 34 DSPs and its span contracts to 31 by 161 coordinate units, but KCL still
 spans 60 by 202 and the full design remains globally dispersed. Reducing a
-single hierarchy's DSP count is therefore insufficient by itself.
+single hierarchy's DSP count is therefore insufficient by itself. The isolated
+99.59 MHz result does not supersede the separately measured 25.02 MHz complete
+hierarchy result.
 
 ### XC7A200T capacity experiment
 
