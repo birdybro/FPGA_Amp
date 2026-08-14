@@ -71,7 +71,7 @@ The mono reference and complete 768 kHz circuit solver are operating:
   measures 12.55 nA worst / 2.82 nA active-region RMS error; total raw storage
   is 262,144 bits (14.22 raw RAMB18 equivalents). Standalone RTL is exact across
   4,110 vectors at the existing eight-clock latency; structural synthesis
-  reports 1,496 logic cells, 35 DSP48E1s, and 8 RAMB18E1s. Solver and
+  reports 1,496 logic cells, 35 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1. Solver and
   complete-stream modes are also
   bit-exact at the unchanged 126-clock solver schedule.
 - The SystemVerilog tube lookup accepts physical Q-format voltages, is
@@ -104,9 +104,8 @@ The mono reference and complete 768 kHz circuit solver are operating:
   Q8.24 coefficients, full-width products, symmetric rounding, endpoint/clip
   counters, and invalid-configuration muting. Python and warning-free RTL match
   4,159 vectors per direction. Structural synthesis measures 95 LC / 66 FF / 4
-  DSP48E1 input and 86 LC / 58 FF / 4 DSP48E1 output. The serial bridge,
-  calibration, nonlinear core, and converter-specific control are not yet one
-  hardware top.
+  DSP48E1 input and 86 LC / 58 FF / 4 DSP48E1 output. The serial bridge and
+  converter-specific control remain outside the framed fabric adapter below.
 - A deterministic fabric frame scheduler now accepts one held stereo frame per
   2,048-clock interval and launches it one clock before phase zero, so the
   registered input calibrator reaches the core on its required 48 kHz phase.
@@ -114,6 +113,20 @@ The mono reference and complete 768 kHz circuit solver are operating:
   phase alignment, and saturating underflow diagnostics. Generic synthesis is
   41 LC / 43 FF / no DSP or RAM. This aligns frequency-locked domains; it is not
   asynchronous sample-rate conversion and cannot absorb oscillator drift.
+- A fabric-domain mono adapter now composes that scheduler, both calibration
+  boundaries, and the exact trapezoidal/banked/terminal phono stream. It models
+  only left input and explicitly duplicates the mono result into both output
+  slots; this is bring-up routing, not stereo. A 64-frame warning-free
+  regression checks every calibrated input, raw Q8.24 model output, and held
+  PCM frame exactly, including unrelated right-channel data and five clocks of
+  output backpressure, then forces and clears one held-output overrun without
+  overwriting the older frame. Model and calibration diagnostics remain zero.
+  The core remains reset through initial scheduler phase
+  acquisition so hidden interpolator zeros cannot advance physical capacitor
+  state before the first accepted frame. Flattened structural synthesis is
+  20,367 LC / 15,543 FF / 230 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1. This leaves
+  only 10 DSPs on the provisional XC7A100T and has no placed timing, mute,
+  atomic calibration update, serial-pin, or physical-converter claim.
 - Exact RTL RHS and KCL engines stamp all ten capacitor histories and the
   physical conductance network. Each passes 1,024 vectors at 12 and 10 clocks.
 - The integrated solver matches 512 sequential fixed-model samples bit-for-bit
@@ -124,14 +137,15 @@ The mono reference and complete 768 kHz circuit solver are operating:
   accuracy-first baseline; no Fmax is claimed before place-and-route.
 - The selectable factorized solver also matches 512 persistent-state samples
   exactly at 126 clocks. Its hierarchy measures 9,148 logic cells, 108 DSP48E1s,
-  and 8 RAMB18E1s: 39 fewer BRAMs at the cost of 19 DSPs and 1,124 logic cells.
+  and 8 RAMB18E1 + 1 RAMB36E1: 37 fewer RAMB18-equivalents at the cost of 19
+  DSPs and 1,124 logic cells.
 - The complete 48 kHz reference stream—16× interpolation, nonlinear circuit,
   saturating output-format conversion, and 16× decimation—matches 64 consecutive
   Python outputs exactly with zero diagnostic events. Structural synthesis is
   13,170 estimated XC7 logic cells, 137 DSP48E1s, and 47 RAMB18E1s.
 - The factorized stream independently matches 64 outputs / 1,024 nonlinear
   updates with zero diagnostics. It synthesizes to 14,290 logic cells, 156
-  DSP48E1s, and 8 RAMB18E1s. Both modes remain explicit while broader accuracy
+  DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1. Both modes remain explicit while broader accuracy
   and overload tests determine the preferred hardware configuration.
 - At 5 mV the factorized fixed raw null is -42.90 dB, but its mean-removed null
   is -59.63 dB: a -2.840 mV DC difference dominates the raw result. Fundamental
@@ -155,8 +169,8 @@ The mono reference and complete 768 kHz circuit solver are operating:
   every fixed state, retains the 116-clock schedule, and records zero
   diagnostics. A Vgk-slew-qualified shallow matrix extends that result through
   the tested 1.5 V peak burst without activating at 0.5 or 1.0 V. Structural
-  synthesis is 13,302 logic cells / 120 DSPs / 8 RAMs for backward Euler and
-  13,840 / 120 / 8 for trapezoidal.
+  synthesis is 13,302 logic cells / 120 DSPs / 8 RAMB18E1 + 1 RAMB36E1 for
+  backward Euler and 13,840 / 120 / 8 RAMB18E1 + 1 RAMB36E1 for trapezoidal.
 - A fixed-intermediate domain audit proves that all former 1.5 V range events
   were only `Vgk < -5 V`: measured `Vpk`, transformed coordinate, and `E1`
   remained inside their tables. The plate-law acceptance bound is now -8 V,
@@ -174,7 +188,7 @@ The mono reference and complete 768 kHz circuit solver are operating:
   conventional four-pass fixed trajectory. Its complete 48→768→48 kHz stream
   matches 64 external outputs across 1,024 nonlinear updates exactly with zero
   diagnostics at a measured 127-clock solver latency. Full-hierarchy XC7
-  synthesis reports 18,466 logic cells, 168 DSP48E1s, and 8 RAMB18E1s; the
+  synthesis reports 18,466 logic cells, 168 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1; the
   one-clock schedule margin is not a timing-closure claim.
 - A captured 100 ms RTL campaign now covers 20 mV, 0.5 V, 1.0 V, and 1.5 V
   overload bursts—384,000 updates including the control trajectory. All fixed
@@ -191,7 +205,7 @@ The mono reference and complete 768 kHz circuit solver are operating:
   clean; burst RMS error versus floating trapezoidal is 0.276, 1.210, 4.709,
   and 3.604 mV. Its 64-output complete stream is exact at 127 clocks. Generated
   constant multipliers reduce the solver to 14,945 logic cells / 174 DSPs; the
-  full stream measures 20,241 / 222 / 8 RAMB18E1s. This fits the provisional
+  full stream measures 20,241 / 222 / 8 RAMB18E1 + 1 RAMB36E1. This fits the provisional
   A7-100T structurally with 18 DSPs free, but timing is not claimed.
 - A captured complete-stream sweep at 100 Hz, 1 kHz, 10 kHz, and 20 kHz proves
   all 19,200 Q8.24 outputs exact with zero diagnostics. Relative to the composed
@@ -234,7 +248,7 @@ The mono reference and complete 768 kHz circuit solver are operating:
   12.55 nA. At 1.5 V it improves raw burst error to -72.87/-81.77 dB and the
   final-window circuit error to 0.631/0.321 mV for backward Euler/trapezoidal,
   with all fixed diagnostics clean. Standalone and 36,864-state integrated RTL
-  regressions are bit-exact and structural RAM use remains eight RAMB18E1s.
+  regressions are bit-exact and structural RAM use remains eight RAMB18E1s plus one RAMB36E1.
 - A second decomposition passes continuously evaluated quantized coefficients
   through the exact Q24/Q20 input and Q31 current interfaces of the banked fixed
   circuit. Integer Hermite evaluation accounts for only 0.149–0.168 mV burst
@@ -297,21 +311,21 @@ The mono reference and complete 768 kHz circuit solver are operating:
   sequential samples, including every node, capacitor, residual, and diagnostic.
   The measured schedule is 116 clocks, leaving 12 of 128 clocks, with zero test
   diagnostics. Hierarchical XC7 synthesis is 12,544 logic cells, 120 DSP48E1s,
-  and 8 RAMB18E1s; Fmax remains unmeasured.
+  and 8 RAMB18E1 + 1 RAMB36E1; Fmax remains unmeasured.
 - The explicitly selectable trapezoidal solver also matches 512 persistent
   samples exactly, including ten Q4.44 current histories, at the unchanged
   116-clock latency. Its separate chord-inverse ROM is required by the doubled
   capacitor companions. Structural synthesis measures 12,786 logic cells,
-  120 DSP48E1s, and 8 RAMB18E1s: +242 cells and no DSP/BRAM change versus
+  120 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1: +242 cells and no DSP/BRAM change versus
   backward Euler. This is structural evidence only; Fmax remains unmeasured.
 - The corresponding complete 48 kHz stream matches 64 outputs spanning 1,024
   nonlinear updates exactly with zero diagnostics. Structural synthesis is
-  17,492 logic cells, 168 DSP48E1s, and 8 RAMB18E1s, so the mono reference fits
+  17,492 logic cells, 168 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1, so the mono reference fits
   the provisional A7-100T resource envelope but leaves only 72 of 240 DSPs.
 - The selectable trapezoidal 48 kHz stream likewise matches all 64 outputs /
   1,024 nonlinear updates exactly with zero diagnostics and 5.02 nA maximum
   residual. Structural synthesis is 17,735 logic cells, 168 DSP48E1s, and
-  8 RAMB18E1s: +243 cells with unchanged DSP/BRAM versus backward Euler.
+  8 RAMB18E1 + 1 RAMB36E1: +243 cells with unchanged DSP/BRAM versus backward Euler.
 - A 23,040-sample captured RTL run at 5 mV / 1 kHz is Q32 bit-exact to fixed
   Python. Measured directly from RTL output, gain/phase error versus analytical
   float is -0.000054 dB / -0.000187 degrees, THD is 0.019371% versus 0.019059%,
@@ -382,7 +396,7 @@ The mono reference and complete 768 kHz circuit solver are operating:
   ramp-down, frame-aligned core reset, 64-output muted warmup, acknowledgment,
   and ramp-up. A warning-free integration regression proves no reset or warmup
   sample escapes before mute. Structural synthesis reports 17,562 logic cells,
-  170 DSP48E1s, and 8 RAMB18s; this remains an unplaced estimate.
+  170 DSP48E1s, and 8 RAMB18 + 1 RAMB36; this remains an unplaced estimate.
 - A four-stage 16× half-band reference provides at least 91.6 dB per-stage image
   rejection and suppresses the measured cubic 45 kHz→3 kHz decimation alias to
   -137.8 dB with bit-accurate Q8.24/Q1.23 MACs. An 8,192-output RTL capture now
@@ -511,6 +525,7 @@ make i2s-rtl                       # 24-bit/32-slot stereo protocol loopback
 make i2s-bridge-rtl                # exact bidirectional I2S/fabric CDC loopback
 make calibration-rtl               # bit-exact PCM24/physical-volts boundary
 make frame-scheduler-rtl           # deterministic 48 kHz fabric phase launch
+make mono-adapter-rtl               # exact framed PCM-to-model-to-PCM datapath
 make synth                         # generic XC7 structural estimate
 make synth-factorized              # factorized tube structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
@@ -538,6 +553,7 @@ make synth-i2s                     # receiver/transmitter structural estimates
 make synth-i2s-bridge              # bidirectional protocol/CDC bridge estimate
 make synth-calibration             # dynamic converter-scaling estimates
 make synth-frame-scheduler         # frame-phase scheduler estimate
+make synth-mono-adapter            # calibrated accuracy-first fabric datapath
 ```
 
 Run a user-supplied 48 kHz integer-PCM WAV through an explicitly selected V1

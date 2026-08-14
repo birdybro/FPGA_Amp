@@ -22,10 +22,23 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   without consuming the final schedule clock.
 - [ ] Prove 98.304 MHz named-part timing for the 127-clock trapezoidal terminal
   stream. Generic synthesis fits XC7A100T structurally at 20,241 LC / 222 of
-  240 DSP48E1 / 8 RAMB18E1, but the parallel terminal-current path and one-clock
+  240 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1, but the parallel terminal-current path and one-clock
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Compose the framed mono fabric datapath from scheduler through input
+  calibration, exact trapezoidal/banked/terminal stream, output calibration,
+  held ready/valid output, and explicit mono duplication. Match 64 calibrated
+  inputs, raw model outputs, and PCM frames bit-for-bit under five clocks of
+  output backpressure; force and clear one output overrun without overwriting
+  the held frame while model/calibration diagnostics remain zero. Prevent the discovered hidden
+  startup-state advance by holding the core reset through phase acquisition;
+  synthesize the combined hierarchy to 20,367 LC / 15,543 FF / 230 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1 with no structural problems and no timing claim.
+- [x] Correct synthesis resource accounting to retain both RAMB18E1 and
+  RAMB36E1 primitives plus their 18-Kib equivalent total. Existing factorized
+  hierarchies use 8 RAMB18E1 + 1 RAMB36E1, not the formerly reported eight
+  RAMB18E1-only count; numerical implementation is unchanged.
 - [x] Align asynchronous-bridge frames to the solver's deterministic fabric
   schedule. Accept one held stereo frame per 2,048-clock period, prelaunch for
   one-clock calibration, inject zero on starvation, and retain a saturating
@@ -71,7 +84,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   384,000 overload updates with zero diagnostics; reduce 1.0/1.5 V burst RMS
   error to 4.709/3.604 mV; carry it through 64 complete-stream outputs; and
   synthesize the 127-clock solver/stream to 14,945/20,241 LC, 174/222 DSP48E1,
-  and 8 RAMB18E1.
+  and 8 RAMB18E1 + 1 RAMB36E1.
 - [x] Separate all 16 internal frequencies that fold to ±3 kHz in the captured
   complete-stream stress test. Prove the isolated 45 kHz third-harmonic output
   is exactly zero in Q8.24, capture the combined out-of-band projection exactly,
@@ -85,11 +98,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Carry the banked terminal solver through the complete mono resampling
   stream. Match 64 external outputs / 1,024 nonlinear updates exactly at the
   measured 127-clock solver latency with zero diagnostics, and synthesize the
-  full hierarchy to 18,466 LC / 168 DSP48E1 / 8 RAMB18E1.
+  full hierarchy to 18,466 LC / 168 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1.
 - [x] Implement the backward-Euler terminal correction in fixed Python and
   synthesizable RTL. Prove output/state identity to conventional four-pass,
   match 18,432 overload updates exactly at 127 clocks with zero diagnostics,
-  and synthesize to 13,296 LC / 120 DSP48E1 / 8 RAMB18E1.
+  and synthesize to 13,296 LC / 120 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1.
 - [x] Sweep three through six corrections on the current banked solver for both
   integrators at 1.0/1.5 V over 100 ms. Measure fourth-pass burst improvement
   of 5.65--9.02 dB, six-pass residual <=0.207 uA, non-monotonic recovery-state
@@ -102,7 +115,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   implement the selected 1,024-entry branch in fixed Python and RTL. Reduce
   direct worst error from 716 to 12.55 nA and 1.5 V final error from
   18.27/17.36 mV to 0.631/0.321 mV, preserve zero diagnostics, prove standalone
-  and 36,864-state integrated RTL exactness, and retain eight mapped RAMB18E1s.
+  and 36,864-state integrated RTL exactness, and retain eight mapped RAMB18E1s plus one RAMB36E1.
 - [x] Add a Vgk-slew-qualified shallow bank for the severe cutoff arc. Preserve
   bit-exact <=1.0 V behavior, remove all 1.5 V residual-limit misses in both
   integration modes, prove 36,864 RTL states exact with every bank exercised,
@@ -245,13 +258,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Implement the standalone factorized tube RTL and pass 4,110 bit-exact
   randomized/boundary vectors at eight clocks, including five clip cases;
   after the grid-resolution implementation, synthesize at 1,496 LC,
-  35 DSP48E1, and 8 RAMB18E1.
+  35 DSP48E1, and 8 RAMB18E1 + 1 RAMB36E1.
 - [x] Integrate the factorized primitive as a selectable solver mode; match all
   state and diagnostics for 512 samples at 126 clocks and synthesize the full
-  hierarchy at 9,148 LC, 108 DSP48E1, and 8 RAMB18E1.
+  hierarchy at 9,148 LC, 108 DSP48E1, and 8 RAMB18E1 + 1 RAMB36E1.
 - [x] Propagate factorized mode through the complete stream; match 64 outputs /
   1,024 circuit updates exactly with zero diagnostics and synthesize at 14,290
-  LC, 156 DSP48E1, and 8 RAMB18E1.
+  LC, 156 DSP48E1, and 8 RAMB18E1 + 1 RAMB36E1.
 - [x] Sweep 5 mV factorized fixed vs analytical at 20/50/100 Hz and
   1/10/20 kHz: ≤0.00846 dB gain error, ≤0.0729° phase error, and no diagnostic
   failures across 683,520 nonlinear samples.
@@ -280,10 +293,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   tube-current coverage. Synthesize at 31 LC / 4 DSP and 8,034 LC / 72 DSP.
 - [x] Integrate the wide factorized solver; match all 19 persistent states and
   diagnostics across 512 sequential samples at 116 clocks. Synthesize the
-  hierarchy at 12,544 LC / 120 DSP48E1 / 8 RAMB18E1.
+  hierarchy at 12,544 LC / 120 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1.
 - [x] Integrate the wide solver into 16x interpolation/decimation; match 64
   outputs / 1,024 solves exactly with zero diagnostics and synthesize at 17,492
-  LC / 168 DSP48E1 / 8 RAMB18E1.
+  LC / 168 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1.
 - [x] Capture 23,040 wide-solver RTL samples at 5 mV/1 kHz; prove Q32 exactness
   and measure -0.000054 dB gain, -0.000187 degree phase, 0.019371% THD, and
   -63.834 dB raw residual directly from RTL output.
@@ -347,8 +360,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   IMD-product/overload suite now exist. Standardized IMD procedures, long WAV-
   level recovery and licensed music remain absent. The I²S protocol and CDC
   FIFO primitives now form a bidirectional frame bridge, and standalone
-  physical-unit calibration exists, but core/channel integration and CDC/I/O
-  timing constraints remain absent;
+  physical-unit calibration now composes with the accuracy-first mono core at
+  the fabric frame boundary, but the asynchronous bridge, startup mute, atomic
+  control updates, and CDC/I/O timing constraints remain outside that adapter;
   embedded assertions cannot be proven until a formal engine is available.
   The cubic and full-tube alias-family tests are captured from RTL; the latter
   is bounded below fixed rounding closure rather than inferred from the
@@ -367,6 +381,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Bidirectional stereo-frame I²S/fabric asynchronous bridge.
 - [x] Bit-exact PCM24/input-volts/output-volts calibration primitives.
 - [x] Frequency-locked bridge-to-core fabric frame scheduler.
+- [x] Calibrated framed mono adapter around the accuracy-first V1 stream.
 - [x] PCM WAV processing and latency/gain/fractional-delay null comparison.
 - [x] Deterministic WAV distortion/IMD-product/overload regression library.
 - [ ] Standardized IMD, long recovery, impulse, and licensed-music WAV gates.

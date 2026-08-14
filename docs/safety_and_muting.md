@@ -30,6 +30,15 @@ Requests are accepted only while ready and must return low before another
 transaction. `force_mute` remains an independent immediate clamp and does not
 implicitly change circuit state.
 
+The fabric mono adapter separately holds its accuracy-first core in reset while
+the frame scheduler acquires initial phase. This prevents unrequested
+interpolator zeros from advancing virtual capacitor state before the first PCM
+frame, but it does not ramp or mute the outgoing PCM stream. The existing
+guarded wrapper currently surrounds a different backward-Euler stream and is
+not silently substituted into the trapezoidal/banked/terminal adapter. A future
+combined top must preserve the exact selected model while adding an explicit
+downstream mute and atomic calibration/model update sequence.
+
 The integration regression uses four-sample ramps/warmup for tractable directed
 coverage and proves that reset never becomes active before mute, held output
 stays zero through reset/warmup, input phase diagnostics remain clear, exactly

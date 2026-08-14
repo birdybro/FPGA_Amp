@@ -6,6 +6,17 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added the calibrated fabric mono adapter around the exact
+  trapezoidal/banked/terminal V1 stream. It selects left PCM24, schedules and
+  calibrates physical input volts, runs the nonlinear circuit, calibrates the
+  line-voltage result, holds ready/valid output, and explicitly duplicates mono
+  into both slots without claiming stereo. A warning-free 64-frame regression
+  checks every calibrated input, raw model output, and PCM frame exactly under
+  output backpressure, then records/clears a directed overrun while retaining
+  the older frame; all model/calibration diagnostics stay zero. Holding the core reset through
+  initial phase acquisition fixes the observed hidden capacitor-state advance
+  from pre-input interpolator zeros. Flattened XC7 synthesis is 20,367 LC /
+  15,543 FF / 230 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; no Fmax is claimed.
 - Added a deterministic fabric audio-frame scheduler for the strict 2,048-clock
   48 kHz core phase. It raises ready once per period, prelaunches by the
   registered calibration latency, injects a zero frame on starvation, and
@@ -59,7 +70,7 @@ All notable engineering changes are recorded here. The project is pre-release; d
   210-DSP first implementation to 174 DSP48E1s.
 - Integrated that solver into the complete 48→768→48 kHz stream. All 64 Q8.24
   outputs / 1,024 internal updates are exact with zero diagnostics; structural
-  synthesis measures 20,241 logic cells, 222 DSP48E1s, and 8 RAMB18E1s. Named-
+  synthesis measures 20,241 logic cells, 222 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1. Named-
   part timing remains unproven.
 - Added a captured 100 Hz/1/10/20 kHz frequency gate for the complete
   trapezoidal terminal stream. All 19,200 outputs are exact; gain/phase error
@@ -81,7 +92,7 @@ All notable engineering changes are recorded here. The project is pre-release; d
   latency, with zero diagnostics.
 - Added a dedicated complete-stream wrapper, reproducible vectors/metadata,
   regression and synthesis targets. Out-of-context XC7 synthesis measures
-  18,466 logic cells, 168 DSP48E1s, and 8 RAMB18E1s with zero structural
+  18,466 logic cells, 168 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1 with zero structural
   problems; timing remains unclaimed without named-part place-and-route.
 - Added an optional backward-Euler terminal-correction contract that reuses the
   final diagnostic residual for one Q40 chord update. Fixed Python and RTL keep
@@ -248,6 +259,12 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Fixed
 
+- Corrected synthesis resource reporting to count mapped RAMB36E1 primitives
+  and publish RAMB18-equivalent totals. Every factorized-tube hierarchy maps
+  eight RAMB18E1s plus one RAMB36E1 (10 RAMB18-equivalents); earlier eight-only
+  summaries omitted the 36-Kib primitive. The same audit retains flattened
+  primitive flip-flop totals and distinguishes local-array expansion warnings
+  from asynchronous-FIFO memory inference. RTL numerical behavior is unchanged.
 - Corrected the synthesis driver's `_factorized` alias detection so the real
   `triode_12ax7_factorized` top is synthesized directly while the legacy solver
   and stream wrapper aliases still receive their parameter override.
@@ -279,7 +296,7 @@ All notable engineering changes are recorded here. The project is pre-release; d
   serial pass projects to 145 clocks, but residual reuse produces the identical
   fourth-correction output in 127 measured backward-Euler clocks. It reduces
   1.0/1.5 V burst RMS to 4.895/6.817 mV, matches 18,432 overload states exactly,
-  and synthesizes to 13,296 LC / 120 DSP48E1 / 8 RAMB18E1.
+  and synthesizes to 13,296 LC / 120 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1.
 - Split the post-grid-resolution fixed error at the exact Q24/Q20 and Q31 tube
   interfaces. Integer Hermite evaluation contributes at most 0.168 mV burst RMS
   across the 1.0/1.5 V banked campaigns, while node/capacitor/chord arithmetic
@@ -319,7 +336,7 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Banked RTL is bit-exact across all 9,216 captured overload states per mode,
   selects every generated bank, retains 116 clocks, and records no diagnostic
   event. XC7 structural synthesis measures 13,302/13,840 logic cells for
-  backward Euler/trapezoidal with 120 DSP48E1s and 8 RAMB18E1s in either mode:
+  backward Euler/trapezoidal with 120 DSP48E1s and 8 RAMB18E1 + 1 RAMB36E1 in either mode:
   +758/+1,054 logic cells and no DSP/RAM increase over the nominal solvers.
 - At 1.0 V, the bank improves raw full-Newton burst error from -53.45 to
   -76.43 dB for backward Euler and from -53.65 to -76.79 dB for trapezoidal.
@@ -393,14 +410,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
   separately; the 1.0 V fixed solve still exceeds its residual limit.
 - The standalone factorized RTL is bit-exact to fixed Python for all 4,110 test
   vectors. XC7 structural synthesis reports 1,496 estimated logic cells,
-  35 DSP48E1s, and 8 RAMB18E1s; no Fmax is claimed.
+  35 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1; no Fmax is claimed.
 - The complete factorized solver is bit-exact for 512 sequential samples and
   retains the 126-clock schedule with no diagnostic events. Its hierarchy uses
-  9,148 estimated logic cells, 108 DSP48E1s, and 8 RAMB18E1s versus the 2-D
+  9,148 estimated logic cells, 108 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1 versus the 2-D
   solver's 8,024 / 89 / 47; this is a measured resource trade, not a free win.
 - The complete factorized stream matches 64 outputs spanning 1,024 nonlinear
   updates with zero diagnostics. It synthesizes to 14,290 estimated logic cells,
-  156 DSP48E1s, and 8 RAMB18E1s versus the surface stream's 13,170 / 137 / 47.
+  156 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1 versus the surface stream's 13,170 / 137 / 47.
 - Decomposed the 5 mV factorized fixed null: -42.90 dB raw, -59.63 dB after
   reporting (not correcting) its -2.840 mV mean difference, with 0.00958°
   fundamental phase error. This prevents the DC/state discrepancy from being
@@ -443,10 +460,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - The integrated wide solver matches every node, capacitor history, output,
   residual, and diagnostic across 512 sequential samples. Measured latency is
   116 clocks with zero test events. XC7 structural synthesis reports 12,544
-  logic cells, 120 DSP48E1s, and 8 RAMB18E1s.
+  logic cells, 120 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1.
 - The complete wide stream matches 64 outputs spanning 1,024 nonlinear updates
   exactly with zero diagnostics. Structural synthesis reports 17,492 logic
-  cells, 168 DSP48E1s, and 8 RAMB18E1s; mono fits the A7-100T, naive stereo does
+  cells, 168 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1; mono fits the A7-100T, naive stereo does
   not fit its 240-DSP budget.
 - Captured wide solver RTL is Q32-exact to fixed Python for 23,040 samples at
   5 mV/1 kHz. Versus analytical float it measures -0.000054 dB gain error,
@@ -470,7 +487,7 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - The guarded stream passes a warning-free reset transaction regression: core
   reset follows zero gain, warmup output remains muted, the 48 kHz phase counter
   stays aligned, one acknowledgment fires, and unity gain returns. Structural
-  synthesis reports 17,562 logic cells, 170 DSP48E1s, and 8 RAMB18E1s.
+  synthesis reports 17,562 logic cells, 170 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1.
 - At 768 kHz, backward-Euler gain/phase error versus ngspice reaches -0.0646 dB /
   +4.72 degrees at 20 kHz. Quadrupling rate leaves +1.235 degrees. The floating
   trapezoidal candidate measures -0.00846 dB / +0.0582 degrees at 20 kHz and
@@ -489,11 +506,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
   existing backward-Euler KCL's 47-bit coefficient.
 - Trapezoidal solver RTL matches fixed Python at all nine node, ten voltage-
   history, and ten current-history states for 512 samples at 116 clocks.
-  Structural synthesis is 12,786 logic cells, 120 DSP48E1s, and 8 RAMB18E1s,
+  Structural synthesis is 12,786 logic cells, 120 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1,
   adding 104 cells but no DSP/BRAM versus backward Euler; no Fmax is claimed.
 - The complete trapezoidal stream is bit-exact with zero diagnostics and a
   5.02 nA maximum residual. Structural synthesis is 17,735 logic cells,
-  168 DSP48E1s, and 8 RAMB18E1s, adding 243 cells but no DSP/BRAM.
+  168 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1, adding 243 cells but no DSP/BRAM.
 - Captured trapezoidal RTL at 100 Hz/1/10/20 kHz is state-exact to fixed and
   remains within 0.000128 dB / 0.000784 degrees of floating trapezoidal with
   zero diagnostics. The separate float/SPICE layer remains within 0.00846 dB /

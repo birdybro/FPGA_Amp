@@ -64,6 +64,7 @@ def main() -> int:
             "pcm24_to_q8_24",
             "q8_24_to_pcm24",
             "audio_frame_scheduler",
+            "phono_fabric_mono_adapter",
         ),
         default="triode_12ax7",
     )
@@ -264,6 +265,23 @@ def main() -> int:
         "pcm24_to_q8_24": ["rtl/io/pcm24_to_q8_24.sv"],
         "q8_24_to_pcm24": ["rtl/io/q8_24_to_pcm24.sv"],
         "audio_frame_scheduler": ["rtl/io/audio_frame_scheduler.sv"],
+        "phono_fabric_mono_adapter": [
+            "rtl/tube/triode_12ax7_factorized.sv",
+            "rtl/circuit/network_rhs_v1_wide.sv",
+            "rtl/circuit/network_kcl_v1_wide.sv",
+            "rtl/circuit/chord_corrector_v1_wide.sv",
+            "rtl/phono/v1_solver_mono_wide.sv",
+            "rtl/filters/halfband_interpolator_2x.sv",
+            "rtl/filters/halfband_decimator_2x.sv",
+            "rtl/audio/interpolator_16x.sv",
+            "rtl/audio/decimator_16x.sv",
+            "rtl/io/audio_frame_scheduler.sv",
+            "rtl/io/pcm24_to_q8_24.sv",
+            "rtl/io/q8_24_to_pcm24.sv",
+            "rtl/top/phono_stream_mono_wide.sv",
+            "rtl/top/phono_stream_mono_wide_trapezoidal_banked_terminal.sv",
+            "rtl/top/phono_fabric_mono_adapter.sv",
+        ],
     }[args.top]
     log_path = results / f"yosys_xc7_{args.top}.log"
     # Only the legacy solver/stream aliases select the factorized primitive by
@@ -347,10 +365,16 @@ def main() -> int:
     warning_count = int(warning_match.group(1)) if warning_match else 0
     if warning_count == 0:
         warning_note = "No synthesis warnings."
-    elif "Replacing memory" in completed.stdout:
+    elif args.top in {"async_fifo", "i2s_async_bridge"}:
         warning_note = (
             "Yosys implemented the small dual-clock memory as registers; "
             "see the full log. This is not a structural-check failure."
+        )
+    elif "Replacing memory" in completed.stdout:
+        warning_note = (
+            "Warnings include small local-array register expansion and/or "
+            "Xilinx primitive output-port resize notices; see the full log. "
+            "No structural-check failure was reported."
         )
     else:
         warning_note = (
@@ -378,6 +402,10 @@ def main() -> int:
         },
         "dsp48e1": count("DSP48E1"),
         "ramb18e1": count("RAMB18E1"),
+        "ramb36e1": count("RAMB36E1"),
+        "block_ram_18k_equivalents": (
+            count("RAMB18E1") + 2 * count("RAMB36E1")
+        ),
         "carry4": count("CARRY4"),
         "muxf7": count("MUXF7"),
         "check_problems": 0 if "Found and reported 0 problems." in completed.stdout else None,

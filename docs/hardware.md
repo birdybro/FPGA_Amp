@@ -77,8 +77,9 @@ zero synthesis warnings. Subsystem counts were not added to form a hierarchy
 claim.
 
 Hierarchical synthesis of the integrated wide factorized solver measures 12,544
-logic cells, 1,366 FDRE plus 282 FDSE, 120 DSP48E1s, and 8 RAMB18E1s. Structural
-check reports zero problems and 61 techmap resize warnings. Its 116-clock
+logic cells, 1,366 FDRE plus 282 FDSE, 120 DSP48E1s, eight RAMB18E1s, and one
+RAMB36E1. Structural check reports zero problems and 61 techmap resize
+warnings. Its 116-clock
 simulation schedule leaves 12 clocks, versus two for the legacy hierarchy, but
 no named-part Fmax or routing closure is claimed. The solver consumes 50.0% of
 the Arty A7-100T's DSP count before resampling; this materially constrains stereo
@@ -88,12 +89,12 @@ The optional cutoff-Jacobian-bank wrappers retain the same tube engines,
 network, and 116-clock schedule. The generated coefficient selector adds no DSP
 or block RAM; measured structural resources are:
 
-| Solver | Logic cells | DSP48E1 | RAMB18E1 | Delta logic vs nominal |
-|---|---:|---:|---:|---:|
-| backward Euler, banked | 13,302 | 120 | 8 | +758 |
-| backward Euler, banked terminal correction | 13,296 | 120 | 8 | +752 |
-| trapezoidal, banked | 13,840 | 120 | 8 | +1,054 |
-| trapezoidal, banked terminal correction | 14,945 | 174 | 8 | +2,159 |
+| Solver | Logic cells | DSP48E1 | RAMB18E1 | RAMB36E1 | Delta logic vs nominal |
+|---|---:|---:|---:|---:|---:|
+| backward Euler, banked | 13,302 | 120 | 8 | 1 | +758 |
+| backward Euler, banked terminal correction | 13,296 | 120 | 8 | 1 | +752 |
+| trapezoidal, banked | 13,840 | 120 | 8 | 1 | +1,054 |
+| trapezoidal, banked terminal correction | 14,945 | 174 | 8 | 1 | +2,159 |
 
 Both checks report zero structural problems and 61 primitive-resize warnings.
 The selector includes a previous-Vgk slew comparison but adds no DSP or RAM.
@@ -112,17 +113,18 @@ signed constants; bit-exact regression is unchanged and synthesis falls to 174
 DSP48E1s. This is an accepted constant-multiplier implementation, not a change
 to circuit values or numerical behavior.
 
-The complete wide stream measures 17,492 logic cells, 168 DSP48E1s, and 8
-RAMB18E1s, with zero structural check problems and 67 techmap resize warnings.
-This is 17.2% of nominal A7-100T logic cells, 70.0% of DSPs, and about 3.3% of
-18 Kib RAM blocks. The mono design fits structurally, but two identical channels
+The complete wide stream measures 17,492 logic cells, 168 DSP48E1s, eight
+RAMB18E1s, and one RAMB36E1, with zero structural check problems and 67
+techmap resize warnings. This is 17.2% of nominal A7-100T logic cells, 70.0% of
+DSPs, and 3.7% of its 270 RAMB18-equivalents. The mono design fits structurally,
+but two identical channels
 would require 336 DSPs and therefore cannot be naively duplicated on this part.
 Stereo needs filter/KCL resource sharing, a larger device, or a separately
 measured arithmetic trade; none is silently selected here.
 
 The complete banked terminal-correction stream measures 18,466 logic cells,
-168 DSP48E1s, and 8 RAMB18E1s, with zero structural check problems and 72
-techmap resize warnings. Relative to the nominal wide stream, the coefficient
+168 DSP48E1s, eight RAMB18E1s, and one RAMB36E1, with zero structural check
+problems and 72 techmap resize warnings. Relative to the nominal wide stream, the coefficient
 selector and terminal control add 974 estimated logic cells but no DSP or block
 RAM. Its 127-clock solver latency leaves one clock between 768 kHz deadlines at
 98.304 MHz. This structural fit does not establish that the one-clock margin
@@ -130,8 +132,8 @@ will close routing on XC7A100T; vendor place-and-route is required before this
 mode can be selected for hardware.
 
 The complete trapezoidal banked terminal stream measures 20,241 logic cells,
-222 DSP48E1s, and 8 RAMB18E1s with zero structural check problems. It occupies
-92.5% of the XC7A100T's DSPs, leaving 18 blocks and ruling out duplication for
+222 DSP48E1s, eight RAMB18E1s, and one RAMB36E1 with zero structural check
+problems. It occupies 92.5% of the XC7A100T's DSPs, leaving 18 blocks and ruling out duplication for
 stereo. Its exact simulation latency is 127 clocks, but the terminal edge now
 contains constant-multiply current updates. Only named-part place-and-route can
 establish whether that path and the one-clock sample margin meet 98.304 MHz.
@@ -192,14 +194,39 @@ The dynamic converter calibration primitives synthesize independently as:
 
 Both structural checks are warning-free and report zero problems. The
 coefficients are runtime inputs, so these are general multiplier baselines.
-They are not added to the 222-DSP accuracy-first stream claim: an integrated
-mono/stereo top must first decide whether to share the one-clock-at-48-kHz
-calibrators or duplicate them. No Fmax is claimed.
+They are not arithmetically added to the 222-DSP stream claim. The integrated
+mono adapter below provides the measured combined hierarchy. No Fmax is claimed.
 
 The default 2,048-clock audio-frame scheduler is 41 estimated logic cells and
 43 flip-flops with no DSP or RAM. Its warning-free structural check reports zero
 problems. This number covers phase count, the single launch comparator, and the
 saturating underflow counter; frame storage remains in the asynchronous bridge.
+
+The accuracy-first fabric mono adapter has the flattened combined result:
+
+| Resource | Count |
+|---|---:|
+| estimated logic cells | 20,367 |
+| flip-flops | 15,543 (15,067 FDRE + 476 FDSE) |
+| DSP48E1 | 230 |
+| RAMB18E1 / RAMB36E1 | 8 / 1 |
+| RAMB18-equivalents | 10 |
+
+The structural check reports zero problems. The 76 unique warnings are known
+small local-array register expansions and Xilinx primitive output-port resize
+notices retained in the full log; they are not mislabeled as a dual-clock FIFO
+inference warning. This top includes frame scheduling, both runtime calibration
+multipliers, and the 127-clock trapezoidal/banked/terminal stream. It excludes
+the asynchronous I²S bridge, output mute/ramp, atomic control commit, and
+dedicated safety hardware. At 230/240 DSPs it leaves only ten DSP48E1s on the
+provisional A7-100T. Structural fit does not prove that its one-clock solver
+margin meets 98.304 MHz.
+
+The resource reporter now records RAMB36E1 separately and publishes a
+RAMB18-equivalent total. Earlier summaries silently omitted the one mapped
+RAMB36E1 in every factorized-tube hierarchy; the corrected documents retain
+both eight RAMB18E1s and one RAMB36E1 (ten 18-Kib equivalents). No numerical RTL
+or memory implementation changed as a result of that reporting correction.
 
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.

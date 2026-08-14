@@ -103,16 +103,15 @@ retained as FIFO overflow. The BCLK prefetch never requests an empty FIFO, and
 the transmitter substitutes a zero frame plus a sticky starvation flag when no
 frame reaches a left-slot boundary. All framing, overflow, underflow, and serial
 starvation flags remain observable in their owning domains. The bridge does not
-establish whether FPGA or converter is final clock master and is not yet
-connected to physical-unit calibration or the nonlinear core.
+establish whether FPGA or converter is final clock master and remains separate
+from the fabric-domain modeled-audio adapter.
 
 The standalone calibration layer now provides the missing arithmetic on each
 side of that bridge: PCM24 to input-referred physical Q8.24 volts, and physical
 Q8.24 line voltage to saturating PCM24. Coefficients are explicit fabric-domain
-control values and invalid values mute with diagnostics. The bridge and
-calibrators remain deliberately separate from the mono nonlinear core until
-channel policy, atomic coefficient commit, reset/warmup, and the available DSP
-budget are resolved.
+control values and invalid values mute with diagnostics. The current mono
+adapter uses these primitives with a fixed framed-channel policy; atomic
+coefficient commit and external bridge/control integration remain unresolved.
 
 `rtl/io/audio_frame_scheduler.sv` closes the phase-alignment gap without hiding
 rate mismatch. At the 98.304 MHz target it raises ready for one fabric clock per
@@ -123,6 +122,25 @@ zero frame to preserve solver cadence and increments a saturating underflow
 counter. If BCLK and fabric derive from independent nominal-48-kHz oscillators,
 FIFO occupancy will still drift toward overflow or underflow. This scheduler is
 therefore valid for frequency-locked clocks with arbitrary phase, not an ASRC.
+
+`rtl/top/phono_fabric_mono_adapter.sv` is the first complete fabric-domain PCM
+composition. It selects PCM24 from the left 32-bit slot, applies the explicit
+input calibration, runs the accuracy-first trapezoidal/banked/terminal V1
+stream, applies output calibration, and duplicates the resulting mono PCM24
+sample into sign-extended left and right slots. The unrelated right input is
+discarded deliberately; duplication is a bring-up policy and must not be
+described as stereo circuit modeling. A held output register preserves an
+unaccepted frame and counts any later model result that cannot be stored.
+
+The scheduler needs almost one sample period to acquire initial phase. Because
+the interpolator emits scheduled zero-valued internal samples without waiting
+for its first external input, simply releasing every reset together advanced
+the virtual capacitor state before the first accepted frame. The adapter holds
+the model core in reset through that acquisition interval. The first scheduler
+launch registers input calibration while the core is still reset; the following
+phase-zero edge releases the core and consumes exactly that sample. This is
+numerical startup alignment, not output pop protection. A separate mute/ramp
+and atomic control update are still required around the physical output path.
 
 ## Stereo scheduling
 
@@ -146,11 +164,11 @@ total                              126 clocks
 The surface-LUT and factorized/Hermite tube primitives deliberately share the
 same eight-clock request/valid contract, so selecting either implementation
 does not alter this schedule. The measured hierarchy trade is 8,024 LC / 89 DSP /
-47 RAMB18 for the surface mode and 9,148 LC / 108 DSP / 8 RAMB18 for factorized
+47 RAMB18 for the surface mode and 9,148 LC / 108 DSP / 8 RAMB18 + 1 RAMB36 for factorized
 mode. These are generic structural counts, not timing closure.
 
 At complete-stream scope the corresponding counts are 13,170 LC / 137 DSP /
-47 RAMB18 for the surface mode and 14,290 LC / 156 DSP / 8 RAMB18 for the
+47 RAMB18 for the surface mode and 14,290 LC / 156 DSP / 8 RAMB18 + 1 RAMB36 for the
 factorized mode. Both produce exact mode-specific fixed-model outputs.
 
 The KCL engine evaluates nine matrix rows in parallel while the single tube ROM
@@ -176,8 +194,9 @@ margin is insufficient to serialize a second complete solver, so stereo now
 requires a finer-grained shared schedule or a larger reference part.
 
 The guarded hierarchy adds the model-change state machine and output multiplier.
-Generic XC7 synthesis reports 17,562 logic cells, 170 DSP48E1s, and 8 RAMB18s.
-The separately synthesized unguarded hierarchy reports 17,492 / 168 / 8;
+Generic XC7 synthesis reports 17,562 logic cells, 170 DSP48E1s, and 8 RAMB18 + 1 RAMB36.
+The separately synthesized unguarded hierarchy reports 17,492 LC / 168 DSP /
+8 RAMB18 + 1 RAMB36;
 out-of-context logic-cell estimates are optimization-dependent and are not
 additive. No placed timing result is implied by their small difference.
 

@@ -92,11 +92,11 @@ The standalone RTL passes 4,110 exact randomized/directed vectors, including
 independent-coordinate clip cases, at eight clocks. Proven table bounds allow
 the Hermite coefficient and Horner states to remain signed 32-bit with full
 49-bit products. Generic XC7 synthesis reports 1,496 estimated logic cells,
-35 DSP48E1s, and 8 RAMB18E1s. Selectable solver integration is exact for 512
+35 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1. Selectable solver integration is exact for 512
 persistent-state samples at the unchanged 126-clock latency. Its hierarchy is
-9,148 logic cells, 108 DSP48E1s, and 8 RAMB18E1s. The complete factorized stream
+9,148 logic cells, 108 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1. The complete factorized stream
 also matches 64 outputs / 1,024 nonlinear updates exactly and synthesizes to
-14,290 logic cells, 156 DSP48E1s, and 8 RAMB18E1s. Both implementations remain
+14,290 logic cells, 156 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1. Both implementations remain
 named while wider equivalence testing is open.
 
 ## Circuit-state chord candidate
@@ -169,9 +169,10 @@ routing, or 98.304 MHz closure is claimed.
 
 With `USE_FACTORIZED_TUBE=1`, the identical scheduler and network arithmetic
 match the factorized fixed model bit-for-bit for 512 samples at the same 126
-clocks. Structural resources become 9,148 logic cells, 108 DSP48E1s, and 8
-RAMB18E1s. Relative to the 2-D hierarchy this saves 39 BRAMs while adding 19
-DSPs and 1,124 logic cells. Both modes remain named and reproducible.
+clocks. Structural resources become 9,148 logic cells, 108 DSP48E1s, eight
+RAMB18E1s, and one RAMB36E1. Relative to the 2-D hierarchy this saves 37
+RAMB18-equivalents while adding 19 DSPs and 1,124 logic cells. Both modes remain
+named and reproducible.
 
 The uniform Q12.20 capacitor/output-state choice is now known to be inadequate
 for long settling. In a one-second silence/click regression, a one-sample
@@ -346,7 +347,8 @@ with maximum residual below 1.9 uA and no arithmetic, range, or scale event.
 In the 12 ms RTL gate, all 36,864 states across 1.0/1.5 V and both integration
 modes are exact, every generated bank is selected in aggregate, and latency
 remains 116 clocks. Structural synthesis measures 13,302 logic cells / 120
-DSP48E1 / 8 RAMB18E1 for backward Euler and 13,840 / 120 / 8 for trapezoidal.
+DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1 for backward Euler and 13,840 / 120 /
+8 RAMB18E1 + 1 RAMB36E1 for trapezoidal.
 No Fmax is claimed from the structural flow.
 
 The first converged waveform gate used a 128-point linear grid-current table.
@@ -414,16 +416,16 @@ set covers silence, tone, multitone, bounded noise, and bipolar 100 mV clicks.
 The scheduler passes Q30, Q34, and Q40 in the intended order; a regression found
 and fixed an initial handoff bug that had latched the previous pass's format.
 Measured latency is 116 clocks, leaving 12 clocks at 98.304 MHz / 768 kHz.
-Hierarchical synthesis reports 12,544 logic cells, 120 DSP48E1s, and 8
-RAMB18E1s with zero structural check problems. This establishes numerical and
-cycle equivalence, not placed timing closure.
+Hierarchical synthesis reports 12,544 logic cells, 120 DSP48E1s, eight
+RAMB18E1s, and one RAMB36E1 with zero structural check problems. This
+establishes numerical and cycle equivalence, not placed timing closure.
 
 The complete wide stream rounds solver Q8.32 output to external Q8.24 using the
 same add-half/arithmetic-shift rule before the existing bit-accurate decimator.
 It matches 64 fixed-composition outputs spanning 1,024 solver updates exactly,
 with zero rate-converter, numerical, LUT, convergence, deadline, or fallback
 events and a maximum 4.598 nA residual. Generic XC7 synthesis reports 17,492
-logic cells, 168 DSP48E1s, and 8 RAMB18E1s. This is now the best-accuracy
+logic cells, 168 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1. This is now the best-accuracy
 complete RTL path, while the legacy modes remain reproducible for comparison.
 
 On the same 768,000-sample bipolar-click audit, late raw output residual falls
@@ -484,15 +486,16 @@ now prevented by explicit integration-mode assets. With the matched inverse,
 RTL equals fixed Python across 512 sequential samples at all nine nodes, ten
 Q30 voltage histories, ten Q4.44 current histories, and every diagnostic. The
 latency remains 116 clocks. Generic XC7 synthesis is 12,786 estimated logic
-cells, 120 DSP48E1s, and 8 RAMB18E1s, versus 12,544 / 120 / 8 for backward
-Euler. No Fmax is inferred from structural synthesis.
+cells, 120 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1, versus 12,544 / 120 /
+8 RAMB18E1 + 1 RAMB36E1 for backward Euler. No Fmax is inferred from structural
+synthesis.
 
 The complete selectable 48 kHz path retains the established Q8.24 boundary and
 Q8.32-to-Q8.24 output rounding. It matches fixed Python for 64 outputs spanning
 1,024 internal circuit updates with zero diagnostic events and 5.02 nA maximum
 residual. Structural synthesis measures 17,735 logic cells, 168 DSP48E1s, and
-8 RAMB18E1s, versus 17,492 / 168 / 8 for backward Euler. The 243-cell delta is
-measured; timing closure remains unproven.
+8 RAMB18E1 + 1 RAMB36E1, versus 17,492 / 168 / 8 RAMB18E1 + 1 RAMB36E1 for
+backward Euler. The 243-cell delta is measured; timing closure remains unproven.
 
 The optional terminal chord now supports trapezoidal state without a serialized
 history pass. On the final chord-valid edge, RTL derives each saturated Q30
@@ -501,8 +504,9 @@ positive-half-LSB rounding as fixed Python, and saturates ten signed 48-bit
 histories. All 512 nominal samples and 384,000 overload updates match every
 fixed node and capacitor state at 127 clocks. Generated frozen-V1 conductance
 constants let Yosys reduce the parallel products; the solver measures 14,945
-logic cells / 174 DSP48E1s / 8 RAMB18E1s, and the complete stream measures
-20,241 / 222 / 8. No timing result is inferred from those structural counts.
+logic cells / 174 DSP48E1s / 8 RAMB18E1 + 1 RAMB36E1, and the complete stream
+measures 20,241 / 222 / 8 RAMB18E1 + 1 RAMB36E1. No timing result is inferred
+from those structural counts.
 
 The overload gate passes only through the measured 0.5 V level. At 20 mV, the
 candidate matches analytical 10%/1% recovery within about 0.002/0.000 ms and
