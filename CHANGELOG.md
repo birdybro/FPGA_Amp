@@ -6,6 +6,13 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a mode-0 SPI transport that oversamples asynchronous pins in the fabric
+  domain and never creates a derived clock. Fixed 80-bit transactions carry a
+  40-bit write/address/data request followed by status plus 32-bit read data.
+  Warning-free integration drives eight 5 MHz transactions through the real
+  register bank and calibration guard, retaining short-frame and withheld-
+  response diagnostics and returning bad-address status. Standalone XC7
+  synthesis is 112 LC / 172 FF / no DSP or RAM; no placed SCLK limit is claimed.
 - Added a register-controlled pin-facing wrapper. Its 20-word snapshot includes
   every fabric counter, clock status, fabric FIFO levels, solver residual, and
   safely synchronized sticky I²S faults while deliberately excluding unsafe

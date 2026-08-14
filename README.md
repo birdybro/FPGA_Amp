@@ -262,6 +262,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   warning-free; structural synthesis is 21,363 LC / 17,755 FF / 232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1. Raw multibit I²S levels, SPI/host transport, and
   named-part timing are not claimed.
+- A mode-0 SPI bridge now oversamples CS/SCLK/MOSI in the fabric domain and
+  executes fixed 80-bit request/response frames on that register bus. Eight
+  warning-free 5 MHz transactions cover real calibration, readback, malformed
+  address, short frame, withheld response, and diagnostic clear. Standalone
+  synthesis is 112 LC / 172 FF / no DSP or RAM; placed SCLK limits and complete
+  SPI-to-pin-wrapper composition are still open.
 - A captured complete-stream sweep at 100 Hz, 1 kHz, 10 kHz, and 20 kHz proves
   all 19,200 Q8.24 outputs exact with zero diagnostics. Relative to the composed
   floating trapezoidal reference, gain/phase error stays within 0.000134 dB /
@@ -583,6 +589,7 @@ make mute-rtl                      # reset/ramp/fault output safety primitive
 make audio-clock-rtl               # BCLK/fabric ratio lock and error monitor
 make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make cdc-pulse-rtl                # one-shot host command CDC
+make spi-control-rtl              # 80-bit mode-0 register transport
 make i2s-rtl                       # 24-bit/32-slot stereo protocol loopback
 make i2s-bridge-rtl                # exact bidirectional I2S/fabric CDC loopback
 make calibration-rtl               # bit-exact PCM24/physical-volts boundary
@@ -617,6 +624,7 @@ make synth-mute                    # output ramp structural estimate
 make synth-audio-clock             # audio clock ratio monitor estimate
 make synth-async-fifo              # depth-8 dual-clock FIFO estimate
 make synth-cdc-pulse               # one-shot command crossing estimate
+make synth-spi-control             # oversampled SPI transport estimate
 make synth-i2s                     # receiver/transmitter structural estimates
 make synth-i2s-bridge              # bidirectional protocol/CDC bridge estimate
 make synth-calibration             # dynamic converter-scaling estimates

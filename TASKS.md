@@ -29,6 +29,12 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Implement an oversampled SPI mode-0 transport for the fabric register bus
+  without a derived clock. Prove eight 80-bit transactions through the real
+  register/calibration guard at 5 MHz, including identity read, calibration
+  writes/commit/readback, bus-error status, short frame, withheld response,
+  diagnostic clear, and saturating completion count. Synthesize warning-free to
+  112 LC / 172 FF / no DSP or RAM. Full pin-wrapper composition remains open.
 - [x] Integrate the fabric register bank around the pin-facing mono hierarchy.
   Freeze 20 fabric-coherent diagnostic words, synchronize four sticky I²S
   faults, transfer diagnostic clear by one toggle event, and own calibration/

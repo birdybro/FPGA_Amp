@@ -60,6 +60,7 @@ def main() -> int:
             "audio_clock_rate_monitor",
             "async_fifo",
             "cdc_toggle_pulse",
+            "spi_control_transport",
             "i2s_receiver",
             "i2s_transmitter",
             "i2s_async_bridge",
@@ -263,6 +264,7 @@ def main() -> int:
         "audio_clock_rate_monitor": ["rtl/io/audio_clock_rate_monitor.sv"],
         "i2s_receiver": ["rtl/io/i2s_receiver.sv"],
         "cdc_toggle_pulse": ["rtl/io/cdc_toggle_pulse.sv"],
+        "spi_control_transport": ["rtl/io/spi_control_transport.sv"],
         "i2s_transmitter": ["rtl/io/i2s_transmitter.sv"],
         "i2s_async_bridge": [
             "rtl/io/async_fifo.sv",

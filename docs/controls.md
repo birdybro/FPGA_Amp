@@ -141,5 +141,23 @@ snapshot behavior later.
 
 SPI is the simplest board-control candidate; UART is useful for bring-up and an
 embedded CPU/USB bridge may be layered above the same register transaction bus.
-The register-controlled pin wrapper is implemented, but the serial/CPU transport
-itself remains open. No protocol-specific state belongs in the audio solver.
+`spi_control_transport` now implements the first such bridge without generating
+an SPI-derived fabric clock. Two-flop input synchronizers and fabric-domain edge
+detection oversample mode-0 CS/SCLK/MOSI; MISO changes on observed falling edges.
+Each CS-low transaction is exactly 80 bits, MSB first:
+
+```text
+request  = write[1] + word_address[7] + write_data[32]
+response = status[8] + read_data[32]
+```
+
+Response-status bit 0 is the register-bus error. CS deassertion before all 80
+bits latches a frame error; a missing bus reply before response shifting latches
+underflow; completed-frame count saturates. The test uses 5 MHz SPI against a
+100 MHz fabric model and drives eight complete reads/writes through the real
+register bank and calibration guard, including bad-address status, a ten-bit
+abort, a deliberately withheld reply, and diagnostic clear. The transport is
+warning-free and synthesizes to 112 LC / 172 FF / no DSP or RAM. This is not a
+placed SCLK-limit claim; the board constraint must preserve comfortable
+oversampling margin. Full pin-wrapper composition remains the next integration
+step. No protocol-specific state belongs in the audio solver.
