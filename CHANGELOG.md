@@ -64,6 +64,15 @@ All notable engineering changes are recorded here. The project is pre-release; d
   solver remains exact at 127 clocks. Revised KCL placement improves from
   14.95 to 33.92 MHz; its legal route is still in progress and no closure is
   claimed.
+- Added an explicitly selectable parallel dual-triode solver schedule. Two
+  identical factorized Hermite primitives now evaluate the two physical 12AX7
+  sections from the same candidate node vector, preserving all reference
+  arithmetic and circuit state. The 512-vector backward-Euler and complete
+  trapezoidal/banked/terminal regressions remain bit-exact while latency falls
+  from 116/127 to 84/95 clocks. A dedicated open-flow harness synthesizes to
+  15,887 estimated logic cells, 7,360 flip-flops, 209 DSP48E1s, 16 RAMB18E1s,
+  and two RAMB36E1s. This fits the XC7A100T structurally and recovers 32 clocks
+  for network pipelining; placement and Fmax are not yet claimed.
 
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,

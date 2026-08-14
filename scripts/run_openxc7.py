@@ -22,6 +22,7 @@ SUPPORTED_TOPS = (
     "hermite_pnr_harness",
     "linear_tube_pnr_harness",
     "linear_solver_pnr_harness",
+    "parallel_solver_pnr_harness",
     "terminal_current_pnr_harness",
     "kcl_pnr_harness",
     "chord_pnr_harness",

@@ -126,6 +126,28 @@ legal routing remains in progress. This is a measured improvement, not timing
 closure, and the remaining gap requires further staged finish selection and a
 solver schedule that can absorb it.
 
+### Parallel dual-triode schedule
+
+The V1 circuit contains two physical 12AX7 sections whose currents depend only
+on the candidate node-voltage vector for a solver pass. A selectable scheduling
+mode therefore instantiates two identical factorized Hermite primitives and
+launches both sections together. It does not share one result between stages,
+alter the tube equations, or change any physical network state. Both the 512-
+vector backward-Euler solver and the complete 512-vector trapezoidal/banked/
+terminal solver remain bit-exact; their measured latencies fall from 116 to 84
+clocks and from 127 to 95 clocks respectively. The latter recovers 32 of the
+128 clocks available per 768 kHz sample for additional network pipelining.
+
+Yosys 0.66 measures the complete parallel terminal harness at 15,887 estimated
+logic cells, 7,360 flip-flops, 209 DSP48E1s, 16 RAMB18E1s, and two RAMB36E1s.
+The comparable sequential harness after KCL restructuring is 14,354 cells,
+7,000 flip-flops, 174 DSP48E1s, eight RAMB18E1s, and one RAMB36E1. Thus the
+schedule recovery costs 1,533 cells, 360 flip-flops, 35 DSPs, and ten
+RAMB18-equivalents while remaining below the XC7A100T's 240-DSP limit. The
+parallel harness has a reproducible open-flow netlist but no placement or Fmax
+claim yet. It is an implementation option, not a modern or creative circuit
+mode.
+
 ## Measured out-of-context result
 
 Yosys 0.66 `synth_xilinx -family xc7`, without I/O pads or clock buffer, reports

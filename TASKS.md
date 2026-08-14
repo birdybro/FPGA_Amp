@@ -47,11 +47,19 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   KCL routes at 16.64 MHz, with KCL's accumulator-to-global-fallback cone
   matching the whole-solver failure. A bit-exact residual staging register and
   balanced KCL reductions retain the 127-clock integrated contract and improve
-  KCL placement to 33.92 MHz; finish its legal route, then add finish-selection
-  staging and recover the required clocks through parallel physical tube
-  evaluation before any reference/default selection.
+  KCL placement to 33.92 MHz. Parallel evaluation of the two physical tube
+  sections is now bit-exact at 84/95 clocks and fits structurally at 209/240
+  DSPs. Finish the KCL legal route, then spend the recovered 32 clocks on
+  finish-selection and chord-output pipeline stages before any
+  reference/default selection.
 ## Completed this milestone
 
+- [x] Add a selectable parallel dual-triode schedule without changing either
+  physical operating point or arithmetic. Preserve 512-vector backward-Euler
+  and complete trapezoidal/banked/terminal state and diagnostics exactly;
+  reduce measured latency from 116/127 to 84/95 clocks. Add a named open-flow
+  harness and measure 15,887 LC / 7,360 FF / 209 DSP / 20 RAMB18-equivalents,
+  leaving 31 DSPs and 33 clocks per internal sample for timing work.
 - [x] Isolate the actual network timing hierarchy. Measure chord correction at
   46.40 MHz and the original KCL engine at 16.64 MHz post-route. Capture
   capacitor 9 early, stage the final residual in the existing second-tube wait

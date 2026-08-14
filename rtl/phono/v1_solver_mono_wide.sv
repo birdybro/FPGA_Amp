@@ -18,7 +18,11 @@ module v1_solver_mono_wide #(
     parameter bit TERMINAL_CORRECTION = 1'b0,
     // Approximation architecture only: both options evaluate the same Koren
     // physical law and retain the same eight-clock request/valid contract.
-    parameter bit USE_LINEAR_FACTORIZED_TUBE = 1'b0
+    parameter bit USE_LINEAR_FACTORIZED_TUBE = 1'b0,
+    // Scheduling architecture only: evaluate the two physical triodes at the
+    // same time instead of reusing one engine sequentially.  This duplicates
+    // the primitive but does not change its arithmetic or the circuit law.
+    parameter bit PARALLEL_TUBES = 1'b0
 ) (
     input  logic                  clk,
     input  logic                  rst_n,
@@ -482,13 +486,26 @@ module v1_solver_mono_wide #(
     logic signed [31:0] triode_i_g;
     logic triode_range_clipped;
     logic triode_valid;
+    logic signed [31:0] triode2_i_p;
+    logic signed [31:0] triode2_i_g;
+    logic triode2_range_clipped;
+    logic triode2_valid;
     logic signed [31:0] tube1_i_p;
     logic signed [31:0] tube1_i_g;
     logic tube1_range_clipped;
 
     always_comb begin
-        triode_ce = residual_launch || ((state == WAIT_TUBE_1) && triode_valid);
-        if (state == WAIT_TUBE_1) begin
+        triode_ce = residual_launch;
+        triode_v_gk = node_difference_q24(
+            $signed(residual_voltage_flat[0 * 40 +: 40]), 0,
+            $signed(residual_voltage_flat[2 * 40 +: 40]), 2
+        );
+        triode_v_pk = node_difference_q20(
+            $signed(residual_voltage_flat[1 * 40 +: 40]), 1,
+            $signed(residual_voltage_flat[2 * 40 +: 40]), 2
+        );
+        if (!PARALLEL_TUBES && state == WAIT_TUBE_1) begin
+            triode_ce = triode_valid;
             triode_v_gk = node_difference_q24(
                 node_voltage[4], 4,
                 node_voltage[7], 7
@@ -497,21 +514,21 @@ module v1_solver_mono_wide #(
                 node_voltage[6], 6,
                 node_voltage[7], 7
             );
-        end else begin
-            triode_v_gk = node_difference_q24(
-                $signed(residual_voltage_flat[0 * 40 +: 40]), 0,
-                $signed(residual_voltage_flat[2 * 40 +: 40]), 2
-            );
-            triode_v_pk = node_difference_q20(
-                $signed(residual_voltage_flat[1 * 40 +: 40]), 1,
-                $signed(residual_voltage_flat[2 * 40 +: 40]), 2
-            );
         end
-        kcl_tube_current_valid = (state == WAIT_TUBE_2) && triode_valid;
-        tube_current_flat[31:0] = tube1_i_p;
-        tube_current_flat[63:32] = tube1_i_g;
-        tube_current_flat[95:64] = triode_i_p;
-        tube_current_flat[127:96] = triode_i_g;
+        if (PARALLEL_TUBES) begin
+            kcl_tube_current_valid = (state == WAIT_TUBE_1)
+                                     && triode_valid && triode2_valid;
+            tube_current_flat[31:0] = triode_i_p;
+            tube_current_flat[63:32] = triode_i_g;
+            tube_current_flat[95:64] = triode2_i_p;
+            tube_current_flat[127:96] = triode2_i_g;
+        end else begin
+            kcl_tube_current_valid = (state == WAIT_TUBE_2) && triode_valid;
+            tube_current_flat[31:0] = tube1_i_p;
+            tube_current_flat[63:32] = tube1_i_g;
+            tube_current_flat[95:64] = triode_i_p;
+            tube_current_flat[127:96] = triode_i_g;
+        end
     end
 
     generate
@@ -539,6 +556,57 @@ module v1_solver_mono_wide #(
                 .range_clipped(triode_range_clipped),
                 .valid(triode_valid)
             );
+        end
+    endgenerate
+
+    generate
+        if (PARALLEL_TUBES) begin : generate_parallel_tube
+            logic signed [31:0] v_gk;
+            logic signed [31:0] v_pk;
+
+            always_comb begin
+                v_gk = node_difference_q24(
+                    $signed(residual_voltage_flat[4 * 40 +: 40]), 4,
+                    $signed(residual_voltage_flat[7 * 40 +: 40]), 7
+                );
+                v_pk = node_difference_q20(
+                    $signed(residual_voltage_flat[6 * 40 +: 40]), 6,
+                    $signed(residual_voltage_flat[7 * 40 +: 40]), 7
+                );
+            end
+
+            if (USE_LINEAR_FACTORIZED_TUBE) begin : generate_linear_tube
+                triode_12ax7_factorized_linear tube_engine (
+                    .clk,
+                    .rst_n,
+                    .ce(residual_launch),
+                    .v_gk(v_gk),
+                    .v_pk(v_pk),
+                    .i_p(triode2_i_p),
+                    .i_g(triode2_i_g),
+                    .range_clipped(triode2_range_clipped),
+                    .valid(triode2_valid)
+                );
+            end else begin : generate_hermite_tube
+                triode_12ax7_factorized tube_engine (
+                    .clk,
+                    .rst_n,
+                    .ce(residual_launch),
+                    .v_gk(v_gk),
+                    .v_pk(v_pk),
+                    .i_p(triode2_i_p),
+                    .i_g(triode2_i_g),
+                    .range_clipped(triode2_range_clipped),
+                    .valid(triode2_valid)
+                );
+            end
+        end else begin : generate_no_parallel_tube
+            always_comb begin
+                triode2_i_p = '0;
+                triode2_i_g = '0;
+                triode2_range_clipped = 1'b0;
+                triode2_valid = 1'b0;
+            end
         end
     endgenerate
 
@@ -647,7 +715,11 @@ module v1_solver_mono_wide #(
                 end
 
                 WAIT_TUBE_1: begin
-                    if (triode_valid) begin
+                    if (PARALLEL_TUBES && triode_valid && triode2_valid) begin
+                        if (triode_range_clipped || triode2_range_clipped)
+                            lut_clip_count <= lut_clip_count + 1'b1;
+                        state <= WAIT_KCL;
+                    end else if (!PARALLEL_TUBES && triode_valid) begin
                         tube1_i_p <= triode_i_p;
                         tube1_i_g <= triode_i_g;
                         tube1_range_clipped <= triode_range_clipped;

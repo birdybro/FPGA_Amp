@@ -3,9 +3,11 @@
 
 // Trapezoidal wide solver with five Vgk-selected chord banks and one terminal
 // Q40 correction.  The final edge commits both corrected capacitor voltages
-// and their recomputed Q4.44 companion-current histories in 127 clocks.
+// and their recomputed Q4.44 companion-current histories in 127 clocks with
+// one shared tube engine or 95 clocks with two parallel tube engines.
 module v1_solver_mono_wide_trapezoidal_banked_terminal #(
-    parameter bit USE_LINEAR_FACTORIZED_TUBE = 1'b0
+    parameter bit USE_LINEAR_FACTORIZED_TUBE = 1'b0,
+    parameter bit PARALLEL_TUBES = 1'b0
 ) (
     input  logic                  clk,
     input  logic                  rst_n,
@@ -47,7 +49,8 @@ module v1_solver_mono_wide_trapezoidal_banked_terminal #(
         .CHORD_COEFFICIENT_SETS(5),
         .TRAPEZOIDAL(1'b1),
         .TERMINAL_CORRECTION(1'b1),
-        .USE_LINEAR_FACTORIZED_TUBE(USE_LINEAR_FACTORIZED_TUBE)
+        .USE_LINEAR_FACTORIZED_TUBE(USE_LINEAR_FACTORIZED_TUBE),
+        .PARALLEL_TUBES(PARALLEL_TUBES)
     ) core (.*);
 
 endmodule

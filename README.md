@@ -551,7 +551,11 @@ balanced diagnostic popcount, but still misses the target. Isolated chord and
 KCL routes measure 46.40 and 16.64 MHz respectively, identifying KCL's final
 residual/fallback cone as the primary limiter. A bit-exact residual register
 plus balanced KCL reductions retains 127 integrated clocks and improves KCL
-placement to 33.92 MHz; post-route measurement is still running. None of these
+placement to 33.92 MHz; post-route measurement is still running. A separately
+selectable parallel dual-triode schedule remains bit-exact while reducing the
+complete solver from 127 to 95 clocks; Yosys measures 15,887 logic cells and
+209/240 DSP48E1s, leaving 33 clocks per internal sample for further pipeline
+work. It has not yet been placed. None of these
 experiments is timing closure or a reference-mode change.
 All figures use the backend's unqualified `DEFAULT` timing grade. The implemented digital mute
 primitive is not independent analog speaker protection.

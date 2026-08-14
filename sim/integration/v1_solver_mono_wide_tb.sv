@@ -5,9 +5,12 @@ module v1_solver_mono_wide_tb #(
     parameter bit TRAPEZOIDAL = 1'b0,
     parameter bit BANKED = 1'b0,
     parameter bit TERMINAL_CORRECTION = 1'b0,
-    parameter bit LINEAR_TUBE = 1'b0
+    parameter bit LINEAR_TUBE = 1'b0,
+    parameter bit PARALLEL_TUBES = 1'b0
 );
-    localparam integer EXPECTED_LATENCY = TERMINAL_CORRECTION ? 127 : 116;
+    localparam integer EXPECTED_LATENCY = PARALLEL_TUBES
+        ? (TERMINAL_CORRECTION ? 95 : 84)
+        : (TERMINAL_CORRECTION ? 127 : 116);
     logic clk;
     logic rst_n = 1'b0;
     logic ce_sample = 1'b0;
@@ -56,7 +59,8 @@ module v1_solver_mono_wide_tb #(
         .CHORD_COEFFICIENT_SETS(BANKED ? (TRAPEZOIDAL ? 5 : 4) : 1),
         .TRAPEZOIDAL(TRAPEZOIDAL),
         .TERMINAL_CORRECTION(TERMINAL_CORRECTION),
-        .USE_LINEAR_FACTORIZED_TUBE(LINEAR_TUBE)
+        .USE_LINEAR_FACTORIZED_TUBE(LINEAR_TUBE),
+        .PARALLEL_TUBES(PARALLEL_TUBES)
     ) dut (.*);
     always #5 clk = ~clk;
 

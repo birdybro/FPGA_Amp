@@ -24,6 +24,7 @@ def main() -> int:
     parser.add_argument("--banked", action="store_true")
     parser.add_argument("--terminal-correction", action="store_true")
     parser.add_argument("--linear-tube", action="store_true")
+    parser.add_argument("--parallel-tubes", action="store_true")
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
@@ -77,6 +78,8 @@ def main() -> int:
         parameter_args.append("-GTERMINAL_CORRECTION=1")
     if args.linear_tube:
         parameter_args.append("-GLINEAR_TUBE=1")
+    if args.parallel_tubes:
+        parameter_args.append("-GPARALLEL_TUBES=1")
     subprocess.run(
         [
             verilator,
@@ -101,6 +104,7 @@ def main() -> int:
         + ("_banked" if args.banked else "")
         + ("_terminal" if args.terminal_correction else "")
         + ("_linear" if args.linear_tube else "")
+        + ("_parallel_tubes" if args.parallel_tubes else "")
     )
     subprocess.run(
         [

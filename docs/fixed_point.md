@@ -419,6 +419,15 @@ preterminal state. Integrated RTL measures 127 clocks, leaving one clock at
 candidate because committing its corrected Q4.44 capacitor-current histories
 requires hardware not present in the shared KCL path.
 
+The two tube sections can instead be evaluated concurrently because each is a
+function of the same candidate node vector within a pass. A selectable RTL
+schedule duplicates the exact factorized Hermite primitive and launches both
+physical operating points on the same edge. The backward-Euler and complete
+trapezoidal/terminal regressions remain bit-exact while latency falls from
+116/127 to 84/95 clocks. This recovers 32 clocks for future KCL and chord
+pipeline registers; it changes resource scheduling only, not a Q format,
+physical equation, solver iteration, or reference-mode result.
+
 The backward-Euler terminal contract is also integrated in the bit-accurate
 48→768→48 kHz composition. A 64-output regression covers 1,024 internal circuit
 updates and matches RTL exactly at 127 clocks per solve with zero conversion,
