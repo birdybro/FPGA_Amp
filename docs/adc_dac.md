@@ -66,6 +66,13 @@ serialization. Nonpositive coefficients mute and flag the sample. The
 coefficients remain host/measured inputs, so this arithmetic does not select or
 validate any listed ADC/DAC and cannot correct historical-circuit response.
 
+The pin-facing top stores the two active coefficients behind an atomic commit
+guard. Both reset to zero and accept a positive candidate pair only while the
+digital output ramp reports fully muted. Invalid or live attempts preserve the
+old pair and set separate sticky diagnostics. This establishes a safe
+fabric-domain update boundary; converter register programming and host-to-
+fabric CDC remain future board-control responsibilities.
+
 The fabric frame scheduler consumes one held stereo frame at a deterministic
 2,048-clock cadence and prelaunches for the one-clock input calibrator. A missing
 frame becomes an explicit zero plus underflow count rather than an off-phase

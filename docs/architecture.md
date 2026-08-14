@@ -106,12 +106,18 @@ starvation flags remain observable in their owning domains. The bridge does not
 establish whether FPGA or converter is final clock master. It remains a reusable
 block and is also composed with the adapter by the pin-facing mono top.
 
-The standalone calibration layer now provides the missing arithmetic on each
-side of that bridge: PCM24 to input-referred physical Q8.24 volts, and physical
-Q8.24 line voltage to saturating PCM24. Coefficients are explicit fabric-domain
-control values and invalid values mute with diagnostics. The current mono
-adapter uses these primitives with a fixed framed-channel policy; atomic
-coefficient commit and external bridge/control integration remain unresolved.
+The standalone calibration layer provides the arithmetic on each side of that
+bridge: PCM24 to input-referred physical Q8.24 volts, and physical Q8.24 line
+voltage to saturating PCM24. Coefficients are explicit fabric-domain control
+values and invalid values mute with diagnostics. The current mono adapter uses
+these primitives with a fixed framed-channel policy.
+
+At pin-top scope, `calibration_commit_guard` separates candidate and active
+coefficient pairs. The active pair resets to zero, commits atomically only
+while the output ramp is fully muted, and remains unchanged after invalid or
+live update attempts. Separate sticky flags distinguish bad values from unsafe
+timing. This closes the datapath-side atomicity rule, but not the host register
+protocol or CDC that must deliver a coherent candidate snapshot.
 
 `rtl/io/audio_frame_scheduler.sv` closes the phase-alignment gap without hiding
 rate mismatch. At the 98.304 MHz target it raises ready for one fabric clock per
@@ -141,8 +147,8 @@ launch registers input calibration while the core is still reset; the following
 phase-zero edge releases the core and consumes exactly that sample. A separate
 modern output ramp now follows the historical model and precedes DAC
 calibration. Its exact-unity state bypasses multiplication, preserving reference
-samples bit-for-bit. Atomic control update and physical analog muting are still
-required around the hardware output path.
+samples bit-for-bit. Physical analog muting is still required around the
+hardware output path.
 
 `rtl/top/phono_i2s_mono_top.sv` connects the bridge and adapter without adding
 sample-rate conversion or converter policy. It exposes separate BCLK-domain,
@@ -153,6 +159,10 @@ phase acquisition. This avoids both an initial scheduled zero and the hidden
 pre-input state advance described above. The demonstrated clocks are exactly
 frequency locked at 3.072 and 98.304 MHz but have unrelated phase. Independent
 nominal-rate oscillators remain invalid because FIFO occupancy would drift.
+The fabric reset also resets active calibration to zero. A valid measured pair
+is committed while `audio_rst_n` keeps the output ramp muted, and audio state is
+released only after the one-clock commit acknowledgment. Later coefficient
+updates require an explicit ramp-down to the same muted state.
 
 ## Stereo scheduling
 

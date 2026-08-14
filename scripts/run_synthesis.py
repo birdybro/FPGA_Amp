@@ -64,6 +64,7 @@ def main() -> int:
             "pcm24_to_q8_24",
             "q8_24_to_pcm24",
             "audio_frame_scheduler",
+            "calibration_commit_guard",
             "phono_fabric_mono_adapter",
             "phono_i2s_mono_top",
         ),
@@ -266,6 +267,9 @@ def main() -> int:
         "pcm24_to_q8_24": ["rtl/io/pcm24_to_q8_24.sv"],
         "q8_24_to_pcm24": ["rtl/io/q8_24_to_pcm24.sv"],
         "audio_frame_scheduler": ["rtl/io/audio_frame_scheduler.sv"],
+        "calibration_commit_guard": [
+            "rtl/control/calibration_commit_guard.sv"
+        ],
         "phono_fabric_mono_adapter": [
             "rtl/tube/triode_12ax7_factorized.sv",
             "rtl/circuit/network_rhs_v1_wide.sv",
@@ -295,6 +299,7 @@ def main() -> int:
             "rtl/audio/interpolator_16x.sv",
             "rtl/audio/decimator_16x.sv",
             "rtl/audio/output_mute_ramp.sv",
+            "rtl/control/calibration_commit_guard.sv",
             "rtl/io/async_fifo.sv",
             "rtl/io/i2s_receiver.sv",
             "rtl/io/i2s_transmitter.sv",

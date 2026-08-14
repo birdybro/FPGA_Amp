@@ -128,20 +128,23 @@ The mono reference and complete 768 kHz circuit solver are operating:
   the integration test also checks a synchronous force-mute gain clamp.
   Flattened structural synthesis is 20,489 LC / 15,592 FF / 232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1. This leaves only 8 DSPs on the provisional
-  XC7A100T and has no placed timing, atomic calibration update, serial-pin, or
-  physical-converter claim.
+  XC7A100T and has no placed timing, serial-pin, or physical-converter claim.
 - A pin-facing digital top now composes the asynchronous I²S bridge with that
   adapter. With exactly frequency-locked but phase-offset 3.072 MHz BCLK and
   98.304 MHz fabric clocks, a warning-free integration test delivers all 64
   unrelated stereo inputs to the left-only model exactly, checks all 64 raw
   model outputs, and receives 45 consecutive observable post-startup DAC frames
   as exact mono duplicates. Receive prefill precedes audio-reset release;
-  expected serial startup starvation remains observable. Flattened synthesis is
-  20,894 LC / 16,699 FF / 232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1. This is a
+  expected serial startup starvation remains observable. The active ADC/DAC
+  scaling pair now resets to zero and commits atomically only while the output
+  ramp is muted. The same test accepts the startup pair, then rejects a live
+  candidate without changing either active coefficient and clears the unsafe
+  diagnostic. Flattened synthesis is 20,910 LC / 16,766 FF / 232 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1. This is a
   digital protocol integration, not placed CDC/I/O timing or converter/analog
   validation. The digital ramp cannot revoke frames already queued in the CDC
-  transmit FIFO and is not a substitute for physical analog muting; atomic
-  control updates remain open.
+  transmit FIFO and is not a substitute for physical analog muting. Host
+  register transport and candidate CDC remain open.
 - Exact RTL RHS and KCL engines stamp all ten capacitor histories and the
   physical conductance network. Each passes 1,024 vectors at 12 and 10 clocks.
 - The integrated solver matches 512 sequential fixed-model samples bit-for-bit
@@ -424,10 +427,9 @@ The mono reference and complete 768 kHz circuit solver are operating:
   fixed-rounding closure. The remaining 3 kHz output dominates by 102.37 dB, so
   the raw -74.59 dBc bin is no longer left ambiguous or mislabeled as aliasing.
 
-There is no calibrated serial-audio/nonlinear-core top, control-register
-transport, fabricated analog front end, converter board, named-part timing
-result, or physical measurement yet. The implemented mute primitive is not
-independent analog speaker protection.
+There is no control-register transport, fabricated analog front end, converter
+board, named-part timing result, or physical measurement yet. The implemented
+digital mute primitive is not independent analog speaker protection.
 
 ## Verification chain
 
@@ -539,6 +541,7 @@ make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make i2s-rtl                       # 24-bit/32-slot stereo protocol loopback
 make i2s-bridge-rtl                # exact bidirectional I2S/fabric CDC loopback
 make calibration-rtl               # bit-exact PCM24/physical-volts boundary
+make calibration-control-rtl       # atomic muted coefficient-pair commit
 make frame-scheduler-rtl           # deterministic 48 kHz fabric phase launch
 make mono-adapter-rtl               # exact framed PCM-to-model-to-PCM datapath
 make i2s-mono-top-rtl               # serial ADC through model to serial DAC
@@ -568,6 +571,7 @@ make synth-async-fifo              # depth-8 dual-clock FIFO estimate
 make synth-i2s                     # receiver/transmitter structural estimates
 make synth-i2s-bridge              # bidirectional protocol/CDC bridge estimate
 make synth-calibration             # dynamic converter-scaling estimates
+make synth-calibration-control     # atomic calibration guard estimate
 make synth-frame-scheduler         # frame-phase scheduler estimate
 make synth-mono-adapter            # calibrated accuracy-first fabric datapath
 make synth-i2s-mono-top            # protocol/CDC plus calibrated mono datapath

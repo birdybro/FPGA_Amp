@@ -2,8 +2,9 @@
 `default_nettype none
 
 // Pin-facing digital integration of the asynchronous I2S bridge and the
-// accuracy-first fabric mono adapter. This block defines no converter voltage,
-// clock-master, board-I/O, mute, or analog-safety policy.
+// accuracy-first fabric mono adapter. This block accepts measured converter
+// scaling coefficients, but defines no clock-master, board-I/O, or physical
+// analog-safety policy.
 module phono_i2s_mono_top #(
     parameter int unsigned OUTPUT_RAMP_SAMPLES = 2048
 ) (
@@ -23,6 +24,12 @@ module phono_i2s_mono_top #(
     input  logic                 fabric_clear_diagnostics,
     input  logic signed [31:0]   input_full_scale_peak_volts_q24,
     input  logic signed [31:0]   output_reciprocal_full_scale_q24,
+    input  logic                 calibration_update_valid,
+    output logic                 calibration_update_ack,
+    output logic                 calibration_invalid_update_sticky,
+    output logic                 calibration_unsafe_update_sticky,
+    output logic signed [31:0]   active_input_full_scale_peak_volts_q24,
+    output logic signed [31:0]   active_output_reciprocal_full_scale_q24,
     input  logic                 mute_request,
     input  logic                 force_mute,
     output logic [15:0]          output_gain_q16,
@@ -66,6 +73,27 @@ module phono_i2s_mono_top #(
     logic fabric_tx_frame_valid;
     logic fabric_tx_frame_ready;
 
+    calibration_commit_guard calibration_control (
+        .clk(fabric_clk),
+        .rst_n(fabric_rst_n),
+        .candidate_input_peak_q24(input_full_scale_peak_volts_q24),
+        .candidate_output_reciprocal_q24(
+            output_reciprocal_full_scale_q24
+        ),
+        .update_valid(calibration_update_valid),
+        .output_muted,
+        .clear_diagnostics(fabric_clear_diagnostics),
+        .active_input_peak_q24(
+            active_input_full_scale_peak_volts_q24
+        ),
+        .active_output_reciprocal_q24(
+            active_output_reciprocal_full_scale_q24
+        ),
+        .update_ack(calibration_update_ack),
+        .invalid_update_sticky(calibration_invalid_update_sticky),
+        .unsafe_update_sticky(calibration_unsafe_update_sticky)
+    );
+
     i2s_async_bridge bridge (
         .i2s_bclk,
         .i2s_rst_n,
@@ -102,8 +130,12 @@ module phono_i2s_mono_top #(
         .tx_frame_data(fabric_tx_frame_data),
         .tx_frame_valid(fabric_tx_frame_valid),
         .tx_frame_ready(fabric_tx_frame_ready),
-        .input_full_scale_peak_volts_q24,
-        .output_reciprocal_full_scale_q24,
+        .input_full_scale_peak_volts_q24(
+            active_input_full_scale_peak_volts_q24
+        ),
+        .output_reciprocal_full_scale_q24(
+            active_output_reciprocal_full_scale_q24
+        ),
         .clear_diagnostics(fabric_clear_diagnostics),
         .mute_request,
         .force_mute,

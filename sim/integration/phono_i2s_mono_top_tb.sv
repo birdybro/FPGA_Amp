@@ -31,6 +31,13 @@ module phono_i2s_mono_top_tb;
         INPUT_FULL_SCALE_PEAK_VOLTS_Q24;
     logic signed [31:0] output_reciprocal_full_scale_q24 =
         OUTPUT_RECIPROCAL_FULL_SCALE_Q24;
+    logic calibration_update_valid = 1'b0;
+    logic calibration_update_ack;
+    logic calibration_invalid_update_sticky;
+    logic calibration_unsafe_update_sticky;
+    logic signed [31:0] active_input_full_scale_peak_volts_q24;
+    logic signed [31:0] active_output_reciprocal_full_scale_q24;
+    logic calibration_committed = 1'b0;
     logic mute_request = 1'b0;
     logic force_mute = 1'b0;
     logic [15:0] output_gain_q16;
@@ -136,6 +143,12 @@ module phono_i2s_mono_top_tb;
         .fabric_clear_diagnostics,
         .input_full_scale_peak_volts_q24,
         .output_reciprocal_full_scale_q24,
+        .calibration_update_valid,
+        .calibration_update_ack,
+        .calibration_invalid_update_sticky,
+        .calibration_unsafe_update_sticky,
+        .active_input_full_scale_peak_volts_q24,
+        .active_output_reciprocal_full_scale_q24,
         .mute_request,
         .force_mute,
         .output_gain_q16,
@@ -332,6 +345,21 @@ module phono_i2s_mono_top_tb;
         repeat (3) @(posedge fabric_clk);
         #1;
         fabric_rst_n = 1'b1;
+        @(negedge fabric_clk);
+        calibration_update_valid = 1'b1;
+        @(posedge fabric_clk);
+        #1;
+        if (!calibration_update_ack
+            || active_input_full_scale_peak_volts_q24
+                != INPUT_FULL_SCALE_PEAK_VOLTS_Q24
+            || active_output_reciprocal_full_scale_q24
+                != OUTPUT_RECIPROCAL_FULL_SCALE_Q24) begin
+            $error("startup calibration did not commit atomically");
+            error_count = error_count + 1;
+        end
+        calibration_committed = 1'b1;
+        @(negedge fabric_clk);
+        calibration_update_valid = 1'b0;
         repeat (3) @(posedge i2s_bclk);
         #1;
         i2s_rst_n = 1'b1;
@@ -345,6 +373,7 @@ module phono_i2s_mono_top_tb;
     // explicit reset sequence is part of the top-level digital contract.
     initial begin
         wait (fabric_rst_n);
+        wait (calibration_committed);
         wait (dut.bridge.fabric_rx_frame_valid);
         @(negedge fabric_clk);
         audio_rst_n = 1'b1;
@@ -366,6 +395,8 @@ module phono_i2s_mono_top_tb;
             || input_configuration_error_sticky
             || output_pcm_saturation_count != 0
             || output_configuration_error_sticky
+            || calibration_invalid_update_sticky
+            || calibration_unsafe_update_sticky
             || output_frame_overrun_count != 0
             || resampler_saturation_count != 0
             || resampler_overrun_count != 0
@@ -386,6 +417,34 @@ module phono_i2s_mono_top_tb;
         if (output_gain_q16 != 16'hffff || output_muted
             || output_ramping) begin
             $error("pin-top startup ramp did not reach exact unity");
+            error_count = error_count + 1;
+        end
+
+        // Once audio is live, a positive but unmuted coefficient pair must be
+        // rejected without changing either active value.
+        @(negedge fabric_clk);
+        input_full_scale_peak_volts_q24 =
+            INPUT_FULL_SCALE_PEAK_VOLTS_Q24 + 1;
+        calibration_update_valid = 1'b1;
+        @(posedge fabric_clk);
+        #1;
+        if (calibration_update_ack || !calibration_unsafe_update_sticky
+            || active_input_full_scale_peak_volts_q24
+                != INPUT_FULL_SCALE_PEAK_VOLTS_Q24
+            || active_output_reciprocal_full_scale_q24
+                != OUTPUT_RECIPROCAL_FULL_SCALE_Q24) begin
+            $error("live calibration update was not rejected atomically");
+            error_count = error_count + 1;
+        end
+        @(negedge fabric_clk);
+        calibration_update_valid = 1'b0;
+        fabric_clear_diagnostics = 1'b1;
+        @(posedge fabric_clk);
+        #1;
+        fabric_clear_diagnostics = 1'b0;
+        if (calibration_invalid_update_sticky
+            || calibration_unsafe_update_sticky) begin
+            $error("calibration control diagnostic did not clear");
             error_count = error_count + 1;
         end
         if (!tx_serial_underflow_sticky) begin

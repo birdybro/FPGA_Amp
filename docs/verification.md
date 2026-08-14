@@ -195,12 +195,14 @@ scripts/run_synthesis.py            XC7 structural resource report
 | bidirectional I²S/CDC bridge synthesis | Yosys 0.66 flattened structural | 549 LC / 1,531 FF / no DSP or RAM; two 8×64 memories register-expanded; no Fmax/CDC claim |
 | PCM24/Q8.24 calibration RTL | 4,159 vectors each direction | bit-exact, one clock, endpoint/invalid/4,079 output-saturation events checked; warning-free |
 | PCM24/Q8.24 calibration synthesis | Yosys 0.66 structural | input 95 LC/66 FF/4 DSP; output 86 LC/58 FF/4 DSP; no RAM/Fmax claim |
+| atomic calibration commit RTL | invalid/muted-valid/live-valid/clear sequence | active pair resets zero; muted pair commits together with one ack; rejected attempts preserve both values and set the correct sticky flag; warning-free |
+| atomic calibration commit synthesis | Yosys 0.66 structural | 14 LC / 67 FF / no DSP or RAM; zero warnings/problems; no Fmax/CDC claim |
 | fabric frame scheduler RTL | 3 launches at 8-clock test period | exact held A/zero-fill/B order after one-clock preprocess; phase zero; one underflow/clear; warning-free |
 | fabric frame scheduler synthesis | Yosys 0.66 structural, 2,048-clock default | 41 LC / 43 FF / no DSP or RAM; no Fmax/ASRC claim |
 | calibrated fabric mono adapter RTL | 64 PCM frames / 1,024 nonlinear updates | every input calibration, raw model output, and duplicated PCM frame bit-exact; unrelated right input ignored; five-clock stall held; directed overrun retains old frame and clears; model/calibration diagnostics zero; warning-free |
 | calibrated fabric mono adapter synthesis | Yosys 0.66 flattened structural | with output ramp: 20,489 LC / 15,592 FF / 232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; zero structural problems; no Fmax/CDC/stereo claim |
-| pin-facing I²S mono top RTL | 64 serial inputs; locked 3.072/98.304 MHz clocks with unrelated phase | 64 calibrated inputs and raw model outputs exact; 45 consecutive observable DAC frames exact mono duplicates; startup starvation retained; warning-free |
-| pin-facing I²S mono top synthesis | Yosys 0.66 flattened structural | with output ramp: 20,894 LC / 16,699 FF / 232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; zero structural problems; no placed CDC/I/O/converter claim |
+| pin-facing I²S mono top RTL | 64 serial inputs; locked 3.072/98.304 MHz clocks with unrelated phase | startup coefficient pair commits atomically while muted; 64 calibrated inputs and raw model outputs exact; 45 consecutive observable DAC frames exact mono duplicates; live update rejected without active change; startup starvation retained; warning-free |
+| pin-facing I²S mono top synthesis | Yosys 0.66 flattened structural | with output ramp and atomic calibration guard: 20,910 LC / 16,766 FF / 232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; zero structural problems; no placed CDC/I/O/converter claim |
 | guarded wide stream RTL | startup plus one state-reset transaction | warning-free; mute precedes reset; phase clean; one ack; unity restored |
 | guarded wide stream synthesis | Yosys 0.66 structural | 17,562 LC, 170 DSP48E1, 8 RAMB18E1 + 1 RAMB36E1; no Fmax claim |
 | fixed vs analytical level sweep | 0.5 mV–5 V, 1 kHz, 20–30 ms | first ≥1 dB compression 1.1 V; residual-limit failure 1.0 V; LUT clip 1.1 V |

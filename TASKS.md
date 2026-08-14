@@ -31,9 +31,17 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   phase, deliver all 64 serial stereo inputs to calibrated model state exactly,
   match all raw model outputs, and recover 45 consecutive observable DAC frames
   as exact mono duplicates. Retain expected startup starvation and zero all
-  other diagnostics; synthesize the later muted top to 20,894 LC / 16,699 FF /
+  other diagnostics; atomically commit the startup converter-scaling pair while
+  muted and reject a later live pair without changing active values; synthesize
+  the guarded top to 20,910 LC / 16,766 FF /
   232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1 with no placed CDC/I/O/converter claim.
+- [x] Add a protocol-neutral atomic calibration commit guard. Reset both active
+  Q8.24 coefficients inactive, accept a positive pair only while fully muted,
+  acknowledge the pair together, and preserve active values on invalid or live
+  attempts with separate sticky diagnostics. Pass warning-free directed and
+  pin-top regressions; synthesize the standalone guard to 14 LC / 67 FF / no
+  DSP or RAM.
 - [x] Compose the framed mono fabric datapath from scheduler through input
   calibration, exact trapezoidal/banked/terminal stream, output calibration,
   held ready/valid output, and explicit mono duplication. Match 64 calibrated
@@ -372,9 +380,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   FIFO primitives now form a bidirectional frame bridge, and standalone
   physical-unit calibration now composes with the accuracy-first mono core at
   the fabric frame boundary and a pin-facing top adds the asynchronous bridge.
-  The modeled-output ramp is now integrated, but atomic control updates,
-  queued-frame/physical analog muting, rate-error handling, and CDC/I/O timing
-  constraints remain absent;
+  The modeled-output ramp and atomic converter-coefficient commit are now
+  integrated, but host register transport/CDC, queued-frame/physical analog
+  muting, rate-error handling, and CDC/I/O timing constraints remain absent;
   embedded assertions cannot be proven until a formal engine is available.
   The cubic and full-tube alias-family tests are captured from RTL; the latter
   is bounded below fixed rounding closure rather than inferred from the
@@ -395,6 +403,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Frequency-locked bridge-to-core fabric frame scheduler.
 - [x] Calibrated framed mono adapter around the accuracy-first V1 stream.
 - [x] Pin-facing digital I²S/CDC plus calibrated mono-model integration.
+- [x] Atomic muted converter-calibration commit boundary and diagnostics.
 - [x] PCM WAV processing and latency/gain/fractional-delay null comparison.
 - [x] Deterministic WAV distortion/IMD-product/overload regression library.
 - [ ] Standardized IMD, long recovery, impulse, and licensed-music WAV gates.

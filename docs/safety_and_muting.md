@@ -40,7 +40,16 @@ test uses eight samples so unity is reached before the first nonzero fixture
 output; all later reference samples remain bit-identical. A force-mute request
 clears the ramp state synchronously, but it cannot revoke PCM frames already in
 the adapter hold register or asynchronous transmit FIFO. Dedicated analog mute
-and atomic calibration/model updates remain required.
+remains required.
+
+The pin-facing top now places `calibration_commit_guard` in the fabric control
+path. ADC and DAC coefficients reset inactive and commit as one pair only while
+the digital ramp is fully muted; invalid and unmuted attempts are rejected with
+sticky diagnostics. Startup therefore releases the bridge fabric reset,
+commits measured coefficients while audio state remains reset/muted, and only
+then releases audio state. This prevents mixed input/output scaling but does not
+flush the transmit FIFO or replace the longer model-change reset/warmup
+transaction.
 
 The integration regression uses four-sample ramps/warmup for tractable directed
 coverage and proves that reset never becomes active before mute, held output

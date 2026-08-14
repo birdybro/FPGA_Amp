@@ -6,16 +6,26 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a protocol-neutral atomic converter-calibration commit guard. The two
+  active Q8.24 coefficients reset to zero and change together only for a
+  positive candidate pair while the digital output is fully muted. Directed
+  warning-free RTL proves invalid rejection, muted commit/acknowledgment, live
+  rejection without active-value change, and diagnostic clear. The pin-level
+  regression now commits its startup pair before audio-state release and
+  rejects a later live update. Standalone XC7 synthesis is 14 LC / 67 FF / no
+  DSP or RAM with zero warnings and structural problems; the updated complete
+  pin top is 20,910 LC / 16,766 FF / 232 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1.
 - Added the pin-facing digital mono top that composes the asynchronous I²S
   bridge with the calibrated accuracy-first adapter. An exactly rate-locked but
   phase-offset 3.072/98.304 MHz test pre-fills receive CDC, releases audio state,
   matches all 64 calibrated serial inputs and raw model outputs, and recovers 45
   consecutive observable DAC frames as exact mono duplicates. Expected startup
   serial starvation is retained and every other diagnostic stays zero.
-  With the later integrated output ramp, flattened XC7 synthesis is 20,894 LC /
-  16,699 FF / 232 DSP48E1 /
-  8 RAMB18E1 + 1 RAMB36E1; converter selection, placed timing, output mute, and
-  physical validation remain open.
+  With the later integrated output ramp and calibration guard, flattened XC7
+  synthesis is 20,910 LC / 16,766 FF / 232 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1; converter selection, placed timing, physical analog
+  mute, and validation remain open.
 - Added the calibrated fabric mono adapter around the exact
   trapezoidal/banked/terminal V1 stream. It selects left PCM24, schedules and
   calibrates physical input volts, runs the nonlinear circuit, calibrates the
@@ -538,9 +548,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
   exact unity bypass preserves reference samples bit-for-bit, and force mute
   synchronously clears the ramp state. Eight-sample integration regressions
   reach unity before the first nonzero fixture output and retain all 64 raw
-  model/PCM comparisons. The muted fabric/pin hierarchies now measure
-  20,489/20,894 LC, 15,592/16,699 FF, and 232 DSP48E1s. Queued CDC frames still
-  require physical analog muting for immediate fault response.
+  model/PCM comparisons. With the later calibration guard, the muted
+  fabric/pin hierarchies measure 20,489/20,910 LC, 15,592/16,766 FF, and 232
+  DSP48E1s. Queued CDC frames still require physical analog muting for immediate
+  fault response.
 - Increased the factorized grid-current table from 128 to 1,024 entries after a
   gated resolution sweep. This is an FPGA approximation change only: the Koren
   equation and frozen physical circuit are unchanged. Added dense exact-mapping
