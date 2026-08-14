@@ -59,11 +59,21 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   resolve the full-hierarchy congestion: the 14,990-LC design packs to 59,027
   slice LUT elements / 209 DSPs but places at only 34.20 MHz. Region analysis
   shows KCL and terminal-current spanning nearly all DSP rows while the two
-  tube engines and chord occupy separated hard-block regions. Compare a larger
-  open-tool-supported target against a lower-simultaneous-DSP schedule; only
-  two clocks remain, so do not add a per-pass stage or alter the frozen
+  tube engines and chord occupy separated hard-block regions. The same netlist
+  uses only 209/740 DSPs on XC7A200T, but seed/default placement reaches 23.83
+  MHz, a second seed reaches 30.55 MHz, and timing-weight-20 reaches only 35.22
+  MHz. Capacity alone is therefore rejected as the fix. Develop a lower-
+  simultaneous-hard-block schedule or explicit hierarchy placement strategy;
+  only two clocks remain, so do not add a per-pass stage or alter the frozen
   numerical contract.
 ## Completed this milestone
+
+- [x] Extend the pinned nextpnr-Himbaechel bootstrap and device-qualified runner
+  to XC7A200T, add a Nexys Video timing-only harness, and place the unchanged
+  complete solver. Measure 28% DSP and 21% packed-LUT occupancy, then test two
+  seeds and a doubled heap timing weight. The best 35.22 MHz estimate remains
+  2.79x short, so skip routing and reject larger-device capacity alone rather
+  than claiming the 209/740-DSP fit solves timing.
 
 - [x] Add a placement-only open-XC7 stage that emits separate placed netlist,
   log, report, and summary artifacts without claiming routing. Add a flattened

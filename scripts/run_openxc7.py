@@ -39,6 +39,15 @@ SUPPORTED_TOPS = (
 )
 
 
+def chipdb_device_name(part: str) -> str:
+    """Return the density name used by nextpnr's generated XC7 chipdb."""
+
+    match = re.match(r"^(xc7(?:a\d+t|s\d+|z\d+))", part)
+    if match is None:
+        raise ValueError(f"cannot derive an XC7 chipdb density from part {part!r}")
+    return match.group(1)
+
+
 def locate(name: str) -> Path | None:
     candidate = Path(name)
     if candidate.parent != Path("."):
@@ -159,6 +168,12 @@ def main() -> int:
     parser.add_argument("--router", choices=("router1", "router2"), default="router2")
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--threads", type=int, default=1)
+    parser.add_argument(
+        "--placer-heap-timingweight",
+        type=int,
+        default=10,
+        help="nextpnr heap-placer timing weight (upstream default: 10)",
+    )
     parser.add_argument("--yosys", default="yosys")
     parser.add_argument("--nextpnr", default="nextpnr-himbaechel")
     parser.add_argument(
@@ -179,6 +194,11 @@ def main() -> int:
     parser.add_argument("--probe", action="store_true")
     args = parser.parse_args()
 
+    try:
+        chipdb_density = chipdb_device_name(args.device)
+    except ValueError as error:
+        parser.error(str(error))
+
     yosys = locate(args.yosys)
     nextpnr = locate(args.nextpnr)
     if yosys is None or nextpnr is None:
@@ -194,14 +214,21 @@ def main() -> int:
         )
         return 2
 
-    chipdb = LOCAL_ROOT / "share" / "nextpnr" / "himbaechel" / "xilinx" / "chipdb-xc7a100t.bin"
+    chipdb = (
+        LOCAL_ROOT
+        / "share"
+        / "nextpnr"
+        / "himbaechel"
+        / "xilinx"
+        / f"chipdb-{chipdb_density}.bin"
+    )
     probe = {
         "flow": "Yosys + nextpnr-himbaechel Xilinx + Project X-Ray database",
         "device": args.device,
         "timing_grade": "DEFAULT",
         "timing_grade_limit": (
             "The experimental backend does not currently distinguish the "
-            "XC7A100T-1 speed grade."
+            "selected device's -1 speed grade."
         ),
         "yosys": version_line(yosys, "-V"),
         "nextpnr": version_line(nextpnr, "--version"),
@@ -216,7 +243,11 @@ def main() -> int:
         print(f"ERROR: missing XDC: {xdc}", file=sys.stderr)
         return 2
 
-    output_dir = REPOSITORY_ROOT / "build" / "openxc7" / args.top
+    device_tag = "" if args.device == DEFAULT_DEVICE else f"_{args.device}"
+    output_dir = REPOSITORY_ROOT / "build" / "openxc7"
+    if args.device != DEFAULT_DEVICE:
+        output_dir = output_dir / args.device
+    output_dir = output_dir / args.top
     output_dir.mkdir(parents=True, exist_ok=True)
     netlist = output_dir / f"{args.top}.json"
     fasm = output_dir / f"{args.top}.fasm"
@@ -261,6 +292,8 @@ def main() -> int:
         str(args.seed),
         "--threads",
         str(args.threads),
+        "--placer-heap-timingweight",
+        str(args.placer_heap_timingweight),
         "--report",
         str(report),
         "--detailed-timing-report",
@@ -288,6 +321,7 @@ def main() -> int:
         "router": args.router,
         "seed": args.seed,
         "threads": args.threads,
+        "placer_heap_timingweight": args.placer_heap_timingweight,
         "implementation_stage": "placement" if args.place_only else "route",
         "nextpnr_returncode": placed.returncode,
         "netlist": str(netlist.relative_to(REPOSITORY_ROOT)),
@@ -313,7 +347,7 @@ def main() -> int:
         REPOSITORY_ROOT
         / "reference"
         / "results"
-        / f"openxc7_{args.top}{stage_tag}_summary.json"
+        / f"openxc7_{args.top}{device_tag}{stage_tag}_summary.json"
     )
     summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=2))

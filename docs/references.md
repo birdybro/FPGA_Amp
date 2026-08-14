@@ -9,10 +9,11 @@ general authority on tube physics. Links were checked 2026-08-14.
 
 - YosysHQ, [nextpnr](https://github.com/YosysHQ/nextpnr). The upstream README
   identifies the Project-X-Ray-backed Xilinx 7-series backend as experimental.
-  The pinned source also explicitly lists `xc7a100t` in the Himbaechel-Xilinx
-  device generator while exposing only a `DEFAULT` timing grade. These facts
-  support using the flow for reproducible placement/routing evidence while
-  withholding qualified XC7A100T-1 signoff claims.
+  The [pinned device-generator source](https://github.com/YosysHQ/nextpnr/blob/4d235150266df2fa5c2c6102c67aa16ff34e6469/himbaechel/uarch/xilinx/CMakeLists.txt)
+  explicitly supports both `xc7a100t` and `xc7a200t`, while the backend exposes
+  only a `DEFAULT` timing grade. These facts support using the flow for
+  reproducible placement/routing evidence while withholding qualified `-1`
+  speed-grade signoff claims.
 - F4PGA, [Project X-Ray](https://github.com/f4pga/prjxray) and
   [prjxray-db](https://github.com/f4pga/prjxray-db). These are the open 7-series
   bitstream documentation/tooling and device database consumed by nextpnr. The
@@ -23,6 +24,16 @@ general authority on tube physics. Links were checked 2026-08-14.
   Primary board-source provenance for the E3 oscillator, D9 button, and H5 LED
   locations used by the timing-only solver harness. Those three pins do not
   define the eventual converter daughterboard or audio clock circuit.
+- AMD, [Artix 7 FPGA product table](https://www.amd.com/en/products/adaptive-socs-and-fpgas/fpga/artix-7.html).
+  Primary manufacturer resource counts support the controlled capacity
+  comparison: XC7A100T has 240 DSP slices, while XC7A200T has 740. More hard
+  blocks do not imply timing closure, so the repository still measures the
+  complete placed hierarchy.
+- Digilent,
+  [Nexys Video master XDC](https://github.com/Digilent/digilent-xdc/blob/master/Nexys-Video-Master.xdc).
+  Primary board-source provenance for the R4 oscillator, G4 CPU-reset input,
+  and T14 LED used by the XC7A200T timing-only harness. This pin subset is not a
+  production-board constraint set or an audio-clock implementation.
 
 ## Frozen V1 circuit and equalization
 

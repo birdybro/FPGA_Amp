@@ -6,7 +6,7 @@ repository_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 tool_root="$repository_root/.tools/root"
 package_cache="$repository_root/.tools/packages"
 source_root="$repository_root/.tools/src"
-build_root="$repository_root/.tools/build/nextpnr-himbaechel-xc7a100t"
+build_root="$repository_root/.tools/build/nextpnr-himbaechel-xc7-artix"
 prjxray_build_root="$repository_root/.tools/build/prjxray"
 python_environment="$repository_root/.tools/openxc7-venv"
 nextpnr_commit=4d235150266df2fa5c2c6102c67aa16ff34e6469
@@ -59,7 +59,7 @@ git -C "$source_root/prjxray" submodule update --init --recursive
 cmake -S "$source_root/nextpnr" -B "$build_root" -G Ninja \
     -DARCH=himbaechel \
     -DHIMBAECHEL_UARCH=xilinx \
-    -DHIMBAECHEL_XILINX_DEVICES=xc7a100t \
+    -DHIMBAECHEL_XILINX_DEVICES='xc7a100t;xc7a200t' \
     -DHIMBAECHEL_PRJXRAY_DB="$source_root/prjxray-db" \
     -DBUILD_GUI=OFF \
     -DCMAKE_BUILD_TYPE=Release \

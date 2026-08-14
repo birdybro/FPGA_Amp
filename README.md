@@ -565,8 +565,12 @@ and synthesizes to 14,990 logic cells, 13,458 flip-flops, 209/240 DSP48E1s, and
 KCL still misses 98.304 MHz by 6.6%. The full design packs to 59,027 slice LUT
 elements and 209/240 DSPs but places at only 34.20 MHz, so its router run is
 deliberately skipped. A placement-region report shows the KCL, terminal-current,
-two tube, and chord hard blocks dispersed across most DSP rows. None of these
-experiments is timing closure or a reference-mode change.
+two tube, and chord hard blocks dispersed across most DSP rows. Building the
+same open flow for the Nexys Video's XC7A200T reduces DSP utilization to
+209/740, but deterministic placement reaches only 23.83 MHz at the default
+timing weight and 35.22 MHz at a measured weight of 20. The larger device alone
+therefore does not solve hierarchy timing, and its route is also skipped. None
+of these experiments is timing closure or a reference-mode change.
 All figures use the backend's unqualified `DEFAULT` timing grade. The implemented digital mute
 primitive is not independent analog speaker protection.
 
@@ -742,6 +746,7 @@ make wide-linear-solver-rtl        # integrated value-only solver regression
 make factorized-linear-study       # Hermite/linear/full-Newton circuit A/B
 make tools-openxc7                 # build pinned open XC7 P&R tools locally
 make openxc7-probe                 # report Yosys/nextpnr/database revisions
+make openxc7-a200t-probe           # verify the second Artix-7 chip database
 make openxc7-pnr                   # route the solver timing harness on A7-100T
 make openxc7-hermite-pnr           # route the Hermite timing harness on A7-100T
 make openxc7-linear-tube-pnr       # route the value-only tube harness
@@ -755,6 +760,7 @@ make openxc7-parallel-pipelined-solver-pnr # route 119-clock solver candidate
 make openxc7-diagnostic-pipelined-kcl-pnr # route 19-clock final-diagnostic KCL
 make openxc7-parallel-diagnostic-pipelined-solver-place # diagnose full placement
 make openxc7-parallel-diagnostic-pipelined-solver-pnr # route 126-clock solver
+make openxc7-a200t-parallel-diagnostic-pipelined-solver-place # compare A200T
 ```
 
 Run a user-supplied 48 kHz integer-PCM WAV through an explicitly selected V1
@@ -794,8 +800,9 @@ under `model/generated/` as part of the numerical contract.
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
 path is further reducing terminal-solver approximation error without breaking
 the 128-clock deadline and resolving the measured 209-DSP full-placement
-congestion through scheduling or a larger open-tool-supported target. The
-required Linux flow is Yosys plus the
+congestion through a lower-simultaneous-hard-block schedule or explicit
+hierarchy placement; a controlled XC7A200T run shows capacity alone is
+insufficient. The required Linux flow is Yosys plus the
 experimental nextpnr-Himbaechel/Project X-Ray XC7 backend; Vivado is not part
 of the project flow, and the backend's `DEFAULT` timing grade is not presented
 as qualified XC7A100T-1 signoff.

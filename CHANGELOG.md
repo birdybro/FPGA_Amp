@@ -103,6 +103,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
   4,036 CARRY4 / 209 DSP and places at only 34.20 MHz, so routing is skipped.
   Region analysis shows KCL and terminal-current spread across most DSP rows;
   isolated 92.23 MHz KCL timing therefore does not compose on XC7A100T.
+- Extended the pinned open-XC7 bootstrap and runner to device-qualified
+  XC7A200T builds, added the Digilent Nexys Video timing-only pin harness, and
+  retained separate artifacts for each named part. The unchanged solver packs
+  at 59,027 LUTX / 13,458 FFX / 4,036 CARRY4 / 209 DSP, which is only 28% of
+  XC7A200T DSP capacity. Nevertheless, seed-1/default placement reaches 23.83
+  MHz, seed 2 reaches 30.55 MHz, and seed 1 with heap timing weight 20 reaches
+  only 35.22 MHz against 98.304 MHz. Routing is skipped: larger-part capacity
+  alone is now measured and rejected as a timing remedy.
 
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,

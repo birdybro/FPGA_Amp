@@ -235,6 +235,28 @@ columns. The next architecture decision must reduce simultaneous hard-block
 occupancy, adopt a larger open-tool-supported target, or both; another isolated
 KCL register alone cannot close the measured 2.87x full-placement gap.
 
+### XC7A200T capacity experiment
+
+The pinned bootstrap now generates both `xc7a100t` and `xc7a200t` chip
+databases. XC7A200T is exercised through the exact Nexys Video
+`xc7a200tsbg484-1` package and a three-pin timing harness derived from
+Digilent's master XDC. Device-qualified build/result paths prevent this run
+from overwriting the A100T evidence. The RTL and synthesized netlist are
+unchanged: 59,027 packed LUT elements, 13,458 flip-flops, 4,036 CARRY4s, 209
+DSPs, 16 RAMB18s, and two RAMB36s. The larger part reduces packed DSP use from
+87% to 28% and reports 21% LUT-element occupancy.
+
+Capacity alone does not close placement. Seed 1 with nextpnr's default heap
+timing weight reaches 23.83 MHz; seed 2 reaches 30.55 MHz. Retaining seed 1 and
+raising the documented heap timing weight from 10 to 20 improves the estimate
+to 35.22 MHz, still 2.79x short of 98.304 MHz and statistically comparable to
+the A100T's 34.20 MHz baseline. Routing is deliberately skipped. All figures
+remain experimental `DEFAULT`-grade estimates. The controlled experiment rules
+out device capacity by itself as the remedy: the next implementation branch
+must reduce cross-hierarchy combinational distance/simultaneous hard-block
+coupling or introduce reproducible hierarchy placement constraints before a
+larger device is reconsidered.
+
 ## Measured out-of-context result
 
 Yosys 0.66 `synth_xilinx -family xc7`, without I/O pads or clock buffer, reports
