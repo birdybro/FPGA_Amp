@@ -11,7 +11,10 @@ sys.path.insert(0, str(REPOSITORY_ROOT / "model" / "python"))
 
 from fpga_amp.cartridge import CartridgeModel  # noqa: E402
 from fpga_amp.fixed import TubeLUT  # noqa: E402
-from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
+from fpga_amp.factorized_tube import (  # noqa: E402
+    FixedFactorizedKoren12AX7,
+    FixedLinearFactorizedKoren12AX7,
+)
 from fpga_amp.fixed_circuit import (  # noqa: E402
     FixedChordV1CircuitModel,
     FixedWideStateBankedChordV1CircuitModel,
@@ -150,6 +153,27 @@ class TubeModelTests(unittest.TestCase):
         # inside the rectangular external voltage bounds.
         _, _, transformed_clipped = factorized.evaluate_fixed(-8 << 24, 0)
         self.assertTrue(transformed_clipped)
+
+    def test_fixed_linear_factorized_candidate_matches_error_budget(self) -> None:
+        tube = Koren12AX7()
+        candidate = FixedLinearFactorizedKoren12AX7()
+        rng = np.random.default_rng(0x1A11E4)
+        worst = 0.0
+        for vg, vp in zip(
+            rng.uniform(-8.0, 1.0, 4000),
+            rng.uniform(20.0, 400.0, 4000),
+            strict=True,
+        ):
+            vg_q24 = int(round(vg * (1 << 24)))
+            vp_q20 = int(round(vp * (1 << 20)))
+            approximate_q31, _, clipped = candidate.evaluate_fixed(vg_q24, vp_q20)
+            reference = float(
+                tube.plate_current(vg_q24 / (1 << 24), vp_q20 / (1 << 20))
+            )
+            self.assertFalse(clipped)
+            worst = max(worst, abs(approximate_q31 / (1 << 31) - reference))
+        self.assertLess(worst, 55.0e-9)
+        self.assertEqual(candidate.raw_table_bits, 458_752)
 
 
 class ResamplerTests(unittest.TestCase):

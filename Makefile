@@ -4,7 +4,8 @@ VERILATOR ?= verilator
 YOSYS ?= yosys
 NEXTPNR ?= nextpnr-himbaechel
 
-.PHONY: all reference analysis arithmetic-bounds accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide factorized-frequency-trapezoidal factorized-domain state-drift state-wide state-wide-audio linear-modes wide-rtl-audio wide-rtl-frequency trapezoidal-rtl-frequency trapezoidal-rtl-recovery wide-rtl-overload terminal-banked-rtl-metrics trapezoidal-terminal-banked-rtl-metrics banked-rtl-overload terminal-banked-rtl-overload banked-accuracy banked-selector banked-threshold banked-slew-selector banked-error-decomposition banked-iterations terminal-bank-study terminal-relaxation-study dual-triode-bank-study grid-current-resolution wide-stream-rtl-frequency trapezoidal-stream-rtl-frequency trapezoidal-terminal-stream-rtl-frequency wide-stream-rtl-alias wav-null-regression audio-regression spice-python-frequency overload-study overload-wide overload-trapezoidal overload-long overload-severe-long overload-seven-second overload-iterations overload-banked trapezoidal-overload precision-study resampler test python-test plots spice spice-all rtl hermite-rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-terminal-banked-solver-rtl trapezoidal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl stream-trapezoidal-terminal-banked-rtl guarded-stream-rtl mute-rtl audio-clock-rtl async-fifo-rtl cdc-pulse-rtl cdc-snapshot-rtl spi-control-rtl i2s-rtl i2s-bridge-rtl calibration-rtl calibration-control-rtl control-registers-rtl frame-scheduler-rtl mono-adapter-rtl i2s-mono-top-rtl i2s-control-top-rtl i2s-spi-top-rtl formal formal-mute formal-async-fifo formal-calibration-control formal-frame-scheduler formal-cdc-snapshot formal-cdc-pulse formal-audio-clock formal-audio-calibration formal-spi-control lint synth synth-hermite synth-factorized synth-chord synth-wide-chord synth-network synth-wide-network synth-solver synth-solver-factorized synth-wide-solver synth-trapezoidal-solver synth-banked-solver synth-terminal-banked-solver synth-trapezoidal-terminal-banked-solver synth-trapezoidal-banked-solver synth-halfband synth-stream synth-stream-factorized synth-stream-wide synth-stream-terminal-banked synth-stream-trapezoidal synth-stream-trapezoidal-terminal-banked synth-stream-guarded synth-mute synth-audio-clock synth-async-fifo synth-cdc-pulse synth-cdc-snapshot synth-spi-control synth-i2s synth-i2s-bridge synth-calibration synth-calibration-control synth-control-registers synth-frame-scheduler synth-mono-adapter synth-i2s-mono-top synth-i2s-control-top synth-i2s-spi-top openxc7-probe openxc7-pnr openxc7-hermite-pnr tools-openxc7 clean tools
+.PHONY: all reference analysis arithmetic-bounds accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide factorized-frequency-trapezoidal factorized-domain state-drift state-wide state-wide-audio linear-modes wide-rtl-audio wide-rtl-frequency trapezoidal-rtl-frequency trapezoidal-rtl-recovery wide-rtl-overload terminal-banked-rtl-metrics trapezoidal-terminal-banked-rtl-metrics banked-rtl-overload terminal-banked-rtl-overload banked-accuracy banked-selector banked-threshold banked-slew-selector banked-error-decomposition banked-iterations terminal-bank-study terminal-relaxation-study dual-triode-bank-study grid-current-resolution wide-stream-rtl-frequency trapezoidal-stream-rtl-frequency trapezoidal-terminal-stream-rtl-frequency wide-stream-rtl-alias wav-null-regression audio-regression spice-python-frequency overload-study overload-wide overload-trapezoidal overload-long overload-severe-long overload-seven-second overload-iterations overload-banked trapezoidal-overload precision-study resampler test python-test plots spice spice-all rtl hermite-rtl factorized-rtl factorized-linear-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl wide-linear-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-terminal-banked-solver-rtl trapezoidal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl stream-trapezoidal-terminal-banked-rtl guarded-stream-rtl mute-rtl audio-clock-rtl async-fifo-rtl cdc-pulse-rtl cdc-snapshot-rtl spi-control-rtl i2s-rtl i2s-bridge-rtl calibration-rtl calibration-control-rtl control-registers-rtl frame-scheduler-rtl mono-adapter-rtl i2s-mono-top-rtl i2s-control-top-rtl i2s-spi-top-rtl formal formal-mute formal-async-fifo formal-calibration-control formal-frame-scheduler formal-cdc-snapshot formal-cdc-pulse formal-audio-clock formal-audio-calibration formal-spi-control lint synth synth-hermite synth-factorized synth-factorized-linear synth-chord synth-wide-chord synth-network synth-wide-network synth-solver synth-solver-factorized synth-wide-solver synth-wide-linear-solver synth-trapezoidal-solver synth-banked-solver synth-terminal-banked-solver synth-trapezoidal-terminal-banked-solver synth-trapezoidal-banked-solver synth-halfband synth-stream synth-stream-factorized synth-stream-wide synth-stream-terminal-banked synth-stream-trapezoidal synth-stream-trapezoidal-terminal-banked synth-stream-guarded synth-mute synth-audio-clock synth-async-fifo synth-cdc-pulse synth-cdc-snapshot synth-spi-control synth-i2s synth-i2s-bridge synth-calibration synth-calibration-control synth-control-registers synth-frame-scheduler synth-mono-adapter synth-i2s-mono-top synth-i2s-control-top synth-i2s-spi-top openxc7-probe openxc7-pnr openxc7-hermite-pnr openxc7-linear-tube-pnr openxc7-linear-solver-pnr tools-openxc7 clean tools
+.PHONY: factorized-linear-study
 
 all: reference test
 
@@ -25,6 +26,9 @@ accuracy-sweeps:
 
 factorized-study:
 	$(PYTHON) scripts/study_factorized_tube.py
+
+factorized-linear-study:
+	$(PYTHON) scripts/characterize_linear_factorized_candidate.py
 
 factorized-domain:
 	$(PYTHON) scripts/analyze_factorized_domain.py
@@ -180,6 +184,9 @@ hermite-rtl:
 factorized-rtl:
 	$(PYTHON) scripts/run_factorized_rtl.py --verilator $(VERILATOR)
 
+factorized-linear-rtl:
+	$(PYTHON) scripts/run_factorized_rtl.py --linear --verilator $(VERILATOR)
+
 chord-rtl:
 	$(PYTHON) scripts/run_chord_rtl.py --verilator $(VERILATOR)
 
@@ -203,6 +210,9 @@ solver-factorized-rtl:
 
 wide-solver-rtl:
 	$(PYTHON) scripts/run_wide_solver_rtl.py --verilator $(VERILATOR)
+
+wide-linear-solver-rtl:
+	$(PYTHON) scripts/run_wide_solver_rtl.py --linear-tube --verilator $(VERILATOR)
 
 trapezoidal-solver-rtl:
 	$(PYTHON) scripts/run_wide_solver_rtl.py --verilator $(VERILATOR) --trapezoidal
@@ -326,6 +336,10 @@ synth:
 synth-hermite:
 	$(PYTHON) scripts/run_synthesis.py --top hermite_q16_pipeline
 
+synth-factorized-linear:
+	$(PYTHON) scripts/generate_factorized_tube.py --linear
+	$(PYTHON) scripts/run_synthesis.py --top triode_12ax7_factorized_linear
+
 synth-factorized:
 	$(PYTHON) scripts/generate_factorized_tube.py
 	$(PYTHON) scripts/run_synthesis.py --top triode_12ax7_factorized
@@ -366,6 +380,13 @@ synth-wide-solver:
 	$(PYTHON) scripts/generate_factorized_tube.py
 	$(PYTHON) scripts/generate_wide_solver_vectors.py
 	$(PYTHON) scripts/run_synthesis.py --top v1_solver_mono_wide
+
+synth-wide-linear-solver:
+	$(PYTHON) scripts/generate_wide_network_vectors.py
+	$(PYTHON) scripts/generate_wide_chord_vectors.py
+	$(PYTHON) scripts/generate_factorized_tube.py --linear
+	$(PYTHON) scripts/generate_wide_solver_vectors.py --linear-tube
+	$(PYTHON) scripts/run_synthesis.py --top v1_solver_mono_wide_linear
 
 synth-trapezoidal-solver:
 	$(PYTHON) scripts/generate_wide_network_vectors.py
@@ -525,7 +546,7 @@ synth-i2s-spi-top: synth-mono-adapter
 python-test:
 	$(PYTHON) -m unittest discover -s model/tests -v
 
-test: python-test arithmetic-bounds rtl hermite-rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-banked-solver-rtl trapezoidal-terminal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl stream-trapezoidal-terminal-banked-rtl guarded-stream-rtl mute-rtl audio-clock-rtl async-fifo-rtl cdc-pulse-rtl cdc-snapshot-rtl spi-control-rtl i2s-rtl i2s-bridge-rtl calibration-rtl calibration-control-rtl control-registers-rtl frame-scheduler-rtl mono-adapter-rtl i2s-mono-top-rtl i2s-control-top-rtl i2s-spi-top-rtl
+test: python-test arithmetic-bounds rtl hermite-rtl factorized-rtl factorized-linear-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl wide-linear-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-banked-solver-rtl trapezoidal-terminal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl stream-trapezoidal-terminal-banked-rtl guarded-stream-rtl mute-rtl audio-clock-rtl async-fifo-rtl cdc-pulse-rtl cdc-snapshot-rtl spi-control-rtl i2s-rtl i2s-bridge-rtl calibration-rtl calibration-control-rtl control-registers-rtl frame-scheduler-rtl mono-adapter-rtl i2s-mono-top-rtl i2s-control-top-rtl i2s-spi-top-rtl
 
 openxc7-probe:
 	$(PYTHON) scripts/run_openxc7.py --probe --nextpnr $(NEXTPNR)
@@ -535,6 +556,12 @@ openxc7-pnr:
 
 openxc7-hermite-pnr:
 	$(PYTHON) scripts/run_openxc7.py --top hermite_pnr_harness --nextpnr $(NEXTPNR)
+
+openxc7-linear-tube-pnr:
+	$(PYTHON) scripts/run_openxc7.py --top linear_tube_pnr_harness --nextpnr $(NEXTPNR)
+
+openxc7-linear-solver-pnr:
+	$(PYTHON) scripts/run_openxc7.py --top linear_solver_pnr_harness --nextpnr $(NEXTPNR)
 
 tools:
 	bash scripts/bootstrap_tools.sh

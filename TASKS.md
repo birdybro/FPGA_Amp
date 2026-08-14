@@ -35,12 +35,20 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   the routed path. A standalone bit-exact iterative Hermite replacement now
   closes post-route at 132.54 MHz with two DSPs and three-clock latency, but
   inserting that latency into all three dependent tube functions would exceed
-  the current 127-clock solver budget. Characterize a complete tube schedule
-  (including reciprocal/grid and plate/softplus dependent products), then
-  integrate or select a separately error-bounded faster approximation without
-  weakening fixed-model equivalence.
+  the current 127-clock solver budget. The separately named value-only linear
+  candidate instead retains eight clocks: 100,000-point error is 47.49 nA
+  worst, tube and complete terminal solver RTL are bit-exact, and the isolated
+  tube routes at 113.24 MHz. Its full harness packs at 49,530 `SLICE_LUTX`, 166
+  DSP, 13 RAMB18E1, and 5 RAMB36E1; finish routing and compare its post-route
+  path before any reference/default selection.
 ## Completed this milestone
 
+- [x] Implement and independently label the value-only factorized timing
+  candidate. Reproduce its 1,024/8,192/4,096 tables; measure 47.49 nA worst
+  static current error; pass 4,110 tube, 512 wide-solver, and 512 complete
+  terminal-solver vectors at unchanged latency; compare five circuit levels
+  against Hermite and analytical full Newton; route the isolated tube at
+  113.24 MHz. Do not promote it until the complete route is measured.
 - [x] Break the three-dependent-multiply cubic-Hermite path into a reusable,
   bit-exact iterative kernel. Verify 4,096 full-range vectors, reset, and a
   start-while-busy transition; preserve all 4,110 factorized-tube vectors;

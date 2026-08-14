@@ -4,7 +4,9 @@
 // Minimal physical-I/O wrapper used only for named-part place-and-route.
 // It keeps the complete accuracy-first solver active without exposing its
 // wide internal buses as package pins.  This is not an audio or bitstream top.
-module solver_pnr_harness (
+module solver_pnr_harness #(
+    parameter bit USE_LINEAR_FACTORIZED_TUBE = 1'b0
+) (
     input  logic fabric_clk,
     input  logic reset,
     output logic activity
@@ -70,7 +72,9 @@ module solver_pnr_harness (
         end
     end
 
-    (* keep *) v1_solver_mono_wide_trapezoidal_banked_terminal solver (
+    (* keep *) v1_solver_mono_wide_trapezoidal_banked_terminal #(
+        .USE_LINEAR_FACTORIZED_TUBE(USE_LINEAR_FACTORIZED_TUBE)
+    ) solver (
         .clk(fabric_clk),
         .rst_n,
         .ce_sample,
@@ -91,6 +95,20 @@ module solver_pnr_harness (
         .capacitor_state_debug,
         .capacitor_current_state_debug
     );
+
+endmodule
+
+// Separately named candidate so baseline and timing-oriented reports cannot
+// overwrite one another or silently select a different tube approximation.
+module linear_solver_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+
+    solver_pnr_harness #(
+        .USE_LINEAR_FACTORIZED_TUBE(1'b1)
+    ) harness (.*);
 
 endmodule
 

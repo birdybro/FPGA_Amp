@@ -31,6 +31,15 @@ All notable engineering changes are recorded here. The project is pre-release; d
   experimental `DEFAULT` grade (886 packed LUT elements, 231 FFX, 49 CARRY4,
   two DSPs). The kernel is not yet substituted into the tube/solver: its added
   dependency latency must first be reconciled with the 127-clock deadline.
+- Added a separately selectable value-only factorized 12AX7 candidate rather
+  than changing reference mode. Measured 1,024/8,192/4,096-point reciprocal,
+  softplus, and power tables retain the Koren law and eight-clock interface
+  while trading 458,752 raw table bits for linear interpolation. A 100,000-
+  point fixed probe measures 4.95 nA mean, 7.87 nA RMS, and 47.49 nA worst
+  plate-current error. The RTL passes 4,110 tube vectors and both 512-vector
+  wide/terminal solver regressions exactly at 116/127 clocks. The isolated
+  tube routes at 113.24 MHz (`DEFAULT` grade) with 27 DSP48E1s; complete solver
+  synthesis falls from 174 to 166 DSPs and full routing remains in progress.
 
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,

@@ -120,6 +120,16 @@ the dependent combinational chain; named-part open routing reports 132.54 MHz
 at the experimental `DEFAULT` grade. This kernel has not changed the current
 eight-clock tube or 127-clock solver numerical/cycle contract.
 
+The alternative `FixedLinearFactorizedKoren12AX7` deliberately inherits every
+coordinate, physical-domain, current-format, and saturation rule, but calls the
+existing rounded Q0.16 linear interpolation for three larger value-only
+tables. The selected 1,024/8,192/4,096 table sizes plus the unchanged 1,024-
+point grid branch consume 458,752 raw bits. A dense 100,000-point fixed probe
+measures 47.49 nA worst error. Its matching RTL passes all 4,110 exact tube
+vectors at eight clocks, 512 wide-solver states at 116 clocks, and 512 complete
+trapezoidal/banked/terminal states at 127 clocks. It is selectable at elaboration
+time and does not alter the default Hermite assets.
+
 ## Circuit-state chord candidate
 
 The complete Python fixed candidate uses heterogeneous 32-bit voltage formats:

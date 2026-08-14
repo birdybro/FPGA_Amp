@@ -17,7 +17,12 @@ LOCAL_ROOT = REPOSITORY_ROOT / ".tools" / "root" / "usr"
 DEFAULT_DEVICE = "xc7a100tcsg324-1"
 DEFAULT_FREQUENCY_MHZ = 98.304
 DEFAULT_TOP = "solver_pnr_harness"
-SUPPORTED_TOPS = (DEFAULT_TOP, "hermite_pnr_harness")
+SUPPORTED_TOPS = (
+    DEFAULT_TOP,
+    "hermite_pnr_harness",
+    "linear_tube_pnr_harness",
+    "linear_solver_pnr_harness",
+)
 
 
 def locate(name: str) -> Path | None:

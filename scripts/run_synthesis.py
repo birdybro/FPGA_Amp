@@ -31,6 +31,7 @@ def main() -> int:
         choices=(
             "triode_12ax7",
             "triode_12ax7_factorized",
+            "triode_12ax7_factorized_linear",
             "hermite_q16_pipeline",
             "chord_corrector_v1",
             "chord_corrector_v1_wide",
@@ -41,6 +42,7 @@ def main() -> int:
             "v1_solver_mono",
             "v1_solver_mono_factorized",
             "v1_solver_mono_wide",
+            "v1_solver_mono_wide_linear",
             "v1_solver_mono_wide_trapezoidal",
             "v1_solver_mono_wide_banked",
             "v1_solver_mono_wide_banked_terminal",
@@ -76,7 +78,9 @@ def main() -> int:
             "phono_i2s_control_top",
             "phono_i2s_spi_top",
             "solver_pnr_harness",
+            "linear_solver_pnr_harness",
             "hermite_pnr_harness",
+            "linear_tube_pnr_harness",
         ),
         default="triode_12ax7",
     )
@@ -99,6 +103,9 @@ def main() -> int:
     sources = {
         "triode_12ax7": ["rtl/tube/triode_12ax7.sv"],
         "triode_12ax7_factorized": ["rtl/tube/triode_12ax7_factorized.sv"],
+        "triode_12ax7_factorized_linear": [
+            "rtl/tube/triode_12ax7_factorized_linear.sv"
+        ],
         "hermite_q16_pipeline": ["rtl/math/hermite_q16_pipeline.sv"],
         "chord_corrector_v1": ["rtl/circuit/chord_corrector_v1.sv"],
         "chord_corrector_v1_wide": ["rtl/circuit/chord_corrector_v1_wide.sv"],
@@ -124,6 +131,14 @@ def main() -> int:
         ],
         "v1_solver_mono_wide": [
             "rtl/tube/triode_12ax7_factorized.sv",
+            "rtl/circuit/network_rhs_v1_wide.sv",
+            "rtl/circuit/network_kcl_v1_wide.sv",
+            "rtl/circuit/chord_corrector_v1_wide.sv",
+            "rtl/phono/v1_solver_mono_wide.sv",
+        ],
+        "v1_solver_mono_wide_linear": [
+            "rtl/tube/triode_12ax7_factorized.sv",
+            "rtl/tube/triode_12ax7_factorized_linear.sv",
             "rtl/circuit/network_rhs_v1_wide.sv",
             "rtl/circuit/network_kcl_v1_wide.sv",
             "rtl/circuit/chord_corrector_v1_wide.sv",
@@ -401,6 +416,17 @@ def main() -> int:
         ],
         "solver_pnr_harness": [
             "rtl/tube/triode_12ax7_factorized.sv",
+            "rtl/tube/triode_12ax7_factorized_linear.sv",
+            "rtl/circuit/network_rhs_v1_wide.sv",
+            "rtl/circuit/network_kcl_v1_wide.sv",
+            "rtl/circuit/chord_corrector_v1_wide.sv",
+            "rtl/phono/v1_solver_mono_wide.sv",
+            "rtl/phono/v1_solver_mono_wide_trapezoidal_banked_terminal.sv",
+            "rtl/diagnostics/solver_pnr_harness.sv",
+        ],
+        "linear_solver_pnr_harness": [
+            "rtl/tube/triode_12ax7_factorized.sv",
+            "rtl/tube/triode_12ax7_factorized_linear.sv",
             "rtl/circuit/network_rhs_v1_wide.sv",
             "rtl/circuit/network_kcl_v1_wide.sv",
             "rtl/circuit/chord_corrector_v1_wide.sv",
@@ -412,7 +438,20 @@ def main() -> int:
             "rtl/math/hermite_q16_pipeline.sv",
             "rtl/diagnostics/hermite_pnr_harness.sv",
         ],
+        "linear_tube_pnr_harness": [
+            "rtl/tube/triode_12ax7_factorized_linear.sv",
+            "rtl/diagnostics/linear_tube_pnr_harness.sv",
+        ],
     }[args.top]
+    # The wide solver has a compile-time selectable value-only tube candidate.
+    # Include its definition for every wide hierarchy; the default parameter
+    # still elaborates the established Hermite implementation exclusively.
+    linear_tube_source = "rtl/tube/triode_12ax7_factorized_linear.sv"
+    if (
+        "rtl/phono/v1_solver_mono_wide.sv" in sources
+        and linear_tube_source not in sources
+    ):
+        sources.insert(1, linear_tube_source)
     pnr_mode = args.pnr_json is not None
     log_suffix = "_pnr" if pnr_mode else ""
     log_path = results / f"yosys_xc7_{args.top}{log_suffix}.log"
@@ -427,7 +466,11 @@ def main() -> int:
     parameter_command = None
     if factorized_top:
         parameter_command = f"chparam -set USE_FACTORIZED_TUBE 1 {actual_top}"
-
+    if args.top == "v1_solver_mono_wide_linear":
+        actual_top = "v1_solver_mono_wide"
+        parameter_command = (
+            "chparam -set USE_LINEAR_FACTORIZED_TUBE 1 v1_solver_mono_wide"
+        )
     # The packaged Yosys has an absolute system ABC default. Stopping before
     # map_luts and invoking the identical documented steps with -exe keeps the
     # non-root bootstrap reproducible.

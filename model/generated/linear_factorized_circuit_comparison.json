@@ -1,0 +1,529 @@
+{
+  "comparison": "fixed value-only linear factorized 12AX7 versus established fixed cubic-Hermite factorized 12AX7 in the identical trapezoidal, banked, terminal-corrected V1 circuit",
+  "sample_rate_hz": 768000,
+  "continuous_sine_duration_s": 0.02,
+  "continuous_sine_analysis_window_s": [
+    0.01,
+    0.02
+  ],
+  "levels": [
+    {
+      "input_peak_v": 0.005,
+      "difference_rms_v": 0.00036811299656123753,
+      "difference_peak_v": 0.000611709663644433,
+      "difference_mean_v": 0.0003319064263450855,
+      "normalized_difference_db": -60.743143553229174,
+      "fundamental_gain_difference_db": 0.0033115200718193934,
+      "fundamental_phase_difference_deg": -0.0002853389679984275,
+      "hermite": {
+        "fundamental_peak_v": 0.5670631403757658,
+        "fundamental_phase_deg": -48.61568475586273,
+        "thd_h2_to_h10_percent": 0.046075652988569256
+      },
+      "linear": {
+        "fundamental_peak_v": 0.5672793760247554,
+        "fundamental_phase_deg": -48.61597009483073,
+        "thd_h2_to_h10_percent": 0.049758935862060406
+      },
+      "against_analytical_full_newton": {
+        "hermite": {
+          "difference_rms_v": 0.0006871664111484106,
+          "difference_peak_v": 0.0011986338335720076,
+          "difference_mean_v": -0.000279681588925099,
+          "normalized_difference_db": -55.319359491540226,
+          "fundamental_gain_difference_db": 0.0021178577262188055,
+          "fundamental_phase_difference_deg": -0.08857872802517619,
+          "hermite": {
+            "fundamental_peak_v": 0.5669248917102077,
+            "fundamental_phase_deg": -48.527106027837554,
+            "thd_h2_to_h10_percent": 0.045885739839344665
+          },
+          "linear": {
+            "fundamental_peak_v": 0.5670631403757658,
+            "fundamental_phase_deg": -48.61568475586273,
+            "thd_h2_to_h10_percent": 0.046075652988569256
+          }
+        },
+        "linear": {
+          "difference_rms_v": 0.0006738995380476015,
+          "difference_peak_v": 0.001028052998327117,
+          "difference_mean_v": 5.22248374199865e-05,
+          "normalized_difference_db": -55.48869477677222,
+          "fundamental_gain_difference_db": 0.005429377798040128,
+          "fundamental_phase_difference_deg": -0.08886406699317462,
+          "hermite": {
+            "fundamental_peak_v": 0.5669248917102077,
+            "fundamental_phase_deg": -48.527106027837554,
+            "thd_h2_to_h10_percent": 0.045885739839344665
+          },
+          "linear": {
+            "fundamental_peak_v": 0.5672793760247554,
+            "fundamental_phase_deg": -48.61597009483073,
+            "thd_h2_to_h10_percent": 0.049758935862060406
+          }
+        },
+        "analytical_nonconvergence_count": 0
+      },
+      "hermite_diagnostics": {
+        "saturation_count": 0,
+        "lut_clip_count": 0,
+        "nonconvergence_count": 0,
+        "correction_scale_fallback_count": 0,
+        "chord_bank_selection_count": [
+          0,
+          0,
+          0,
+          0,
+          15360
+        ],
+        "slew_qualified_selection_count": 0
+      },
+      "linear_diagnostics": {
+        "saturation_count": 0,
+        "lut_clip_count": 0,
+        "nonconvergence_count": 0,
+        "correction_scale_fallback_count": 0,
+        "chord_bank_selection_count": [
+          0,
+          0,
+          0,
+          0,
+          15360
+        ],
+        "slew_qualified_selection_count": 0
+      }
+    },
+    {
+      "input_peak_v": 0.02,
+      "difference_rms_v": 0.0010696972689170344,
+      "difference_peak_v": 0.0012857269030064344,
+      "difference_mean_v": 0.0010672147422762161,
+      "normalized_difference_db": -63.518515520853846,
+      "fundamental_gain_difference_db": -0.00019552200488792983,
+      "fundamental_phase_difference_deg": 1.4684144652221676e-05,
+      "hermite": {
+        "fundamental_peak_v": 2.2682290253794646,
+        "fundamental_phase_deg": -48.61568566175736,
+        "thd_h2_to_h10_percent": 0.10008141479945977
+      },
+      "linear": {
+        "fundamental_peak_v": 2.2681779674321993,
+        "fundamental_phase_deg": -48.61567097761271,
+        "thd_h2_to_h10_percent": 0.09987261433288831
+      },
+      "against_analytical_full_newton": {
+        "hermite": {
+          "difference_rms_v": 0.002528708615235976,
+          "difference_peak_v": 0.0038862475759521564,
+          "difference_mean_v": -0.0002854829283650865,
+          "normalized_difference_db": -56.0436415848669,
+          "fundamental_gain_difference_db": 0.0021062785946263413,
+          "fundamental_phase_difference_deg": -0.08868307441739631,
+          "hermite": {
+            "fundamental_peak_v": 2.2676790594889433,
+            "fundamental_phase_deg": -48.527002587339965,
+            "thd_h2_to_h10_percent": 0.10005578788169393
+          },
+          "linear": {
+            "fundamental_peak_v": 2.2682290253794646,
+            "fundamental_phase_deg": -48.61568566175736,
+            "thd_h2_to_h10_percent": 0.10008141479945977
+          }
+        },
+        "linear": {
+          "difference_rms_v": 0.0026265033633789594,
+          "difference_peak_v": 0.004373467434608955,
+          "difference_mean_v": 0.0007817318139111296,
+          "normalized_difference_db": -55.71405812307738,
+          "fundamental_gain_difference_db": 0.0019107565897385234,
+          "fundamental_phase_difference_deg": -0.08866839027274409,
+          "hermite": {
+            "fundamental_peak_v": 2.2676790594889433,
+            "fundamental_phase_deg": -48.527002587339965,
+            "thd_h2_to_h10_percent": 0.10005578788169393
+          },
+          "linear": {
+            "fundamental_peak_v": 2.2681779674321993,
+            "fundamental_phase_deg": -48.61567097761271,
+            "thd_h2_to_h10_percent": 0.09987261433288831
+          }
+        },
+        "analytical_nonconvergence_count": 0
+      },
+      "hermite_diagnostics": {
+        "saturation_count": 0,
+        "lut_clip_count": 0,
+        "nonconvergence_count": 0,
+        "correction_scale_fallback_count": 0,
+        "chord_bank_selection_count": [
+          0,
+          0,
+          0,
+          0,
+          15360
+        ],
+        "slew_qualified_selection_count": 0
+      },
+      "linear_diagnostics": {
+        "saturation_count": 0,
+        "lut_clip_count": 0,
+        "nonconvergence_count": 0,
+        "correction_scale_fallback_count": 0,
+        "chord_bank_selection_count": [
+          0,
+          0,
+          0,
+          0,
+          15360
+        ],
+        "slew_qualified_selection_count": 0
+      }
+    },
+    {
+      "input_peak_v": 0.5,
+      "difference_rms_v": 0.001003252613310987,
+      "difference_peak_v": 0.0013870494440197945,
+      "difference_mean_v": 0.0009683704283512877,
+      "normalized_difference_db": -91.8912194736823,
+      "fundamental_gain_difference_db": -5.501431721927694e-05,
+      "fundamental_phase_difference_deg": -1.2247006182519726e-06,
+      "hermite": {
+        "fundamental_peak_v": 55.705602387984776,
+        "fundamental_phase_deg": -48.6178469962293,
+        "thd_h2_to_h10_percent": 2.2759408862197725
+      },
+      "linear": {
+        "fundamental_peak_v": 55.70524956333432,
+        "fundamental_phase_deg": -48.617848220929915,
+        "thd_h2_to_h10_percent": 2.276034084890317
+      },
+      "against_analytical_full_newton": {
+        "hermite": {
+          "difference_rms_v": 0.061653167707012665,
+          "difference_peak_v": 0.091542051199065,
+          "difference_mean_v": -0.0011759594371879957,
+          "normalized_difference_db": -56.11827484443074,
+          "fundamental_gain_difference_db": 0.002059954466603808,
+          "fundamental_phase_difference_deg": -0.0885134391115514,
+          "hermite": {
+            "fundamental_peak_v": 55.69239275683841,
+            "fundamental_phase_deg": -48.529333557117745,
+            "thd_h2_to_h10_percent": 2.2762711516763363
+          },
+          "linear": {
+            "fundamental_peak_v": 55.705602387984776,
+            "fundamental_phase_deg": -48.6178469962293,
+            "thd_h2_to_h10_percent": 2.2759408862197725
+          }
+        },
+        "linear": {
+          "difference_rms_v": 0.0616059024256523,
+          "difference_peak_v": 0.09046928210325156,
+          "difference_mean_v": -0.00020758900883670813,
+          "normalized_difference_db": -56.12493627774009,
+          "fundamental_gain_difference_db": 0.0020049401493846186,
+          "fundamental_phase_difference_deg": -0.08851466381216966,
+          "hermite": {
+            "fundamental_peak_v": 55.69239275683841,
+            "fundamental_phase_deg": -48.529333557117745,
+            "thd_h2_to_h10_percent": 2.2762711516763363
+          },
+          "linear": {
+            "fundamental_peak_v": 55.70524956333432,
+            "fundamental_phase_deg": -48.617848220929915,
+            "thd_h2_to_h10_percent": 2.276034084890317
+          }
+        },
+        "analytical_nonconvergence_count": 0
+      },
+      "hermite_diagnostics": {
+        "saturation_count": 0,
+        "lut_clip_count": 0,
+        "nonconvergence_count": 0,
+        "correction_scale_fallback_count": 0,
+        "chord_bank_selection_count": [
+          0,
+          0,
+          0,
+          0,
+          15360
+        ],
+        "slew_qualified_selection_count": 0
+      },
+      "linear_diagnostics": {
+        "saturation_count": 0,
+        "lut_clip_count": 0,
+        "nonconvergence_count": 0,
+        "correction_scale_fallback_count": 0,
+        "chord_bank_selection_count": [
+          0,
+          0,
+          0,
+          0,
+          15360
+        ],
+        "slew_qualified_selection_count": 0
+      }
+    },
+    {
+      "input_peak_v": 1.0,
+      "difference_rms_v": 0.0007154687875651614,
+      "difference_peak_v": 0.0013503346126526594,
+      "difference_mean_v": 0.0005257174394197743,
+      "normalized_difference_db": -100.1711849732815,
+      "fundamental_gain_difference_db": -5.185919518798381e-05,
+      "fundamental_phase_difference_deg": -3.1238597998139994e-05,
+      "hermite": {
+        "fundamental_peak_v": 102.44395618489962,
+        "fundamental_phase_deg": -48.59313844073207,
+        "thd_h2_to_h10_percent": 8.0806151239016
+      },
+      "linear": {
+        "fundamental_peak_v": 102.44334454401061,
+        "fundamental_phase_deg": -48.59316967933007,
+        "thd_h2_to_h10_percent": 8.080851729572755
+      },
+      "against_analytical_full_newton": {
+        "hermite": {
+          "difference_rms_v": 0.11238835010236639,
+          "difference_peak_v": 0.1802512667074332,
+          "difference_mean_v": 0.0013728760713185267,
+          "normalized_difference_db": -56.247231996176595,
+          "fundamental_gain_difference_db": 0.0013114509775534935,
+          "fundamental_phase_difference_deg": -0.0868447374423198,
+          "hermite": {
+            "fundamental_peak_v": 102.42848971110537,
+            "fundamental_phase_deg": -48.50629370328975,
+            "thd_h2_to_h10_percent": 8.076823549882878
+          },
+          "linear": {
+            "fundamental_peak_v": 102.44395618489962,
+            "fundamental_phase_deg": -48.59313844073207,
+            "thd_h2_to_h10_percent": 8.0806151239016
+          }
+        },
+        "linear": {
+          "difference_rms_v": 0.11239632476156353,
+          "difference_peak_v": 0.1792230889189952,
+          "difference_mean_v": 0.001898593510738301,
+          "normalized_difference_db": -56.24661569962739,
+          "fundamental_gain_difference_db": 0.001259591782364733,
+          "fundamental_phase_difference_deg": -0.08687597604031794,
+          "hermite": {
+            "fundamental_peak_v": 102.42848971110537,
+            "fundamental_phase_deg": -48.50629370328975,
+            "thd_h2_to_h10_percent": 8.076823549882878
+          },
+          "linear": {
+            "fundamental_peak_v": 102.44334454401061,
+            "fundamental_phase_deg": -48.59316967933007,
+            "thd_h2_to_h10_percent": 8.080851729572755
+          }
+        },
+        "analytical_nonconvergence_count": 0
+      },
+      "hermite_diagnostics": {
+        "saturation_count": 0,
+        "lut_clip_count": 0,
+        "nonconvergence_count": 0,
+        "correction_scale_fallback_count": 0,
+        "chord_bank_selection_count": [
+          417,
+          2158,
+          1534,
+          663,
+          10588
+        ],
+        "slew_qualified_selection_count": 0
+      },
+      "linear_diagnostics": {
+        "saturation_count": 0,
+        "lut_clip_count": 0,
+        "nonconvergence_count": 0,
+        "correction_scale_fallback_count": 0,
+        "chord_bank_selection_count": [
+          418,
+          2157,
+          1535,
+          662,
+          10588
+        ],
+        "slew_qualified_selection_count": 0
+      }
+    },
+    {
+      "input_peak_v": 1.5,
+      "difference_rms_v": 0.0019403087479450104,
+      "difference_peak_v": 0.00533477938733995,
+      "difference_mean_v": -0.0007928043244040358,
+      "normalized_difference_db": -92.80909449718861,
+      "fundamental_gain_difference_db": -0.00014633849155924424,
+      "fundamental_phase_difference_deg": -6.835749783107303e-05,
+      "hermite": {
+        "fundamental_peak_v": 112.66268490469005,
+        "fundamental_phase_deg": -48.09413612251691,
+        "thd_h2_to_h10_percent": 25.30963590102444
+      },
+      "linear": {
+        "fundamental_peak_v": 112.66078679762589,
+        "fundamental_phase_deg": -48.09420448001474,
+        "thd_h2_to_h10_percent": 25.311197863457163
+      },
+      "against_analytical_full_newton": {
+        "hermite": {
+          "difference_rms_v": 0.1394629581397659,
+          "difference_peak_v": 0.24732546996595062,
+          "difference_mean_v": 0.003921951420084112,
+          "normalized_difference_db": -55.677224153753855,
+          "fundamental_gain_difference_db": -0.00014003144398469028,
+          "fundamental_phase_difference_deg": -0.08711109312518062,
+          "hermite": {
+            "fundamental_peak_v": 112.66450123511551,
+            "fundamental_phase_deg": -48.00702502939173,
+            "thd_h2_to_h10_percent": 25.30233735459284
+          },
+          "linear": {
+            "fundamental_peak_v": 112.66268490469005,
+            "fundamental_phase_deg": -48.09413612251691,
+            "thd_h2_to_h10_percent": 25.30963590102444
+          }
+        },
+        "linear": {
+          "difference_rms_v": 0.13958474153842323,
+          "difference_peak_v": 0.24752391268819096,
+          "difference_mean_v": 0.003129147095680077,
+          "normalized_difference_db": -55.66964267410816,
+          "fundamental_gain_difference_db": -0.00028636993554500173,
+          "fundamental_phase_difference_deg": -0.08717945062301169,
+          "hermite": {
+            "fundamental_peak_v": 112.66450123511551,
+            "fundamental_phase_deg": -48.00702502939173,
+            "thd_h2_to_h10_percent": 25.30233735459284
+          },
+          "linear": {
+            "fundamental_peak_v": 112.66078679762589,
+            "fundamental_phase_deg": -48.09420448001474,
+            "thd_h2_to_h10_percent": 25.311197863457163
+          }
+        },
+        "analytical_nonconvergence_count": 0
+      },
+      "hermite_diagnostics": {
+        "saturation_count": 0,
+        "lut_clip_count": 0,
+        "nonconvergence_count": 0,
+        "correction_scale_fallback_count": 0,
+        "chord_bank_selection_count": [
+          5150,
+          625,
+          675,
+          743,
+          8167
+        ],
+        "slew_qualified_selection_count": 380
+      },
+      "linear_diagnostics": {
+        "saturation_count": 0,
+        "lut_clip_count": 0,
+        "nonconvergence_count": 0,
+        "correction_scale_fallback_count": 0,
+        "chord_bank_selection_count": [
+          5150,
+          625,
+          675,
+          743,
+          8167
+        ],
+        "slew_qualified_selection_count": 380
+      }
+    }
+  ],
+  "burst": {
+    "stimulus": "5 mV peak, 1.5 V peak from 4--8 ms, 1 kHz",
+    "windows": {
+      "preburst": {
+        "difference_rms_v": 0.0002605596953063547,
+        "difference_peak_v": 0.0005531224887818098,
+        "difference_mean_v": 0.00020126517832371368,
+        "normalized_difference_db": -64.39331841804784,
+        "fundamental_gain_difference_db": 0.0031939108251427067,
+        "fundamental_phase_difference_deg": -0.0023536215596138277,
+        "hermite": {
+          "fundamental_peak_v": 0.5738990873524122,
+          "fundamental_phase_deg": -46.87111699793788,
+          "thd_h2_to_h10_percent": 3.3030421747398475
+        },
+        "linear": {
+          "fundamental_peak_v": 0.5741101560662337,
+          "fundamental_phase_deg": -46.873470619497496,
+          "thd_h2_to_h10_percent": 3.3022006332927307
+        }
+      },
+      "burst": {
+        "difference_rms_v": 0.0019223419472823979,
+        "difference_peak_v": 0.00534300203435123,
+        "difference_mean_v": -0.00056037632710589,
+        "normalized_difference_db": -92.87781661182541,
+        "fundamental_gain_difference_db": -0.00016185848697077072,
+        "fundamental_phase_difference_deg": -9.347522901492766e-05,
+        "hermite": {
+          "fundamental_peak_v": 109.83225286303227,
+          "fundamental_phase_deg": -47.07325134557736,
+          "thd_h2_to_h10_percent": 27.931429454159012
+        },
+        "linear": {
+          "fundamental_peak_v": 109.83020619684444,
+          "fundamental_phase_deg": -47.073344820806376,
+          "thd_h2_to_h10_percent": 27.932999989796336
+        }
+      },
+      "recovery": {
+        "difference_rms_v": 0.0003362284622846878,
+        "difference_peak_v": 0.0006703096441924572,
+        "difference_mean_v": 0.00027349084909171023,
+        "normalized_difference_db": -92.9306215138553,
+        "fundamental_gain_difference_db": -5.396439524821108e-05,
+        "fundamental_phase_difference_deg": 0.003215969393153273,
+        "hermite": {
+          "fundamental_peak_v": 2.768587154807314,
+          "fundamental_phase_deg": -130.33304888675906,
+          "thd_h2_to_h10_percent": 120.65907614194043
+        },
+        "linear": {
+          "fundamental_peak_v": 2.768569953959317,
+          "fundamental_phase_deg": -130.3298329173659,
+          "thd_h2_to_h10_percent": 120.65963302560974
+        }
+      }
+    },
+    "hermite_diagnostics": {
+      "saturation_count": 0,
+      "lut_clip_count": 0,
+      "nonconvergence_count": 0,
+      "correction_scale_fallback_count": 0,
+      "chord_bank_selection_count": [
+        1068,
+        124,
+        134,
+        150,
+        7740
+      ],
+      "slew_qualified_selection_count": 77
+    },
+    "linear_diagnostics": {
+      "saturation_count": 0,
+      "lut_clip_count": 0,
+      "nonconvergence_count": 0,
+      "correction_scale_fallback_count": 0,
+      "chord_bank_selection_count": [
+        1068,
+        124,
+        134,
+        150,
+        7740
+      ],
+      "slew_qualified_selection_count": 77
+    }
+  },
+  "interpretation": "The continuous-sine cases include the analytical Koren/full-Newton software reference; the burst isolates the two fixed candidates. This is not an analog/SPICE or hardware comparison and does not promote the linear candidate to reference mode."
+}

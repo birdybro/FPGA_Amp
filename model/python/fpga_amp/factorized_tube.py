@@ -444,3 +444,55 @@ class FixedFactorizedKoren12AX7:
                 handle.write(f"{int(value) & 0xFFFFFFFF:08x}\n")
         paths.append(grid_path)
         return paths
+
+
+@dataclass
+class FixedLinearFactorizedKoren12AX7(FixedFactorizedKoren12AX7):
+    """Latency-oriented factorized law using linear value-only tables.
+
+    The selected table sizes are measured rather than a claim that linear
+    interpolation is inherently equivalent to cubic Hermite.  They trade raw
+    memory for one multiply per interpolation and retain the same coordinate,
+    physical-domain, rounding, saturation, and grid-current contracts.
+    """
+
+    reciprocal_points: int = 1024
+    softplus_points: int = 8192
+    power_points: int = 4096
+
+    @property
+    def raw_table_bits(self) -> int:
+        return 32 * (
+            self.reciprocal_points
+            + self.softplus_points
+            + self.power_points
+            + self.grid_points
+        )
+
+    def _hermite(
+        self,
+        value: NDArray[np.int64],
+        slope: NDArray[np.int64],
+        coordinate: int,
+    ) -> int:
+        # ``slope`` remains in the inherited call signature so every other
+        # physical and arithmetic step is shared with the Hermite reference.
+        del slope
+        return self._linear(value, coordinate)
+
+    def write_memories(self, directory: Path) -> list[Path]:
+        directory.mkdir(parents=True, exist_ok=True)
+        tables = (
+            ("12ax7_factor_linear_reciprocal_q32.mem", self.reciprocal_value_q32),
+            ("12ax7_factor_linear_softplus_q32.mem", self.softplus_value_q32),
+            ("12ax7_factor_linear_power_q31.mem", self.power_value_q31),
+            ("12ax7_factor_linear_grid_q31.mem", self.grid_value_q31),
+        )
+        paths: list[Path] = []
+        for name, values in tables:
+            path = directory / name
+            with path.open("w", encoding="ascii") as handle:
+                for value in values:
+                    handle.write(f"{int(value) & 0xFFFFFFFF:08x}\n")
+            paths.append(path)
+        return paths

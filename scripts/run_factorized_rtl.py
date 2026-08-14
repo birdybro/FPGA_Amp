@@ -23,20 +23,42 @@ def main() -> int:
     parser.add_argument("--verilator", default="verilator")
     parser.add_argument("--lint-only", action="store_true")
     parser.add_argument("--vectors", type=int, default=4096)
+    parser.add_argument("--linear", action="store_true")
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
         print(f"ERROR: Verilator not found: {args.verilator}", file=sys.stderr)
         return 2
 
-    rtl = "rtl/tube/triode_12ax7_factorized.sv"
+    rtl = (
+        "rtl/tube/triode_12ax7_factorized_linear.sv"
+        if args.linear
+        else "rtl/tube/triode_12ax7_factorized.sv"
+    )
     tb = "sim/unit/triode_12ax7_factorized_tb.sv"
-    run([sys.executable, "scripts/generate_factorized_tube.py", "--vectors", str(args.vectors)])
-    run([verilator, "--lint-only", "--timing", "-Wall", "-Wno-fatal", "-sv", rtl, tb])
+    generator = [
+        sys.executable,
+        "scripts/generate_factorized_tube.py",
+        "--vectors",
+        str(args.vectors),
+    ]
+    defines = ["-DLINEAR_FACTORIZED"] if args.linear else []
+    if args.linear:
+        generator.append("--linear")
+    run(generator)
+    run(
+        [verilator, "--lint-only", "--timing", "-Wall", "-Wno-fatal", "-sv"]
+        + defines
+        + [rtl, tb]
+    )
     if args.lint_only:
         return 0
 
-    output_dir = REPOSITORY_ROOT / "build" / "verilator_triode_factorized"
+    output_dir = REPOSITORY_ROOT / "build" / (
+        "verilator_triode_factorized_linear"
+        if args.linear
+        else "verilator_triode_factorized"
+    )
     output_dir.mkdir(parents=True, exist_ok=True)
     run(
         [
@@ -50,6 +72,7 @@ def main() -> int:
             "triode_12ax7_factorized_tb",
             "--Mdir",
             str(output_dir),
+            *defines,
             rtl,
             tb,
         ]
@@ -57,7 +80,12 @@ def main() -> int:
     run(
         [
             str(output_dir / "Vtriode_12ax7_factorized_tb"),
-            "+VECTORS=sim/vectors/generated/triode_factorized_random.txt",
+            "+VECTORS="
+            + (
+                "sim/vectors/generated/triode_factorized_linear_random.txt"
+                if args.linear
+                else "sim/vectors/generated/triode_factorized_random.txt"
+            ),
         ]
     )
     return 0

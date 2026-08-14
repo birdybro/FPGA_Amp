@@ -190,6 +190,25 @@ integration is exact at 126 clocks, and its complete stream matches the fixed
 composition exactly. Wider frequency/overload evidence remains open before
 choosing it as the default implementation.
 
+The named `factorized_linear` timing candidate evaluates the same five Koren
+steps and keeps the same external ranges, grid-current branch, rounding, clip
+flags, and eight-clock tube interface. It replaces derivative storage and
+cubic interpolation with value-only reciprocal/softplus/power tables of
+1,024/8,192/4,096 points. Total raw storage is 458,752 bits. A reproducible
+100,000-point quantized probe measures 4.95 nA mean, 7.87 nA RMS, and 47.49 nA
+worst plate-current error, versus 8.31/14.11/50.56 nA for the current Hermite
+implementation. This sampling result is not evidence that linear interpolation
+is uniformly more accurate.
+
+Circuit A/B testing uses the identical trapezoidal, banked, terminal-corrected
+fixed solver at 5 mV through 1.5 V peak. Linear-versus-Hermite fundamental gain
+differs by at most 0.003312 dB and phase by 0.000286 degrees; all arithmetic,
+range, and convergence diagnostics remain zero. Against analytical Koren/full
+Newton, normalized residuals span -55.49 to -56.25 dB for linear and -55.32 to
+-56.25 dB for Hermite. Neither wins every level, and the common fixed
+circuit/state/solver layer dominates both. The candidate is therefore an FPGA
+approximation choice, not a historical-circuit modification or creative mode.
+
 Residual decomposition at 5 mV shows the raw null is dominated by a -2.840 mV
 mean difference. Removing that mean for diagnosis—not for acceptance—gives a
 -59.63 dB AC residual; the fundamental phase error is 0.00958°. The fixed

@@ -28,7 +28,11 @@ module triode_12ax7_factorized_tb;
 
     always #5 clk = ~clk;
 
+`ifdef LINEAR_FACTORIZED
+    triode_12ax7_factorized_linear dut (
+`else
     triode_12ax7_factorized dut (
+`endif
         .clk,
         .rst_n,
         .ce,
@@ -46,8 +50,13 @@ module triode_12ax7_factorized_tb;
         rst_n = 1'b1;
         @(negedge clk);
 
-        if (!$value$plusargs("VECTORS=%s", vector_path))
+        if (!$value$plusargs("VECTORS=%s", vector_path)) begin
+`ifdef LINEAR_FACTORIZED
+            vector_path = "sim/vectors/generated/triode_factorized_linear_random.txt";
+`else
             vector_path = "sim/vectors/generated/triode_factorized_random.txt";
+`endif
+        end
         vector_file = $fopen(vector_path, "r");
         if (vector_file == 0)
             $fatal(1, "cannot open vectors: %s", vector_path);

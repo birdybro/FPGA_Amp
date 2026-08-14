@@ -74,6 +74,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   reports 1,496 logic cells, 35 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1. Solver and
   complete-stream modes are also
   bit-exact at the unchanged 126-clock solver schedule.
+- A separately named value-only factorized candidate keeps the physical Koren
+  factorization and eight-clock interface while using 1,024/8,192/4,096 linear
+  tables. Its dense fixed probe measures 47.49 nA worst plate-current error;
+  tube, wide-solver, and complete 127-clock terminal-solver RTL are bit-exact.
+  The isolated tube routes at 113.24 MHz with 27 DSPs. Full solver synthesis
+  uses 166 DSPs and 13 RAMB18E1 + 5 RAMB36E1; routing is still in progress, so
+  this remains an FPGA approximation candidate rather than reference mode.
 - The SystemVerilog tube lookup accepts physical Q-format voltages, is
   bit-exact for 4,096 randomized vectors, and has eight-clock latency.
 - The nine-node chord corrector is bit-exact for 1,024 randomized/boundary
@@ -537,8 +544,10 @@ solver timing harness at only 13.90 MHz against 98.304 MHz; this is a diagnosed
 architecture failure, not a timing-closure claim. A bit-exact three-clock
 Hermite kernel independently routes at 132.54 MHz with two DSP48E1s, proving a
 viable local timing fix, but it is not yet integrated because the additional
-serial tube latency exceeds the current solver schedule. Both figures use the
-backend's unqualified `DEFAULT` timing grade. The implemented digital mute
+serial tube latency exceeds the current solver schedule. A value-only
+eight-clock tube candidate independently reaches 113.24 MHz and has entered
+full-solver routing; it is not yet timing closure or a reference-mode change.
+All figures use the backend's unqualified `DEFAULT` timing grade. The implemented digital mute
 primitive is not independent analog speaker protection.
 
 ## Verification chain
@@ -708,10 +717,15 @@ make synth-i2s-control-top         # register-controlled complete pin hierarchy
 make synth-i2s-spi-top             # SPI transport plus complete pin hierarchy
 make hermite-rtl                   # bit-exact iterative Hermite regression
 make synth-hermite                 # isolated Hermite resource measurement
+make factorized-linear-rtl         # value-only tube exact-vector regression
+make wide-linear-solver-rtl        # integrated value-only solver regression
+make factorized-linear-study       # Hermite/linear/full-Newton circuit A/B
 make tools-openxc7                 # build pinned open XC7 P&R tools locally
 make openxc7-probe                 # report Yosys/nextpnr/database revisions
 make openxc7-pnr                   # route the solver timing harness on A7-100T
 make openxc7-hermite-pnr           # route the Hermite timing harness on A7-100T
+make openxc7-linear-tube-pnr       # route the value-only tube harness
+make openxc7-linear-solver-pnr     # route the value-only complete solver
 ```
 
 Run a user-supplied 48 kHz integer-PCM WAV through an explicitly selected V1

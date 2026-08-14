@@ -15,7 +15,10 @@ module v1_solver_mono_wide #(
     parameter bit TRAPEZOIDAL = 1'b0,
     // Reuse the final diagnostic residual for a fourth chord update.  The
     // reported residual remains the explicitly documented pre-update value.
-    parameter bit TERMINAL_CORRECTION = 1'b0
+    parameter bit TERMINAL_CORRECTION = 1'b0,
+    // Approximation architecture only: both options evaluate the same Koren
+    // physical law and retain the same eight-clock request/valid contract.
+    parameter bit USE_LINEAR_FACTORIZED_TUBE = 1'b0
 ) (
     input  logic                  clk,
     input  logic                  rst_n,
@@ -544,17 +547,33 @@ module v1_solver_mono_wide #(
         tube_current_flat[127:96] = triode_i_g;
     end
 
-    triode_12ax7_factorized tube_engine (
-        .clk,
-        .rst_n,
-        .ce(triode_ce),
-        .v_gk(triode_v_gk),
-        .v_pk(triode_v_pk),
-        .i_p(triode_i_p),
-        .i_g(triode_i_g),
-        .range_clipped(triode_range_clipped),
-        .valid(triode_valid)
-    );
+    generate
+        if (USE_LINEAR_FACTORIZED_TUBE) begin : generate_linear_tube
+            triode_12ax7_factorized_linear tube_engine (
+                .clk,
+                .rst_n,
+                .ce(triode_ce),
+                .v_gk(triode_v_gk),
+                .v_pk(triode_v_pk),
+                .i_p(triode_i_p),
+                .i_g(triode_i_g),
+                .range_clipped(triode_range_clipped),
+                .valid(triode_valid)
+            );
+        end else begin : generate_hermite_tube
+            triode_12ax7_factorized tube_engine (
+                .clk,
+                .rst_n,
+                .ce(triode_ce),
+                .v_gk(triode_v_gk),
+                .v_pk(triode_v_pk),
+                .i_p(triode_i_p),
+                .i_g(triode_i_g),
+                .range_clipped(triode_range_clipped),
+                .valid(triode_valid)
+            );
+        end
+    endgenerate
 
     logic chord_start;
     logic chord_saturation_any;

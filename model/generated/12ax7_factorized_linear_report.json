@@ -1,0 +1,48 @@
+{
+  "algorithm": "three value-only 1-D LUTs with fixed linear interpolation",
+  "seed": 16434945,
+  "random_vectors": 4096,
+  "directed_vectors": 14,
+  "total_vectors": 4110,
+  "accuracy_vectors_inside_all_factor_domains": 99103,
+  "ranges": {
+    "plate_law_v_gk_v": [
+      -8.0,
+      1.0
+    ],
+    "grid_current_lookup_v_gk_v": [
+      -5.0,
+      1.0
+    ],
+    "v_pk_v": [
+      0.0,
+      400.0
+    ],
+    "transformed": [
+      -0.3,
+      0.08
+    ],
+    "e1_v": [
+      0.0,
+      6.0
+    ]
+  },
+  "expected_clip_vectors": 44,
+  "latency_clocks": 8,
+  "raw_table_bits": 458752,
+  "raw_ramb18_equivalents": 24.88888888888889,
+  "grid_current_points": 1024,
+  "grid_current_storage_bits": 32768,
+  "grid_current_maximum_absolute_error_a": 1.2549517928636351e-08,
+  "grid_current_active_region_rms_error_a": 2.8170119333830207e-09,
+  "mean_absolute_error_a": 4.952158003102958e-09,
+  "rms_error_a": 7.866713855490518e-09,
+  "worst_absolute_error_a": 4.7494308425335974e-08,
+  "outputs": [
+    "model/generated/12ax7_factor_linear_reciprocal_q32.mem",
+    "model/generated/12ax7_factor_linear_softplus_q32.mem",
+    "model/generated/12ax7_factor_linear_power_q31.mem",
+    "model/generated/12ax7_factor_linear_grid_q31.mem",
+    "sim/vectors/generated/triode_factorized_linear_random.txt"
+  ]
+}

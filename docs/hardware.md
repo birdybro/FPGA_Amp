@@ -68,6 +68,25 @@ repeated across solver passes, exceeds the 127-clock internal-sample deadline.
 The next architecture step must budget those dependencies explicitly instead
 of trading away the reference law or silently lowering oversampling.
 
+### Value-only eight-clock tube candidate
+
+`triode_12ax7_factorized_linear` takes a different, separately error-bounded
+route: it spends memory on 1,024/8,192/4,096 value-only tables so each scalar
+interpolation has one product, while preserving the original eight-clock tube
+and 127-clock complete-solver schedules. Out-of-context Yosys reports 642
+estimated logic cells, 27 DSP48E1s, 13 RAMB18E1s, and five RAMB36E1s. The
+three-pin tube harness packs to 2,630 `SLICE_LUTX`, 373 `SLICE_FFX`, 246 CARRY4,
+the same DSP/RAM count, and routes at 113.24 MHz against 98.304 MHz. As with all
+current nextpnr-XC7 results, this is an experimental `DEFAULT`-grade estimate.
+
+The complete accuracy-first terminal solver remains bit-exact to its matching
+Python candidate at 127 clocks. Its named-part synthesis measures 14,140
+estimated logic cells, 6,282 flip-flops, 166 DSP48E1s, 13 RAMB18E1s, and five
+RAMB36E1s; packing expands it to 49,530 `SLICE_LUTX` and 3,710 CARRY4. This is
+eight fewer DSPs and 1,259 fewer packed LUT elements than the Hermite harness,
+at the cost of additional RAM. Full route/timing is still in progress and no
+whole-solver closure is inferred from the isolated tube result.
+
 ## Measured out-of-context result
 
 Yosys 0.66 `synth_xilinx -family xc7`, without I/O pads or clock buffer, reports

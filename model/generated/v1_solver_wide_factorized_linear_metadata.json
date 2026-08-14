@@ -1,0 +1,23 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "algorithm": "wide branch-current state, three adaptive Q30/Q34/Q40 chord corrections",
+  "integration_method": "backward_euler",
+  "tube_implementation": "factorized_linear",
+  "sample_rate_hz": 768000,
+  "vectors": 512,
+  "seed": 328099,
+  "maximum_residual_q44": 54598,
+  "maximum_residual_a": 3.103536982962396e-09,
+  "saturation_count": 0,
+  "lut_clip_count": 0,
+  "nonconvergence_count": 0,
+  "correction_scale_fallback_count": 0,
+  "minimum_correction_residual_fractional_bits": null,
+  "banked_chord": false,
+  "terminal_correction": false,
+  "residual_diagnostic_state": "committed_output_state",
+  "chord_bank_selection_count": null,
+  "slew_qualified_selection_count": null,
+  "latency_clocks": 116,
+  "output": "sim/vectors/generated/v1_solver_wide_factorized_stream_linear.txt"
+}

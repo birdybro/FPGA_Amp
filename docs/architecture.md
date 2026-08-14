@@ -224,6 +224,13 @@ and two of their results feed additional products; a direct substitution would
 consume the solver's margin. Complete tube-cycle rescheduling is therefore a
 prerequisite to integration, even though the local timing experiment passes.
 
+The selectable value-only factorized candidate avoids that schedule growth.
+Larger reciprocal/softplus/power ROMs reduce each interpolation to one product,
+and the matching tube, 116-clock wide solver, and 127-clock terminal solver all
+retain their existing interfaces and pass bit-exact tests. The default remains
+Hermite while whole-solver routing and upstream-reference error are evaluated;
+this is an approximation-architecture selection, not a circuit-mode control.
+
 At complete-stream scope the corresponding counts are 13,170 LC / 137 DSP /
 47 RAMB18 for the surface mode and 14,290 LC / 156 DSP / 8 RAMB18 + 1 RAMB36 for the
 factorized mode. Both produce exact mode-specific fixed-model outputs.

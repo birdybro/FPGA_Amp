@@ -14,7 +14,10 @@ import numpy as np
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPOSITORY_ROOT / "model" / "python"))
 
-from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
+from fpga_amp.factorized_tube import (  # noqa: E402
+    FixedFactorizedKoren12AX7,
+    FixedLinearFactorizedKoren12AX7,
+)
 from fpga_amp.tube import Koren12AX7  # noqa: E402
 
 
@@ -23,11 +26,20 @@ def main() -> int:
     parser.add_argument("--seed", type=int, default=0xFAC701)
     parser.add_argument("--vectors", type=int, default=4096)
     parser.add_argument(
+        "--linear",
+        action="store_true",
+        help="generate the measured value-only linear timing candidate",
+    )
+    parser.add_argument(
         "--output", type=Path, default=REPOSITORY_ROOT / "model" / "generated"
     )
     args = parser.parse_args()
 
-    factorized = FixedFactorizedKoren12AX7()
+    factorized = (
+        FixedLinearFactorizedKoren12AX7()
+        if args.linear
+        else FixedFactorizedKoren12AX7()
+    )
     memory_paths = factorized.write_memories(args.output)
     rng = np.random.default_rng(args.seed)
     random_grid = rng.integers(
@@ -66,7 +78,11 @@ def main() -> int:
 
     vector_dir = REPOSITORY_ROOT / "sim" / "vectors" / "generated"
     vector_dir.mkdir(parents=True, exist_ok=True)
-    vector_path = vector_dir / "triode_factorized_random.txt"
+    vector_path = vector_dir / (
+        "triode_factorized_linear_random.txt"
+        if args.linear
+        else "triode_factorized_random.txt"
+    )
     approximate = np.empty(grid_q24.size)
     clipped_flags = np.empty(grid_q24.size, dtype=np.bool_)
     clip_count = 0
@@ -92,10 +108,46 @@ def main() -> int:
         & (plate_q20 <= factorized._fixed_limit(factorized.plate_max_v, 20))
     )
     in_range = externally_in_range & ~clipped_flags
+    accuracy_grid_q24 = grid_q24[in_range]
+    accuracy_plate_q20 = plate_q20[in_range]
+    accuracy_approximate = approximate[in_range]
+    if args.linear:
+        # The latency candidate was selected from a much denser deterministic
+        # probe than the RTL vector set. Reproduce that error evidence every
+        # time its tables are generated rather than reporting a lucky 4k draw.
+        accuracy_rng = np.random.default_rng(args.seed ^ 0x1A11E4)
+        accuracy_grid_q24 = accuracy_rng.integers(
+            factorized._fixed_limit(factorized.v_gk_min_v, 24),
+            factorized._fixed_limit(factorized.v_gk_max_v, 24) + 1,
+            100_000,
+            dtype=np.int64,
+        )
+        accuracy_plate_q20 = accuracy_rng.integers(
+            factorized._fixed_limit(factorized.plate_min_v, 20),
+            factorized._fixed_limit(factorized.plate_max_v, 20) + 1,
+            100_000,
+            dtype=np.int64,
+        )
+        accuracy_values: list[float] = []
+        retained_grid: list[int] = []
+        retained_plate: list[int] = []
+        for grid, plate in zip(
+            accuracy_grid_q24, accuracy_plate_q20, strict=True
+        ):
+            plate_q31, _, clipped = factorized.evaluate_fixed(
+                int(grid), int(plate)
+            )
+            if not clipped:
+                retained_grid.append(int(grid))
+                retained_plate.append(int(plate))
+                accuracy_values.append(plate_q31 / (1 << 31))
+        accuracy_grid_q24 = np.asarray(retained_grid, dtype=np.int64)
+        accuracy_plate_q20 = np.asarray(retained_plate, dtype=np.int64)
+        accuracy_approximate = np.asarray(accuracy_values)
     reference = Koren12AX7().plate_current(
-        grid_q24[in_range] / (1 << 24), plate_q20[in_range] / (1 << 20)
+        accuracy_grid_q24 / (1 << 24), accuracy_plate_q20 / (1 << 20)
     )
-    error = approximate[in_range] - reference
+    error = accuracy_approximate - reference
     grid_probe_v = np.linspace(
         factorized.grid_v_gk_min_v,
         factorized.v_gk_max_v,
@@ -119,12 +171,16 @@ def main() -> int:
     )
     grid_error = fixed_grid_current - Koren12AX7().grid_current(grid_probe_v)
     report = {
-        "algorithm": "three value/slope 1-D LUTs with fixed cubic Hermite interpolation",
+        "algorithm": (
+            "three value-only 1-D LUTs with fixed linear interpolation"
+            if args.linear
+            else "three value/slope 1-D LUTs with fixed cubic Hermite interpolation"
+        ),
         "seed": args.seed,
         "random_vectors": args.vectors,
         "directed_vectors": int(directed.shape[0]),
         "total_vectors": int(grid_q24.size),
-        "accuracy_vectors_inside_all_factor_domains": int(np.count_nonzero(in_range)),
+        "accuracy_vectors_inside_all_factor_domains": int(error.size),
         "ranges": {
             "plate_law_v_gk_v": [
                 factorized.v_gk_min_v,
@@ -161,7 +217,11 @@ def main() -> int:
             str(vector_path.relative_to(REPOSITORY_ROOT)),
         ],
     }
-    report_path = args.output / "12ax7_factorized_report.json"
+    report_path = args.output / (
+        "12ax7_factorized_linear_report.json"
+        if args.linear
+        else "12ax7_factorized_report.json"
+    )
     report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
     return 0

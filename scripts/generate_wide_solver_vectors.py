@@ -14,7 +14,10 @@ import numpy as np
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPOSITORY_ROOT / "model" / "python"))
 
-from fpga_amp.factorized_tube import FixedFactorizedKoren12AX7  # noqa: E402
+from fpga_amp.factorized_tube import (  # noqa: E402
+    FixedFactorizedKoren12AX7,
+    FixedLinearFactorizedKoren12AX7,
+)
 from fpga_amp.fixed_circuit import (  # noqa: E402
     FixedWideStateBankedChordV1CircuitModel,
     FixedWideStateTrapezoidalV1CircuitModel,
@@ -29,10 +32,16 @@ def main() -> int:
     parser.add_argument("--trapezoidal", action="store_true")
     parser.add_argument("--banked", action="store_true")
     parser.add_argument("--terminal-correction", action="store_true")
+    parser.add_argument("--linear-tube", action="store_true")
     args = parser.parse_args()
+    tube = (
+        FixedLinearFactorizedKoren12AX7()
+        if args.linear_tube
+        else FixedFactorizedKoren12AX7()
+    )
     if args.banked:
         model = FixedWideStateBankedChordV1CircuitModel(
-            tube_lut=FixedFactorizedKoren12AX7(),
+            tube_lut=tube,
             integration_method=(
                 "trapezoidal" if args.trapezoidal else "backward_euler"
             ),
@@ -45,7 +54,7 @@ def main() -> int:
             else FixedWideStateV1CircuitModel
         )
         model = model_type(
-            tube_lut=FixedFactorizedKoren12AX7(),
+            tube_lut=tube,
             terminal_correction=args.terminal_correction,
         )
     generated = REPOSITORY_ROOT / "model" / "generated"
@@ -55,6 +64,7 @@ def main() -> int:
         asset_suffix
         + ("_banked" if args.banked else "")
         + ("_terminal" if args.terminal_correction else "")
+        + ("_linear" if args.linear_tube else "")
     )
     write_memory(
         generated / f"v1_node_initial_wide{asset_suffix}.mem",
@@ -127,7 +137,9 @@ def main() -> int:
         "integration_method": (
             "trapezoidal" if args.trapezoidal else "backward_euler"
         ),
-        "tube_implementation": "factorized",
+        "tube_implementation": (
+            "factorized_linear" if args.linear_tube else "factorized_hermite"
+        ),
         "sample_rate_hz": int(model.sample_rate_hz),
         "vectors": args.vectors,
         "seed": 0x501A3,

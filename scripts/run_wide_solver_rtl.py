@@ -23,6 +23,7 @@ def main() -> int:
     parser.add_argument("--trapezoidal", action="store_true")
     parser.add_argument("--banked", action="store_true")
     parser.add_argument("--terminal-correction", action="store_true")
+    parser.add_argument("--linear-tube", action="store_true")
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
@@ -47,10 +48,14 @@ def main() -> int:
             generators[-1].append("--banked")
         if args.terminal_correction:
             generators[-1].append("--terminal-correction")
+        if args.linear_tube:
+            generators[2 if not args.trapezoidal else 3].append("--linear")
+            generators[-1].append("--linear-tube")
         for command in generators:
             subprocess.run(command, cwd=ROOT, check=True)
     sources = [
         "rtl/tube/triode_12ax7_factorized.sv",
+        "rtl/tube/triode_12ax7_factorized_linear.sv",
         "rtl/circuit/network_rhs_v1_wide.sv",
         "rtl/circuit/network_kcl_v1_wide.sv",
         "rtl/circuit/chord_corrector_v1_wide.sv",
@@ -69,6 +74,8 @@ def main() -> int:
         parameter_args.append("-GTRAPEZOIDAL=1")
     if args.terminal_correction:
         parameter_args.append("-GTERMINAL_CORRECTION=1")
+    if args.linear_tube:
+        parameter_args.append("-GLINEAR_TUBE=1")
     subprocess.run(
         [
             verilator,
@@ -92,6 +99,7 @@ def main() -> int:
         + ("_trapezoidal" if args.trapezoidal else "")
         + ("_banked" if args.banked else "")
         + ("_terminal" if args.terminal_correction else "")
+        + ("_linear" if args.linear_tube else "")
     )
     subprocess.run(
         [
@@ -114,6 +122,17 @@ def main() -> int:
     simulation = [str(build / f"V{top}")]
     if args.vectors_file:
         simulation.append(f"+VECTORS={args.vectors_file}")
+    elif args.linear_tube:
+        vector_suffix = (
+            ("_trapezoidal" if args.trapezoidal else "")
+            + ("_banked" if args.banked else "")
+            + ("_terminal" if args.terminal_correction else "")
+            + "_linear"
+        )
+        simulation.append(
+            "+VECTORS=sim/vectors/generated/"
+            f"v1_solver_wide_factorized_stream{vector_suffix}.txt"
+        )
     if args.capture_file:
         simulation.append(f"+CAPTURE={args.capture_file}")
     subprocess.run(simulation, cwd=ROOT, check=True)
