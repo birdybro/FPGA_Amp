@@ -29,6 +29,15 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Convert the measured BCLK-rate status into a fail-closed modern output
+  policy at the register-controlled wrapper. Hold the immediate mute through
+  three-window startup qualification, reassert it on stopped BCLK, retain it
+  through clock reacquisition, snapshot the evidence, and release only after an
+  explicit host clear reaches both fabric and I²S domains. Keep model scheduling
+  active so startup qualification cannot overflow the receive FIFO. Updated
+  structural synthesis is 21,375 LC / 17,787 FF for the controlled hierarchy
+  and 21,507 LC / 17,959 FF with SPI, both retaining 232 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1 and zero structural-check problems.
 - [x] Compose the SPI transport, fabric register bank, guarded calibration, and
   pin-facing I²S/model hierarchy. Prove 15 complete 5 MHz frames through the
   actual stack, including startup commit/readback, retained and refreshed
@@ -453,8 +462,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   The modeled-output ramp and atomic converter-coefficient commit are now
   integrated, and the SPI-controlled pin wrapper supplies transport, shadow
   commit, and coherent fabric snapshots. Host software, CDC-safe multibit I²S
-  level snapshots, queued-frame/physical analog muting, rate-error handling,
-  and CDC/I/O timing constraints remain absent;
+  level snapshots, queued-frame/physical analog muting, and CDC/I/O timing
+  constraints remain absent;
   embedded assertions cannot be proven until a formal engine is available.
   The cubic and full-tube alias-family tests are captured from RTL; the latter
   is bounded below fixed rounding closure rather than inferred from the

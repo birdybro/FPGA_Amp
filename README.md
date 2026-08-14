@@ -112,6 +112,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   measures exactly 1,024 edges in four windows. Standalone synthesis is 68 LC /
   125 FF / no DSP or RAM. This detects gross rate error; FIFO drift remains the
   longer-term mismatch diagnostic and neither mechanism performs rate matching.
+  The register-controlled wrapper now treats missing lock or retained rate
+  error as an explicitly modern immediate-mute condition. A shortened-window
+  integration test proves startup qualification, stopped-BCLK clamp, recovery
+  that remains latched, coherent fault snapshot, and host clear before release;
+  model scheduling continues silently so the receive FIFO is not filled.
 - Standalone converter calibration now maps PCM24 to physical input Q8.24 volts
   and physical output volts back to saturating PCM24 with explicit positive
   Q8.24 coefficients, full-width products, symmetric rounding, endpoint/clip
@@ -259,7 +264,9 @@ The mono reference and complete 768 kHz circuit solver are operating:
 - A register-controlled pin wrapper now owns calibration and mute, freezes 21
   fabric-coherent status words, synchronizes sticky I²S faults, and transfers
   diagnostic clear once across the unrelated BCLK domain. Integration is
-  warning-free; structural synthesis is 21,363 LC / 17,755 FF / 232 DSP48E1 /
+  warning-free. It also fails closed through BCLK qualification and after a
+  retained rate error without changing reference-circuit state. Structural
+  synthesis is 21,375 LC / 17,787 FF / 232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1. Raw multibit I²S levels and
   named-part timing are not claimed.
 - A mode-0 SPI bridge now oversamples CS/SCLK/MOSI in the fabric domain and
@@ -270,7 +277,7 @@ The mono reference and complete 768 kHz circuit solver are operating:
   passes 15 SPI frames through the pin-facing hierarchy, including untorn
   force-mute snapshots, snapshotted transport count, calibration ownership,
   a retained short-frame fault, and one I²S-domain clear event. Flattened
-  synthesis is 21,506 LC / 17,959 FF /
+  synthesis is 21,507 LC / 17,959 FF /
   232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; placed SCLK/CDC/I/O limits remain open.
 - A captured complete-stream sweep at 100 Hz, 1 kHz, 10 kHz, and 20 kHz proves
   all 19,200 Q8.24 outputs exact with zero diagnostics. Relative to the composed

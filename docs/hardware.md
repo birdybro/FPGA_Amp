@@ -286,12 +286,13 @@ pin hierarchy:
 
 | Resource | Register-controlled | SPI-controlled |
 |---|---:|---:|
-| estimated logic cells | 21,363 | 21,506 |
-| flip-flops | 17,755 | 17,959 |
+| estimated logic cells | 21,375 | 21,507 |
+| flip-flops | 17,787 | 17,959 |
 | DSP48E1 | 232 | 232 |
 | RAMB18E1 / RAMB36E1 | 8 / 1 | 8 / 1 |
 
-Both flattened structural checks report zero problems. The SPI result includes
+Both flattened structural checks report zero problems. These current totals
+include the fail-closed BCLK guard. The SPI result also includes
 the fixed 80-bit register transaction, frame/response diagnostics, and
 saturating completed-frame counter. It still has no package assignment, I/O
 delay, synchronizer placement, named-part timing, or physical converter claim.

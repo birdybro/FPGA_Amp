@@ -3,6 +3,7 @@
 
 module phono_i2s_control_top_tb;
     logic i2s_bclk;
+    logic bclk_running = 1'b1;
     logic i2s_rst_n = 1'b0;
     logic i2s_adc_lrclk = 1'b0;
     logic i2s_adc_serial_data = 1'b0;
@@ -27,6 +28,7 @@ module phono_i2s_control_top_tb;
     logic output_ramping;
     logic audio_clock_rate_locked;
     logic audio_clock_rate_error_sticky;
+    logic rate_fault_mute_active;
     logic [31:0] control_snapshot_sequence;
     logic [31:0] calibration_commit_sequence;
     logic [31:0] calibration_accepted_sequence;
@@ -43,11 +45,21 @@ module phono_i2s_control_top_tb;
     end
     initial begin
         i2s_bclk = 1'b0;
-        forever #163 i2s_bclk = ~i2s_bclk;
+        forever begin
+            #160;
+            if (bclk_running)
+                i2s_bclk = ~i2s_bclk;
+            else
+                i2s_bclk = 1'b0;
+        end
     end
 
     phono_i2s_control_top #(
-        .OUTPUT_RAMP_SAMPLES(8)
+        .OUTPUT_RAMP_SAMPLES(8),
+        .CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS(320),
+        .CLOCK_MONITOR_EXPECTED_BCLK_EDGES(10),
+        .CLOCK_MONITOR_EDGE_TOLERANCE(0),
+        .CLOCK_MONITOR_LOCK_WINDOWS(3)
     ) dut (.*);
 
     always_ff @(posedge i2s_bclk or negedge i2s_rst_n) begin
@@ -182,14 +194,60 @@ module phono_i2s_control_top_tb;
             || calibration_accepted_sequence != 1
             || output_ramping || audio_clock_rate_locked
             || audio_clock_rate_error_sticky
+            || !rate_fault_mute_active
             || transport_clear_pulse_count != 1
             || ((^{i2s_dac_lrclk, i2s_dac_serial_data}) === 1'bx)) begin
             $error("unexpected controlled-top diagnostic");
             errors = errors + 1;
         end
+
+        // The wrapper fails closed until three exact-rate windows qualify.
+        // A stopped BCLK drops lock, latches evidence, and remains force-muted
+        // even after rate recovery until the host snapshots and clears it.
+        force_mute = 1'b0;
+        wait (audio_clock_rate_locked);
+        @(negedge fabric_clk);
+        #1;
+        if (rate_fault_mute_active || dut.effective_force_mute
+            || audio_clock_rate_error_sticky) begin
+            $error("qualified BCLK did not release rate-fault mute");
+            errors = errors + 1;
+        end
+        bclk_running = 1'b0;
+        wait (audio_clock_rate_error_sticky);
+        #1;
+        if (audio_clock_rate_locked || !rate_fault_mute_active
+            || !dut.effective_force_mute) begin
+            $error("stopped BCLK did not assert retained force mute");
+            errors = errors + 1;
+        end
+        bclk_running = 1'b1;
+        wait (audio_clock_rate_locked);
+        #1;
+        if (!audio_clock_rate_error_sticky || !rate_fault_mute_active
+            || !dut.effective_force_mute) begin
+            $error("rate recovery improperly bypassed retained fault");
+            errors = errors + 1;
+        end
+        bus_write(8'h04, 32'h0000_0002);
+        bus_read(8'h20);
+        if (!captured_read_data[1] || !captured_read_data[9]) begin
+            $error("rate-fault snapshot evidence missing");
+            errors = errors + 1;
+        end
+        bus_write(8'h04, 32'h0000_0004);
+        repeat (8) @(posedge i2s_bclk);
+        #1;
+        if (audio_clock_rate_error_sticky || rate_fault_mute_active
+            || dut.effective_force_mute || !audio_clock_rate_locked
+            || i2s_clear_pulse_count != 2
+            || transport_clear_pulse_count != 2) begin
+            $error("qualified rate-fault clear did not release output");
+            errors = errors + 1;
+        end
         if (errors != 0)
             $fatal(1, "FAIL: %0d controlled-top errors", errors);
-        $display("PASS: register-owned calibration, snapshot, and I2S clear CDC");
+        $display("PASS: control, snapshot, clear CDC, and fail-closed BCLK guard");
         $finish;
     end
 

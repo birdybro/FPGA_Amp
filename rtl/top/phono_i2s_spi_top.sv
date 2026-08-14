@@ -5,7 +5,11 @@
 // mode-0 SPI host control. Physical clock generation, I/O constraints, analog
 // mute, converters, and speaker protection remain board responsibilities.
 module phono_i2s_spi_top #(
-    parameter int unsigned OUTPUT_RAMP_SAMPLES = 2048
+    parameter int unsigned OUTPUT_RAMP_SAMPLES = 2048,
+    parameter int unsigned CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS = 32768,
+    parameter int unsigned CLOCK_MONITOR_EXPECTED_BCLK_EDGES = 1024,
+    parameter int unsigned CLOCK_MONITOR_EDGE_TOLERANCE = 1,
+    parameter int unsigned CLOCK_MONITOR_LOCK_WINDOWS = 3
 ) (
     input  logic                 i2s_bclk,
     input  logic                 i2s_rst_n,
@@ -28,6 +32,7 @@ module phono_i2s_spi_top #(
     output logic                 output_ramping,
     output logic                 audio_clock_rate_locked,
     output logic                 audio_clock_rate_error_sticky,
+    output logic                 rate_fault_mute_active,
     output logic                 spi_frame_error_sticky,
     output logic                 spi_response_underflow_sticky,
     output logic [31:0]          spi_completed_frame_count,
@@ -69,7 +74,17 @@ module phono_i2s_spi_top #(
     );
 
     phono_i2s_control_top #(
-        .OUTPUT_RAMP_SAMPLES(OUTPUT_RAMP_SAMPLES)
+        .OUTPUT_RAMP_SAMPLES(OUTPUT_RAMP_SAMPLES),
+        .CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS(
+            CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS
+        ),
+        .CLOCK_MONITOR_EXPECTED_BCLK_EDGES(
+            CLOCK_MONITOR_EXPECTED_BCLK_EDGES
+        ),
+        .CLOCK_MONITOR_EDGE_TOLERANCE(
+            CLOCK_MONITOR_EDGE_TOLERANCE
+        ),
+        .CLOCK_MONITOR_LOCK_WINDOWS(CLOCK_MONITOR_LOCK_WINDOWS)
     ) controlled_audio (
         .i2s_bclk,
         .i2s_rst_n,
@@ -98,6 +113,7 @@ module phono_i2s_spi_top #(
         .output_ramping,
         .audio_clock_rate_locked,
         .audio_clock_rate_error_sticky,
+        .rate_fault_mute_active,
         .control_snapshot_sequence(unused_register_sequences[31:0]),
         .calibration_commit_sequence(unused_register_sequences[63:32]),
         .calibration_accepted_sequence(unused_register_sequences[95:64]),

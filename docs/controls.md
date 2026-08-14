@@ -64,7 +64,7 @@ the audio solver.
 
 | Address | Snapshot contents |
 |---:|---|
-| `0x20` | clock lock/error, scheduled-frame, mute/ramp, calibration/configuration errors, synchronized I²S sticky faults, fabric FIFO faults, SPI frame/response faults, force mute |
+| `0x20` | clock lock/error, rate-fault mute, scheduled-frame, mute/ramp, calibration/configuration errors, synchronized I²S sticky faults, fabric FIFO faults, SPI frame/response faults, external force mute |
 | `0x21` | measurement-valid, lock/error, good-window count, measured BCLK edges |
 | `0x22` | fabric RX/TX FIFO level and high-water views plus scheduler phase |
 | `0x23` | output gain, solver latency, minimum correction format, mute/ramp |
@@ -129,7 +129,11 @@ edge count, consecutive-good-window count, live rate-lock flag, and sticky rate
 error. The default monitor requires three 1,024 ± 1 edge windows. It is already
 in the fabric domain and can enter the implemented coherent diagnostic snapshot
 directly. Lock is live status; the sticky bit retains a bad window until the
-fabric diagnostic clear.
+fabric diagnostic clear. In the register-controlled wrapper, `!rate_locked` or
+the retained rate error drives the modern immediate-mute input. Reacquiring
+three good windows restores lock but cannot release audio until the host clears
+the retained evidence. Snapshot word `0x20` bit 9 records that effective
+rate-fault mute state; bit 18 remains the independent external force-mute pin.
 
 ## Required counters
 
@@ -168,8 +172,8 @@ commits and reads back the converter calibration pair, demonstrates that a
 retained snapshot cannot tear when `force_mute` changes, takes a second image,
 captures a deliberately aborted frame, reads the snapshotted transport-frame
 count, and transfers one diagnostic-clear event into the unrelated I²S clock
-domain. Flattened XC7 structural synthesis
-is 21,506 estimated logic cells / 17,959 FF / 232 DSP48E1 /
+domain. With the fail-closed BCLK guard, flattened XC7 structural synthesis
+is 21,507 estimated logic cells / 17,959 FF / 232 DSP48E1 /
 8 RAMB18E1 + 1 RAMB36E1. There is still no named-part SCLK, CDC, I/O, or
 98.304 MHz timing claim, and no host driver. No protocol-specific state belongs
 in the audio solver.

@@ -22,6 +22,7 @@ module phono_i2s_spi_top_tb;
     logic output_ramping;
     logic audio_clock_rate_locked;
     logic audio_clock_rate_error_sticky;
+    logic rate_fault_mute_active;
     logic spi_frame_error_sticky;
     logic spi_response_underflow_sticky;
     logic [31:0] spi_completed_frame_count;
@@ -185,6 +186,7 @@ module phono_i2s_spi_top_tb;
             || calibration_rejected_sticky
             || output_ramping || audio_clock_rate_locked
             || audio_clock_rate_error_sticky
+            || !rate_fault_mute_active
             || ((^{i2s_dac_lrclk, i2s_dac_serial_data}) === 1'bx)) begin
             $error("unexpected full SPI-top diagnostic frames=%0d clear=%0d",
                    spi_completed_frame_count, i2s_clear_pulse_count);

@@ -6,6 +6,17 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added fail-closed BCLK-rate muting to the register-controlled pin wrapper,
+  explicitly outside the historical model. Output is immediately clamped until
+  three good clock windows qualify. A stopped/bad BCLK reasserts the clamp, and
+  retained error evidence prevents automatic unmute after clock recovery until
+  a host clear. A shortened-window end-to-end regression proves qualification,
+  stopped-clock detection, reacquisition, coherent fault snapshot, and exact
+  fabric/I²S clear delivery without stopping model scheduling or filling the
+  receive FIFO. Updated flattened XC7 synthesis is 21,375 LC / 17,787 FF for
+  the controlled hierarchy and 21,507 LC / 17,959 FF with SPI; both retain
+  232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1 and have zero structural-check
+  problems.
 - Added the complete SPI-controlled pin hierarchy. `phono_i2s_spi_top` connects
   the oversampled mode-0 transport to the atomic register/calibration bank and
   I²S/model path. A warning-free 15-frame test covers startup calibration,

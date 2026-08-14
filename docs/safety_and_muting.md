@@ -7,12 +7,17 @@ ADC/DAC serial interfaces remain muted until clocks are stable, converter reset
 is released, frames are valid, and the model has produced a configurable number
 of valid samples.
 
-The pin top now reports live BCLK/fabric rate lock after three good measurement
-windows and latches any bad window. It does not automatically gate audio reset:
-holding the model consumer stopped for the roughly 1 ms acquisition while a
-converter streams would overflow the depth-8 receive FIFO. A board startup
-controller must coordinate converter data enable, FIFO draining/discard, clock
-lock, model initialization, and analog mute as one explicit sequence.
+The low-level pin top reports live BCLK/fabric rate lock after three good
+measurement windows and latches any bad window. The register-controlled wrapper
+now converts that evidence into a fail-closed digital output policy: it asserts
+the existing immediate `force_mute` path until lock, reasserts it on one bad or
+stopped-clock window, and holds it after rate reacquisition until the host
+explicitly clears the sticky fault. It does not stop the model consumer during
+the roughly 1 ms default acquisition, because doing so while a converter
+streams would overflow the depth-8 receive FIFO. Thus the model may advance
+silently while the output ramp is clamped at zero. A board startup controller
+must still coordinate converter data enable, FIFO draining/discard, clock lock,
+model initialization, DAC/analog mute, and unmute as one explicit sequence.
 
 The first implemented system-safety primitive is
 `rtl/audio/output_mute_ramp.sv`. It is deliberately downstream of and outside
@@ -48,6 +53,14 @@ output; all later reference samples remain bit-identical. A force-mute request
 clears the ramp state synchronously, but it cannot revoke PCM frames already in
 the adapter hold register or asynchronous transmit FIFO. Dedicated analog mute
 remains required.
+
+The clock-fault policy is a modern system-safety layer, not historical circuit
+behavior. After lock returns, requiring an explicit diagnostic clear prevents a
+transient recovered clock from silently restoring audio. The shortened-window
+wrapper regression qualifies three exact-rate windows, stops BCLK, observes the
+live lock drop and sticky fault, reacquires while remaining muted, snapshots the
+evidence, and clears it through both fabric and I²S domains before the effective
+force-mute signal can deassert.
 
 The pin-facing top now places `calibration_commit_guard` in the fabric control
 path. ADC and DAC coefficients reset inactive and commit as one pair only while

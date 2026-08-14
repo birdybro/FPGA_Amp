@@ -2,10 +2,15 @@
 `default_nettype none
 
 // Pin-facing mono V1 hierarchy with a concrete fabric register boundary. The
-// register request bus is synchronous to fabric_clk; a later SPI/UART/CPU
-// transport can drive it without entering the audio solver.
+// request bus is synchronous to fabric_clk; SPI/UART/CPU transports remain
+// outside the audio solver. Clock-fault muting is modern system safety, not a
+// change to the historical circuit model.
 module phono_i2s_control_top #(
-    parameter int unsigned OUTPUT_RAMP_SAMPLES = 2048
+    parameter int unsigned OUTPUT_RAMP_SAMPLES = 2048,
+    parameter int unsigned CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS = 32768,
+    parameter int unsigned CLOCK_MONITOR_EXPECTED_BCLK_EDGES = 1024,
+    parameter int unsigned CLOCK_MONITOR_EDGE_TOLERANCE = 1,
+    parameter int unsigned CLOCK_MONITOR_LOCK_WINDOWS = 3
 ) (
     input  logic                 i2s_bclk,
     input  logic                 i2s_rst_n,
@@ -35,6 +40,7 @@ module phono_i2s_control_top #(
     output logic                 output_ramping,
     output logic                 audio_clock_rate_locked,
     output logic                 audio_clock_rate_error_sticky,
+    output logic                 rate_fault_mute_active,
     output logic [31:0]          control_snapshot_sequence,
     output logic [31:0]          calibration_commit_sequence,
     output logic [31:0]          calibration_accepted_sequence,
@@ -101,6 +107,14 @@ module phono_i2s_control_top #(
     logic [5:0] solver_minimum_correction_fractional_bits;
     logic [62:0] solver_last_residual_q44;
     logic [7:0] solver_latency_cycles;
+    logic effective_force_mute;
+
+    // Fail closed until the BCLK ratio has qualified for the configured number
+    // of windows. Once a bad window is retained, the host must clear diagnostic
+    // evidence after the clock has recovered before output can ramp again.
+    assign rate_fault_mute_active =
+        !audio_clock_rate_locked || audio_clock_rate_error_sticky;
+    assign effective_force_mute = force_mute || rate_fault_mute_active;
 
     logic [3:0] i2s_sticky_async;
     (* ASYNC_REG = "TRUE" *) logic [3:0] i2s_sticky_meta;
@@ -150,6 +164,7 @@ module phono_i2s_control_top #(
             input_configuration_error_sticky;
         diagnostic_words_flat[0*32 + 8] =
             output_configuration_error_sticky;
+        diagnostic_words_flat[0*32 + 9] = rate_fault_mute_active;
         diagnostic_words_flat[0*32 + 12 +: 4] = i2s_sticky_sync;
         diagnostic_words_flat[0*32 + 16] = rx_fifo_underflow_sticky;
         diagnostic_words_flat[0*32 + 17] = tx_fifo_overflow_sticky;
@@ -243,7 +258,17 @@ module phono_i2s_control_top #(
     );
 
     phono_i2s_mono_top #(
-        .OUTPUT_RAMP_SAMPLES(OUTPUT_RAMP_SAMPLES)
+        .OUTPUT_RAMP_SAMPLES(OUTPUT_RAMP_SAMPLES),
+        .CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS(
+            CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS
+        ),
+        .CLOCK_MONITOR_EXPECTED_BCLK_EDGES(
+            CLOCK_MONITOR_EXPECTED_BCLK_EDGES
+        ),
+        .CLOCK_MONITOR_EDGE_TOLERANCE(
+            CLOCK_MONITOR_EDGE_TOLERANCE
+        ),
+        .CLOCK_MONITOR_LOCK_WINDOWS(CLOCK_MONITOR_LOCK_WINDOWS)
     ) digital_top (
         .i2s_bclk,
         .i2s_rst_n,
@@ -273,7 +298,7 @@ module phono_i2s_control_top #(
             calibration_active_output_reciprocal_q24
         ),
         .mute_request,
-        .force_mute,
+        .force_mute(effective_force_mute),
         .output_gain_q16,
         .output_muted,
         .output_ramping,

@@ -6,7 +6,11 @@
 // scaling coefficients, but defines no clock-master, board-I/O, or physical
 // analog-safety policy.
 module phono_i2s_mono_top #(
-    parameter int unsigned OUTPUT_RAMP_SAMPLES = 2048
+    parameter int unsigned OUTPUT_RAMP_SAMPLES = 2048,
+    parameter int unsigned CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS = 32768,
+    parameter int unsigned CLOCK_MONITOR_EXPECTED_BCLK_EDGES = 1024,
+    parameter int unsigned CLOCK_MONITOR_EDGE_TOLERANCE = 1,
+    parameter int unsigned CLOCK_MONITOR_LOCK_WINDOWS = 3
 ) (
     input  logic                 i2s_bclk,
     input  logic                 i2s_rst_n,
@@ -86,7 +90,12 @@ module phono_i2s_mono_top #(
     logic fabric_tx_frame_valid;
     logic fabric_tx_frame_ready;
 
-    audio_clock_rate_monitor clock_monitor (
+    audio_clock_rate_monitor #(
+        .WINDOW_FABRIC_CLOCKS(CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS),
+        .EXPECTED_BCLK_EDGES(CLOCK_MONITOR_EXPECTED_BCLK_EDGES),
+        .EDGE_TOLERANCE(CLOCK_MONITOR_EDGE_TOLERANCE),
+        .LOCK_WINDOWS(CLOCK_MONITOR_LOCK_WINDOWS)
+    ) clock_monitor (
         .i2s_bclk,
         .i2s_rst_n,
         .fabric_clk,
