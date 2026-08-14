@@ -254,8 +254,14 @@ The mono reference and complete 768 kHz circuit solver are operating:
   the two converter-calibration shadows, and freezes 16 diagnostic words behind
   a saturating snapshot sequence. Directed RTL covers accepted/invalid/unsafe
   commits, busy writes, clears, and malformed addresses; structural synthesis is
-  323 LC / 715 FF / no DSP or block RAM. Pin integration and SPI/host transport
-  remain explicitly open.
+  323 LC / 715 FF / no DSP or block RAM. The wrapper below supplies pin
+  integration; SPI/host transport remains explicitly open.
+- A register-controlled pin wrapper now owns calibration and mute, freezes 20
+  fabric-coherent status words, synchronizes sticky I²S faults, and transfers
+  diagnostic clear once across the unrelated BCLK domain. Integration is
+  warning-free; structural synthesis is 21,363 LC / 17,755 FF / 232 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1. Raw multibit I²S levels, SPI/host transport, and
+  named-part timing are not claimed.
 - A captured complete-stream sweep at 100 Hz, 1 kHz, 10 kHz, and 20 kHz proves
   all 19,200 Q8.24 outputs exact with zero diagnostics. Relative to the composed
   floating trapezoidal reference, gain/phase error stays within 0.000134 dB /
@@ -576,6 +582,7 @@ make guarded-stream-rtl            # mute/reset/warmup model-change sequence
 make mute-rtl                      # reset/ramp/fault output safety primitive
 make audio-clock-rtl               # BCLK/fabric ratio lock and error monitor
 make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
+make cdc-pulse-rtl                # one-shot host command CDC
 make i2s-rtl                       # 24-bit/32-slot stereo protocol loopback
 make i2s-bridge-rtl                # exact bidirectional I2S/fabric CDC loopback
 make calibration-rtl               # bit-exact PCM24/physical-volts boundary
@@ -584,6 +591,7 @@ make control-registers-rtl         # snapshot/shadow/transaction register bank
 make frame-scheduler-rtl           # deterministic 48 kHz fabric phase launch
 make mono-adapter-rtl               # exact framed PCM-to-model-to-PCM datapath
 make i2s-mono-top-rtl               # serial ADC through model to serial DAC
+make i2s-control-top-rtl            # register-owned pin hierarchy and clear CDC
 make synth                         # generic XC7 structural estimate
 make synth-factorized              # factorized tube structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
@@ -608,6 +616,7 @@ make synth-stream-factorized       # smooth-tube stream resource estimate
 make synth-mute                    # output ramp structural estimate
 make synth-audio-clock             # audio clock ratio monitor estimate
 make synth-async-fifo              # depth-8 dual-clock FIFO estimate
+make synth-cdc-pulse               # one-shot command crossing estimate
 make synth-i2s                     # receiver/transmitter structural estimates
 make synth-i2s-bridge              # bidirectional protocol/CDC bridge estimate
 make synth-calibration             # dynamic converter-scaling estimates
@@ -616,6 +625,7 @@ make synth-control-registers       # fabric control/snapshot register estimate
 make synth-frame-scheduler         # frame-phase scheduler estimate
 make synth-mono-adapter            # calibrated accuracy-first fabric datapath
 make synth-i2s-mono-top            # protocol/CDC plus calibrated mono datapath
+make synth-i2s-control-top         # register-controlled complete pin hierarchy
 ```
 
 Run a user-supplied 48 kHz integer-PCM WAV through an explicitly selected V1

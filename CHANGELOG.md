@@ -6,6 +6,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a register-controlled pin-facing wrapper. Its 20-word snapshot includes
+  every fabric counter, clock status, fabric FIFO levels, solver residual, and
+  safely synchronized sticky I²S faults while deliberately excluding unsafe
+  multibit I²S levels. A 1-LC / 5-FF toggle crossing delivers each diagnostic-
+  clear command once to BCLK. Warning-free integration proves bus-owned startup
+  calibration, untorn snapshots, force-mute capture, and clear CDC. Complete XC7
+  structural synthesis is 21,363 LC / 17,755 FF / 232 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1; named-part timing and host transport remain open.
 - Added a protocol-neutral fabric control register bank. It resets muted,
   snapshots 16 moving diagnostic words atomically, saturates snapshot/commit
   sequences, holds a coherent two-word converter-calibration shadow pair, and

@@ -29,6 +29,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Integrate the fabric register bank around the pin-facing mono hierarchy.
+  Freeze 20 fabric-coherent diagnostic words, synchronize four sticky I²S
+  faults, transfer diagnostic clear by one toggle event, and own calibration/
+  mute through the bus. Prove retained snapshots, startup calibration, and one
+  I²S clear pulse across unrelated clocks; synthesize the crossing to 1 LC /
+  5 FF and the complete wrapper to 21,363 LC / 17,755 FF / 232 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1. No Fmax is claimed.
 - [x] Implement a protocol-neutral fabric control register bank with reset-muted
   state, a coherent calibration shadow/commit transaction, distinct attempted
   and accepted sequences, retained rejection/bus errors, pulsed diagnostics
@@ -430,10 +437,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   physical-unit calibration now composes with the accuracy-first mono core at
   the fabric frame boundary and a pin-facing top adds the asynchronous bridge.
   The modeled-output ramp and atomic converter-coefficient commit are now
-  integrated, and a fabric register bank supplies shadow commit plus coherent
-  snapshots. Pin-top register integration, SPI/host transport, I²S-domain
-  diagnostic CDC, queued-frame/physical analog muting, rate-error handling, and
-  CDC/I/O timing constraints remain absent;
+  integrated, and a register-controlled pin wrapper supplies shadow commit plus
+  coherent snapshots. SPI/host transport, CDC-safe multibit I²S level snapshots,
+  queued-frame/physical analog muting, rate-error handling, and CDC/I/O timing
+  constraints remain absent;
   embedded assertions cannot be proven until a formal engine is available.
   The cubic and full-tube alias-family tests are captured from RTL; the latter
   is bounded below fixed rounding closure rather than inferred from the

@@ -60,6 +60,25 @@ the audio solver.
 | `0x0d` | sticky status | R | bus, rejected, invalid, and unsafe evidence |
 | `0x20...` | diagnostic snapshot | R | retained configured diagnostic words |
 
+`phono_i2s_control_top` connects 20 words to that aperture:
+
+| Address | Snapshot contents |
+|---:|---|
+| `0x20` | clock lock/error, scheduled-frame, mute/ramp, calibration/configuration errors, synchronized I²S sticky faults, fabric FIFO faults, force mute |
+| `0x21` | measurement-valid, lock/error, good-window count, measured BCLK edges |
+| `0x22` | fabric RX/TX FIFO level and high-water views plus scheduler phase |
+| `0x23` | output gain, solver latency, minimum correction format, mute/ramp |
+| `0x24...0x31` | scheduler underflow, input endpoint, output PCM saturation/overrun, resampler saturation/overrun, input phase, output conversion, and six solver counters |
+| `0x32...0x33` | 63-bit preterminal solver residual, low word first |
+
+The four I²S-domain sticky bits are safe to synchronize because they remain
+asserted until an explicit clear. Their multibit FIFO level/high-water views are
+not copied across the domain; the snapshot deliberately includes only the two
+fabric-owned FIFO views. A toggle-based command crossing converts one fabric
+diagnostic-clear pulse into one I²S-clock pulse. Its unit test transfers two
+events exactly once across unrelated clocks; structural synthesis is 1 LC / 5
+FF. This crossing is for low-rate idempotent host commands, not event traffic.
+
 ## Initial register groups
 
 | Group | Examples | Update rule |
@@ -89,8 +108,9 @@ blocks deliberately emit valid zero samples and flag invalid configuration.
 This guard and its register bank are protocol-neutral and contain no hidden CDC
 or coefficient slew. Bus requests must already be synchronous to the fabric
 clock. Muted digital state makes the coefficient transition click-free at the
-model boundary, but does not empty PCM already queued for the DAC. Pin-top
-integration and physical analog mute sequencing therefore remain required.
+model boundary, but does not empty PCM already queued for the DAC. The
+register-controlled pin wrapper supplies digital integration; queued-frame and
+physical analog mute sequencing remain required.
 
 The asynchronous audio FIFOs now expose local occupancy estimates and retained
 high-water marks in all four owning-domain views (receive I²S/fabric and
@@ -121,4 +141,5 @@ snapshot behavior later.
 
 SPI is the simplest board-control candidate; UART is useful for bring-up and an
 embedded CPU/USB bridge may be layered above the same register transaction bus.
-No protocol-specific state belongs in the audio solver.
+The register-controlled pin wrapper is implemented, but the serial/CPU transport
+itself remains open. No protocol-specific state belongs in the audio solver.
