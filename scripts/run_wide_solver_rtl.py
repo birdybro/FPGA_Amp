@@ -31,6 +31,7 @@ def main() -> int:
     parser.add_argument("--pipelined-kcl-capacitor-current", action="store_true")
     parser.add_argument("--pipelined-kcl-maximum", action="store_true")
     parser.add_argument("--pipelined-chord-apply", action="store_true")
+    parser.add_argument("--half-parallel-terminal-current", action="store_true")
     args = parser.parse_args()
     if args.pipelined_kcl_accumulator and not args.pipelined_kcl_columns:
         parser.error(
@@ -43,6 +44,15 @@ def main() -> int:
         )
     if args.pipelined_kcl_maximum and not args.pipelined_kcl_finish:
         parser.error("--pipelined-kcl-maximum requires --pipelined-kcl-finish")
+    if args.half_parallel_terminal_current and not (
+        args.trapezoidal
+        and args.terminal_correction
+        and args.pipelined_chord_apply
+    ):
+        parser.error(
+            "--half-parallel-terminal-current requires --trapezoidal, "
+            "--terminal-correction, and --pipelined-chord-apply"
+        )
     verilator = shutil.which(args.verilator)
     if verilator is None:
         print("ERROR: verilator unavailable", file=sys.stderr)
@@ -109,6 +119,8 @@ def main() -> int:
         parameter_args.append("-GPIPELINED_KCL_MAXIMUM=1")
     if args.pipelined_chord_apply:
         parameter_args.append("-GPIPELINED_CHORD_APPLY=1")
+    if args.half_parallel_terminal_current:
+        parameter_args.append("-GHALF_PARALLEL_TERMINAL_CURRENT=1")
     subprocess.run(
         [
             verilator,
@@ -148,6 +160,11 @@ def main() -> int:
         )
         + ("_pipelined_maximum" if args.pipelined_kcl_maximum else "")
         + ("_pipelined_chord" if args.pipelined_chord_apply else "")
+        + (
+            "_half_parallel_terminal_current"
+            if args.half_parallel_terminal_current
+            else ""
+        )
     )
     subprocess.run(
         [

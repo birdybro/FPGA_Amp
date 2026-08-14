@@ -12,6 +12,8 @@ module chord_corrector_v1_wide_tb #(
     logic [5:0] residual_fractional_bits;
     logic [2:0] coefficient_set = '0;
     logic [359:0] corrected_voltage;
+    logic [359:0] preview_voltage;
+    logic preview_valid;
     logic saturation_any;
     logic [3:0] saturation_count;
     logic busy;
@@ -28,6 +30,7 @@ module chord_corrector_v1_wide_tb #(
     integer errors = 0;
     integer expected_saturation_count;
     integer latency;
+    integer preview_count;
     longint signed voltage_value [0:8];
     longint signed residual_value [0:8];
     longint signed expected_value [0:8];
@@ -64,16 +67,44 @@ module chord_corrector_v1_wide_tb #(
             if (!busy)
                 $fatal(1, "request was not accepted at vector %0d", vector_count);
             latency = 0;
+            preview_count = 0;
             while (!valid) begin
                 @(posedge clk);
                 #1;
                 latency = latency + 1;
+                if (preview_valid) begin
+                    preview_count = preview_count + 1;
+                    for (integer preview_lane = 0; preview_lane < 9;
+                         preview_lane = preview_lane + 1) begin
+                        if ($signed(preview_voltage[
+                                        preview_lane * 40 +: 40
+                                    ])
+                            !== $signed(expected_value[preview_lane][39:0])) begin
+                            $error("preview vector=%0d lane=%0d got=%0d expected=%0d",
+                                   vector_count, preview_lane,
+                                   $signed(preview_voltage[
+                                       preview_lane * 40 +: 40
+                                   ]), expected_value[preview_lane]);
+                            errors = errors + 1;
+                        end
+                    end
+                end
                 if (latency > 14)
                     $fatal(1, "timeout at vector %0d", vector_count);
+            end
+            if (preview_count != (PIPELINED_APPLY ? 1 : 0)) begin
+                $error("preview count got=%0d expected=%0d at vector %0d",
+                       preview_count, PIPELINED_APPLY ? 1 : 0, vector_count);
+                errors = errors + 1;
             end
             if (latency != (PIPELINED_APPLY ? 12 : 10)) begin
                 $error("latency got=%0d expected=%0d after acceptance edge",
                        latency, PIPELINED_APPLY ? 12 : 10);
+                errors = errors + 1;
+            end
+            if (preview_valid) begin
+                $error("preview remained asserted with valid at vector %0d",
+                       vector_count);
                 errors = errors + 1;
             end
             for (integer lane = 0; lane < 9; lane = lane + 1) begin

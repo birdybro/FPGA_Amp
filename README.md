@@ -569,7 +569,14 @@ two tube, and chord hard blocks dispersed across most DSP rows. Building the
 same open flow for the Nexys Video's XC7A200T reduces DSP utilization to
 209/740, but deterministic placement reaches only 23.83 MHz at the default
 timing weight and 35.22 MHz at a measured weight of 20. The larger device alone
-therefore does not solve hierarchy timing, and its route is also skipped. None
+therefore does not solve hierarchy timing, and its route is also skipped. A
+second, explicitly selectable terminal-current schedule reuses five arithmetic
+workers over two registered batches. It is bit-exact across 1,027 standalone
+and 512 stateful solver vectors, uses 34 rather than 54 DSPs, and consumes the
+last schedule clock (127 total). Fixed lane-pair muxes let the isolated block
+route at 90.50 MHz, but the complete 189-DSP hierarchy places at only 25.02 MHz
+with 59,514 LUTX and 14,590 FFX. It is retained as resource-sharing evidence,
+not promoted as the default timing solution. None
 of these experiments is timing closure or a reference-mode change.
 All figures use the backend's unqualified `DEFAULT` timing grade. The implemented digital mute
 primitive is not independent analog speaker protection.
@@ -752,6 +759,8 @@ make openxc7-hermite-pnr           # route the Hermite timing harness on A7-100T
 make openxc7-linear-tube-pnr       # route the value-only tube harness
 make openxc7-linear-solver-pnr     # route the value-only complete solver
 make openxc7-terminal-current-pnr  # isolate terminal companion-current timing
+make terminal-current-half-parallel-rtl # exact two-batch resource-sharing test
+make openxc7-terminal-current-half-parallel-pnr # route 34-DSP shared block
 make openxc7-kcl-pnr               # isolate wide KCL timing
 make openxc7-chord-pnr             # isolate banked chord-correction timing
 make openxc7-pipelined-kcl-pnr     # route bit-exact staged KCL candidate
@@ -760,6 +769,7 @@ make openxc7-parallel-pipelined-solver-pnr # route 119-clock solver candidate
 make openxc7-diagnostic-pipelined-kcl-pnr # route 19-clock final-diagnostic KCL
 make openxc7-parallel-diagnostic-pipelined-solver-place # diagnose full placement
 make openxc7-parallel-diagnostic-pipelined-solver-pnr # route 126-clock solver
+make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-place # place 189-DSP candidate
 make openxc7-a200t-parallel-diagnostic-pipelined-solver-place # compare A200T
 ```
 
@@ -799,10 +809,10 @@ under `model/generated/` as part of the numerical contract.
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
 path is further reducing terminal-solver approximation error without breaking
-the 128-clock deadline and resolving the measured 209-DSP full-placement
-congestion through a lower-simultaneous-hard-block schedule or explicit
-hierarchy placement; a controlled XC7A200T run shows capacity alone is
-insufficient. The required Linux flow is Yosys plus the
+the 128-clock deadline and resolving full-placement congestion through broader
+cross-block scheduling or explicit hierarchy placement; controlled XC7A200T
+and 189-DSP terminal-sharing experiments show that capacity or one locally
+shared block alone is insufficient. The required Linux flow is Yosys plus the
 experimental nextpnr-Himbaechel/Project X-Ray XC7 backend; Vivado is not part
 of the project flow, and the backend's `DEFAULT` timing grade is not presented
 as qualified XC7A100T-1 signoff.

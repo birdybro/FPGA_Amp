@@ -20,6 +20,12 @@ module chord_corrector_v1_wide #(
     input  logic [5:0]              residual_fractional_bits,
     input  logic [2:0]              coefficient_set,
     output logic [359:0]            corrected_voltage,
+    // During the final pipelined apply cycle this exposes the already
+    // registered, saturated node update one clock before `valid`. It permits
+    // independent terminal-state work to overlap without bypassing a timing
+    // boundary or changing the corrected-voltage result.
+    output logic [359:0]            preview_voltage,
+    output logic                    preview_valid,
     output logic                    saturation_any,
     output logic [3:0]              saturation_count,
     output logic                    busy,
@@ -155,6 +161,8 @@ module chord_corrector_v1_wide #(
     endfunction
 
     always_comb begin
+        preview_valid = PIPELINED_APPLY && busy && apply_pending
+                        && correction_staged && update_staged;
         for (int row = 0; row < 9; row = row + 1) begin
             product_by_row[row] = coefficient[
                                       coefficient_set_base(
@@ -177,6 +185,9 @@ module chord_corrector_v1_wide #(
                         : correction_by_row[row])
                 });
             overflow_by_row[row] = exceeds_40(updated_by_row[row]);
+            preview_voltage[row * 40 +: 40] = saturate_40(
+                updated_staged_by_row[row]
+            );
         end
         saturation_combined = |overflow_by_row;
         saturation_count_combined = popcount9(overflow_by_row);

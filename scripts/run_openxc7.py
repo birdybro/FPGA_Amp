@@ -28,7 +28,9 @@ SUPPORTED_TOPS = (
     "parallel_deep_pipelined_solver_pnr_harness",
     "parallel_max_pipelined_solver_pnr_harness",
     "parallel_diagnostic_pipelined_solver_pnr_harness",
+    "parallel_shared_terminal_diagnostic_pipelined_solver_pnr_harness",
     "terminal_current_pnr_harness",
+    "half_parallel_terminal_current_pnr_harness",
     "kcl_pnr_harness",
     "pipelined_kcl_pnr_harness",
     "deep_pipelined_kcl_pnr_harness",
@@ -174,6 +176,15 @@ def main() -> int:
         default=10,
         help="nextpnr heap-placer timing weight (upstream default: 10)",
     )
+    parser.add_argument(
+        "--placer-heap-cell-placement-timeout",
+        type=int,
+        default=8,
+        help=(
+            "nextpnr heap-placer cell-placement timeout divisor "
+            "(upstream default: 8; smaller values allow more attempts)"
+        ),
+    )
     parser.add_argument("--yosys", default="yosys")
     parser.add_argument("--nextpnr", default="nextpnr-himbaechel")
     parser.add_argument(
@@ -294,6 +305,8 @@ def main() -> int:
         str(args.threads),
         "--placer-heap-timingweight",
         str(args.placer_heap_timingweight),
+        "--placer-heap-cell-placement-timeout",
+        str(args.placer_heap_cell_placement_timeout),
         "--report",
         str(report),
         "--detailed-timing-report",
@@ -322,6 +335,9 @@ def main() -> int:
         "seed": args.seed,
         "threads": args.threads,
         "placer_heap_timingweight": args.placer_heap_timingweight,
+        "placer_heap_cell_placement_timeout": (
+            args.placer_heap_cell_placement_timeout
+        ),
         "implementation_stage": "placement" if args.place_only else "route",
         "nextpnr_returncode": placed.returncode,
         "netlist": str(netlist.relative_to(REPOSITORY_ROOT)),

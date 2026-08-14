@@ -12,7 +12,8 @@ module solver_pnr_harness #(
     parameter bit PIPELINED_KCL_ACCUMULATOR = 1'b0,
     parameter bit PIPELINED_KCL_CAPACITOR_CURRENT = 1'b0,
     parameter bit PIPELINED_KCL_MAXIMUM = 1'b0,
-    parameter bit PIPELINED_CHORD_APPLY = 1'b0
+    parameter bit PIPELINED_CHORD_APPLY = 1'b0,
+    parameter bit HALF_PARALLEL_TERMINAL_CURRENT = 1'b0
 ) (
     input  logic fabric_clk,
     input  logic reset,
@@ -87,7 +88,10 @@ module solver_pnr_harness #(
         .PIPELINED_KCL_ACCUMULATOR(PIPELINED_KCL_ACCUMULATOR),
         .PIPELINED_KCL_CAPACITOR_CURRENT(PIPELINED_KCL_CAPACITOR_CURRENT),
         .PIPELINED_KCL_MAXIMUM(PIPELINED_KCL_MAXIMUM),
-        .PIPELINED_CHORD_APPLY(PIPELINED_CHORD_APPLY)
+        .PIPELINED_CHORD_APPLY(PIPELINED_CHORD_APPLY),
+        .HALF_PARALLEL_TERMINAL_CURRENT(
+            HALF_PARALLEL_TERMINAL_CURRENT
+        )
     ) solver (
         .clk(fabric_clk),
         .rst_n,
@@ -210,6 +214,27 @@ module parallel_diagnostic_pipelined_solver_pnr_harness (
         .PIPELINED_KCL_ACCUMULATOR(1'b1),
         .PIPELINED_KCL_MAXIMUM(1'b1),
         .PIPELINED_CHORD_APPLY(1'b1)
+    ) harness (.*);
+
+endmodule
+
+// Reuse the terminal companion-current multipliers in two five-lane batches.
+// The first batch overlaps the final chord preview, retaining the selected
+// 126-clock contract while reducing simultaneous terminal hard blocks.
+module parallel_shared_terminal_diagnostic_pipelined_solver_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+
+    solver_pnr_harness #(
+        .PARALLEL_TUBES(1'b1),
+        .PIPELINED_KCL_FINISH(1'b1),
+        .PIPELINED_KCL_COLUMNS(1'b1),
+        .PIPELINED_KCL_ACCUMULATOR(1'b1),
+        .PIPELINED_KCL_MAXIMUM(1'b1),
+        .PIPELINED_CHORD_APPLY(1'b1),
+        .HALF_PARALLEL_TERMINAL_CURRENT(1'b1)
     ) harness (.*);
 
 endmodule

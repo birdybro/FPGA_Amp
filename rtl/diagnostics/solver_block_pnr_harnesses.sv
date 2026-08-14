@@ -57,6 +57,68 @@ module terminal_current_pnr_harness (
 
 endmodule
 
+// Register the two-batch candidate exactly as the solver uses it. A new
+// request is launched every other cycle; `ready` observes the second batch.
+module half_parallel_terminal_current_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+
+    logic rst_n;
+    logic start;
+    logic [399:0] terminal_voltage_q30;
+    logic [399:0] previous_voltage_q30;
+    logic [479:0] previous_current_q44;
+    (* keep *) logic [479:0] next_current_q44;
+    (* keep *) logic [3:0] saturation_count;
+    (* keep *) logic ready;
+
+    assign rst_n = !reset;
+    assign start = !ready;
+
+    always_ff @(posedge fabric_clk) begin
+        if (!rst_n) begin
+            terminal_voltage_q30 <= {{12{32'h1ace_b00c}}, 16'h5a39};
+            previous_voltage_q30 <= {{12{32'h91e1_0da5}}, 16'hc36f};
+            previous_current_q44 <= {15{32'h6d2b_79f5}};
+            activity <= 1'b0;
+        end else begin
+            terminal_voltage_q30 <= {
+                terminal_voltage_q30[398:0],
+                terminal_voltage_q30[399] ^ terminal_voltage_q30[264]
+                ^ terminal_voltage_q30[17] ^ terminal_voltage_q30[0]
+            };
+            previous_voltage_q30 <= {
+                previous_voltage_q30[398:0],
+                previous_voltage_q30[399] ^ previous_voltage_q30[356]
+                ^ previous_voltage_q30[121] ^ previous_voltage_q30[0]
+            };
+            previous_current_q44 <= {
+                previous_current_q44[478:0],
+                previous_current_q44[479] ^ previous_current_q44[370]
+                ^ previous_current_q44[47] ^ previous_current_q44[0]
+            };
+            if (ready)
+                activity <= activity ^ next_current_q44[0]
+                            ^ saturation_count[0];
+        end
+    end
+
+    (* keep *) terminal_current_update_v1_half_parallel engine (
+        .clk(fabric_clk),
+        .rst_n,
+        .start,
+        .terminal_voltage_q30,
+        .previous_voltage_q30,
+        .previous_current_q44,
+        .next_current_q44,
+        .saturation_count,
+        .ready
+    );
+
+endmodule
+
 module kcl_pnr_harness #(
     parameter bit PIPELINED_FINISH = 1'b0,
     parameter bit PIPELINED_COLUMNS = 1'b0,
@@ -237,6 +299,8 @@ module chord_pnr_harness #(
     logic [2:0] coefficient_set;
     logic start;
     (* keep *) logic [359:0] corrected_voltage;
+    (* keep *) logic [359:0] preview_voltage;
+    (* keep *) logic preview_valid;
     (* keep *) logic saturation_any;
     (* keep *) logic [3:0] saturation_count;
     (* keep *) logic busy;
@@ -263,6 +327,8 @@ module chord_pnr_harness #(
             if (valid)
                 activity <= activity
                             ^ corrected_voltage[0]
+                            ^ preview_voltage[0]
+                            ^ preview_valid
                             ^ saturation_any
                             ^ saturation_count[0];
         end
@@ -283,6 +349,8 @@ module chord_pnr_harness #(
         .residual_fractional_bits(6'd40),
         .coefficient_set,
         .corrected_voltage,
+        .preview_voltage,
+        .preview_valid,
         .saturation_any,
         .saturation_count,
         .busy,

@@ -235,6 +235,38 @@ columns. The next architecture decision must reduce simultaneous hard-block
 occupancy, adopt a larger open-tool-supported target, or both; another isolated
 KCL register alone cannot close the measured 2.87x full-placement gap.
 
+### Terminal-current resource-sharing experiment
+
+The first lower-simultaneous-hard-block candidate reuses five terminal-current
+workers for lanes 0--4 and 5--9. The pipelined chord exposes its already
+registered final node update one cycle before `valid`, allowing the first batch
+to overlap that preview. The second batch and its exact saturation count are
+registered, after which a dedicated terminal-commit state consumes the last
+available internal-sample clock. This is a scheduling approximation only: all
+rounding, saturation, terminal voltages, conductances, and current-history
+subtractions remain unchanged.
+
+A dynamic procedural lane index initially synthesized into wide mux trees. The
+corrected implementation uses five explicit fixed lane-pair muxes and latches
+only the second-batch inputs. The isolated candidate is exact against the
+original all-lane arithmetic for 1,027 directed/random vectors. Its named-part
+route uses 4,296 `SLICE_LUTX`, 2,412 `SLICE_FFX`, 334 CARRY4s, and 34 DSP48E1s,
+reaching 90.50 MHz under the experimental `DEFAULT` grade. The established
+all-lane block uses 54 DSPs and reaches 88.83 MHz, so sharing removes 20 DSPs
+without creating a worse isolated limit, although neither block closes
+98.304 MHz.
+
+The complete selectable schedule remains bit-exact for all 512 stateful solver
+vectors at 127 clocks. Yosys measures 15,072 estimated logic cells, 14,590
+flip-flops, 189 DSP48E1s, 16 RAMB18E1s, and two RAMB36E1s. Packing reports
+59,514 `SLICE_LUTX`, 14,590 `SLICE_FFX`, 3,964 CARRY4s, and 189/240 DSPs. Legal
+seed-1 placement reaches only 25.02 MHz, worse than the 209-DSP schedule's
+34.20 MHz, so routing is deliberately skipped and the candidate is not
+promoted. Region analysis confirms terminal hard-block occupancy falls from 54
+to 34 DSPs and its span contracts to 31 by 161 coordinate units, but KCL still
+spans 60 by 202 and the full design remains globally dispersed. Reducing a
+single hierarchy's DSP count is therefore insufficient by itself.
+
 ### XC7A200T capacity experiment
 
 The pinned bootstrap now generates both `xc7a100t` and `xc7a200t` chip
