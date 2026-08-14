@@ -6,6 +6,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added bit-accurate converter calibration models and synthesizable RTL.
+  PCM24 maps to input-referred Q8.24 physical volts using explicit measured
+  peak-voltage scaling; Q8.24 line voltage maps through an explicit reciprocal
+  coefficient to saturating PCM24. Full products, symmetric nearest rounding,
+  saturating counters, invalid-coefficient muting, and one-clock latency match
+  across 4,159 vectors per direction. Warning-free XC7 synthesis reports input
+  95 LC / 66 FF / 4 DSP48E1 and output 86 LC / 58 FF / 4 DSP48E1, with no RAM
+  and no timing claim.
 - Added a bidirectional stereo I²S/fabric bridge around the protocol primitives
   and two depth-8 × 64-bit asynchronous FIFOs. Warning-free simulation preserves
   20 exact frames across unrelated clocks and deliberate receive backpressure,

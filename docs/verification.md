@@ -46,6 +46,15 @@ frames in order. Bridge framing and both FIFO overflow/underflow pairs remain
 clear; deliberate zero output during pipeline startup sets the serial underflow
 flag, which is then cleared in the BCLK domain.
 
+The calibration generator preserves 4,159 deterministic vectors in each
+direction: signed endpoints, zero/negative coefficients, realistic study
+coefficients, full coefficient range, and 4,096 seeded random tuples. Python and
+one-clock RTL must agree exactly. The input test records 14 PCM endpoint events
+and 51 invalid configurations. The output test deliberately produces 4,079
+saturations and 52 invalid configurations; saturation is not weakened to make
+random vectors pass. Both diagnostic blocks are cleared explicitly after the
+count/sticky checks.
+
 The analog/reference commands are intentionally separate so a missing external
 tool is not reported as a pass:
 
@@ -176,6 +185,8 @@ scripts/run_synthesis.py            XC7 structural resource report
 | I²S receiver/transmitter synthesis | Yosys 0.66 structural | RX 35 LC/105 FF; TX 97 LC/137 negative-edge FF; no warnings/DSP/RAM/Fmax claim |
 | bidirectional I²S/CDC bridge RTL | 20 stereo frames; unrelated 50/76.9 MHz stress clocks | exact BCLK→fabric→BCLK order under one-in-four receive stalls; owning-domain diagnostics checked |
 | bidirectional I²S/CDC bridge synthesis | Yosys 0.66 flattened structural | 549 LC / 1,531 FF / no DSP or RAM; two 8×64 memories register-expanded; no Fmax/CDC claim |
+| PCM24/Q8.24 calibration RTL | 4,159 vectors each direction | bit-exact, one clock, endpoint/invalid/4,079 output-saturation events checked; warning-free |
+| PCM24/Q8.24 calibration synthesis | Yosys 0.66 structural | input 95 LC/66 FF/4 DSP; output 86 LC/58 FF/4 DSP; no RAM/Fmax claim |
 | guarded wide stream RTL | startup plus one state-reset transaction | warning-free; mute precedes reset; phase clean; one ack; unity restored |
 | guarded wide stream synthesis | Yosys 0.66 structural | 17,562 LC, 170 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | fixed vs analytical level sweep | 0.5 mV–5 V, 1 kHz, 20–30 ms | first ≥1 dB compression 1.1 V; residual-limit failure 1.0 V; LUT clip 1.1 V |

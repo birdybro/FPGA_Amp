@@ -183,6 +183,19 @@ finds zero problems. This remains an unplaced interface estimate: Gray-pointer
 CDC constraints, synchronizer placement, opposite-edge BCLK timing, and all
 board I/O delays still require the named FPGA and converter.
 
+The dynamic converter calibration primitives synthesize independently as:
+
+| Direction | Logic cells | Flip-flops | DSP48E1 | RAMB18E1 |
+|---|---:|---:|---:|---:|
+| PCM24 to input Q8.24 volts | 95 | 66 | 4 | 0 |
+| output Q8.24 volts to PCM24 | 86 | 58 | 4 | 0 |
+
+Both structural checks are warning-free and report zero problems. The
+coefficients are runtime inputs, so these are general multiplier baselines.
+They are not added to the 222-DSP accuracy-first stream claim: an integrated
+mono/stereo top must first decide whether to share the one-clock-at-48-kHz
+calibrators or duplicate them. No Fmax is claimed.
+
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.
 Time-multiplexing it across triodes/channels is therefore favored over blind

@@ -57,8 +57,14 @@ where BCLK/fabric phase is not proven synchronous. A bidirectional bridge now
 integrates the protocol blocks with independent depth-8 stereo-frame FIFOs and
 held ready/valid fabric interfaces. It deliberately performs no volts/code
 calibration, channel scheduling, rate matching between independent nominal
-sample clocks, or converter register setup. No listed ADC/DAC has therefore
-been selected or validated.
+sample clocks, or converter register setup.
+
+Separate fabric-domain calibration primitives now implement the exact PCM24 to
+physical-Q8.24 boundary. ADC direction uses input-referred peak volts at PCM
+full scale; DAC direction uses reciprocal output peak volts and saturates before
+serialization. Nonpositive coefficients mute and flag the sample. The
+coefficients remain host/measured inputs, so this arithmetic does not select or
+validate any listed ADC/DAC and cannot correct historical-circuit response.
 
 Jitter sensitivity must be checked at the highest analog input frequency. For a
 20 kHz full-scale sine, 1 ps RMS aperture jitter alone corresponds to roughly

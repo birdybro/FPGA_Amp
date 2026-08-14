@@ -2,7 +2,7 @@ PYTHON ?= python3
 NGSPICE ?= ngspice
 VERILATOR ?= verilator
 
-.PHONY: all reference analysis arithmetic-bounds accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide factorized-frequency-trapezoidal factorized-domain state-drift state-wide state-wide-audio linear-modes wide-rtl-audio wide-rtl-frequency trapezoidal-rtl-frequency trapezoidal-rtl-recovery wide-rtl-overload terminal-banked-rtl-metrics trapezoidal-terminal-banked-rtl-metrics banked-rtl-overload terminal-banked-rtl-overload banked-accuracy banked-selector banked-threshold banked-slew-selector banked-error-decomposition banked-iterations grid-current-resolution wide-stream-rtl-frequency trapezoidal-stream-rtl-frequency trapezoidal-terminal-stream-rtl-frequency wide-stream-rtl-alias wav-null-regression audio-regression spice-python-frequency overload-study overload-wide overload-trapezoidal overload-long overload-severe-long overload-seven-second overload-iterations overload-banked trapezoidal-overload precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-terminal-banked-solver-rtl trapezoidal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl stream-trapezoidal-terminal-banked-rtl guarded-stream-rtl mute-rtl async-fifo-rtl i2s-rtl i2s-bridge-rtl lint synth synth-factorized synth-chord synth-wide-chord synth-network synth-wide-network synth-solver synth-solver-factorized synth-wide-solver synth-trapezoidal-solver synth-banked-solver synth-terminal-banked-solver synth-trapezoidal-terminal-banked-solver synth-trapezoidal-banked-solver synth-halfband synth-stream synth-stream-factorized synth-stream-wide synth-stream-terminal-banked synth-stream-trapezoidal synth-stream-trapezoidal-terminal-banked synth-stream-guarded synth-mute synth-async-fifo synth-i2s synth-i2s-bridge clean tools
+.PHONY: all reference analysis arithmetic-bounds accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide factorized-frequency-trapezoidal factorized-domain state-drift state-wide state-wide-audio linear-modes wide-rtl-audio wide-rtl-frequency trapezoidal-rtl-frequency trapezoidal-rtl-recovery wide-rtl-overload terminal-banked-rtl-metrics trapezoidal-terminal-banked-rtl-metrics banked-rtl-overload terminal-banked-rtl-overload banked-accuracy banked-selector banked-threshold banked-slew-selector banked-error-decomposition banked-iterations grid-current-resolution wide-stream-rtl-frequency trapezoidal-stream-rtl-frequency trapezoidal-terminal-stream-rtl-frequency wide-stream-rtl-alias wav-null-regression audio-regression spice-python-frequency overload-study overload-wide overload-trapezoidal overload-long overload-severe-long overload-seven-second overload-iterations overload-banked trapezoidal-overload precision-study resampler test python-test plots spice spice-all rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-terminal-banked-solver-rtl trapezoidal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl stream-trapezoidal-terminal-banked-rtl guarded-stream-rtl mute-rtl async-fifo-rtl i2s-rtl i2s-bridge-rtl calibration-rtl lint synth synth-factorized synth-chord synth-wide-chord synth-network synth-wide-network synth-solver synth-solver-factorized synth-wide-solver synth-trapezoidal-solver synth-banked-solver synth-terminal-banked-solver synth-trapezoidal-terminal-banked-solver synth-trapezoidal-banked-solver synth-halfband synth-stream synth-stream-factorized synth-stream-wide synth-stream-terminal-banked synth-stream-trapezoidal synth-stream-trapezoidal-terminal-banked synth-stream-guarded synth-mute synth-async-fifo synth-i2s synth-i2s-bridge synth-calibration clean tools
 
 all: reference test
 
@@ -238,6 +238,9 @@ i2s-rtl:
 i2s-bridge-rtl:
 	$(PYTHON) scripts/run_i2s_bridge_rtl.py --verilator $(VERILATOR)
 
+calibration-rtl:
+	$(PYTHON) scripts/run_calibration_rtl.py --verilator $(VERILATOR)
+
 lint:
 	$(PYTHON) scripts/run_rtl.py --verilator $(VERILATOR) --lint-only
 
@@ -397,10 +400,14 @@ synth-i2s:
 synth-i2s-bridge:
 	$(PYTHON) scripts/run_synthesis.py --top i2s_async_bridge
 
+synth-calibration:
+	$(PYTHON) scripts/run_synthesis.py --top pcm24_to_q8_24
+	$(PYTHON) scripts/run_synthesis.py --top q8_24_to_pcm24
+
 python-test:
 	$(PYTHON) -m unittest discover -s model/tests -v
 
-test: python-test arithmetic-bounds rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-banked-solver-rtl trapezoidal-terminal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl stream-trapezoidal-terminal-banked-rtl guarded-stream-rtl mute-rtl async-fifo-rtl i2s-rtl i2s-bridge-rtl
+test: python-test arithmetic-bounds rtl factorized-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-banked-solver-rtl trapezoidal-terminal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl stream-trapezoidal-terminal-banked-rtl guarded-stream-rtl mute-rtl async-fifo-rtl i2s-rtl i2s-bridge-rtl calibration-rtl
 
 tools:
 	bash scripts/bootstrap_tools.sh

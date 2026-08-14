@@ -58,8 +58,15 @@ clip counter must remain explicit.
 
 ## Digital representation
 
-ADC samples are converted immediately to calibrated cartridge volts. The
-floating model uses volts and amperes. The tube primitive uses Q8.24 `Vgk`,
+ADC samples are converted immediately to calibrated cartridge-terminal volts.
+The implemented coefficient is ADC peak volts divided by measured analog gain,
+quantized to signed Q8.24. At the current 2.0 V RMS / 26 dB study point this is
+0.1417571566 V peak or `2378290` Q8.24; the quantized value is 0.1417571306 V.
+This is a reproducible example, not a selected converter calibration. For a
+2.0 V RMS DAC example, reciprocal peak voltage is 0.3535533906/V or `5931642`
+Q8.24. Output scaling and saturation occur only after the reference circuit.
+
+The floating model uses volts and amperes. The tube primitive uses Q8.24 `Vgk`,
 Q12.20 `Vpk`, and Q0.31 currents. Full circuit state formats are not yet frozen;
 candidate plate and coupling nodes must cover at least -50 to +350 V during
 overload without wraparound. Every physical-to-DAC scaling factor will be

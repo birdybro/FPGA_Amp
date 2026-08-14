@@ -26,6 +26,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Define and implement the converter calibration boundary without selecting
+  hidden gain: PCM24 to input-referred Q8.24 volts and physical Q8.24 line volts
+  to saturating PCM24. Match 4,159 Python/RTL vectors per direction with
+  explicit endpoint, saturation, and invalid-coefficient diagnostics; synthesize
+  to 95/86 LC, 66/58 FF, and 4 DSP48E1 per direction with no warnings.
 - [x] Integrate the I²S protocol and CDC primitives into a bidirectional stereo
   frame bridge. Preserve 20 exact BCLK-to-fabric-to-BCLK frames under unrelated
   clocks and deliberate ready backpressure, verify owning-domain diagnostics,
@@ -336,8 +341,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - PCM WAV processing, explicit null comparison, and a deterministic distortion/
   IMD-product/overload suite now exist. Standardized IMD procedures, long WAV-
   level recovery and licensed music remain absent. The I²S protocol and CDC
-  FIFO primitives now form a bidirectional frame bridge, but calibrated
-  physical-unit/core integration and CDC/I/O timing constraints remain absent;
+  FIFO primitives now form a bidirectional frame bridge, and standalone
+  physical-unit calibration exists, but core/channel integration and CDC/I/O
+  timing constraints remain absent;
   embedded assertions cannot be proven until a formal engine is available.
   The cubic and full-tube alias-family tests are captured from RTL; the latter
   is bounded below fixed rounding closure rather than inferred from the
@@ -354,6 +360,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [ ] Stereo scheduling and converter interface on Arty A7-100T reference platform.
 - [x] Standalone 24-bit/32-slot I²S receive/transmit protocol primitives.
 - [x] Bidirectional stereo-frame I²S/fabric asynchronous bridge.
+- [x] Bit-exact PCM24/input-volts/output-volts calibration primitives.
 - [x] PCM WAV processing and latency/gain/fractional-delay null comparison.
 - [x] Deterministic WAV distortion/IMD-product/overload regression library.
 - [ ] Standardized IMD, long recovery, impulse, and licensed-music WAV gates.

@@ -16,6 +16,46 @@ The primitive is single-issue, uses one synchronous read port per ROM, and asser
 
 The table itself contributes physical-model approximation error. Q-format, coordinate, and interpolation error are measured together against the analytical model; that number must not be presented as error against a real tube.
 
+## Converter calibration boundary
+
+I²S PCM24 codes are dimensionless; the V1 circuit boundary is physical volts in
+signed Q8.24. `pcm24_to_q8_24.sv` implements
+
+```text
+input_q24 = round_symmetric(pcm24 * input_peak_volts_q24 / 2^23)
+input_peak_volts = ADC_peak_volts / measured_analog_gain
+```
+
+The input coefficient is positive signed Q8.24 and represents input-referred
+cartridge-terminal peak voltage at negative PCM full scale. It must reflect the
+measured physical loading/front-end path; it must not compensate the frozen
+circuit response. A full 24×32-bit product is retained. Symmetric nearest
+rounding uses exact ties away from zero. The positive signed-32 coefficient and
+signed-24 input prove that the result fits signed Q8.24 without a saturator.
+Positive or negative PCM endpoints increment a saturating diagnostic counter.
+
+`q8_24_to_pcm24.sv` implements
+
+```text
+pcm24 = sat24(round_symmetric(output_q24 * reciprocal_peak_q24 / 2^25))
+reciprocal_peak = 1 / DAC_peak_volts
+```
+
+The reciprocal is positive signed Q8.24 per volt and is precomputed outside RTL;
+there is no divider. The 32×32-bit product is retained in 64 bits before the
+25-bit rounded shift. Exact positive full scale saturates by one PCM code because
+signed PCM24 is asymmetric; exact negative full scale is representable. The
+output saturation counter itself saturates at `0xffffffff`. Either block emits a
+valid zero sample and sets `configuration_error_sticky` when its coefficient is
+nonpositive, avoiding an uncalibrated high-level output.
+
+Both directions have one fabric-clock latency and require coefficients to be
+stable in the fabric domain for an accepted sample. Python coefficient helpers
+and 4,159 exact vectors per direction define the bit contract. Warning-free XC7
+structural synthesis reports 95 LC / 66 FF / 4 DSP48E1 for input and 86 LC / 58
+FF / 4 DSP48E1 for output. These dynamic-coefficient costs are not a stereo
+scheduling decision or a placed timing result.
+
 ## Factorized tube candidate
 
 The improved candidate retains the Q8.24/Q12.20 voltage and Q0.31 current

@@ -61,6 +61,8 @@ def main() -> int:
             "i2s_receiver",
             "i2s_transmitter",
             "i2s_async_bridge",
+            "pcm24_to_q8_24",
+            "q8_24_to_pcm24",
         ),
         default="triode_12ax7",
     )
@@ -258,6 +260,8 @@ def main() -> int:
             "rtl/io/i2s_transmitter.sv",
             "rtl/io/i2s_async_bridge.sv",
         ],
+        "pcm24_to_q8_24": ["rtl/io/pcm24_to_q8_24.sv"],
+        "q8_24_to_pcm24": ["rtl/io/q8_24_to_pcm24.sv"],
     }[args.top]
     log_path = results / f"yosys_xc7_{args.top}.log"
     # Only the legacy solver/stream aliases select the factorized primitive by

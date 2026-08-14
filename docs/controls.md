@@ -28,6 +28,15 @@ register bank and host protocol that supply the parameter snapshot remain open.
 Write access to reference values is not a backdoor “tone control.” Arbitrary
 experiments are creative mode and the active mode is included in captures.
 
+The implemented calibration primitives consume positive signed-Q8.24
+coefficients. ADC calibration is input-referred peak volts at PCM full scale;
+DAC calibration is reciprocal peak volts. Both coefficients must come from one
+atomic, fabric-domain snapshot and remain stable for the accepted sample. A
+nonpositive coefficient produces a valid zero sample and sticky configuration
+error. Updating calibration while unmuted is forbidden by the future register
+transaction layer; the arithmetic blocks deliberately contain no hidden CDC or
+coefficient slew policy.
+
 ## Required counters
 
 ADC/DAC clip, internal-node saturation, LUT out-of-range, solver residual failure,

@@ -98,9 +98,15 @@ The mono reference and complete 768 kHz circuit solver are operating:
   fabric receive backpressure; all six bridge diagnostics remain clean apart
   from deliberate DAC startup starvation, which clears in its owning domain.
   Flattened XC7 synthesis reports 549 LC / 1,531 FF / no DSP or RAM. The small
-  8×64 memories are explicitly register-expanded. Physical volts/code scaling,
-  the nonlinear core connection, converter configuration, and I/O timing remain
-  separate unfinished layers.
+  8×64 memories are explicitly register-expanded.
+- Standalone converter calibration now maps PCM24 to physical input Q8.24 volts
+  and physical output volts back to saturating PCM24 with explicit positive
+  Q8.24 coefficients, full-width products, symmetric rounding, endpoint/clip
+  counters, and invalid-configuration muting. Python and warning-free RTL match
+  4,159 vectors per direction. Structural synthesis measures 95 LC / 66 FF / 4
+  DSP48E1 input and 86 LC / 58 FF / 4 DSP48E1 output. The serial bridge,
+  calibration, nonlinear core, and converter-specific control are not yet one
+  hardware top.
 - Exact RTL RHS and KCL engines stamp all ten capacitor histories and the
   physical conductance network. Each passes 1,024 vectors at 12 and 10 clocks.
 - The integrated solver matches 512 sequential fixed-model samples bit-for-bit
@@ -496,6 +502,7 @@ make mute-rtl                      # reset/ramp/fault output safety primitive
 make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make i2s-rtl                       # 24-bit/32-slot stereo protocol loopback
 make i2s-bridge-rtl                # exact bidirectional I2S/fabric CDC loopback
+make calibration-rtl               # bit-exact PCM24/physical-volts boundary
 make synth                         # generic XC7 structural estimate
 make synth-factorized              # factorized tube structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
@@ -521,6 +528,7 @@ make synth-mute                    # output ramp structural estimate
 make synth-async-fifo              # depth-8 dual-clock FIFO estimate
 make synth-i2s                     # receiver/transmitter structural estimates
 make synth-i2s-bridge              # bidirectional protocol/CDC bridge estimate
+make synth-calibration             # dynamic converter-scaling estimates
 ```
 
 Run a user-supplied 48 kHz integer-PCM WAV through an explicitly selected V1

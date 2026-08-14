@@ -106,6 +106,14 @@ starvation flags remain observable in their owning domains. The bridge does not
 establish whether FPGA or converter is final clock master and is not yet
 connected to physical-unit calibration or the nonlinear core.
 
+The standalone calibration layer now provides the missing arithmetic on each
+side of that bridge: PCM24 to input-referred physical Q8.24 volts, and physical
+Q8.24 line voltage to saturating PCM24. Coefficients are explicit fabric-domain
+control values and invalid values mute with diagnostics. The bridge and
+calibrators remain deliberately separate from the mono nonlinear core until
+channel policy, atomic coefficient commit, reset/warmup, and the available DSP
+budget are resolved.
+
 ## Stereo scheduling
 
 Duplicating the accuracy-first tube primitive would consume 32 DSPs and 94
