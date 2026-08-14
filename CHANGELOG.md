@@ -160,6 +160,17 @@ All notable engineering changes are recorded here. The project is pre-release; d
   CARRY4 / 171 DSP. This smaller 18-DSP exchange is also rejected because its
   unpipelined soft products materially worsen isolated timing.
 
+- Decoupled the final-only exact KCL maximum diagnostic from the correction
+  result that feeds chord. A separate `max_valid` sideband completes two clocks
+  after the 16-clock correction while holding the KCL engine busy. Both 1,024-
+  vector integration-mode regressions and the 512-sample stateful solver remain
+  bit-exact, including diagnostics, and the full schedule falls from 126 to 123
+  clocks. The isolated candidate packs to 29,569 LUTX / 10,437 FFX / 1,814
+  CARRY4 / 72 DSP and routes legally at 87.07 MHz; timing-weight-20 placement
+  reaches only 80.03 MHz. The complete 209-DSP hierarchy packs to 59,188 LUTX
+  and places at 31.97 MHz. The five recovered clocks are retained for broader
+  arithmetic scheduling, but no timing-closure claim is made.
+
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,
   0--80 bit-count bound/transition, one-cycle request decode and exact fields,

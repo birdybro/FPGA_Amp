@@ -14,6 +14,7 @@ module v1_solver_mono_wide_trapezoidal_banked_terminal #(
     parameter bit PIPELINED_KCL_ACCUMULATOR = 1'b0,
     parameter bit PIPELINED_KCL_CAPACITOR_CURRENT = 1'b0,
     parameter bit PIPELINED_KCL_MAXIMUM = 1'b0,
+    parameter bit DECOUPLED_KCL_MAXIMUM = 1'b0,
     parameter bit PIPELINED_CHORD_APPLY = 1'b0,
     parameter bit HALF_PARALLEL_TERMINAL_CURRENT = 1'b0
 ) (
@@ -64,6 +65,7 @@ module v1_solver_mono_wide_trapezoidal_banked_terminal #(
         .PIPELINED_KCL_ACCUMULATOR(PIPELINED_KCL_ACCUMULATOR),
         .PIPELINED_KCL_CAPACITOR_CURRENT(PIPELINED_KCL_CAPACITOR_CURRENT),
         .PIPELINED_KCL_MAXIMUM(PIPELINED_KCL_MAXIMUM),
+        .DECOUPLED_KCL_MAXIMUM(DECOUPLED_KCL_MAXIMUM),
         .PIPELINED_CHORD_APPLY(PIPELINED_CHORD_APPLY),
         .HALF_PARALLEL_TERMINAL_CURRENT(
             HALF_PARALLEL_TERMINAL_CURRENT

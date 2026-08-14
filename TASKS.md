@@ -81,11 +81,19 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   so no Fmax is claimed. Softening only the two capacitor multipliers reduces
   the full design to 171 DSPs at 66,341 LUTX, but the isolated KCL places at
   only 37.57 MHz and is also rejected. Develop a broader cross-block
-  time-multiplexed schedule with registered multiplier boundaries; only one
-  clock remains in this
-  candidate, so do not add a per-pass stage or alter the frozen numerical
-  contract.
+  time-multiplexed schedule with registered multiplier boundaries. Decoupling
+  the final-only exact maximum diagnostic now recovers a bit-exact 123-clock
+  schedule and five-clock margin; use that margin for explicitly measured
+  sharing rather than altering the frozen numerical contract.
 ## Completed this milestone
+
+- [x] Decouple the final-only exact KCL maximum diagnostic from the correction
+  result consumed by chord. Verify 1,024 vectors per integration method and 512
+  stateful solver vectors bit-exact; reduce correction latency from 19 to 16
+  clocks and the full solver from 126 to 123. Measure a legal 87.07 MHz isolated
+  route, an 80.03 MHz timing-weight-20 placement, and a 31.97 MHz full placement
+  at 209 DSPs. Retain the recovered five-clock schedule margin while rejecting
+  diagnostic decoupling itself as an Fmax or congestion fix.
 
 - [x] Add an exact open-XC7 pack-only measurement stage and evaluate mapping
   all eleven KCL multipliers to LUT logic. Assert the multiplier selection in

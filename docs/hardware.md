@@ -210,6 +210,30 @@ An algebraically collapsed one-adder source form was tested and rejected: it
 placed at only 70.24 MHz and produced substantially worse router congestion.
 The completed 92.23 MHz result remains the measured baseline.
 
+The final maximum is a diagnostic, not an input to chord correction. A new
+selectable schedule therefore emits the final correction after the first
+maximum-tree boundary and completes the exact maximum on a separate
+`max_valid` sideband two clocks later. The KCL engine remains busy until the
+sideband commits, preventing a new request from overwriting its diagnostic
+state. Both backward-Euler and trapezoidal tests remain bit-exact across 1,024
+vectors: correction latency falls from 19 to 16 clocks while the maximum value
+and its valid pulse remain exact. The integrated chord is already running
+during those two clocks, so the complete solver falls from 126 to 123 clocks
+without changing its output, state, or diagnostic counters. This leaves five
+of 128 fabric clocks available for subsequent multiplier scheduling.
+
+This schedule recovery is not timing closure. The isolated seed-1 harness uses
+6,294 estimated logic cells and 72 DSP48E1s, packs to 29,569 `SLICE_LUTX`,
+10,437 `SLICE_FFX`, and 1,814 CARRY4s, and routes legally at 87.07 MHz against
+98.304 MHz. Its 11.48 ns critical path is a registered capacitor current
+through the exact current-overflow comparison into the current-state result;
+1.50 ns is logic and 9.99 ns is routing. A timing-weight-20 placement reaches
+only 80.03 MHz, so its congested router run is deliberately not continued.
+The complete 123-clock hierarchy packs to 59,188 LUTX, 13,459 FFX, 4,036
+CARRY4s, and 209 DSPs, then places at only 31.97 MHz. These results keep the
+decoupled schedule as cycle-budget infrastructure while rejecting it as a
+standalone Fmax fix.
+
 With parallel triodes, KCL column/finish/accumulator boundaries, the final-only
 maximum pipeline, and chord-apply boundaries enabled, the complete trapezoidal/
 banked/terminal solver remains bit-exact across 512 stateful vectors at 126

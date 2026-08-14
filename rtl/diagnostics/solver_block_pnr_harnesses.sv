@@ -124,7 +124,8 @@ module kcl_pnr_harness #(
     parameter bit PIPELINED_COLUMNS = 1'b0,
     parameter bit PIPELINED_ACCUMULATOR = 1'b0,
     parameter bit PIPELINED_CAPACITOR_CURRENT = 1'b0,
-    parameter bit PIPELINED_MAXIMUM = 1'b0
+    parameter bit PIPELINED_MAXIMUM = 1'b0,
+    parameter bit DECOUPLED_MAXIMUM = 1'b0
 ) (
     input  logic fabric_clk,
     input  logic reset,
@@ -141,6 +142,7 @@ module kcl_pnr_harness #(
     (* keep *) logic [224:0] residual;
     (* keep *) logic [5:0] residual_fractional_bits;
     (* keep *) logic [62:0] max_abs_residual_q44;
+    (* keep *) logic max_valid;
     (* keep *) logic correction_scale_fallback;
     (* keep *) logic saturation_any;
     (* keep *) logic [3:0] saturation_count;
@@ -179,11 +181,12 @@ module kcl_pnr_harness #(
                 tube_current_q31[127] ^ tube_current_q31[95]
                 ^ tube_current_q31[0]
             };
-            if (valid)
+            if (valid || max_valid)
                 activity <= activity
                             ^ residual[0]
                             ^ residual_fractional_bits[0]
                             ^ max_abs_residual_q44[0]
+                            ^ max_valid
                             ^ correction_scale_fallback
                             ^ saturation_any
                             ^ saturation_count[0]
@@ -201,7 +204,8 @@ module kcl_pnr_harness #(
         .PIPELINED_COLUMNS(PIPELINED_COLUMNS),
         .PIPELINED_ACCUMULATOR(PIPELINED_ACCUMULATOR),
         .PIPELINED_CAPACITOR_CURRENT(PIPELINED_CAPACITOR_CURRENT),
-        .PIPELINED_MAXIMUM(PIPELINED_MAXIMUM)
+        .PIPELINED_MAXIMUM(PIPELINED_MAXIMUM),
+        .DECOUPLED_MAXIMUM(DECOUPLED_MAXIMUM)
     ) engine (
         .clk(fabric_clk),
         .rst_n,
@@ -217,6 +221,7 @@ module kcl_pnr_harness #(
         .residual,
         .residual_fractional_bits,
         .max_abs_residual_q44,
+        .max_valid,
         .correction_scale_fallback,
         .saturation_any,
         .saturation_count,
@@ -268,6 +273,22 @@ module diagnostic_pipelined_kcl_pnr_harness (
         .PIPELINED_COLUMNS(1'b1),
         .PIPELINED_ACCUMULATOR(1'b1),
         .PIPELINED_MAXIMUM(1'b1)
+    ) harness (.*);
+
+endmodule
+
+module decoupled_diagnostic_pipelined_kcl_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+
+    kcl_pnr_harness #(
+        .PIPELINED_FINISH(1'b1),
+        .PIPELINED_COLUMNS(1'b1),
+        .PIPELINED_ACCUMULATOR(1'b1),
+        .PIPELINED_MAXIMUM(1'b1),
+        .DECOUPLED_MAXIMUM(1'b1)
     ) harness (.*);
 
 endmodule

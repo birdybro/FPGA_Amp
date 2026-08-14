@@ -6,7 +6,8 @@ module network_kcl_v1_wide_tb #(
     parameter bit PIPELINED_COLUMNS = 1'b0,
     parameter bit PIPELINED_ACCUMULATOR = 1'b0,
     parameter bit PIPELINED_CAPACITOR_CURRENT = 1'b0,
-    parameter bit PIPELINED_MAXIMUM = 1'b0
+    parameter bit PIPELINED_MAXIMUM = 1'b0,
+    parameter bit DECOUPLED_MAXIMUM = 1'b0
 );
     logic clk;
     logic rst_n = 1'b0;
@@ -21,6 +22,7 @@ module network_kcl_v1_wide_tb #(
     logic [224:0] residual;
     logic [5:0] residual_fractional_bits;
     logic [62:0] max_abs_residual_q44;
+    logic max_valid;
     logic correction_scale_fallback;
     logic saturation_any;
     logic [3:0] saturation_count;
@@ -34,7 +36,8 @@ module network_kcl_v1_wide_tb #(
         .PIPELINED_COLUMNS(PIPELINED_COLUMNS),
         .PIPELINED_ACCUMULATOR(PIPELINED_ACCUMULATOR),
         .PIPELINED_CAPACITOR_CURRENT(PIPELINED_CAPACITOR_CURRENT),
-        .PIPELINED_MAXIMUM(PIPELINED_MAXIMUM)
+        .PIPELINED_MAXIMUM(PIPELINED_MAXIMUM),
+        .DECOUPLED_MAXIMUM(DECOUPLED_MAXIMUM)
     ) dut (
         .clk,
         .rst_n,
@@ -50,6 +53,7 @@ module network_kcl_v1_wide_tb #(
         .residual,
         .residual_fractional_bits,
         .max_abs_residual_q44,
+        .max_valid,
         .correction_scale_fallback,
         .saturation_any,
         .saturation_count,
@@ -154,7 +158,8 @@ module network_kcl_v1_wide_tb #(
                 > expected_latency)
                 expected_latency = tube_delay
                                    + (PIPELINED_FINISH ? 3 : 1);
-            if (PIPELINED_FINISH && PIPELINED_MAXIMUM)
+            if (PIPELINED_FINISH && PIPELINED_MAXIMUM
+                && !DECOUPLED_MAXIMUM)
                 expected_latency = expected_latency + 3;
             if (latency != expected_latency) begin
                 $error("latency got=%0d expected=%0d delay=%0d",
@@ -181,6 +186,20 @@ module network_kcl_v1_wide_tb #(
                 $error("vector=%0d saturation got=%0d/%0b expected=%0d",
                        vector_count, saturation_count, saturation_any,
                        expected_saturation_count);
+                errors = errors + 1;
+            end
+            if (DECOUPLED_MAXIMUM) begin
+                for (integer max_wait = 0; max_wait < 2; max_wait = max_wait + 1) begin
+                    @(posedge clk);
+                    #1;
+                end
+                if (!max_valid || busy) begin
+                    $error("vector=%0d decoupled max valid/busy got=%0b/%0b",
+                           vector_count, max_valid, busy);
+                    errors = errors + 1;
+                end
+            end else if (!max_valid) begin
+                $error("vector=%0d maximum did not accompany result", vector_count);
                 errors = errors + 1;
             end
             if (max_abs_residual_q44 !== expected_max_abs[62:0]) begin
@@ -211,8 +230,8 @@ module network_kcl_v1_wide_tb #(
                                    && PIPELINED_ACCUMULATOR) ? 1 : 0)
                                + ((PIPELINED_COLUMNS
                                    && PIPELINED_CAPACITOR_CURRENT) ? 1 : 0)
-                               + ((PIPELINED_FINISH
-                                   && PIPELINED_MAXIMUM) ? 3 : 0));
+                               + ((PIPELINED_FINISH && PIPELINED_MAXIMUM
+                                   && !DECOUPLED_MAXIMUM) ? 3 : 0));
         $finish;
     end
 endmodule

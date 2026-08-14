@@ -592,8 +592,16 @@ resource-sharing evidence, not promoted as the default full-solver timing
 solution. Softening only the two capacitor multipliers is less expensive—the
 complete solver packs at 66,341 LUT elements and 171 DSPs—but its isolated KCL
 places at only 37.57 MHz (seed 2), versus the all-DSP KCL's completed 92.23 MHz
-route. Routing and complete placement are skipped. None
-of these experiments is timing closure or a reference-mode change.
+route. Routing and complete placement are skipped. The final exact KCL maximum
+diagnostic can now complete on a separate `max_valid` sideband while chord
+correction starts from the already exact residual. This keeps 1,024 vectors per
+integration method and all 512 stateful solver samples bit-exact while reducing
+KCL correction latency from 19 to 16 clocks and the complete schedule from 126
+to 123 clocks. The isolated decoupled candidate legally routes at only 87.07
+MHz (29,569 LUTX / 72 DSP), timing-weight-20 placement reaches 80.03 MHz, and
+the 209-DSP full hierarchy places at only 31.97 MHz. The change is retained for
+its five-clock scheduling margin, not represented as physical timing closure.
+None of these experiments is timing closure or a reference-mode change.
 All figures use the backend's unqualified `DEFAULT` timing grade. The implemented digital mute
 primitive is not independent analog speaker protection.
 
@@ -784,8 +792,11 @@ make openxc7-pipelined-kcl-pnr     # route bit-exact staged KCL candidate
 make openxc7-pipelined-chord-pnr   # route bit-exact staged chord candidate
 make openxc7-parallel-pipelined-solver-pnr # route 119-clock solver candidate
 make openxc7-diagnostic-pipelined-kcl-pnr # route 19-clock final-diagnostic KCL
+make openxc7-decoupled-diagnostic-pipelined-kcl-pnr # route 16-clock correction/sideband KCL
+make openxc7-decoupled-diagnostic-pipelined-kcl-timing-place # weight-20 placement only
 make openxc7-parallel-diagnostic-pipelined-solver-place # diagnose full placement
 make openxc7-parallel-diagnostic-pipelined-solver-pnr # route 126-clock solver
+make openxc7-parallel-decoupled-diagnostic-pipelined-solver-place # place 123-clock solver
 make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-place # place 189-DSP candidate
 make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-timing-place # tagged weight-20 experiment
 make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-regions-place # overlapping hierarchy floorplan

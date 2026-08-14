@@ -94,6 +94,7 @@ def main() -> int:
             "parallel_deep_pipelined_solver_pnr_harness",
             "parallel_max_pipelined_solver_pnr_harness",
             "parallel_diagnostic_pipelined_solver_pnr_harness",
+            "parallel_decoupled_diagnostic_pipelined_solver_pnr_harness",
             "parallel_shared_terminal_diagnostic_pipelined_solver_pnr_harness",
             "hermite_pnr_harness",
             "linear_tube_pnr_harness",
@@ -104,6 +105,7 @@ def main() -> int:
             "deep_pipelined_kcl_pnr_harness",
             "max_pipelined_kcl_pnr_harness",
             "diagnostic_pipelined_kcl_pnr_harness",
+            "decoupled_diagnostic_pipelined_kcl_pnr_harness",
             "chord_pnr_harness",
             "pipelined_chord_pnr_harness",
         ),
@@ -531,6 +533,16 @@ def main() -> int:
             "rtl/phono/v1_solver_mono_wide_trapezoidal_banked_terminal.sv",
             "rtl/diagnostics/solver_pnr_harness.sv",
         ],
+        "parallel_decoupled_diagnostic_pipelined_solver_pnr_harness": [
+            "rtl/tube/triode_12ax7_factorized.sv",
+            "rtl/tube/triode_12ax7_factorized_linear.sv",
+            "rtl/circuit/network_rhs_v1_wide.sv",
+            "rtl/circuit/network_kcl_v1_wide.sv",
+            "rtl/circuit/chord_corrector_v1_wide.sv",
+            "rtl/phono/v1_solver_mono_wide.sv",
+            "rtl/phono/v1_solver_mono_wide_trapezoidal_banked_terminal.sv",
+            "rtl/diagnostics/solver_pnr_harness.sv",
+        ],
         "parallel_shared_terminal_diagnostic_pipelined_solver_pnr_harness": [
             "rtl/tube/triode_12ax7_factorized.sv",
             "rtl/tube/triode_12ax7_factorized_linear.sv",
@@ -574,6 +586,10 @@ def main() -> int:
             "rtl/diagnostics/solver_block_pnr_harnesses.sv",
         ],
         "diagnostic_pipelined_kcl_pnr_harness": [
+            "rtl/circuit/network_kcl_v1_wide.sv",
+            "rtl/diagnostics/solver_block_pnr_harnesses.sv",
+        ],
+        "decoupled_diagnostic_pipelined_kcl_pnr_harness": [
             "rtl/circuit/network_kcl_v1_wide.sv",
             "rtl/diagnostics/solver_block_pnr_harnesses.sv",
         ],

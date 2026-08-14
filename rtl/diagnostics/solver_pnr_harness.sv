@@ -12,6 +12,7 @@ module solver_pnr_harness #(
     parameter bit PIPELINED_KCL_ACCUMULATOR = 1'b0,
     parameter bit PIPELINED_KCL_CAPACITOR_CURRENT = 1'b0,
     parameter bit PIPELINED_KCL_MAXIMUM = 1'b0,
+    parameter bit DECOUPLED_KCL_MAXIMUM = 1'b0,
     parameter bit PIPELINED_CHORD_APPLY = 1'b0,
     parameter bit HALF_PARALLEL_TERMINAL_CURRENT = 1'b0
 ) (
@@ -88,6 +89,7 @@ module solver_pnr_harness #(
         .PIPELINED_KCL_ACCUMULATOR(PIPELINED_KCL_ACCUMULATOR),
         .PIPELINED_KCL_CAPACITOR_CURRENT(PIPELINED_KCL_CAPACITOR_CURRENT),
         .PIPELINED_KCL_MAXIMUM(PIPELINED_KCL_MAXIMUM),
+        .DECOUPLED_KCL_MAXIMUM(DECOUPLED_KCL_MAXIMUM),
         .PIPELINED_CHORD_APPLY(PIPELINED_CHORD_APPLY),
         .HALF_PARALLEL_TERMINAL_CURRENT(
             HALF_PARALLEL_TERMINAL_CURRENT
@@ -213,6 +215,28 @@ module parallel_diagnostic_pipelined_solver_pnr_harness (
         .PIPELINED_KCL_COLUMNS(1'b1),
         .PIPELINED_KCL_ACCUMULATOR(1'b1),
         .PIPELINED_KCL_MAXIMUM(1'b1),
+        .PIPELINED_CHORD_APPLY(1'b1)
+    ) harness (.*);
+
+endmodule
+
+// Release the final correction result at the first maximum-pipeline boundary;
+// finish the exact diagnostic maximum while the terminal chord runs. This
+// preserves every numerical result and shortens the complete solve to 123
+// clocks, leaving five clocks for a registered resource-sharing candidate.
+module parallel_decoupled_diagnostic_pipelined_solver_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+
+    solver_pnr_harness #(
+        .PARALLEL_TUBES(1'b1),
+        .PIPELINED_KCL_FINISH(1'b1),
+        .PIPELINED_KCL_COLUMNS(1'b1),
+        .PIPELINED_KCL_ACCUMULATOR(1'b1),
+        .PIPELINED_KCL_MAXIMUM(1'b1),
+        .DECOUPLED_KCL_MAXIMUM(1'b1),
         .PIPELINED_CHORD_APPLY(1'b1)
     ) harness (.*);
 

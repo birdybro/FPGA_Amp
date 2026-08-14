@@ -30,6 +30,7 @@ def main() -> int:
     parser.add_argument("--pipelined-kcl-accumulator", action="store_true")
     parser.add_argument("--pipelined-kcl-capacitor-current", action="store_true")
     parser.add_argument("--pipelined-kcl-maximum", action="store_true")
+    parser.add_argument("--decoupled-kcl-maximum", action="store_true")
     parser.add_argument("--pipelined-chord-apply", action="store_true")
     parser.add_argument("--half-parallel-terminal-current", action="store_true")
     args = parser.parse_args()
@@ -44,6 +45,10 @@ def main() -> int:
         )
     if args.pipelined_kcl_maximum and not args.pipelined_kcl_finish:
         parser.error("--pipelined-kcl-maximum requires --pipelined-kcl-finish")
+    if args.decoupled_kcl_maximum and not args.pipelined_kcl_maximum:
+        parser.error(
+            "--decoupled-kcl-maximum requires --pipelined-kcl-maximum"
+        )
     if args.half_parallel_terminal_current and not (
         args.trapezoidal
         and args.terminal_correction
@@ -117,6 +122,8 @@ def main() -> int:
         parameter_args.append("-GPIPELINED_KCL_CAPACITOR_CURRENT=1")
     if args.pipelined_kcl_maximum:
         parameter_args.append("-GPIPELINED_KCL_MAXIMUM=1")
+    if args.decoupled_kcl_maximum:
+        parameter_args.append("-GDECOUPLED_KCL_MAXIMUM=1")
     if args.pipelined_chord_apply:
         parameter_args.append("-GPIPELINED_CHORD_APPLY=1")
     if args.half_parallel_terminal_current:
@@ -159,6 +166,7 @@ def main() -> int:
             else ""
         )
         + ("_pipelined_maximum" if args.pipelined_kcl_maximum else "")
+        + ("_decoupled_maximum" if args.decoupled_kcl_maximum else "")
         + ("_pipelined_chord" if args.pipelined_chord_apply else "")
         + (
             "_half_parallel_terminal_current"

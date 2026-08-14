@@ -29,7 +29,11 @@ module network_kcl_v1_wide #(
     // Pipeline the exact nine-row maximum diagnostic into four comparator
     // levels when diagnostic_max_enable is asserted. Non-final solver passes
     // bypass the three extra clocks because their maximum is not consumed.
-    parameter bit PIPELINED_MAXIMUM = 1'b0
+    parameter bit PIPELINED_MAXIMUM = 1'b0,
+    // Emit the correction result after the first maximum-pipeline boundary,
+    // then complete the final-only diagnostic through a separate max_valid
+    // sideband. The engine remains busy until that sideband is committed.
+    parameter bit DECOUPLED_MAXIMUM = 1'b0
 ) (
     input  logic                  clk,
     input  logic                  rst_n,
@@ -45,6 +49,7 @@ module network_kcl_v1_wide #(
     output logic [224:0]          residual,
     output logic [5:0]            residual_fractional_bits,
     output logic [62:0]           max_abs_residual_q44,
+    output logic                  max_valid,
     output logic                  correction_scale_fallback,
     output logic                  saturation_any,
     output logic [3:0]            saturation_count,
@@ -592,6 +597,7 @@ module network_kcl_v1_wide #(
         if (!rst_n) begin
             busy <= 1'b0;
             valid <= 1'b0;
+            max_valid <= 1'b0;
             residual <= '0;
             residual_fractional_bits <= 6'd30;
             max_abs_residual_q44 <= '0;
@@ -659,6 +665,7 @@ module network_kcl_v1_wide #(
                 current_latched[lane] <= '0;
         end else begin
             valid <= 1'b0;
+            max_valid <= 1'b0;
             if (!busy) begin
                 if (start) begin
                     busy <= 1'b1;
@@ -909,6 +916,20 @@ module network_kcl_v1_wide #(
                         maximum_pair_staged[2], maximum_pair_staged[3]
                     );
                     maximum_pipeline_stage <= 3'd2;
+                    if (DECOUPLED_MAXIMUM) begin
+                        for (lane = 0; lane < 9; lane = lane + 1)
+                            residual[lane * 25 +: 25] <=
+                                saturate_correction(
+                                    selected_staged_by_row[lane]
+                                );
+                        residual_fractional_bits <= selected_fraction_staged;
+                        correction_scale_fallback <=
+                            selected_fraction_staged
+                            != requested_fraction_latched;
+                        saturation_any <= saturation_staged;
+                        saturation_count <= saturation_count_staged;
+                        valid <= 1'b1;
+                    end
                 end else if (PIPELINED_MAXIMUM && diagnostic_max_latched
                              && finish_selection_staged
                              && maximum_pipeline_stage == 3'd2) begin
@@ -922,7 +943,21 @@ module network_kcl_v1_wide #(
                     max_abs_staged <= maximum_u63(
                         maximum_final_staged, maximum_row8_staged
                     );
-                    maximum_pipeline_stage <= 3'd4;
+                    if (DECOUPLED_MAXIMUM) begin
+                        max_abs_residual_q44 <= maximum_u63(
+                            maximum_final_staged, maximum_row8_staged
+                        );
+                        max_valid <= 1'b1;
+                        busy <= 1'b0;
+                        finish_pending <= 1'b0;
+                        finish_result_staged <= 1'b0;
+                        finish_conversion_staged <= 1'b0;
+                        finish_selection_staged <= 1'b0;
+                        current_ready <= 1'b0;
+                        maximum_pipeline_stage <= '0;
+                    end else begin
+                        maximum_pipeline_stage <= 3'd4;
+                    end
                 end else if (finish_result_staged) begin
                     for (lane = 0; lane < 9; lane = lane + 1)
                         residual[lane * 25 +: 25] <= saturate_correction(
@@ -934,6 +969,7 @@ module network_kcl_v1_wide #(
                         ? selected_fraction_staged : selected_fraction;
                     max_abs_residual_q44 <= PIPELINED_FINISH
                         ? max_abs_staged : max_abs_combined;
+                    max_valid <= diagnostic_max_latched;
                     correction_scale_fallback <=
                         (PIPELINED_FINISH
                             ? selected_fraction_staged : selected_fraction)

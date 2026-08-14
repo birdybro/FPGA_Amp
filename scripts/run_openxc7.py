@@ -28,6 +28,7 @@ SUPPORTED_TOPS = (
     "parallel_deep_pipelined_solver_pnr_harness",
     "parallel_max_pipelined_solver_pnr_harness",
     "parallel_diagnostic_pipelined_solver_pnr_harness",
+    "parallel_decoupled_diagnostic_pipelined_solver_pnr_harness",
     "parallel_shared_terminal_diagnostic_pipelined_solver_pnr_harness",
     "terminal_current_pnr_harness",
     "half_parallel_terminal_current_pnr_harness",
@@ -36,6 +37,7 @@ SUPPORTED_TOPS = (
     "deep_pipelined_kcl_pnr_harness",
     "max_pipelined_kcl_pnr_harness",
     "diagnostic_pipelined_kcl_pnr_harness",
+    "decoupled_diagnostic_pipelined_kcl_pnr_harness",
     "chord_pnr_harness",
     "pipelined_chord_pnr_harness",
 )

@@ -34,6 +34,9 @@ module v1_solver_mono_wide #(
     parameter bit PIPELINED_KCL_CAPACITOR_CURRENT = 1'b0,
     // Pipeline the final-pass-only KCL maximum-residual diagnostic.
     parameter bit PIPELINED_KCL_MAXIMUM = 1'b0,
+    // Launch the final correction before its pipelined maximum diagnostic;
+    // the exact maximum completes through a separate sideband during chord.
+    parameter bit DECOUPLED_KCL_MAXIMUM = 1'b0,
     // Split chord scaling, node update, and saturation across registers.
     parameter bit PIPELINED_CHORD_APPLY = 1'b0,
     // Reuse five terminal-current multipliers across two batches. The first
@@ -496,6 +499,7 @@ module v1_solver_mono_wide #(
     logic [224:0] residual;
     logic [5:0] residual_fractional_bits;
     logic [62:0] kcl_max_abs_q44;
+    logic kcl_max_valid;
     logic kcl_scale_fallback;
     logic kcl_saturation_any;
     logic [3:0] kcl_saturation_count;
@@ -536,7 +540,8 @@ module v1_solver_mono_wide #(
         .PIPELINED_COLUMNS(PIPELINED_KCL_COLUMNS),
         .PIPELINED_ACCUMULATOR(PIPELINED_KCL_ACCUMULATOR),
         .PIPELINED_CAPACITOR_CURRENT(PIPELINED_KCL_CAPACITOR_CURRENT),
-        .PIPELINED_MAXIMUM(PIPELINED_KCL_MAXIMUM)
+        .PIPELINED_MAXIMUM(PIPELINED_KCL_MAXIMUM),
+        .DECOUPLED_MAXIMUM(DECOUPLED_KCL_MAXIMUM)
     ) kcl_engine (
         .clk,
         .rst_n,
@@ -552,6 +557,7 @@ module v1_solver_mono_wide #(
         .residual,
         .residual_fractional_bits,
         .max_abs_residual_q44(kcl_max_abs_q44),
+        .max_valid(kcl_max_valid),
         .correction_scale_fallback(kcl_scale_fallback),
         .saturation_any(kcl_saturation_any),
         .saturation_count(kcl_saturation_count),
@@ -774,6 +780,11 @@ module v1_solver_mono_wide #(
                     deadline_reported <= 1'b1;
                 end
             end
+            if (kcl_max_valid) begin
+                last_residual_q44 <= kcl_max_abs_q44;
+                if (kcl_max_abs_q44 > RESIDUAL_LIMIT_Q44)
+                    nonconvergence_count <= nonconvergence_count + 1'b1;
+            end
 
             case (state)
                 IDLE: begin
@@ -825,9 +836,6 @@ module v1_solver_mono_wide #(
                 WAIT_KCL: begin
                     if (kcl_valid) begin
                         if (final_pass) begin
-                            last_residual_q44 <= kcl_max_abs_q44;
-                            if (kcl_max_abs_q44 > RESIDUAL_LIMIT_Q44)
-                                nonconvergence_count <= nonconvergence_count + 1'b1;
                             if (TERMINAL_CORRECTION) begin
                                 saturation_count <= saturation_count
                                     + {28'd0, kcl_saturation_count};
