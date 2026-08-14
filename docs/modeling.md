@@ -445,6 +445,9 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | grid-current resolution | 128--1,024 entries, linear interpolation | implemented 1,024 points: 1.5 V burst -72.87/-81.77 dB, final 0.631/0.321 mV |
 | banked correction count | 3--6 passes, 100 ms, 1.0/1.5 V | fourth pass improves burst 5.65--9.02 dB but projects to 145 clocks; recovery error non-monotonic |
 | banked terminal correction vs full Newton | 100 ms, 1.0/1.5 V per mode | output-exact to four-pass; BE burst RMS 4.895/6.817 mV; preterminal residual <=1.772 uA |
+| terminal bank reselection | trapezoidal 100 ms, 1.0/1.5 V | 1.0 V terminal-only 4.611 mV vs 4.709 mV held; worsens 1.5 V and recovery; rejected |
+| terminal residual relaxation | unity, 5/4, 3/2, 2 and cutoff-only variants | unconditional 5/4 burst 3.570/3.454 mV but recovery worsens; cutoff-only also worse; rejected |
+| dual-triode chord-bank derivation | full-Newton physical medians, unsplit and stage-one split | no unsplit set improves both levels/recovery; split variants cause 58 residual misses at 1.5 V; rejected |
 | banked terminal RTL vs fixed | 18,432 BE overload updates | every state/diagnostic exact at 127 clocks; zero events |
 | captured banked terminal overload | 384,000 RTL updates, 20 mV--1.5 V | fixed exact; zero diagnostics; H2--H10 0.903--25.213%; phase error <=0.00221 degree |
 | captured trapezoidal banked terminal overload | 384,000 RTL updates, 20 mV--1.5 V | fixed state/current exact; zero diagnostics; 0.276--4.709 mV burst RMS error |

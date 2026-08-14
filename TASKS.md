@@ -18,13 +18,23 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   evaluation to <=0.168 mV burst RMS and identifies circuit/state/chord as the
   6.40--19.07 mV dominant burst layer. The implemented terminal correction
   cuts 1.0/1.5 V burst RMS to 4.895/6.817 mV for backward Euler and
-  4.709/3.604 mV for trapezoidal at 127 clocks. Seek further contraction
-  without consuming the final schedule clock.
+  4.709/3.604 mV for trapezoidal at 127 clocks. Held-bank reselection,
+  rational terminal relaxation, full dual-triode operating points, and
+  stage-one-split banks all fail cross-level/recovery acceptance. Further
+  contraction now requires a different solver formulation or additional
+  schedule margin; do not tune the frozen circuit or accept a one-level fit.
 - [ ] Prove 98.304 MHz named-part timing for the 127-clock trapezoidal terminal
   stream. Generic synthesis fits XC7A100T structurally at 20,241 LC / 222 of
   240 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1, but the parallel terminal-current path and one-clock
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
+
+- [x] Test three schedule-neutral refinements to the remaining trapezoidal
+  terminal error. Preserve exact negative results showing that within-sample
+  bank reselection worsens 1.5 V/recovery, 5/4 residual relaxation improves
+  burst error but displaces recovery state, and full dual-triode/stage-one-
+  split Jacobian banks either fail cross-level validation or create 58
+  residual-limit misses. Retain the production coefficients and schedule.
 
 - [x] Implement and integrate a Gray-counter BCLK/fabric rate monitor. Require
   three consecutive 1,024 ± 1 edge windows for lock, drop lock and latch a bad

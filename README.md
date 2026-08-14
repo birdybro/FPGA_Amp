@@ -243,6 +243,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   constant multipliers reduce the solver to 14,945 logic cells / 174 DSPs; the
   full stream measures 20,241 / 222 / 8 RAMB18E1 + 1 RAMB36E1. This fits the provisional
   A7-100T structurally with 18 DSPs free, but timing is not claimed.
+- Schedule-neutral attempts to reduce its remaining 4.709/3.604 mV severe-
+  burst error are preserved as negative results. Corrected-state bank
+  reselection, rational terminal-residual relaxation, full dual-triode median
+  Jacobians, and stage-one-split banks each fail cross-level, recovery, or
+  residual-limit acceptance. Reference behavior and production coefficients
+  remain unchanged; `make terminal-bank-study`, `make terminal-relaxation-study`,
+  and `make dual-triode-bank-study` regenerate the evidence.
 - A captured complete-stream sweep at 100 Hz, 1 kHz, 10 kHz, and 20 kHz proves
   all 19,200 Q8.24 outputs exact with zero diagnostics. Relative to the composed
   floating trapezoidal reference, gain/phase error stays within 0.000134 dB /

@@ -6,6 +6,15 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added reproducible schedule-neutral terminal-solver rejection studies.
+  Corrected-state bank reselection improves the 1.0 V burst by only 0.101 mV
+  while worsening the 1.5 V and recovery results. Unconditional 5/4 terminal-
+  residual scaling reduces burst RMS to 3.570/3.454 mV but worsens late state;
+  cutoff-only scaling does not preserve the benefit. Full dual-triode median
+  Jacobians do not generalize, while stage-one-split banks create 58 residual-
+  limit misses and about 6.12 mV burst error at 1.5 V. All tests retain raw,
+  unaligned metrics and leave the physical reference, production bank, unity
+  correction, and 127-clock implementation unchanged.
 - Extended the original deterministic PCM24 suite from nine to fourteen
   vectors. The exact fixed stream now processes 69,440 external frames /
   1,111,040 nonlinear updates with zero diagnostics or WAV clips. A 60 Hz/

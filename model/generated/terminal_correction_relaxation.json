@@ -1,0 +1,1031 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "study": "schedule-neutral terminal chord-residual relaxation",
+  "integration_method": "trapezoidal",
+  "sample_rate_hz": 768000.0,
+  "stimulus": {
+    "frequency_hz": 1000.0,
+    "nominal_peak_v": 0.005,
+    "burst_start_s": 0.01,
+    "burst_end_s": 0.015,
+    "duration_s": 0.1,
+    "burst_levels_peak_v": [
+      1.0,
+      1.5
+    ],
+    "input_format": "Q8.24"
+  },
+  "terminal_policies": [
+    {
+      "name": "all_1_over_2",
+      "numerator": 1,
+      "denominator": 2,
+      "value": 0.5,
+      "cutoff_banks_only": false
+    },
+    {
+      "name": "all_3_over_4",
+      "numerator": 3,
+      "denominator": 4,
+      "value": 0.75,
+      "cutoff_banks_only": false
+    },
+    {
+      "name": "baseline_1_over_1",
+      "numerator": 1,
+      "denominator": 1,
+      "value": 1.0,
+      "cutoff_banks_only": false
+    },
+    {
+      "name": "all_5_over_4",
+      "numerator": 5,
+      "denominator": 4,
+      "value": 1.25,
+      "cutoff_banks_only": false
+    },
+    {
+      "name": "all_3_over_2",
+      "numerator": 3,
+      "denominator": 2,
+      "value": 1.5,
+      "cutoff_banks_only": false
+    },
+    {
+      "name": "all_2_over_1",
+      "numerator": 2,
+      "denominator": 1,
+      "value": 2.0,
+      "cutoff_banks_only": false
+    },
+    {
+      "name": "cutoff_5_over_4",
+      "numerator": 5,
+      "denominator": 4,
+      "value": 1.25,
+      "cutoff_banks_only": true
+    },
+    {
+      "name": "cutoff_3_over_2",
+      "numerator": 3,
+      "denominator": 2,
+      "value": 1.5,
+      "cutoff_banks_only": true
+    },
+    {
+      "name": "cutoff_2_over_1",
+      "numerator": 2,
+      "denominator": 1,
+      "value": 2.0,
+      "cutoff_banks_only": true
+    }
+  ],
+  "schedule_projection": {
+    "baseline_solver_clocks": 127,
+    "candidate_solver_clocks": 127,
+    "implementation": "small-integer shift/add scaling of the existing Q44 terminal residual before Q40 chord conversion; no pass is added",
+    "timing_not_proven": true
+  },
+  "alignment": {
+    "gain": false,
+    "dc": false,
+    "delay": false
+  },
+  "gates": {
+    "analytical_newton_converged": true,
+    "all_fixed_candidates_diagnostic_clean": true
+  },
+  "all_gates_pass": true,
+  "measurements": [
+    {
+      "burst_input_peak_v": 1.0,
+      "analytical_nonconvergence_count": 0,
+      "cases": [
+        {
+          "policy": "all_1_over_2",
+          "terminal_residual_scale": 0.5,
+          "integer_numerator": 1,
+          "integer_denominator": 2,
+          "cutoff_banks_only": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.93337319481002,
+              "raw_error_rms_v": 0.007400822600982194,
+              "raw_normalized_error_db": -79.75322018571578,
+              "error_mean_v": -0.0011747973404957885,
+              "mean_removed_error_rms_v": 0.00730698476664437,
+              "mean_removed_normalized_error_db": -79.86405603122543,
+              "maximum_absolute_error_v": 0.048630508217598845
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.306586336134151,
+              "raw_error_rms_v": 0.00010791950719753451,
+              "raw_normalized_error_db": -92.02077068038064,
+              "error_mean_v": 9.600606860677536e-05,
+              "mean_removed_error_rms_v": 4.9289500143842427e-05,
+              "mean_removed_normalized_error_db": -98.82768147265949,
+              "maximum_absolute_error_v": 0.00041752220670332463
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.49516064576971147,
+              "raw_error_rms_v": 0.00015267492048804467,
+              "raw_normalized_error_db": -70.22121436658747,
+              "error_mean_v": 0.00015194205605400217,
+              "mean_removed_error_rms_v": 1.4941316813227248e-05,
+              "mean_removed_normalized_error_db": -90.40879092529103,
+              "maximum_absolute_error_v": 0.0002030147132879856
+            }
+          },
+          "maximum_preterminal_residual_a": 1.8201209286416997e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            417,
+            456,
+            323,
+            154,
+            75450
+          ]
+        },
+        {
+          "policy": "all_3_over_4",
+          "terminal_residual_scale": 0.75,
+          "integer_numerator": 3,
+          "integer_denominator": 4,
+          "cutoff_banks_only": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.9333663391742,
+              "raw_error_rms_v": 0.006007494722194377,
+              "raw_normalized_error_db": -81.56495211145082,
+              "error_mean_v": -0.0012453186404146497,
+              "mean_removed_error_rms_v": 0.005877003855794982,
+              "mean_removed_normalized_error_db": -81.75570055715508,
+              "maximum_absolute_error_v": 0.03987956102528756
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.306606749214321,
+              "raw_error_rms_v": 5.098099883743385e-05,
+              "raw_normalized_error_db": -98.53460294929775,
+              "error_mean_v": 3.0767709463641906e-05,
+              "mean_removed_error_rms_v": 4.064984989914909e-05,
+              "mean_removed_normalized_error_db": -100.50159082485612,
+              "maximum_absolute_error_v": 0.00036798418733496874
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.49521131249442607,
+              "raw_error_rms_v": 6.722552149612732e-05,
+              "raw_normalized_error_db": -77.3458848182,
+              "error_mean_v": 6.5408960792801e-05,
+              "mean_removed_error_rms_v": 1.5522196636819774e-05,
+              "mean_removed_normalized_error_db": -90.07750479993611,
+              "maximum_absolute_error_v": 0.00011413890505518332
+            }
+          },
+          "maximum_preterminal_residual_a": 1.7957475506591436e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            417,
+            456,
+            323,
+            154,
+            75450
+          ]
+        },
+        {
+          "policy": "baseline_1_over_1",
+          "terminal_residual_scale": 1.0,
+          "integer_numerator": 1,
+          "integer_denominator": 1,
+          "cutoff_banks_only": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.93336025862533,
+              "raw_error_rms_v": 0.004708913462304587,
+              "raw_normalized_error_db": -83.68040588404699,
+              "error_mean_v": -0.0013074136289610032,
+              "mean_removed_error_rms_v": 0.0045237744857895374,
+              "mean_removed_normalized_error_db": -84.0288011336171,
+              "maximum_absolute_error_v": 0.031269546687241245
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.306630545371748,
+              "raw_error_rms_v": 7.022242178747736e-05,
+              "raw_normalized_error_db": -95.75325368925087,
+              "error_mean_v": -5.7108819899285024e-05,
+              "mean_removed_error_rms_v": 4.086283410887455e-05,
+              "mean_removed_normalized_error_db": -100.45620005965476,
+              "maximum_absolute_error_v": 0.0006824689835553954
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.4952667695380253,
+              "raw_error_rms_v": 3.6348301783756023e-05,
+              "raw_normalized_error_db": -82.68688591341947,
+              "error_mean_v": -3.0571052970945226e-05,
+              "mean_removed_error_rms_v": 1.9662394635716743e-05,
+              "mean_removed_normalized_error_db": -88.02384024846462,
+              "maximum_absolute_error_v": 9.107571401228975e-05
+            }
+          },
+          "maximum_preterminal_residual_a": 1.767239098171558e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            417,
+            456,
+            323,
+            154,
+            75450
+          ]
+        },
+        {
+          "policy": "all_5_over_4",
+          "terminal_residual_scale": 1.25,
+          "integer_numerator": 5,
+          "integer_denominator": 4,
+          "cutoff_banks_only": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.93335309066656,
+              "raw_error_rms_v": 0.0035695038164766726,
+              "raw_normalized_error_db": -86.08666305733776,
+              "error_mean_v": -0.0013714571810446068,
+              "mean_removed_error_rms_v": 0.003295521612188685,
+              "mean_removed_normalized_error_db": -86.78033678790743,
+              "maximum_absolute_error_v": 0.022805738817538668
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.30665341161496,
+              "raw_error_rms_v": 0.00014893250007284197,
+              "raw_normalized_error_db": -89.22298015255194,
+              "error_mean_v": -0.00014269265713663678,
+              "mean_removed_error_rms_v": 4.2657885287872586e-05,
+              "mean_removed_normalized_error_db": -100.08278330993677,
+              "maximum_absolute_error_v": 0.0010388493456190417
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.495326919418811,
+              "raw_error_rms_v": 0.0001346046146281033,
+              "raw_normalized_error_db": -71.31536943659555,
+              "error_mean_v": -0.00013300676705479543,
+              "mean_removed_error_rms_v": 2.0678544359107708e-05,
+              "mean_removed_normalized_error_db": -87.58616913904288,
+              "maximum_absolute_error_v": 0.00020190685700316457
+            }
+          },
+          "maximum_preterminal_residual_a": 1.7452405813855876e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            417,
+            456,
+            323,
+            154,
+            75450
+          ]
+        },
+        {
+          "policy": "all_3_over_2",
+          "terminal_residual_scale": 1.5,
+          "integer_numerator": 3,
+          "integer_denominator": 2,
+          "cutoff_banks_only": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.93334775889174,
+              "raw_error_rms_v": 0.0027479433085635767,
+              "raw_normalized_error_db": -88.35866469472082,
+              "error_mean_v": -0.0014492745601171677,
+              "mean_removed_error_rms_v": 0.002334693914943997,
+              "mean_removed_normalized_error_db": -89.77422104241363,
+              "maximum_absolute_error_v": 0.014521373292069484
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.306673446192385,
+              "raw_error_rms_v": 0.00021650470220326633,
+              "raw_normalized_error_db": -85.97342308842454,
+              "error_mean_v": -0.00021094484823810589,
+              "mean_removed_error_rms_v": 4.874994438896852e-05,
+              "mean_removed_normalized_error_db": -98.92328725824457,
+              "maximum_absolute_error_v": 0.001353945451285199
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.4953644772004419,
+              "raw_error_rms_v": 0.00019719400113878423,
+              "raw_normalized_error_db": -67.99869443471756,
+              "error_mean_v": -0.00019557623658676704,
+              "mean_removed_error_rms_v": 2.5207335592635564e-05,
+              "mean_removed_normalized_error_db": -85.86602955012918,
+              "maximum_absolute_error_v": 0.0002861464778870504
+            }
+          },
+          "maximum_preterminal_residual_a": 1.7205874200953986e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            417,
+            456,
+            323,
+            154,
+            75450
+          ]
+        },
+        {
+          "policy": "all_2_over_1",
+          "terminal_residual_scale": 2.0,
+          "integer_numerator": 2,
+          "integer_denominator": 1,
+          "cutoff_banks_only": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.93333739840979,
+              "raw_error_rms_v": 0.0029636025808582804,
+              "raw_normalized_error_db": -87.70242078376629,
+              "error_mean_v": -0.0015708308111141134,
+              "mean_removed_error_rms_v": 0.002513052092600636,
+              "mean_removed_normalized_error_db": -89.1347902481514,
+              "maximum_absolute_error_v": 0.01094479640609336
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.306714991393232,
+              "raw_error_rms_v": 0.00034374542808128533,
+              "raw_normalized_error_db": -81.95803113803467,
+              "error_mean_v": -0.00033854060993367667,
+              "mean_removed_error_rms_v": 5.9591733927787934e-05,
+              "mean_removed_normalized_error_db": -97.17904930697202,
+              "maximum_absolute_error_v": 0.0020677907005506313
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.4954582068260211,
+              "raw_error_rms_v": 0.0003565696126917569,
+              "raw_normalized_error_db": -62.85368183044983,
+              "error_mean_v": -0.00035510733884868144,
+              "mean_removed_error_rms_v": 3.225936439171276e-05,
+              "mean_removed_normalized_error_db": -83.72345229228591,
+              "maximum_absolute_error_v": 0.0004660629653532311
+            }
+          },
+          "maximum_preterminal_residual_a": 1.6737308783376648e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            417,
+            456,
+            323,
+            154,
+            75450
+          ]
+        },
+        {
+          "policy": "cutoff_5_over_4",
+          "terminal_residual_scale": 1.25,
+          "integer_numerator": 5,
+          "integer_denominator": 4,
+          "cutoff_banks_only": true,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.93337323337724,
+              "raw_error_rms_v": 0.004749335043340441,
+              "raw_normalized_error_db": -83.6061639080165,
+              "error_mean_v": -0.0014823231110817142,
+              "mean_removed_error_rms_v": 0.004512083947385573,
+              "mean_removed_normalized_error_db": -84.05127664799018,
+              "maximum_absolute_error_v": 0.031282133511837174
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.306808646563055,
+              "raw_error_rms_v": 0.0005549061377255197,
+              "raw_normalized_error_db": -77.79837918058475,
+              "error_mean_v": -0.0005453550061785808,
+              "mean_removed_error_rms_v": 0.00010251214036109811,
+              "mean_removed_normalized_error_db": -92.46726372478707,
+              "maximum_absolute_error_v": 0.0007526362686989807
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.4954793596679499,
+              "raw_error_rms_v": 0.000392510939260393,
+              "raw_normalized_error_db": -62.019533116088574,
+              "error_mean_v": -0.00039166730675933766,
+              "mean_removed_error_rms_v": 2.57207747737662e-05,
+              "mean_removed_normalized_error_db": -85.69088748679724,
+              "maximum_absolute_error_v": 0.00047281178902794374
+            }
+          },
+          "maximum_preterminal_residual_a": 1.7700444914225955e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            417,
+            456,
+            323,
+            154,
+            75450
+          ]
+        },
+        {
+          "policy": "cutoff_3_over_2",
+          "terminal_residual_scale": 1.5,
+          "integer_numerator": 3,
+          "integer_denominator": 2,
+          "cutoff_banks_only": true,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.93338829898474,
+              "raw_error_rms_v": 0.004803047351545994,
+              "raw_normalized_error_db": -83.50848270578172,
+              "error_mean_v": -0.001658581411013171,
+              "mean_removed_error_rms_v": 0.0045075904388303225,
+              "mean_removed_normalized_error_db": -84.05993108959336,
+              "maximum_absolute_error_v": 0.03132258783617203
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.306986315892708,
+              "raw_error_rms_v": 0.001034654228004414,
+              "raw_normalized_error_db": -72.38686501481621,
+              "error_mean_v": -0.0010190101246453248,
+              "mean_removed_error_rms_v": 0.00017924211948571026,
+              "mean_removed_normalized_error_db": -87.61396833706065,
+              "maximum_absolute_error_v": 0.0013659321910235445
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.4956941161907941,
+              "raw_error_rms_v": 0.0007580524301006628,
+              "raw_normalized_error_db": -56.30258353025152,
+              "error_mean_v": -0.0007573603793036149,
+              "mean_removed_error_rms_v": 3.2384296234518734e-05,
+              "mean_removed_normalized_error_db": -83.68987914561075,
+              "maximum_absolute_error_v": 0.0008497224041008056
+            }
+          },
+          "maximum_preterminal_residual_a": 1.7694924849820381e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            417,
+            456,
+            323,
+            154,
+            75450
+          ]
+        },
+        {
+          "policy": "cutoff_2_over_1",
+          "terminal_residual_scale": 2.0,
+          "integer_numerator": 2,
+          "integer_denominator": 1,
+          "cutoff_banks_only": true,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 71.93512514908701,
+              "candidate_rms_v": 71.93341934566163,
+              "raw_error_rms_v": 0.0049529977694323735,
+              "raw_normalized_error_db": -83.24145742211284,
+              "error_mean_v": -0.0020181288637911832,
+              "mean_removed_error_rms_v": 0.00452320050330902,
+              "mean_removed_normalized_error_db": -84.02990328068671,
+              "maximum_absolute_error_v": 0.03139297719636147
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 4.306639184163982,
+              "candidate_rms_v": 4.307351015625297,
+              "raw_error_rms_v": 0.0020355794753805045,
+              "raw_normalized_error_db": -66.5090084854069,
+              "error_mean_v": -0.002006731248528749,
+              "mean_removed_error_rms_v": 0.0003414871839009732,
+              "mean_removed_normalized_error_db": -82.01528156772855,
+              "maximum_absolute_error_v": 0.0025896769297053535
+            },
+            "final_10ms": {
+              "reference_rms_v": 0.49525448915365206,
+              "candidate_rms_v": 0.4961314038411468,
+              "raw_error_rms_v": 0.0015007871008182177,
+              "raw_normalized_error_db": -50.37018665011887,
+              "error_mean_v": -0.0015001638081615142,
+              "mean_removed_error_rms_v": 4.324893830713521e-05,
+              "mean_removed_normalized_error_db": -81.17705940258588,
+              "maximum_absolute_error_v": 0.0016222010126549363
+            }
+          },
+          "maximum_preterminal_residual_a": 1.7712357021082425e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            417,
+            456,
+            323,
+            154,
+            75450
+          ]
+        }
+      ]
+    },
+    {
+      "burst_input_peak_v": 1.5,
+      "analytical_nonconvergence_count": 0,
+      "cases": [
+        {
+          "policy": "all_1_over_2",
+          "terminal_residual_scale": 0.5,
+          "integer_numerator": 1,
+          "integer_denominator": 2,
+          "cutoff_banks_only": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.75565735011624,
+              "raw_error_rms_v": 0.004934005773117928,
+              "raw_normalized_error_db": -84.69952833027745,
+              "error_mean_v": -0.002483170458186791,
+              "mean_removed_error_rms_v": 0.004263599118673031,
+              "mean_removed_normalized_error_db": -85.96799412114935,
+              "maximum_absolute_error_v": 0.03379257407682701
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.584268658550334,
+              "raw_error_rms_v": 0.0007076737983354458,
+              "raw_normalized_error_db": -74.09132253600532,
+              "error_mean_v": -0.0006680999801035715,
+              "mean_removed_error_rms_v": 0.00023333371260091137,
+              "mean_removed_normalized_error_db": -83.7284350342749,
+              "maximum_absolute_error_v": 0.0016592318126242844
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.1935397116586952,
+              "raw_error_rms_v": 0.0003890244514278216,
+              "raw_normalized_error_db": -69.73988591554203,
+              "error_mean_v": -0.0003882954422887584,
+              "mean_removed_error_rms_v": 2.380490089235927e-05,
+              "mean_removed_normalized_error_db": -94.00609634101966,
+              "maximum_absolute_error_v": 0.00046593513808068643
+            }
+          },
+          "maximum_preterminal_residual_a": 1.7496731743449345e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1321,
+            156,
+            167,
+            187,
+            74969
+          ]
+        },
+        {
+          "policy": "all_3_over_4",
+          "terminal_residual_scale": 0.75,
+          "integer_numerator": 3,
+          "integer_denominator": 4,
+          "cutoff_banks_only": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.7556307313189,
+              "raw_error_rms_v": 0.004126885918649908,
+              "raw_normalized_error_db": -86.25107212349013,
+              "error_mean_v": -0.0025314665806274515,
+              "mean_removed_error_rms_v": 0.00325927359034452,
+              "mean_removed_normalized_error_db": -88.30110504450928,
+              "maximum_absolute_error_v": 0.0262885411520557
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.584318269657715,
+              "raw_error_rms_v": 0.0007454208966314128,
+              "raw_normalized_error_db": -73.63995359228576,
+              "error_mean_v": -0.0006895627889667549,
+              "mean_removed_error_rms_v": 0.00028311741946967866,
+              "mean_removed_normalized_error_db": -82.04865303481007,
+              "maximum_absolute_error_v": 0.002076040864665174
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.1935497361028131,
+              "raw_error_rms_v": 0.00037844598939213776,
+              "raw_normalized_error_db": -69.97934575245748,
+              "error_mean_v": -0.0003774973471930978,
+              "mean_removed_error_rms_v": 2.677909164194811e-05,
+              "mean_removed_normalized_error_db": -92.9835070656001,
+              "maximum_absolute_error_v": 0.0004619835276873374
+            }
+          },
+          "maximum_preterminal_residual_a": 1.720633008517325e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1321,
+            156,
+            167,
+            188,
+            74968
+          ]
+        },
+        {
+          "policy": "baseline_1_over_1",
+          "terminal_residual_scale": 1.0,
+          "integer_numerator": 1,
+          "integer_denominator": 1,
+          "cutoff_banks_only": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.75561053447291,
+              "raw_error_rms_v": 0.0036038886140944016,
+              "raw_normalized_error_db": -87.4280942021874,
+              "error_mean_v": -0.0025690043143121333,
+              "mean_removed_error_rms_v": 0.0025274948023378623,
+              "mean_removed_normalized_error_db": -90.50971597323459,
+              "maximum_absolute_error_v": 0.018903509622880676
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.584352504290422,
+              "raw_error_rms_v": 0.0008273251811531069,
+              "raw_normalized_error_db": -72.73445999699449,
+              "error_mean_v": -0.0007650851652443679,
+              "mean_removed_error_rms_v": 0.00031482002047681073,
+              "mean_removed_normalized_error_db": -81.12673800188722,
+              "maximum_absolute_error_v": 0.002840014711765093
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.1934722079419902,
+              "raw_error_rms_v": 0.00046061802379914824,
+              "raw_normalized_error_db": -68.27260534048338,
+              "error_mean_v": -0.00045966714589061873,
+              "mean_removed_error_rms_v": 2.9581731480854312e-05,
+              "mean_removed_normalized_error_db": -92.11895208363222,
+              "maximum_absolute_error_v": 0.0005525282660674424
+            }
+          },
+          "maximum_preterminal_residual_a": 1.7060969526028202e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1321,
+            156,
+            167,
+            188,
+            74968
+          ]
+        },
+        {
+          "policy": "all_5_over_4",
+          "terminal_residual_scale": 1.25,
+          "integer_numerator": 5,
+          "integer_denominator": 4,
+          "cutoff_banks_only": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.75559027028578,
+              "raw_error_rms_v": 0.003454311283591586,
+              "raw_normalized_error_db": -87.79629197178708,
+              "error_mean_v": -0.0026072225801359013,
+              "mean_removed_error_rms_v": 0.0022659781246908905,
+              "mean_removed_normalized_error_db": -91.45840713735706,
+              "maximum_absolute_error_v": 0.011883316470751026
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.5843940524055755,
+              "raw_error_rms_v": 0.0009020805234812914,
+              "raw_normalized_error_db": -71.98307873419088,
+              "error_mean_v": -0.0008248486168611019,
+              "mean_removed_error_rms_v": 0.00036520409377032977,
+              "mean_removed_normalized_error_db": -79.83727211585388,
+              "maximum_absolute_error_v": 0.0036334366264867413
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.1934318198799265,
+              "raw_error_rms_v": 0.0005037666307028248,
+              "raw_normalized_error_db": -67.49483596259506,
+              "error_mean_v": -0.0005028008574081647,
+              "mean_removed_error_rms_v": 3.1178774820231194e-05,
+              "mean_removed_normalized_error_db": -91.66224298609146,
+              "maximum_absolute_error_v": 0.000595271913158113
+            }
+          },
+          "maximum_preterminal_residual_a": 1.6901948924896715e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1321,
+            156,
+            167,
+            188,
+            74968
+          ]
+        },
+        {
+          "policy": "all_3_over_2",
+          "terminal_residual_scale": 1.5,
+          "integer_numerator": 3,
+          "integer_denominator": 2,
+          "cutoff_banks_only": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.75557007851384,
+              "raw_error_rms_v": 0.003734177555119673,
+              "raw_normalized_error_db": -87.11962211198289,
+              "error_mean_v": -0.0026553525540229206,
+              "mean_removed_error_rms_v": 0.0026254875408204645,
+              "mean_removed_normalized_error_db": -90.17932216252473,
+              "maximum_absolute_error_v": 0.012115644433151829
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.584438649397019,
+              "raw_error_rms_v": 0.0009721382716661517,
+              "raw_normalized_error_db": -71.33342403833608,
+              "error_mean_v": -0.0008779594850449428,
+              "mean_removed_error_rms_v": 0.0004174206054541044,
+              "mean_removed_normalized_error_db": -78.6765071850659,
+              "maximum_absolute_error_v": 0.0044516328040487
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.1933931378321923,
+              "raw_error_rms_v": 0.0005445810760856731,
+              "raw_normalized_error_db": -66.81817297999375,
+              "error_mean_v": -0.0005437908022562981,
+              "mean_removed_error_rms_v": 2.932766291543459e-05,
+              "mean_removed_normalized_error_db": -92.19387477551733,
+              "maximum_absolute_error_v": 0.0006388273594950533
+            }
+          },
+          "maximum_preterminal_residual_a": 1.674926920713915e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1321,
+            156,
+            167,
+            188,
+            74968
+          ]
+        },
+        {
+          "policy": "all_2_over_1",
+          "terminal_residual_scale": 2.0,
+          "integer_numerator": 2,
+          "integer_denominator": 1,
+          "cutoff_banks_only": false,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.75551817755104,
+              "raw_error_rms_v": 0.005210747926146157,
+              "raw_normalized_error_db": -84.22552010938372,
+              "error_mean_v": -0.002731167535657339,
+              "mean_removed_error_rms_v": 0.004437636515309461,
+              "mean_removed_normalized_error_db": -85.62048686645356,
+              "maximum_absolute_error_v": 0.019529891749229478
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.5845314728299,
+              "raw_error_rms_v": 0.0011195233209666685,
+              "raw_normalized_error_db": -70.10732196116143,
+              "error_mean_v": -0.0009864725952809133,
+              "mean_removed_error_rms_v": 0.0005293432581491688,
+              "mean_removed_normalized_error_db": -76.61323713517214,
+              "maximum_absolute_error_v": 0.00611505435846027
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.1933541347039363,
+              "raw_error_rms_v": 0.000585919365534246,
+              "raw_normalized_error_db": -66.1826668482094,
+              "error_mean_v": -0.0005846122749863913,
+              "mean_removed_error_rms_v": 3.911509738309831e-05,
+              "mean_removed_normalized_error_db": -89.69253557855043,
+              "maximum_absolute_error_v": 0.0007108324541942324
+            }
+          },
+          "maximum_preterminal_residual_a": 1.6451883766421815e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1321,
+            156,
+            167,
+            188,
+            74968
+          ]
+        },
+        {
+          "policy": "cutoff_5_over_4",
+          "terminal_residual_scale": 1.25,
+          "integer_numerator": 5,
+          "integer_denominator": 4,
+          "cutoff_banks_only": true,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.75561125467908,
+              "raw_error_rms_v": 0.003700410373448585,
+              "raw_normalized_error_db": -87.19852360135407,
+              "error_mean_v": -0.002666063808458512,
+              "mean_removed_error_rms_v": 0.002566152899020943,
+              "mean_removed_normalized_error_db": -90.37787080910006,
+              "maximum_absolute_error_v": 0.018747901220315555
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.584162630358351,
+              "raw_error_rms_v": 0.0016303107365242928,
+              "raw_normalized_error_db": -66.84257708578741,
+              "error_mean_v": -0.0015836370565632406,
+              "mean_removed_error_rms_v": 0.00038730707546609283,
+              "mean_removed_normalized_error_db": -79.32687624032995,
+              "maximum_absolute_error_v": 0.0031737439420851388
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.1928781363107916,
+              "raw_error_rms_v": 0.0010908918450536801,
+              "raw_normalized_error_db": -60.783789991014714,
+              "error_mean_v": -0.001090223674511707,
+              "mean_removed_error_rms_v": 3.817534726513531e-05,
+              "mean_removed_normalized_error_db": -89.90376396826048,
+              "maximum_absolute_error_v": 0.0011950594257044145
+            }
+          },
+          "maximum_preterminal_residual_a": 1.7054723002729588e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1321,
+            156,
+            167,
+            188,
+            74968
+          ]
+        },
+        {
+          "policy": "cutoff_3_over_2",
+          "terminal_residual_scale": 1.5,
+          "integer_numerator": 3,
+          "integer_denominator": 2,
+          "cutoff_banks_only": true,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.75561270642095,
+              "raw_error_rms_v": 0.0038240722454909552,
+              "raw_normalized_error_db": -86.91299962643362,
+              "error_mean_v": -0.002768588348159241,
+              "mean_removed_error_rms_v": 0.002637886862086986,
+              "mean_removed_normalized_error_db": -90.13839809857035,
+              "maximum_absolute_error_v": 0.018651317481392482
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.583973754601515,
+              "raw_error_rms_v": 0.002458042429662878,
+              "raw_normalized_error_db": -63.27619735411801,
+              "error_mean_v": -0.002407449806804145,
+              "mean_removed_error_rms_v": 0.0004961431383599585,
+              "mean_removed_normalized_error_db": -77.17584506933318,
+              "maximum_absolute_error_v": 0.0035568466284843225
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.192306022727639,
+              "raw_error_rms_v": 0.0016981374097555665,
+              "raw_normalized_error_db": -56.93996730432406,
+              "error_mean_v": -0.0016972547248641874,
+              "mean_removed_error_rms_v": 5.474542298252904e-05,
+              "mean_removed_normalized_error_db": -86.77246758247789,
+              "maximum_absolute_error_v": 0.001834993846559163
+            }
+          },
+          "maximum_preterminal_residual_a": 1.7041696196429257e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1321,
+            156,
+            167,
+            188,
+            74968
+          ]
+        },
+        {
+          "policy": "cutoff_2_over_1",
+          "terminal_residual_scale": 2.0,
+          "integer_numerator": 2,
+          "integer_denominator": 1,
+          "cutoff_banks_only": true,
+          "windows": {
+            "burst": {
+              "reference_rms_v": 84.75709631105285,
+              "candidate_rms_v": 84.75561330461143,
+              "raw_error_rms_v": 0.004124156381121529,
+              "raw_normalized_error_db": -86.25681890353027,
+              "error_mean_v": -0.0029633757752825663,
+              "mean_removed_error_rms_v": 0.002868286922609709,
+              "mean_removed_normalized_error_db": -89.41106953968625,
+              "maximum_absolute_error_v": 0.01915796115304147
+            },
+            "complete_post_burst": {
+              "reference_rms_v": 3.584257832240068,
+              "candidate_rms_v": 3.5835900396162055,
+              "raw_error_rms_v": 0.004127967192820458,
+              "raw_normalized_error_db": -58.77326011727017,
+              "error_mean_v": -0.004062151033061081,
+              "mean_removed_error_rms_v": 0.0007341948853014489,
+              "mean_removed_normalized_error_db": -73.77175776433295,
+              "maximum_absolute_error_v": 0.005249497863612673
+            },
+            "final_10ms": {
+              "reference_rms_v": 1.1939089140035901,
+              "candidate_rms_v": 1.1911135016014172,
+              "raw_error_rms_v": 0.0029649190501971597,
+              "raw_normalized_error_db": -52.09916708464018,
+              "error_mean_v": -0.002963858245441339,
+              "mean_removed_error_rms_v": 7.930495035881554e-05,
+              "mean_removed_normalized_error_db": -83.55341794282944,
+              "maximum_absolute_error_v": 0.0031361377181775563
+            }
+          },
+          "maximum_preterminal_residual_a": 1.7047836422534601e-06,
+          "residual_limit_exceedance_count": 0,
+          "saturation_count": 0,
+          "range_clip_count": 0,
+          "correction_scale_fallback_count": 0,
+          "bank_selection_count": [
+            1321,
+            156,
+            167,
+            188,
+            74968
+          ]
+        }
+      ]
+    }
+  ]
+}

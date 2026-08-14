@@ -400,6 +400,28 @@ every persistent state and diagnostic word. This is an optional FPGA numerical
 implementation choice; it changes neither the frozen physical circuit nor the
 analytical tube equations.
 
+Three schedule-neutral trapezoidal follow-up studies reject simpler ways to
+reduce the remaining 4.709/3.604 mV burst term. Reselecting the existing bank
+from the corrected state before the terminal update improves the 1.0 V burst
+to 4.611 mV, but worsens the 1.5 V burst to 3.647 mV and both late-recovery
+windows. Reselecting after every correction is worse still at 1.5 V. Scaling
+the already available terminal residual by 5/4 improves the two burst windows
+to 3.570/3.454 mV, but increases final-window error from 0.036/0.461 mV to
+0.135/0.504 mV. Limiting that scale to cutoff-bank samples does not isolate the
+benefit: 5/4 produces 4.749/3.700 mV burst and 0.393/1.091 mV final error. The
+state committed by even a short conditional correction persists after its
+selector condition ends.
+
+Replacing the four cutoff matrices with Jacobians evaluated at both triodes'
+full-Newton median operating points also fails cross-level validation. The best
+1.0 V-derived unsplit set gives 4.645 mV at 1.0 V but 3.689 mV at 1.5 V and
+raises the 1.0 V final error to 0.577 mV. Splitting every stage-two cutoff bank
+again by stage-one Vgk adds eight physical Jacobian points but creates 58
+preterminal residual-limit misses at 1.5 V and raises its burst error to about
+6.12 mV. These are recorded negative numerical experiments, not production
+changes. The implemented stage-two-only held bank, unity terminal correction,
+127-clock schedule, and frozen physical reference therefore remain unchanged.
+
 A longer captured RTL campaign covers a nominal control plus 20 mV, 0.5 V,
 1.0 V, and 1.5 V five-cycle bursts, totaling 384,000 updates. Every node,
 capacitor state, output, and diagnostic matches fixed Python. Direct analytical
