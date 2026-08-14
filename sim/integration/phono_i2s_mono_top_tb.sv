@@ -31,6 +31,11 @@ module phono_i2s_mono_top_tb;
         INPUT_FULL_SCALE_PEAK_VOLTS_Q24;
     logic signed [31:0] output_reciprocal_full_scale_q24 =
         OUTPUT_RECIPROCAL_FULL_SCALE_Q24;
+    logic mute_request = 1'b0;
+    logic force_mute = 1'b0;
+    logic [15:0] output_gain_q16;
+    logic output_muted;
+    logic output_ramping;
 
     logic rx_frame_error_sticky;
     logic rx_fifo_overflow_sticky;
@@ -115,7 +120,9 @@ module phono_i2s_mono_top_tb;
         .underflow_sticky(adc_underflow)
     );
 
-    phono_i2s_mono_top dut (
+    phono_i2s_mono_top #(
+        .OUTPUT_RAMP_SAMPLES(8)
+    ) dut (
         .i2s_bclk,
         .i2s_rst_n,
         .i2s_adc_lrclk(adc_lrclk),
@@ -129,6 +136,11 @@ module phono_i2s_mono_top_tb;
         .fabric_clear_diagnostics,
         .input_full_scale_peak_volts_q24,
         .output_reciprocal_full_scale_q24,
+        .mute_request,
+        .force_mute,
+        .output_gain_q16,
+        .output_muted,
+        .output_ramping,
         .rx_frame_error_sticky,
         .rx_fifo_overflow_sticky,
         .rx_fifo_underflow_sticky,
@@ -369,6 +381,11 @@ module phono_i2s_mono_top_tb;
             || solver_latency_cycles != 8'd127
             || solver_last_residual_q44 > 63'd35184372) begin
             $error("unexpected I2S-top diagnostic");
+            error_count = error_count + 1;
+        end
+        if (output_gain_q16 != 16'hffff || output_muted
+            || output_ramping) begin
+            $error("pin-top startup ramp did not reach exact unity");
             error_count = error_count + 1;
         end
         if (!tx_serial_underflow_sticky) begin

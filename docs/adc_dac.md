@@ -88,9 +88,10 @@ must be evaluated together rather than quoting one time-domain number.
 ## Latency accounting
 
 The tube LUT is eight 98.304 MHz clocks (0.0814 µs) per evaluation. Digital
-frame flow now exists through I²S, interpolation, solver, decimation, and output
-serialization, but its transport/group-delay report and the output mute are
-still incomplete. Converter digital-filter and analog latency remain unknown.
+frame flow now exists through I²S, interpolation, solver, decimation, the
+modern digital output ramp, and output serialization, but its transport/group-
+delay report and physical analog mute are still incomplete. Converter digital-
+filter and analog latency remain unknown.
 Each block will publish integer/fractional sample delay. The final end-to-end
 report will use an analog loopback impulse/correlation measurement, not the sum
 of optimistic data-sheet typical values.

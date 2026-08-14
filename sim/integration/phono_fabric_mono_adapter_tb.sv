@@ -15,6 +15,11 @@ module phono_fabric_mono_adapter_tb;
     logic tx_frame_valid;
     logic tx_frame_ready = 1'b0;
     logic clear_diagnostics = 1'b0;
+    logic mute_request = 1'b0;
+    logic force_mute = 1'b0;
+    logic [15:0] output_gain_q16;
+    logic output_muted;
+    logic output_ramping;
 
     logic scheduled_frame_present;
     logic [10:0] scheduler_phase_counter;
@@ -85,7 +90,9 @@ module phono_fabric_mono_adapter_tb;
         end
     endfunction
 
-    phono_fabric_mono_adapter dut (.*);
+    phono_fabric_mono_adapter #(
+        .OUTPUT_RAMP_SAMPLES(8)
+    ) dut (.*);
 
     always #5 clk = ~clk;
 
@@ -250,6 +257,19 @@ module phono_fabric_mono_adapter_tb;
         clear_diagnostics = 1'b0;
         if (output_frame_overrun_count != 0) begin
             $error("output overrun diagnostic did not clear");
+            error_count = error_count + 1;
+        end
+        if (output_gain_q16 != 16'hffff || output_muted
+            || output_ramping) begin
+            $error("startup output ramp did not reach exact unity");
+            error_count = error_count + 1;
+        end
+        @(negedge clk);
+        force_mute = 1'b1;
+        @(posedge clk);
+        #1;
+        if (output_gain_q16 != 0 || !output_muted) begin
+            $error("force mute did not clear adapter output gain");
             error_count = error_count + 1;
         end
 

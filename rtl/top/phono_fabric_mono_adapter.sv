@@ -11,7 +11,9 @@
 // Calibration coefficients are physical boundary data and must remain stable
 // while unmuted. This block detects invalid coefficients but does not provide
 // the future atomic control-plane update or startup mute sequence.
-module phono_fabric_mono_adapter (
+module phono_fabric_mono_adapter #(
+    parameter int unsigned OUTPUT_RAMP_SAMPLES = 2048
+) (
     input  logic                 clk,
     input  logic                 rst_n,
 
@@ -26,6 +28,11 @@ module phono_fabric_mono_adapter (
     input  logic signed [31:0]   input_full_scale_peak_volts_q24,
     input  logic signed [31:0]   output_reciprocal_full_scale_q24,
     input  logic                 clear_diagnostics,
+    input  logic                 mute_request,
+    input  logic                 force_mute,
+    output logic [15:0]          output_gain_q16,
+    output logic                 output_muted,
+    output logic                 output_ramping,
 
     output logic                 scheduled_frame_present,
     output logic [10:0]          scheduler_phase_counter,
@@ -128,11 +135,29 @@ module phono_fabric_mono_adapter (
 
     logic signed [23:0] calibrated_output_pcm24;
     logic calibrated_output_valid;
+    logic signed [31:0] guarded_output_q24;
+    logic guarded_output_valid;
+    output_mute_ramp #(
+        .RAMP_SAMPLES(OUTPUT_RAMP_SAMPLES)
+    ) output_guard (
+        .clk,
+        .rst_n,
+        .sample_valid(model_output_valid),
+        .sample_input_q24(model_output_q24),
+        .mute_request,
+        .force_mute,
+        .sample_output_q24(guarded_output_q24),
+        .output_valid(guarded_output_valid),
+        .gain_q16(output_gain_q16),
+        .muted(output_muted),
+        .ramping(output_ramping)
+    );
+
     q8_24_to_pcm24 output_calibration (
         .clk,
         .rst_n,
-        .input_valid(model_output_valid),
-        .sample_input_q24(model_output_q24),
+        .input_valid(guarded_output_valid),
+        .sample_input_q24(guarded_output_q24),
         .reciprocal_full_scale_per_volt_q24(
             output_reciprocal_full_scale_q24
         ),

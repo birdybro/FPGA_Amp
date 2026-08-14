@@ -12,7 +12,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
   matches all 64 calibrated serial inputs and raw model outputs, and recovers 45
   consecutive observable DAC frames as exact mono duplicates. Expected startup
   serial starvation is retained and every other diagnostic stays zero.
-  Flattened XC7 synthesis is 20,766 LC / 16,650 FF / 230 DSP48E1 /
+  With the later integrated output ramp, flattened XC7 synthesis is 20,894 LC /
+  16,699 FF / 232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1; converter selection, placed timing, output mute, and
   physical validation remain open.
 - Added the calibrated fabric mono adapter around the exact
@@ -24,8 +25,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
   output backpressure, then records/clears a directed overrun while retaining
   the older frame; all model/calibration diagnostics stay zero. Holding the core reset through
   initial phase acquisition fixes the observed hidden capacitor-state advance
-  from pre-input interpolator zeros. Flattened XC7 synthesis is 20,367 LC /
-  15,543 FF / 230 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; no Fmax is claimed.
+  from pre-input interpolator zeros. The later integrated modern output ramp
+  starts muted and reaches exact unity before reference comparison. Flattened
+  XC7 synthesis is 20,489 LC / 15,592 FF / 232 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1; no Fmax is claimed.
 - Added a deterministic fabric audio-frame scheduler for the strict 2,048-clock
   48 kHz core phase. It raises ready once per period, prelaunches by the
   registered calibration latency, injects a zero frame on starvation, and
@@ -530,6 +533,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Changed
 
+- Inserted the existing non-reference output mute/ramp between the selected
+  accuracy-first virtual circuit and DAC calibration. Reset starts at zero gain;
+  exact unity bypass preserves reference samples bit-for-bit, and force mute
+  synchronously clears the ramp state. Eight-sample integration regressions
+  reach unity before the first nonzero fixture output and retain all 64 raw
+  model/PCM comparisons. The muted fabric/pin hierarchies now measure
+  20,489/20,894 LC, 15,592/16,699 FF, and 232 DSP48E1s. Queued CDC frames still
+  require physical analog muting for immediate fault response.
 - Increased the factorized grid-current table from 128 to 1,024 entries after a
   gated resolution sweep. This is an FPGA approximation change only: the Koren
   equation and frozen physical circuit are unchanged. Added dense exact-mapping

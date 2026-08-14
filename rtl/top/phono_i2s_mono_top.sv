@@ -4,7 +4,9 @@
 // Pin-facing digital integration of the asynchronous I2S bridge and the
 // accuracy-first fabric mono adapter. This block defines no converter voltage,
 // clock-master, board-I/O, mute, or analog-safety policy.
-module phono_i2s_mono_top (
+module phono_i2s_mono_top #(
+    parameter int unsigned OUTPUT_RAMP_SAMPLES = 2048
+) (
     input  logic                 i2s_bclk,
     input  logic                 i2s_rst_n,
     input  logic                 i2s_adc_lrclk,
@@ -21,6 +23,11 @@ module phono_i2s_mono_top (
     input  logic                 fabric_clear_diagnostics,
     input  logic signed [31:0]   input_full_scale_peak_volts_q24,
     input  logic signed [31:0]   output_reciprocal_full_scale_q24,
+    input  logic                 mute_request,
+    input  logic                 force_mute,
+    output logic [15:0]          output_gain_q16,
+    output logic                 output_muted,
+    output logic                 output_ramping,
 
     output logic                 rx_frame_error_sticky,
     output logic                 rx_fifo_overflow_sticky,
@@ -84,7 +91,9 @@ module phono_i2s_mono_top (
         .tx_serial_underflow_sticky
     );
 
-    phono_fabric_mono_adapter adapter (
+    phono_fabric_mono_adapter #(
+        .OUTPUT_RAMP_SAMPLES(OUTPUT_RAMP_SAMPLES)
+    ) adapter (
         .clk(fabric_clk),
         .rst_n(audio_rst_n),
         .rx_frame_data(fabric_rx_frame_data),
@@ -96,6 +105,11 @@ module phono_i2s_mono_top (
         .input_full_scale_peak_volts_q24,
         .output_reciprocal_full_scale_q24,
         .clear_diagnostics(fabric_clear_diagnostics),
+        .mute_request,
+        .force_mute,
+        .output_gain_q16,
+        .output_muted,
+        .output_ramping,
         .scheduled_frame_present,
         .scheduler_phase_counter,
         .scheduler_underflow_count,

@@ -31,7 +31,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   phase, deliver all 64 serial stereo inputs to calibrated model state exactly,
   match all raw model outputs, and recover 45 consecutive observable DAC frames
   as exact mono duplicates. Retain expected startup starvation and zero all
-  other diagnostics; synthesize to 20,766 LC / 16,650 FF / 230 DSP48E1 /
+  other diagnostics; synthesize the later muted top to 20,894 LC / 16,699 FF /
+  232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1 with no placed CDC/I/O/converter claim.
 - [x] Compose the framed mono fabric datapath from scheduler through input
   calibration, exact trapezoidal/banked/terminal stream, output calibration,
@@ -40,7 +41,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   output backpressure; force and clear one output overrun without overwriting
   the held frame while model/calibration diagnostics remain zero. Prevent the discovered hidden
   startup-state advance by holding the core reset through phase acquisition;
-  synthesize the combined hierarchy to 20,367 LC / 15,543 FF / 230 DSP48E1 /
+  integrate the downstream safety ramp and synthesize the combined hierarchy to
+  20,489 LC / 15,592 FF / 232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1 with no structural problems and no timing claim.
 - [x] Correct synthesis resource accounting to retain both RAMB18E1 and
   RAMB36E1 primitives plus their 18-Kib equivalent total. Existing factorized
@@ -355,7 +357,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   freezing converter/gain/anti-alias parts.
 - Determine a credible stereo architecture; the selected solver uses 127/128
   clocks and cannot be time-multiplexed across two channels at the present
-  throughput. The calibrated pin-facing mono hierarchy uses 230/240 A7-100T
+  throughput. The calibrated, muted pin-facing mono hierarchy uses 232/240 A7-100T
   DSPs, preventing duplication.
 - Select a first full integrated-amplifier topology only after V1 phono equivalence.
 
@@ -370,7 +372,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   FIFO primitives now form a bidirectional frame bridge, and standalone
   physical-unit calibration now composes with the accuracy-first mono core at
   the fabric frame boundary and a pin-facing top adds the asynchronous bridge.
-  Startup mute, atomic control updates, rate-error handling, and CDC/I/O timing
+  The modeled-output ramp is now integrated, but atomic control updates,
+  queued-frame/physical analog muting, rate-error handling, and CDC/I/O timing
   constraints remain absent;
   embedded assertions cannot be proven until a formal engine is available.
   The cubic and full-tube alias-family tests are captured from RTL; the latter

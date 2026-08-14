@@ -206,9 +206,9 @@ The accuracy-first fabric mono adapter has the flattened combined result:
 
 | Resource | Count |
 |---|---:|
-| estimated logic cells | 20,367 |
-| flip-flops | 15,543 (15,067 FDRE + 476 FDSE) |
-| DSP48E1 | 230 |
+| estimated logic cells | 20,489 |
+| flip-flops | 15,592 (15,116 FDRE + 476 FDSE) |
+| DSP48E1 | 232 |
 | RAMB18E1 / RAMB36E1 | 8 / 1 |
 | RAMB18-equivalents | 10 |
 
@@ -216,9 +216,9 @@ The structural check reports zero problems. The 76 unique warnings are known
 small local-array register expansions and Xilinx primitive output-port resize
 notices retained in the full log; they are not mislabeled as a dual-clock FIFO
 inference warning. This top includes frame scheduling, both runtime calibration
-multipliers, and the 127-clock trapezoidal/banked/terminal stream. It excludes
-the asynchronous I²S bridge, output mute/ramp, atomic control commit, and
-dedicated safety hardware. At 230/240 DSPs it leaves only ten DSP48E1s on the
+multipliers, the 127-clock trapezoidal/banked/terminal stream, and the two-DSP
+modern output ramp. It excludes the asynchronous I²S bridge, atomic control
+commit, and dedicated safety hardware. At 232/240 DSPs it leaves only eight DSP48E1s on the
 provisional A7-100T. Structural fit does not prove that its one-clock solver
 margin meets 98.304 MHz.
 
@@ -233,12 +233,12 @@ adapter produces the pin-facing digital hierarchy:
 
 | Resource | Count |
 |---|---:|
-| estimated logic cells | 20,766 |
-| flip-flops | 16,650 |
-| DSP48E1 | 230 |
+| estimated logic cells | 20,894 |
+| flip-flops | 16,699 |
+| DSP48E1 | 232 |
 | RAMB18E1 / RAMB36E1 | 8 / 1 |
 
-The flip-flop total is 15,771 FDRE, 476 FDSE, 263 FDCE, 3 FDPE, 131
+The flip-flop total is 15,820 FDRE, 476 FDSE, 263 FDCE, 3 FDPE, 131
 falling-edge FDCE, and 6 falling-edge FDPE. Structural check reports zero
 problems; the 77 unique warnings retain local-array/FIFO register expansion and
 primitive resize notices. The result has no clock constraints, synchronizer

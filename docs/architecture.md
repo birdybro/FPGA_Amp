@@ -138,9 +138,11 @@ for its first external input, simply releasing every reset together advanced
 the virtual capacitor state before the first accepted frame. The adapter holds
 the model core in reset through that acquisition interval. The first scheduler
 launch registers input calibration while the core is still reset; the following
-phase-zero edge releases the core and consumes exactly that sample. This is
-numerical startup alignment, not output pop protection. A separate mute/ramp
-and atomic control update are still required around the physical output path.
+phase-zero edge releases the core and consumes exactly that sample. A separate
+modern output ramp now follows the historical model and precedes DAC
+calibration. Its exact-unity state bypasses multiplication, preserving reference
+samples bit-for-bit. Atomic control update and physical analog muting are still
+required around the hardware output path.
 
 `rtl/top/phono_i2s_mono_top.sv` connects the bridge and adapter without adding
 sample-rate conversion or converter policy. It exposes separate BCLK-domain,

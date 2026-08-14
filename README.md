@@ -123,10 +123,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   overwriting the older frame. Model and calibration diagnostics remain zero.
   The core remains reset through initial scheduler phase
   acquisition so hidden interpolator zeros cannot advance physical capacitor
-  state before the first accepted frame. Flattened structural synthesis is
-  20,367 LC / 15,543 FF / 230 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1. This leaves
-  only 10 DSPs on the provisional XC7A100T and has no placed timing, mute,
-  atomic calibration update, serial-pin, or physical-converter claim.
+  state before the first accepted frame. A downstream modern safety ramp begins
+  muted, reaches exact-unity bypass, and leaves reference mode bit-identical;
+  the integration test also checks a synchronous force-mute gain clamp.
+  Flattened structural synthesis is 20,489 LC / 15,592 FF / 232 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1. This leaves only 8 DSPs on the provisional
+  XC7A100T and has no placed timing, atomic calibration update, serial-pin, or
+  physical-converter claim.
 - A pin-facing digital top now composes the asynchronous I²S bridge with that
   adapter. With exactly frequency-locked but phase-offset 3.072 MHz BCLK and
   98.304 MHz fabric clocks, a warning-free integration test delivers all 64
@@ -134,9 +137,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   model outputs, and receives 45 consecutive observable post-startup DAC frames
   as exact mono duplicates. Receive prefill precedes audio-reset release;
   expected serial startup starvation remains observable. Flattened synthesis is
-  20,766 LC / 16,650 FF / 230 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1. This is a
+  20,894 LC / 16,699 FF / 232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1. This is a
   digital protocol integration, not placed CDC/I/O timing or converter/analog
-  validation, and it still lacks output mute and atomic control updates.
+  validation. The digital ramp cannot revoke frames already queued in the CDC
+  transmit FIFO and is not a substitute for physical analog muting; atomic
+  control updates remain open.
 - Exact RTL RHS and KCL engines stamp all ten capacitor histories and the
   physical conductance network. Each passes 1,024 vectors at 12 and 10 clocks.
 - The integrated solver matches 512 sequential fixed-model samples bit-for-bit

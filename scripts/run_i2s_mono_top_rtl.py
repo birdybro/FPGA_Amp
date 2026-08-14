@@ -45,6 +45,7 @@ def main() -> int:
         "rtl/filters/halfband_decimator_2x.sv",
         "rtl/audio/interpolator_16x.sv",
         "rtl/audio/decimator_16x.sv",
+        "rtl/audio/output_mute_ramp.sv",
         "rtl/io/async_fifo.sv",
         "rtl/io/i2s_receiver.sv",
         "rtl/io/i2s_transmitter.sv",

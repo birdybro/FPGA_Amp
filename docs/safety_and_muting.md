@@ -33,11 +33,14 @@ implicitly change circuit state.
 The fabric mono adapter separately holds its accuracy-first core in reset while
 the frame scheduler acquires initial phase. This prevents unrequested
 interpolator zeros from advancing virtual capacitor state before the first PCM
-frame, but it does not ramp or mute the outgoing PCM stream. The existing
-guarded wrapper currently surrounds a different backward-Euler stream and is
-not silently substituted into the trapezoidal/banked/terminal adapter. A future
-combined top must preserve the exact selected model while adding an explicit
-downstream mute and atomic calibration/model update sequence.
+frame. The modern output ramp now follows that exact trapezoidal/banked/terminal
+model and precedes DAC calibration. Reset begins muted, the default transition
+is 2,048 valid outputs, and exact unity bypasses multiplication. The integration
+test uses eight samples so unity is reached before the first nonzero fixture
+output; all later reference samples remain bit-identical. A force-mute request
+clears the ramp state synchronously, but it cannot revoke PCM frames already in
+the adapter hold register or asynchronous transmit FIFO. Dedicated analog mute
+and atomic calibration/model updates remain required.
 
 The integration regression uses four-sample ramps/warmup for tractable directed
 coverage and proves that reset never becomes active before mute, held output
