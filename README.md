@@ -86,6 +86,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   uses 114 logic cells / 323 flip-flops / no DSP or RAM; Yosys intentionally
   expands this small 8×32 memory to registers. Embedded formal invariants exist,
   but no formal engine is installed in the current environment.
+- Separate I²S receive/transmit blocks now implement signed 24-bit stereo in
+  32-BCLK slots with the mandatory one-clock I²S delay. A warning-free 16-frame
+  loopback covers positive/negative endpoints, independent 32-period slot/delay
+  monitoring, injected LRCLK framing failure, and transmit underflow/clear.
+  Warning-free XC7 synthesis measures 35 LC / 105 rising-edge flops for receive
+  and 97 LC / 137 falling-edge flops for transmit, with no DSP or RAM. These are
+  protocol primitives; they are not yet a converter-connected stream top.
 - Exact RTL RHS and KCL engines stamp all ten capacitor histories and the
   physical conductance network. Each passes 1,024 vectors at 12 and 10 clocks.
 - The integrated solver matches 512 sequential fixed-model samples bit-for-bit
@@ -367,7 +374,7 @@ The mono reference and complete 768 kHz circuit solver are operating:
   fixed-rounding closure. The remaining 3 kHz output dominates by 102.37 dB, so
   the raw -74.59 dBc bin is no longer left ambiguous or mislabeled as aliasing.
 
-There is no serial-audio interface, control/sequencing wrapper, fabricated
+There is no converter-integrated serial-audio/CDC top, control-register transport, fabricated
 analog front end, converter board, named-part timing result, or physical
 measurement yet. The implemented mute primitive is not independent analog
 speaker protection.
@@ -479,6 +486,7 @@ make stream-trapezoidal-terminal-banked-rtl # 127-clock trap terminal stream
 make guarded-stream-rtl            # mute/reset/warmup model-change sequence
 make mute-rtl                      # reset/ramp/fault output safety primitive
 make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
+make i2s-rtl                       # 24-bit/32-slot stereo protocol loopback
 make synth                         # generic XC7 structural estimate
 make synth-factorized              # factorized tube structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
@@ -502,6 +510,7 @@ make synth-stream                  # complete reference-stream estimate
 make synth-stream-factorized       # smooth-tube stream resource estimate
 make synth-mute                    # output ramp structural estimate
 make synth-async-fifo              # depth-8 dual-clock FIFO estimate
+make synth-i2s                     # receiver/transmitter structural estimates
 ```
 
 Run a user-supplied 48 kHz integer-PCM WAV through an explicitly selected V1

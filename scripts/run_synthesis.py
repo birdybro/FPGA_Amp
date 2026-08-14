@@ -58,6 +58,8 @@ def main() -> int:
             "phono_stream_mono_wide_guarded",
             "output_mute_ramp",
             "async_fifo",
+            "i2s_receiver",
+            "i2s_transmitter",
         ),
         default="triode_12ax7",
     )
@@ -247,6 +249,8 @@ def main() -> int:
         ],
         "output_mute_ramp": ["rtl/audio/output_mute_ramp.sv"],
         "async_fifo": ["rtl/io/async_fifo.sv"],
+        "i2s_receiver": ["rtl/io/i2s_receiver.sv"],
+        "i2s_transmitter": ["rtl/io/i2s_transmitter.sv"],
     }[args.top]
     log_path = results / f"yosys_xc7_{args.top}.log"
     # Only the legacy solver/stream aliases select the factorized primitive by
@@ -321,7 +325,10 @@ def main() -> int:
 
     lc_match = re.search(r"Estimated number of LCs:\s+(\d+)", section)
     warning_match = re.search(r"Warnings:\s+(\d+) unique", completed.stdout)
-    if "Replacing memory" in completed.stdout:
+    warning_count = int(warning_match.group(1)) if warning_match else 0
+    if warning_count == 0:
+        warning_note = "No synthesis warnings."
+    elif "Replacing memory" in completed.stdout:
         warning_note = (
             "Yosys implemented the small dual-clock memory as registers; "
             "see the full log. This is not a structural-check failure."
@@ -338,14 +345,24 @@ def main() -> int:
         "estimated_logic_cells": int(lc_match.group(1)) if lc_match else None,
         "lut_by_size": {f"LUT{size}": count(f"LUT{size}") for size in range(2, 7)},
         "flip_flops": {
-            cell: count(cell) for cell in ("FDRE", "FDSE", "FDCE", "FDPE")
+            cell: count(cell)
+            for cell in (
+                "FDRE",
+                "FDSE",
+                "FDCE",
+                "FDPE",
+                "FDRE_1",
+                "FDSE_1",
+                "FDCE_1",
+                "FDPE_1",
+            )
         },
         "dsp48e1": count("DSP48E1"),
         "ramb18e1": count("RAMB18E1"),
         "carry4": count("CARRY4"),
         "muxf7": count("MUXF7"),
         "check_problems": 0 if "Found and reported 0 problems." in completed.stdout else None,
-        "yosys_warning_count": int(warning_match.group(1)) if warning_match else 0,
+        "yosys_warning_count": warning_count,
         "warning_note": warning_note,
         "fmax_mhz": None,
         "timing_note": "Fmax requires a named part plus vendor place-and-route and is not claimed here.",

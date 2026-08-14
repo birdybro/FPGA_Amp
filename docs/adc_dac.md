@@ -49,6 +49,13 @@ must become clock master, its serial port crosses through an explicit dual-clock
 FIFO and a rate-control policy; two “nominally 48 kHz” oscillators are not
 silently connected.
 
+The implemented protocol baseline is 24-bit signed I²S in 32-BCLK stereo slots,
+so 48 kHz produces the planned 3.072 MHz BCLK. Receiver and transmitter are
+separate BCLK-domain primitives with conventional one-bit-delay timing and no
+converter-specific register assumptions. A dual-clock FIFO exists for the case
+where BCLK/fabric phase is not proven synchronous. The blocks are not yet
+integrated, and no listed ADC/DAC has therefore been selected or validated.
+
 Jitter sensitivity must be checked at the highest analog input frequency. For a
 20 kHz full-scale sine, 1 ps RMS aperture jitter alone corresponds to roughly
 138 dB SNR; converter internal clocking, oscillator phase noise, and power noise

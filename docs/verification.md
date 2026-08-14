@@ -30,6 +30,13 @@ words over repeated pointer wraps. The RTL includes Gray one-bit-transition and
 blocked-pointer formal assertions under `FORMAL`; they are not claimed as proven
 because SymbiYosys/SMT solvers are unavailable in the current environment.
 
+The I²S test passes 16 stereo frames through independent transmitter and
+receiver blocks, including signed 24-bit maximum/minimum and pseudorandom-like
+channel patterns. A separate monitor—not the receiver—requires 31 stable sampled
+edges between LRCLK changes and a zero serial delay bit on each transition.
+Starving the next frame sets transmitter underflow; a one-edge LRCLK corruption
+sets receiver framing error; both sticky flags clear in the BCLK domain.
+
 The analog/reference commands are intentionally separate so a missing external
 tool is not reported as a pass:
 
@@ -156,6 +163,8 @@ scripts/run_synthesis.py            XC7 structural resource report
 | output mute/ramp XC7 synthesis | Yosys 0.66 structural | 171 LC, 2 DSP48E1, no RAM; no Fmax claim |
 | asynchronous FIFO RTL | depth 8×32; unrelated 100/71.4 MHz clocks | exact directed full/empty plus 128 wrapped words; sticky faults clear in owning domains |
 | asynchronous FIFO XC7 synthesis | Yosys 0.66 structural | 114 LC / 323 FF / no DSP or RAM; small memory expanded to registers; no Fmax/CDC claim |
+| I²S protocol loopback | 16 signed stereo frames; 24-bit/32-slot | exact channels/endpoints; independent slot/delay monitor; directed framing/underflow flags |
+| I²S receiver/transmitter synthesis | Yosys 0.66 structural | RX 35 LC/105 FF; TX 97 LC/137 negative-edge FF; no warnings/DSP/RAM/Fmax claim |
 | guarded wide stream RTL | startup plus one state-reset transaction | warning-free; mute precedes reset; phase clean; one ack; unity restored |
 | guarded wide stream synthesis | Yosys 0.66 structural | 17,562 LC, 170 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | fixed vs analytical level sweep | 0.5 mV–5 V, 1 kHz, 20–30 ms | first ≥1 dB compression 1.1 V; residual-limit failure 1.0 V; LUT clip 1.1 V |

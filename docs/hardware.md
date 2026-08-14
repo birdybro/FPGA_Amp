@@ -152,6 +152,20 @@ techmap resize warning. Deeper hardware FIFOs need a named-part inference/IP
 comparison before assuming block-RAM mapping. This result has no CDC timing or
 metastability MTBF claim without the placed design and clock constraints.
 
+The 24-bit/32-slot I²S protocol blocks have independent warning-free structural
+results:
+
+| Block | Logic cells | Flip-flops | DSP / RAM |
+|---|---:|---:|---:|
+| receiver, rising-edge BCLK | 35 | 105 | 0 / 0 |
+| transmitter, falling-edge BCLK | 97 | 137 | 0 / 0 |
+
+Both checks report zero structural problems. The `_1` falling-edge Xilinx cell
+variants are now included in the reproducible resource parser; the earlier
+zero-flop intermediate transmitter report was a reporting defect and is not
+retained as evidence. BCLK edge timing, I/O delay, and converter setup/hold need
+named-part constraints and place-and-route.
+
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.
 Time-multiplexing it across triodes/channels is therefore favored over blind

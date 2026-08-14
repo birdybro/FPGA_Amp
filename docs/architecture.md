@@ -86,6 +86,16 @@ in their owning domains. Reset assertion may be asynchronous, but a board-level
 reset conditioner must deassert each reset synchronously to its clock. The FIFO
 is infrastructure outside the historical circuit behavior.
 
+The adjacent I²S primitives use the conventional Philips timing relationship:
+LRCLK low is left, the LRCLK transition occurs one BCLK before the MSB, receive
+samples on rising edges, and transmit changes LRCLK/data on falling edges. The
+frozen initial format is 24 signed sample bits in each 32-BCLK channel slot;
+inputs are sign-extended into `{left[31:0], right[31:0]}` frames and transmitter
+padding is zero. Receiver framing error and transmitter starvation are sticky.
+The transmit negative-edge registers require an explicit opposite-edge BCLK
+constraint in the placed design. These blocks do not establish whether FPGA or
+converter is final clock master and are not yet connected to the nonlinear core.
+
 ## Stereo scheduling
 
 Duplicating the accuracy-first tube primitive would consume 32 DSPs and 94

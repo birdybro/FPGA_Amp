@@ -26,6 +26,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Implement conventional 24-bit stereo I²S in 32-BCLK slots. Loop 16 signed
+  frames exactly through warning-free receive/transmit RTL; independently check
+  32-period slots and delay bits; inject framing and underflow faults; synthesize
+  RX/TX to 35/97 LC and 105/137 FF with no warnings or structural problems.
 - [x] Implement a device-neutral dual-clock FIFO with Gray pointer crossings,
   two-flop synchronizers, registered read data, sticky overflow/underflow, and
   embedded formal invariants. Preserve directed and 128 wrapped words under
@@ -327,7 +331,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - PCM WAV processing, explicit null comparison, and a deterministic distortion/
   IMD-product/overload suite now exist. Standardized IMD procedures, long WAV-
   level recovery and licensed music remain absent. A first CDC FIFO now exists;
-  serial-port integration and CDC timing constraints remain absent, and embedded
+  I²S protocol and CDC FIFO primitives exist, but serial/core integration and
+  CDC/I/O timing constraints remain absent; embedded
   assertions cannot be proven until a formal engine is available.
   The cubic and full-tube alias-family tests are captured from RTL; the latter
   is bounded below fixed rounding closure rather than inferred from the
@@ -342,6 +347,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 ## Later milestones
 
 - [ ] Stereo scheduling and converter interface on Arty A7-100T reference platform.
+- [x] Standalone 24-bit/32-slot I²S receive/transmit protocol primitives.
 - [x] PCM WAV processing and latency/gain/fractional-delay null comparison.
 - [x] Deterministic WAV distortion/IMD-product/overload regression library.
 - [ ] Standardized IMD, long recovery, impulse, and licensed-music WAV gates.

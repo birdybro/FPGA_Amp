@@ -6,6 +6,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added conventional 24-bit stereo I²S receive/transmit primitives in 32-BCLK
+  slots. Warning-free loopback verifies 16 signed frames, independent slot/delay
+  timing, LRCLK framing faults, and starvation; warning-free XC7 synthesis is
+  35 LC / 105 FF receive and 97 LC / 137 falling-edge FF transmit with no DSP or
+  RAM. The resource parser now counts negative-edge Xilinx flip-flop variants.
 - Added a device-neutral asynchronous FIFO with binary/Gray pointers, two-flop
   pointer synchronization, registered reads, sticky per-domain overflow/
   underflow, and embedded formal invariants. Unrelated-clock simulation covers
