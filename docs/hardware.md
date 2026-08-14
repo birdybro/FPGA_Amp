@@ -19,6 +19,14 @@ certified `-1` speed-grade limit. `scripts/bootstrap_openxc7.sh` builds the
 pinned backend without root access; `make openxc7-probe` records the installed
 versions and database. No Vivado step is part of the required flow.
 
+`run_openxc7.py --place-only` stops cleanly after packing and placement, writes
+a separate placed netlist/log/report/summary, and records placement Fmax without
+claiming a route. It exists for candidates whose placement miss is too large to
+justify a long router run. `analyze_openxc7_placement.py` groups a flattened
+placed JSON by the major solver blocks and reports resource counts, bounding
+boxes, and hard-block centroids. These diagnostic artifacts remain generated;
+their measured conclusions are recorded here.
+
 ## First named-part placement diagnosis
 
 `solver_pnr_harness` wraps the complete 127-clock
@@ -208,7 +216,24 @@ DSP48E1s, 16 RAMB18E1s, and two RAMB36E1s. The structural check has zero
 problems. A separately verified capacitor-current rounding boundary would use
 127 clocks, but has not been promoted because the selected KCL route shows a
 different limiter. This is a structurally fitting schedule, not timing closure:
-the isolated KCL is still 6.6% short and the complete hierarchy has not routed.
+the isolated KCL is still 6.6% short.
+
+The complete 126-clock hierarchy packs to 59,027 `SLICE_LUTX`, 13,458
+`SLICE_FFX`, 4,036 CARRY4s, 209 DSP48E1s, 16 RAMB18E1s, and two RAMB36E1s.
+Seed-1 placement reaches only 34.20 MHz against 98.304 MHz, so routing is not
+attempted. The result is reproducible with the placement-only target and is a
+whole-design architecture failure, not a local KCL timing estimate.
+
+Placed-hierarchy analysis explains why isolated-block results do not compose.
+KCL's 72 DSPs span 91 by 202 device-coordinate units; its 36,090 placed cells
+span nearly the full device. Terminal-current uses another 54 DSPs over a
+31-by-182 hard-block region. The two exact tube engines each use 35 DSPs plus
+eight RAMB18E1s and one RAMB36E1; their hard-block centroids are approximately
+(98,104) and (52,39). Chord correction's nine DSPs center near (98,179).
+Therefore the 209-DSP hierarchy necessarily crosses most available DSP rows and
+columns. The next architecture decision must reduce simultaneous hard-block
+occupancy, adopt a larger open-tool-supported target, or both; another isolated
+KCL register alone cannot close the measured 2.87x full-placement gap.
 
 ## Measured out-of-context result
 

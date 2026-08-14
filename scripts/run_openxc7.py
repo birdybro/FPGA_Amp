@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -73,11 +74,14 @@ def version_line(executable: Path, argument: str) -> str:
     return completed.stdout.splitlines()[0] if completed.stdout else "unknown"
 
 
-def measured_report_summary(report: Path) -> dict[str, object]:
+def measured_report_summary(
+    report: Path, *, log: Path | None = None, route_requested: bool = True
+) -> dict[str, object]:
     """Extract stable, compact evidence from a nextpnr JSON report."""
 
     if not report.exists():
         return {
+            "placement_completed": False,
             "route_completed": False,
             "timing_pass": None,
             "clock_fmax_mhz": {},
@@ -87,6 +91,7 @@ def measured_report_summary(report: Path) -> dict[str, object]:
         payload = json.loads(report.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return {
+            "placement_completed": False,
             "route_completed": False,
             "timing_pass": None,
             "clock_fmax_mhz": {},
@@ -100,6 +105,16 @@ def measured_report_summary(report: Path) -> dict[str, object]:
         }
         for name, values in payload.get("fmax", {}).items()
     }
+    if not clocks and log is not None and log.exists():
+        placement_pattern = re.compile(
+            r"Max frequency for clock '([^']+)': ([0-9.]+) MHz "
+            r"\((?:PASS|FAIL) at ([0-9.]+) MHz\)"
+        )
+        matches = placement_pattern.findall(log.read_text(encoding="utf-8"))
+        clocks = {
+            name: {"achieved": float(achieved), "constraint": float(constraint)}
+            for name, achieved, constraint in matches
+        }
     timing_pass = bool(clocks) and all(
         values["achieved"] is not None
         and values["constraint"] is not None
@@ -123,7 +138,8 @@ def measured_report_summary(report: Path) -> dict[str, object]:
         if name in utilization_payload
     }
     return {
-        "route_completed": True,
+        "placement_completed": True,
+        "route_completed": route_requested,
         "timing_pass": timing_pass,
         "clock_fmax_mhz": clocks,
         "utilization": utilization,
@@ -150,7 +166,16 @@ def main() -> int:
         action="store_true",
         help="finish routing and emit a report even when the timing target fails",
     )
-    parser.add_argument("--synth-only", action="store_true")
+    stop_stage = parser.add_mutually_exclusive_group()
+    stop_stage.add_argument("--synth-only", action="store_true")
+    stop_stage.add_argument(
+        "--place-only",
+        action="store_true",
+        help=(
+            "pack/place and emit a detailed timing report without routing; "
+            "use this to diagnose candidates with a large placement miss"
+        ),
+    )
     parser.add_argument("--probe", action="store_true")
     args = parser.parse_args()
 
@@ -195,8 +220,16 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
     netlist = output_dir / f"{args.top}.json"
     fasm = output_dir / f"{args.top}.fasm"
-    report = output_dir / f"{args.top}_nextpnr_report.json"
-    log = output_dir / f"{args.top}_nextpnr.log"
+    placed_netlist = output_dir / f"{args.top}_placed.json"
+    stage_tag = "_place" if args.place_only else ""
+    report = output_dir / f"{args.top}_nextpnr{stage_tag}_report.json"
+    log = output_dir / f"{args.top}_nextpnr{stage_tag}.log"
+    for stale_artifact in (
+        report,
+        log,
+        placed_netlist if args.place_only else fasm,
+    ):
+        stale_artifact.unlink(missing_ok=True)
 
     synthesis = subprocess.run(
         [
@@ -235,9 +268,11 @@ def main() -> int:
         str(log),
         "-o",
         f"xdc={xdc}",
-        "-o",
-        f"fasm={fasm}",
     ]
+    if args.place_only:
+        command.extend(["--no-route", "--write", str(placed_netlist)])
+    else:
+        command.extend(["-o", f"fasm={fasm}"])
     if args.timing_allow_fail:
         command.append("--timing-allow-fail")
     placed = subprocess.run(
@@ -253,16 +288,33 @@ def main() -> int:
         "router": args.router,
         "seed": args.seed,
         "threads": args.threads,
+        "implementation_stage": "placement" if args.place_only else "route",
         "nextpnr_returncode": placed.returncode,
         "netlist": str(netlist.relative_to(REPOSITORY_ROOT)),
+        "placed_netlist": (
+            str(placed_netlist.relative_to(REPOSITORY_ROOT))
+            if placed_netlist.exists()
+            else None
+        ),
         "constraints": str(xdc.relative_to(REPOSITORY_ROOT)),
-        "fasm": str(fasm.relative_to(REPOSITORY_ROOT)) if fasm.exists() else None,
+        "fasm": (
+            str(fasm.relative_to(REPOSITORY_ROOT))
+            if not args.place_only and fasm.exists()
+            else None
+        ),
         "report": str(report.relative_to(REPOSITORY_ROOT)) if report.exists() else None,
         "log": str(log.relative_to(REPOSITORY_ROOT)),
         "bitstream_generated": False,
         "hardware_ready": False,
-    } | measured_report_summary(report)
-    summary_path = REPOSITORY_ROOT / "reference" / "results" / f"openxc7_{args.top}_summary.json"
+    } | measured_report_summary(
+        report, log=log, route_requested=not args.place_only
+    )
+    summary_path = (
+        REPOSITORY_ROOT
+        / "reference"
+        / "results"
+        / f"openxc7_{args.top}{stage_tag}_summary.json"
+    )
     summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=2))
     return placed.returncode

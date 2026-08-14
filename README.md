@@ -562,8 +562,11 @@ equivalent sign-extension overflow predicate raise the selected isolated KCL
 route to 92.23 MHz. The resulting complete solver remains exact at 126 clocks
 and synthesizes to 14,990 logic cells, 13,458 flip-flops, 209/240 DSP48E1s, and
 20 RAMB18 equivalents, leaving two clocks per internal sample. The isolated
-KCL still misses 98.304 MHz by 6.6%, and the complete hierarchy has not routed.
-None of these experiments is timing closure or a reference-mode change.
+KCL still misses 98.304 MHz by 6.6%. The full design packs to 59,027 slice LUT
+elements and 209/240 DSPs but places at only 34.20 MHz, so its router run is
+deliberately skipped. A placement-region report shows the KCL, terminal-current,
+two tube, and chord hard blocks dispersed across most DSP rows. None of these
+experiments is timing closure or a reference-mode change.
 All figures use the backend's unqualified `DEFAULT` timing grade. The implemented digital mute
 primitive is not independent analog speaker protection.
 
@@ -750,6 +753,7 @@ make openxc7-pipelined-kcl-pnr     # route bit-exact staged KCL candidate
 make openxc7-pipelined-chord-pnr   # route bit-exact staged chord candidate
 make openxc7-parallel-pipelined-solver-pnr # route 119-clock solver candidate
 make openxc7-diagnostic-pipelined-kcl-pnr # route 19-clock final-diagnostic KCL
+make openxc7-parallel-diagnostic-pipelined-solver-place # diagnose full placement
 make openxc7-parallel-diagnostic-pipelined-solver-pnr # route 126-clock solver
 ```
 
@@ -789,8 +793,9 @@ under `model/generated/` as part of the numerical contract.
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
 path is further reducing terminal-solver approximation error without breaking
-the 128-clock deadline and proving the 98.304 MHz one-clock-margin design in
-named-part place-and-route. The required Linux flow is Yosys plus the
+the 128-clock deadline and resolving the measured 209-DSP full-placement
+congestion through scheduling or a larger open-tool-supported target. The
+required Linux flow is Yosys plus the
 experimental nextpnr-Himbaechel/Project X-Ray XC7 backend; Vivado is not part
 of the project flow, and the backend's `DEFAULT` timing grade is not presented
 as qualified XC7A100T-1 signoff.

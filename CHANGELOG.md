@@ -94,6 +94,15 @@ All notable engineering changes are recorded here. The project is pre-release; d
   routes improve to 64.90, 72.31, and 92.23 MHz. The selected 126-clock solver
   synthesizes to 14,990 LC / 13,458 FF / 209 DSP / 20 RAMB18 equivalents; its
   complete route and the remaining 6.6% isolated-KCL gap remain open.
+- Added a first-class placement-only stage to the open XC7 runner. It writes
+  stage-specific placed JSON, timing log/report, and compact summary, parses
+  placement Fmax when nextpnr's pre-route JSON omits it, removes stale stage
+  artifacts, and never labels placement as a completed route. Added a placed-
+  hierarchy analyzer for resources, bounding boxes, and hard-block centroids.
+  The full 126-clock solver reproducibly packs to 59,027 LUTX / 13,458 FFX /
+  4,036 CARRY4 / 209 DSP and places at only 34.20 MHz, so routing is skipped.
+  Region analysis shows KCL and terminal-current spread across most DSP rows;
+  isolated 92.23 MHz KCL timing therefore does not compose on XC7A100T.
 
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,

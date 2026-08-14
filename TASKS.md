@@ -56,9 +56,22 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   Accumulator and final-only maximum pipelines plus exact sign-extension fit
   tests now produce a bit-exact 126-clock complete schedule and raise the
   isolated KCL to 92.23 MHz post-route. Close the remaining 6.6% KCL gap and
-  route the full 14,990-LC / 209-DSP hierarchy; only two clocks remain, so do
-  not add a per-pass stage or alter the frozen numerical contract.
+  resolve the full-hierarchy congestion: the 14,990-LC design packs to 59,027
+  slice LUT elements / 209 DSPs but places at only 34.20 MHz. Region analysis
+  shows KCL and terminal-current spanning nearly all DSP rows while the two
+  tube engines and chord occupy separated hard-block regions. Compare a larger
+  open-tool-supported target against a lower-simultaneous-DSP schedule; only
+  two clocks remain, so do not add a per-pass stage or alter the frozen
+  numerical contract.
 ## Completed this milestone
+
+- [x] Add a placement-only open-XC7 stage that emits separate placed netlist,
+  log, report, and summary artifacts without claiming routing. Add a flattened
+  placed-JSON hierarchy analyzer. Reproduce the complete 126-clock candidate at
+  34.20 MHz placement with 59,027 LUTX / 13,458 FFX / 4,036 CARRY4 / 209 DSP /
+  20 RAMB18 equivalents, then stop before routing because the miss is 2.87x.
+  Quantify the KCL/terminal/tube/chord hard-block dispersion instead of
+  extrapolating the isolated 92.23 MHz KCL result.
 
 - [x] Use legal route evidence to pipeline the KCL accumulator and only the
   consumed final maximum-residual diagnostic. Preserve 1,024 vectors in each
