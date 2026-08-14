@@ -87,7 +87,8 @@ The mono reference and complete 768 kHz circuit solver are operating:
   depth eight and both estimates return to zero after drain. Generic XC7 synthesis
   uses 127 logic cells / 331 flip-flops / no DSP or RAM; Yosys intentionally
   expands this small 8×32 memory to registers. Embedded formal invariants exist,
-  but no formal engine is installed in the current environment.
+  but their multi-clock proof environment is not yet packaged. The available
+  Yosys SAT engine is now used for the single-clock output-safety proof below.
 - Separate I²S receive/transmit blocks now implement signed 24-bit stereo in
   32-BCLK slots with the mandatory one-clock I²S delay. A warning-free 16-frame
   loopback covers positive/negative endpoints, independent 32-period slot/delay
@@ -268,6 +269,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   capture and timeout, current structural synthesis is
   354 LC / 735 FF / no DSP or block RAM. The wrapper below supplies pin
   integration; a host protocol is supplied by the SPI composition below.
+- The modern output mute/ramp now has a reproducible Yosys 0.66 formal harness.
+  Fifteen reset, force-clamp, valid, state-hold, exact gain-step, endpoint, and
+  monotonicity assertions close by temporal induction at depth 2 for arbitrary
+  post-reset inputs. A separate SAT witness reaches unity in four accepted
+  samples, guarding against vacuous assumptions. This proves the digital
+  primitive's stated control contract, not analog speaker safety.
 - A register-controlled pin wrapper now owns calibration and mute, freezes 22
   fabric-coherent status words, synchronizes sticky I²S faults, and transfers
   diagnostic clear once across the unrelated BCLK domain. Integration is
@@ -611,6 +618,7 @@ make stream-trapezoidal-rtl        # complete trapezoidal reference stream
 make stream-trapezoidal-terminal-banked-rtl # 127-clock trap terminal stream
 make guarded-stream-rtl            # mute/reset/warmup model-change sequence
 make mute-rtl                      # reset/ramp/fault output safety primitive
+make formal-mute                   # Yosys SAT safety-ramp induction + witness
 make audio-clock-rtl               # BCLK/fabric ratio lock and error monitor
 make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make cdc-pulse-rtl                # one-shot host command CDC

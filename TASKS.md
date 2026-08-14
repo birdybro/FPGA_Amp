@@ -29,6 +29,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Formally verify the single-clock modern output mute/ramp control contract.
+  With arbitrary post-reset data and controls, prove 15 reset, force-clamp,
+  valid, hold, exact gain-transition, endpoint, monotonicity, and status
+  assertions by Yosys 0.66 SAT temporal induction at depth 2. Separately find a
+  non-vacuous witness reaching unity gain after four accepted samples. Package
+  both checks as `make formal-mute`; the result does not claim CDC or analog
+  speaker-safety coverage.
 - [x] Integrate coherent I²S-domain FIFO diagnostics into the atomic register
   snapshot. Delay image/sequence commit until the held-bus CDC returns, expose
   busy/available status, pack RX/TX level and high-water nibbles at `0x35`, and
@@ -489,8 +496,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   commit, and coherent fabric snapshots. A tested host codec/client now defines
   framing and guarded operations; a physical adapter backend,
   queued-frame/physical analog muting, and CDC/I/O timing constraints remain
-  absent;
-  embedded assertions cannot be proven until a formal engine is available.
+  absent. The single-clock mute/ramp properties now have a Yosys SAT proof;
+  embedded asynchronous-FIFO assertions still need a sound multi-clock proof
+  environment.
   The cubic and full-tube alias-family tests are captured from RTL; the latter
   is bounded below fixed rounding closure rather than inferred from the
   confounded raw bin.

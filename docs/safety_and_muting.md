@@ -30,6 +30,15 @@ muted. `force_mute` synchronously clears both the held output and gain even in
 the absence of a new sample; it is a fast digital clamp, not a substitute for
 independent analog protection.
 
+The control behavior is now formally checked with `make formal-mute`. A Yosys
+SAT harness applies one reset clock and then makes every sample/control input
+arbitrary. Fifteen assertions cover the synchronous clamp, valid pulse, held
+state, exact saturating gain transition, endpoint output, monotonic ramping, and
+status decode; temporal induction closes at depth 2. A separate reachability
+witness traverses zero, `0x4000`, `0x8000`, `0xc000`, and `0xffff` gain in four
+accepted unmute samples. This proof is limited to the digital primitive and
+does not establish CDC behavior or physical speaker protection.
+
 Normal control sequencing ramps down before sample-rate, model, calibration,
 or large parameter changes, reinitializes the affected state, then ramps up.
 `rtl/control/model_change_guard.sv` now enforces that sequence around the wide

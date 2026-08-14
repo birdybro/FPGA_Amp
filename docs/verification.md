@@ -19,16 +19,26 @@ alignment. The wide-stream bench also accepts up to 8,192 external samples and
 can capture arbitrary exact trajectories for longer measurements. The
 guarded-stream integration test covers muted startup, ramp-down before core
 reset, 48 kHz phase-aligned reset release, muted warmup, one acknowledgment, and
-unity-gain recovery. The standalone output-safety test covers reset, positive/negative rounding,
-sample-qualified gain changes, exact-unity bypass, graceful ramp-down, and a
-forced clamp with and without a valid input sample.
+unity-gain recovery. The standalone output-safety test covers reset,
+positive/negative rounding, sample-qualified gain changes, exact-unity bypass,
+graceful ramp-down, and a forced clamp with and without a valid input sample.
+
+`make formal-mute` independently uses the Yosys 0.66 built-in SAT engine. After
+one assumed reset clock it leaves sample data, validity, mute request, and force
+mute arbitrary. Fifteen assertions cover reset state, synchronous force clamp,
+valid timing, held state, the exact saturating gain transition, endpoint output,
+gain monotonicity, and status decode. Temporal induction closes at depth 2. A
+separate satisfiability run reaches `0xffff` gain after four accepted samples,
+showing the reset assumptions admit the intended unmute path. Logs are retained
+under `build/formal_output_mute_ramp/`.
 
 The asynchronous FIFO test uses unrelated 10 ns write and 14 ns read clocks. It
 fills exactly, rejects and records a ninth word, drains in order, records an
 empty read, clears both owning-domain sticky flags, and preserves 128 further
 words over repeated pointer wraps. The RTL includes Gray one-bit-transition and
 blocked-pointer formal assertions under `FORMAL`; they are not claimed as proven
-because SymbiYosys/SMT solvers are unavailable in the current environment.
+because a sound multi-clock FIFO proof environment has not yet been packaged.
+The single-clock SAT proof above does not establish CDC correctness.
 
 The I²S test passes 16 stereo frames through independent transmitter and
 receiver blocks, including signed 24-bit maximum/minimum and pseudorandom-like
@@ -102,6 +112,7 @@ scripts/study_banked_chord_iterations.py      banked pass-count waveform trade
 scripts/study_trapezoidal_overload.py         floating integrator stability
 scripts/characterize_factorized_frequency.py --trapezoidal  fixed integrator sweep
 scripts/run_synthesis.py            XC7 structural resource report
+scripts/run_mute_formal.py          safety-ramp temporal induction/reachability
 ```
 
 ## Current acceptance record
@@ -186,6 +197,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | factorized 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics |
 | factorized stream XC7 synthesis | Yosys 0.66 structural | 14,290 LC, 156 DSP48E1, 8 RAMB18E1 + 1 RAMB36E1; no Fmax claim |
 | output mute/ramp RTL | directed reset/ramp/fault sequence | exact expected samples and gain; warning-free Verilator |
+| output mute/ramp formal | 15 arbitrary-input properties after reset plus unity reachability | Yosys 0.66 SAT temporal induction closes at depth 2; four accepted samples reach `0xffff` |
 | output mute/ramp XC7 synthesis | Yosys 0.66 structural | 171 LC, 2 DSP48E1, no RAM; no Fmax claim |
 | asynchronous FIFO RTL | depth 8×32; unrelated 100/71.4 MHz clocks | exact directed full/empty plus 128 wrapped words; local levels reach 8 and return 0; watermarks retain/clear in owning domains; sticky faults clear |
 | asynchronous FIFO XC7 synthesis | Yosys 0.66 structural | 127 LC / 331 FF / no DSP or RAM; small memory expanded to registers; no Fmax/CDC claim |

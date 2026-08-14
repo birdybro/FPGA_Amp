@@ -6,6 +6,13 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a reproducible formal contract for the modern output mute/ramp. Fifteen
+  assertions cover reset, force clamp, valid timing, held state, exact
+  saturating gain transitions, endpoint output, monotonicity, and status under
+  arbitrary post-reset inputs. Yosys 0.66 SAT closes temporal induction at
+  depth 2; a separate satisfiable trace reaches unity in four accepted samples
+  to rule out a vacuous reset environment. `make formal-mute` runs both checks
+  and retains logs without extending the result to CDC or physical protection.
 - Integrated coherent I²S FIFO levels/high-water marks into the atomic control
   snapshot. Snapshot commands now commit the retained image and saturating
   sequence only after the held-bus CDC returns; live status reports busy and
