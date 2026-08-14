@@ -107,6 +107,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   DSP48E1 input and 86 LC / 58 FF / 4 DSP48E1 output. The serial bridge,
   calibration, nonlinear core, and converter-specific control are not yet one
   hardware top.
+- A deterministic fabric frame scheduler now accepts one held stereo frame per
+  2,048-clock interval and launches it one clock before phase zero, so the
+  registered input calibrator reaches the core on its required 48 kHz phase.
+  Warning-free RTL verifies held-frame handshakes, a missing-frame zero fill,
+  phase alignment, and saturating underflow diagnostics. Generic synthesis is
+  41 LC / 43 FF / no DSP or RAM. This aligns frequency-locked domains; it is not
+  asynchronous sample-rate conversion and cannot absorb oscillator drift.
 - Exact RTL RHS and KCL engines stamp all ten capacitor histories and the
   physical conductance network. Each passes 1,024 vectors at 12 and 10 clocks.
 - The integrated solver matches 512 sequential fixed-model samples bit-for-bit
@@ -503,6 +510,7 @@ make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make i2s-rtl                       # 24-bit/32-slot stereo protocol loopback
 make i2s-bridge-rtl                # exact bidirectional I2S/fabric CDC loopback
 make calibration-rtl               # bit-exact PCM24/physical-volts boundary
+make frame-scheduler-rtl           # deterministic 48 kHz fabric phase launch
 make synth                         # generic XC7 structural estimate
 make synth-factorized              # factorized tube structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
@@ -529,6 +537,7 @@ make synth-async-fifo              # depth-8 dual-clock FIFO estimate
 make synth-i2s                     # receiver/transmitter structural estimates
 make synth-i2s-bridge              # bidirectional protocol/CDC bridge estimate
 make synth-calibration             # dynamic converter-scaling estimates
+make synth-frame-scheduler         # frame-phase scheduler estimate
 ```
 
 Run a user-supplied 48 kHz integer-PCM WAV through an explicitly selected V1

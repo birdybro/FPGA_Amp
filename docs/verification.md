@@ -55,6 +55,14 @@ saturations and 52 invalid configurations; saturation is not weakened to make
 random vectors pass. Both diagnostic blocks are cleared explicitly after the
 count/sticky checks.
 
+The frame-scheduler unit test reduces the period to eight clocks for directed
+coverage while preserving the production phase relationship. A source holds a
+nonzero frame until the one-clock ready pulse, leaves the next boundary empty,
+and supplies a second signed-endpoint frame after that miss. An independent
+one-clock preprocessing register and phase counter require outputs `[frame A,
+zero, frame B]` only at consumer phase zero. Exactly one underflow is retained
+and then cleared. The test does not claim asynchronous rate conversion.
+
 The analog/reference commands are intentionally separate so a missing external
 tool is not reported as a pass:
 
@@ -187,6 +195,8 @@ scripts/run_synthesis.py            XC7 structural resource report
 | bidirectional I²S/CDC bridge synthesis | Yosys 0.66 flattened structural | 549 LC / 1,531 FF / no DSP or RAM; two 8×64 memories register-expanded; no Fmax/CDC claim |
 | PCM24/Q8.24 calibration RTL | 4,159 vectors each direction | bit-exact, one clock, endpoint/invalid/4,079 output-saturation events checked; warning-free |
 | PCM24/Q8.24 calibration synthesis | Yosys 0.66 structural | input 95 LC/66 FF/4 DSP; output 86 LC/58 FF/4 DSP; no RAM/Fmax claim |
+| fabric frame scheduler RTL | 3 launches at 8-clock test period | exact held A/zero-fill/B order after one-clock preprocess; phase zero; one underflow/clear; warning-free |
+| fabric frame scheduler synthesis | Yosys 0.66 structural, 2,048-clock default | 41 LC / 43 FF / no DSP or RAM; no Fmax/ASRC claim |
 | guarded wide stream RTL | startup plus one state-reset transaction | warning-free; mute precedes reset; phase clean; one ack; unity restored |
 | guarded wide stream synthesis | Yosys 0.66 structural | 17,562 LC, 170 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | fixed vs analytical level sweep | 0.5 mV–5 V, 1 kHz, 20–30 ms | first ≥1 dB compression 1.1 V; residual-limit failure 1.0 V; LUT clip 1.1 V |

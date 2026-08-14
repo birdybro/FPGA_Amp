@@ -26,6 +26,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Align asynchronous-bridge frames to the solver's deterministic fabric
+  schedule. Accept one held stereo frame per 2,048-clock period, prelaunch for
+  one-clock calibration, inject zero on starvation, and retain a saturating
+  underflow count. Verify phase zero and directed A/zero/B order warning-free;
+  synthesize to 41 LC / 43 FF / no DSP or RAM.
 - [x] Define and implement the converter calibration boundary without selecting
   hidden gain: PCM24 to input-referred Q8.24 volts and physical Q8.24 line volts
   to saturating PCM24. Match 4,159 Python/RTL vectors per direction with
@@ -361,6 +366,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Standalone 24-bit/32-slot I²S receive/transmit protocol primitives.
 - [x] Bidirectional stereo-frame I²S/fabric asynchronous bridge.
 - [x] Bit-exact PCM24/input-volts/output-volts calibration primitives.
+- [x] Frequency-locked bridge-to-core fabric frame scheduler.
 - [x] PCM WAV processing and latency/gain/fractional-delay null comparison.
 - [x] Deterministic WAV distortion/IMD-product/overload regression library.
 - [ ] Standardized IMD, long recovery, impulse, and licensed-music WAV gates.

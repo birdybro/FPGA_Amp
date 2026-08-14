@@ -114,6 +114,16 @@ calibrators remain deliberately separate from the mono nonlinear core until
 channel policy, atomic coefficient commit, reset/warmup, and the available DSP
 budget are resolved.
 
+`rtl/io/audio_frame_scheduler.sv` closes the phase-alignment gap without hiding
+rate mismatch. At the 98.304 MHz target it raises ready for one fabric clock per
+2,048-clock audio interval. A held bridge frame is launched one clock before
+phase zero; the registered PCM24-to-Q8.24 calibrator then presents valid to the
+core exactly at phase zero. If no frame is available, the scheduler launches a
+zero frame to preserve solver cadence and increments a saturating underflow
+counter. If BCLK and fabric derive from independent nominal-48-kHz oscillators,
+FIFO occupancy will still drift toward overflow or underflow. This scheduler is
+therefore valid for frequency-locked clocks with arbitrary phase, not an ASRC.
+
 ## Stereo scheduling
 
 Duplicating the accuracy-first tube primitive would consume 32 DSPs and 94

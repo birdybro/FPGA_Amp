@@ -196,6 +196,11 @@ They are not added to the 222-DSP accuracy-first stream claim: an integrated
 mono/stereo top must first decide whether to share the one-clock-at-48-kHz
 calibrators or duplicate them. No Fmax is claimed.
 
+The default 2,048-clock audio-frame scheduler is 41 estimated logic cells and
+43 flip-flops with no DSP or RAM. Its warning-free structural check reports zero
+problems. This number covers phase count, the single launch comparator, and the
+saturating underflow counter; frame storage remains in the asynchronous bridge.
+
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.
 Time-multiplexing it across triodes/channels is therefore favored over blind

@@ -6,6 +6,12 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a deterministic fabric audio-frame scheduler for the strict 2,048-clock
+  48 kHz core phase. It raises ready once per period, prelaunches by the
+  registered calibration latency, injects a zero frame on starvation, and
+  retains a saturating underflow count. Warning-free directed RTL proves held
+  ready/valid transfer and phase-zero A/zero/B order; XC7 synthesis is 41 logic
+  cells / 43 flip-flops / no DSP or RAM. It is explicitly not an ASRC.
 - Added bit-accurate converter calibration models and synthesizable RTL.
   PCM24 maps to input-referred Q8.24 physical volts using explicit measured
   peak-voltage scaling; Q8.24 line voltage maps through an explicit reciprocal

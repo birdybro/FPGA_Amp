@@ -66,6 +66,13 @@ serialization. Nonpositive coefficients mute and flag the sample. The
 coefficients remain host/measured inputs, so this arithmetic does not select or
 validate any listed ADC/DAC and cannot correct historical-circuit response.
 
+The fabric frame scheduler consumes one held stereo frame at a deterministic
+2,048-clock cadence and prelaunches for the one-clock input calibrator. A missing
+frame becomes an explicit zero plus underflow count rather than an off-phase
+core request. This handles unknown phase only when BCLK and fabric are frequency
+locked. A converter with an independent master oscillator still requires an
+explicit rate-control/ASRC decision; finite FIFO depth is not rate matching.
+
 Jitter sensitivity must be checked at the highest analog input frequency. For a
 20 kHz full-scale sine, 1 ps RMS aperture jitter alone corresponds to roughly
 138 dB SNR; converter internal clocking, oscillator phase noise, and power noise
