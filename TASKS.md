@@ -29,6 +29,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Define the host-side SPI/register ABI in dependency-free Python. Encode
+  exact ten-byte full-duplex frames, validate identity/version/capabilities and
+  response status, require explicit mute ownership for snapshot/clear commands,
+  and guard calibration commit/poll/sequence checks. Cover exact wire bytes,
+  malformed/error responses, accepted/rejected calibration, and invalid host
+  preconditions with six deterministic tests. A physical adapter backend remains
+  a board task rather than part of the protocol contract.
 - [x] Convert the measured BCLK-rate status into a fail-closed modern output
   policy at the register-controlled wrapper. Hold the immediate mute through
   three-window startup qualification, reassert it on stopped BCLK, retain it
@@ -45,7 +52,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   and exactly one diagnostic clear in the unrelated BCLK domain. Synthesize the
   flattened hierarchy to
   21,506 LC / 17,959 FF / 232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1 with zero
-  structural-check problems; placed timing and host software remain open.
+  structural-check problems; placed timing and a physical host backend remain
+  open.
 - [x] Implement an oversampled SPI mode-0 transport for the fabric register bus
   without a derived clock. Prove eight 80-bit transactions through the real
   register/calibration guard at 5 MHz, including identity read, calibration
@@ -461,8 +469,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   the fabric frame boundary and a pin-facing top adds the asynchronous bridge.
   The modeled-output ramp and atomic converter-coefficient commit are now
   integrated, and the SPI-controlled pin wrapper supplies transport, shadow
-  commit, and coherent fabric snapshots. Host software, CDC-safe multibit I²S
-  level snapshots, queued-frame/physical analog muting, and CDC/I/O timing
+  commit, and coherent fabric snapshots. A tested host codec/client now defines
+  framing and guarded operations; a physical adapter backend, CDC-safe multibit
+  I²S level snapshots, queued-frame/physical analog muting, and CDC/I/O timing
   constraints remain absent;
   embedded assertions cannot be proven until a formal engine is available.
   The cubic and full-tube alias-family tests are captured from RTL; the latter

@@ -279,6 +279,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   a retained short-frame fault, and one I²S-domain clear event. Flattened
   synthesis is 21,507 LC / 17,959 FF /
   232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; placed SCLK/CDC/I/O limits remain open.
+- A dependency-free Python host client defines the same ten-byte full-duplex
+  wire frame, register/capability constants, status validation, explicit-mute
+  snapshot/clear commands, and guarded calibration commit sequencing. Six unit
+  tests cover exact bytes and failure behavior through a fake transport; a
+  physical `spidev`/USB/embedded backend remains board-specific and unvalidated.
 - A captured complete-stream sweep at 100 Hz, 1 kHz, 10 kHz, and 20 kHz proves
   all 19,200 Q8.24 outputs exact with zero diagnostics. Relative to the composed
   floating trapezoidal reference, gain/phase error stays within 0.000134 dB /
@@ -487,9 +492,9 @@ The mono reference and complete 768 kHz circuit solver are operating:
   fixed-rounding closure. The remaining 3 kHz output dominates by 102.37 dB, so
   the raw -74.59 dBc bin is no longer left ambiguous or mislabeled as aliasing.
 
-There is no host software, fabricated analog front end, converter board,
-named-part timing result, or physical measurement yet. The implemented digital
-mute primitive is not independent analog speaker protection.
+There is no physical host-adapter backend, fabricated analog front end,
+converter board, named-part timing result, or physical measurement yet. The
+implemented digital mute primitive is not independent analog speaker protection.
 
 ## Verification chain
 

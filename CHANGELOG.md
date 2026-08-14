@@ -6,6 +6,12 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added `fpga_amp.host_control`, a dependency-free host definition of the
+  ten-byte full-duplex SPI/register ABI. It validates identity, ABI,
+  capabilities, lengths, reserved status, and bus errors; makes mute ownership
+  explicit for snapshot/clear commands; and guards atomic calibration
+  commit/poll/sequence handling. Six fake-link unit tests cover exact wire
+  bytes and accepted/error paths without claiming a physical adapter backend.
 - Added fail-closed BCLK-rate muting to the register-controlled pin wrapper,
   explicitly outside the historical model. Output is immediately clamped until
   three good clock windows qualify. A stopped/bad BCLK reasserts the clamp, and

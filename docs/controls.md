@@ -175,5 +175,23 @@ count, and transfers one diagnostic-clear event into the unrelated I²S clock
 domain. With the fail-closed BCLK guard, flattened XC7 structural synthesis
 is 21,507 estimated logic cells / 17,959 FF / 232 DSP48E1 /
 8 RAMB18E1 + 1 RAMB36E1. There is still no named-part SCLK, CDC, I/O, or
-98.304 MHz timing claim, and no host driver. No protocol-specific state belongs
-in the audio solver.
+98.304 MHz timing claim, and no physical host backend. No protocol-specific
+state belongs in the audio solver.
+
+## Host-side codec
+
+`fpga_amp.host_control` is the dependency-free software definition of this ABI.
+It encodes the request and dummy response clocks in exact wire byte order,
+decodes status/data, rejects short transfers, reserved status bits, bus errors,
+identity/ABI/capability mismatches, and invalid register ranges. A typed client
+provides explicit-mute snapshot and clear commands plus guarded two-coefficient
+calibration commit/poll/sequence verification. Every CONTROL operation requires
+the intended mute level as an argument, avoiding a stale host cache that could
+silently change bit 0.
+
+Six unit tests use a deterministic fake full-duplex link to cover exact frame
+bytes, reads/writes, malformed responses, bus errors, explicit mute ownership,
+diagnostic bounds, accepted calibration, rejected calibration, and unsafe
+preconditions. The caller supplies one `bytes -> bytes` transfer function, so a
+future Linux `spidev`, USB bridge, or embedded implementation does not redefine
+framing. No physical adapter backend or board transaction has been validated.
