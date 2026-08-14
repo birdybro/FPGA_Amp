@@ -17,7 +17,19 @@ module network_kcl_v1_wide #(
     parameter bit PIPELINED_FINISH = 1'b0,
     // Register each issued product, round the previous product, and accumulate
     // the prior current concurrently. This adds two fill clocks per request.
-    parameter bit PIPELINED_COLUMNS = 1'b0
+    parameter bit PIPELINED_COLUMNS = 1'b0,
+    // With PIPELINED_COLUMNS, register matrix-current plus capacitor-stamp
+    // before adding it to the running residual. This adds one fill clock and
+    // leaves only one 63-bit addition on the accumulator feedback path.
+    parameter bit PIPELINED_ACCUMULATOR = 1'b0,
+    // With PIPELINED_COLUMNS, separate 92-bit capacitor-product rounding from
+    // trapezoidal history subtraction and delay matrix currents to match. This
+    // adds one fill clock per request.
+    parameter bit PIPELINED_CAPACITOR_CURRENT = 1'b0,
+    // Pipeline the exact nine-row maximum diagnostic into four comparator
+    // levels when diagnostic_max_enable is asserted. Non-final solver passes
+    // bypass the three extra clocks because their maximum is not consumed.
+    parameter bit PIPELINED_MAXIMUM = 1'b0
 ) (
     input  logic                  clk,
     input  logic                  rst_n,
@@ -27,6 +39,7 @@ module network_kcl_v1_wide #(
     input  logic [479:0]          capacitor_current_state_q44,
     input  logic [494:0]          rhs_q44,
     input  logic [5:0]            requested_residual_fractional_bits,
+    input  logic                  diagnostic_max_enable,
     input  logic                  tube_current_valid,
     input  logic [127:0]          tube_current_q31,
     output logic [224:0]          residual,
@@ -53,17 +66,26 @@ module network_kcl_v1_wide #(
     logic signed [62:0] accumulator [0:8];
     logic signed [80:0] matrix_product_staged [0:8];
     logic signed [62:0] matrix_current_staged [0:8];
+    logic signed [62:0] matrix_current_aligned [0:8];
     logic signed [91:0] capacitor_product_staged;
     logic signed [91:0] cap9_product_staged;
     logic signed [62:0] capacitor_current_staged;
+    logic signed [62:0] capacitor_rounded_staged;
+    logic signed [62:0] cap9_rounded_staged;
+    logic signed [62:0] column_contribution_staged [0:8];
     logic signed [62:0] final_residual_latched [0:8];
     logic signed [31:0] current_latched [0:3]; // ip1, ig1, ip2, ig2
     logic [5:0] requested_fraction_latched;
+    logic diagnostic_max_latched;
     logic [3:0] column;
     logic [3:0] product_column_staged;
     logic [3:0] column_staged;
     logic product_stage_valid;
     logic column_stage_valid;
+    logic rounded_stage_valid;
+    logic [3:0] rounded_column_staged;
+    logic contribution_stage_valid;
+    logic [3:0] contribution_column_staged;
     logic columns_issued;
     logic finish_pending;
     logic finish_result_staged;
@@ -243,11 +265,15 @@ module network_kcl_v1_wide #(
     endfunction
 
     function automatic logic correction_overflow(
-        input logic signed [62:0] converted
+        input logic [38:0] converted_upper
     );
         begin
-            correction_overflow = (converted > 63'sd16777215)
-                                  || (converted < -63'sd16777216);
+            // A value fits signed 25-bit exactly when every discarded bit is
+            // a copy of bit 24. This is equivalent to the two numerical
+            // bounds comparisons but maps to a reduction tree instead of a
+            // pair of 63-bit carry chains.
+            correction_overflow =
+                converted_upper[38:1] != {38{converted_upper[0]}};
         end
     endfunction
 
@@ -255,12 +281,12 @@ module network_kcl_v1_wide #(
         input logic signed [62:0] converted
     );
         begin
-            if (converted > 63'sd16777215)
-                saturate_correction = 25'sh0ffffff;
-            else if (converted < -63'sd16777216)
+            if (!correction_overflow(converted[62:24]))
+                saturate_correction = converted[24:0];
+            else if (converted[62])
                 saturate_correction = 25'sh1000000;
             else
-                saturate_correction = converted[24:0];
+                saturate_correction = 25'sh0ffffff;
         end
     endfunction
 
@@ -284,6 +310,10 @@ module network_kcl_v1_wide #(
     logic signed [31:0] finish_current_by_lane [0:3];
     logic signed [62:0] matrix_current_from_product_by_row [0:8];
     logic signed [62:0] capacitor_current_from_product;
+    logic signed [62:0] capacitor_rounded_from_product;
+    logic signed [62:0] capacitor_current_from_rounded;
+    logic signed [62:0] cap9_rounded_from_product_q44;
+    logic signed [62:0] cap9_current_from_rounded_q44;
     logic signed [62:0] final_residual_input_by_row [0:8];
     logic signed [62:0] q30_by_row [0:8];
     logic signed [62:0] q34_by_row [0:8];
@@ -295,8 +325,11 @@ module network_kcl_v1_wide #(
     logic signed [62:0] selected_staged_by_row [0:8];
     logic [8:0] q34_fit_by_row;
     logic [8:0] q40_fit_by_row;
+    logic [8:0] q30_overflow_by_row;
     logic [8:0] q34_fit_staged_by_row;
     logic [8:0] q40_fit_staged_by_row;
+    logic q30_saturation_combined;
+    logic [3:0] q30_saturation_count_combined;
     logic [8:0] selected_overflow_by_row;
     logic [62:0] absolute_by_row [0:8];
     logic [62:0] absolute_staged_by_row [0:8];
@@ -312,6 +345,11 @@ module network_kcl_v1_wide #(
     logic [62:0] max_abs_staged;
     logic saturation_staged;
     logic [3:0] saturation_count_staged;
+    logic [62:0] maximum_pair_staged [0:3];
+    logic [62:0] maximum_quad_staged [0:1];
+    logic [62:0] maximum_final_staged;
+    logic [62:0] maximum_row8_staged;
+    logic [2:0] maximum_pipeline_stage;
 
     function automatic logic [62:0] maximum_u63(
         input logic [62:0] left,
@@ -391,9 +429,10 @@ module network_kcl_v1_wide #(
                 matrix_product_staged[row],
                 voltage_fractional_bits(int'(product_column_staged)) + 3
             );
-        capacitor_current_from_product = rounded_capacitor_q44(
+        capacitor_rounded_from_product = rounded_capacitor_q44(
             capacitor_product_staged
         );
+        capacitor_current_from_product = capacitor_rounded_from_product;
         if (TRAPEZOIDAL)
             capacitor_current_from_product = capacitor_current_from_product
                 - $signed({
@@ -402,11 +441,29 @@ module network_kcl_v1_wide #(
                     ][47]}},
                     capacitor_current_latched[product_column_staged]
                 });
-        cap9_current_from_product_q44 = rounded_capacitor_q44(
+        cap9_rounded_from_product_q44 = rounded_capacitor_q44(
             cap9_product_staged
         );
+        cap9_current_from_product_q44 = cap9_rounded_from_product_q44;
         if (TRAPEZOIDAL)
             cap9_current_from_product_q44 = cap9_current_from_product_q44
+                - $signed({
+                    {15{capacitor_current_latched[9][47]}},
+                    capacitor_current_latched[9]
+                });
+
+        capacitor_current_from_rounded = capacitor_rounded_staged;
+        if (TRAPEZOIDAL)
+            capacitor_current_from_rounded = capacitor_current_from_rounded
+                - $signed({
+                    {15{capacitor_current_latched[
+                        rounded_column_staged
+                    ][47]}},
+                    capacitor_current_latched[rounded_column_staged]
+                });
+        cap9_current_from_rounded_q44 = cap9_rounded_staged;
+        if (TRAPEZOIDAL)
+            cap9_current_from_rounded_q44 = cap9_current_from_rounded_q44
                 - $signed({
                     {15{capacitor_current_latched[9][47]}},
                     capacitor_current_latched[9]
@@ -457,10 +514,19 @@ module network_kcl_v1_wide #(
                 q34_fit_by_row[row] = q34_fit_staged_by_row[row];
                 q40_fit_by_row[row] = q40_fit_staged_by_row[row];
             end else begin
-                q34_fit_by_row[row] = !correction_overflow(q34_by_row[row]);
-                q40_fit_by_row[row] = !correction_overflow(q40_by_row[row]);
+                q34_fit_by_row[row] =
+                    !correction_overflow(q34_by_row[row][62:24]);
+                q40_fit_by_row[row] =
+                    !correction_overflow(q40_by_row[row][62:24]);
             end
+            q30_overflow_by_row[row] = correction_overflow(
+                PIPELINED_FINISH
+                    ? q30_staged_by_row[row][62:24]
+                    : q30_by_row[row][62:24]
+            );
         end
+        q30_saturation_combined = |q30_overflow_by_row;
+        q30_saturation_count_combined = popcount9(q30_overflow_by_row);
         q34_all_fit = &q34_fit_by_row;
         q40_all_fit = &q40_fit_by_row;
 
@@ -486,9 +552,14 @@ module network_kcl_v1_wide #(
             absolute_by_row[row] = PIPELINED_FINISH
                 ? absolute_staged_by_row[row]
                 : absolute_q44(final_residual_latched[row]);
-            selected_overflow_by_row[row] = correction_overflow(
-                selected_by_row[row]
-            );
+            if (PIPELINED_FINISH)
+                selected_overflow_by_row[row] =
+                    (selected_fraction == 6'd30)
+                    && q30_overflow_by_row[row];
+            else
+                selected_overflow_by_row[row] = correction_overflow(
+                    selected_by_row[row][62:24]
+                );
         end
         maximum_pair[0] = maximum_u63(absolute_by_row[0], absolute_by_row[1]);
         maximum_pair[1] = maximum_u63(absolute_by_row[2], absolute_by_row[3]);
@@ -500,8 +571,20 @@ module network_kcl_v1_wide #(
             maximum_u63(maximum_quad[0], maximum_quad[1]),
             absolute_by_row[8]
         );
-        saturation_combined = |selected_overflow_by_row;
-        saturation_count_combined = popcount9(selected_overflow_by_row);
+        if (PIPELINED_FINISH) begin
+            // A Q34/Q40 result is selected only when every row has already
+            // passed its fit test, so only the Q30 fallback can saturate.
+            // Evaluating its overflow reduction from registered conversions
+            // avoids putting nine generic 63-bit comparisons after the global
+            // precision selection without changing the selected result.
+            saturation_combined = (selected_fraction == 6'd30)
+                && q30_saturation_combined;
+            saturation_count_combined = (selected_fraction == 6'd30)
+                ? q30_saturation_count_combined : 4'd0;
+        end else begin
+            saturation_combined = |selected_overflow_by_row;
+            saturation_count_combined = popcount9(selected_overflow_by_row);
+        end
     end
 
     integer lane;
@@ -516,11 +599,16 @@ module network_kcl_v1_wide #(
             saturation_any <= 1'b0;
             saturation_count <= '0;
             requested_fraction_latched <= 6'd30;
+            diagnostic_max_latched <= 1'b0;
             column <= '0;
             product_column_staged <= '0;
             column_staged <= '0;
             product_stage_valid <= 1'b0;
             column_stage_valid <= 1'b0;
+            rounded_stage_valid <= 1'b0;
+            rounded_column_staged <= '0;
+            contribution_stage_valid <= 1'b0;
+            contribution_column_staged <= '0;
             columns_issued <= 1'b0;
             finish_pending <= 1'b0;
             finish_result_staged <= 1'b0;
@@ -534,6 +622,8 @@ module network_kcl_v1_wide #(
                 accumulator[lane] <= '0;
                 matrix_product_staged[lane] <= '0;
                 matrix_current_staged[lane] <= '0;
+                matrix_current_aligned[lane] <= '0;
+                column_contribution_staged[lane] <= '0;
                 final_residual_latched[lane] <= '0;
                 q30_staged_by_row[lane] <= '0;
                 q34_staged_by_row[lane] <= '0;
@@ -547,7 +637,16 @@ module network_kcl_v1_wide #(
             max_abs_staged <= '0;
             saturation_staged <= 1'b0;
             saturation_count_staged <= '0;
+            maximum_final_staged <= '0;
+            maximum_row8_staged <= '0;
+            maximum_pipeline_stage <= '0;
+            for (lane = 0; lane < 4; lane = lane + 1)
+                maximum_pair_staged[lane] <= '0;
+            for (lane = 0; lane < 2; lane = lane + 1)
+                maximum_quad_staged[lane] <= '0;
             capacitor_current_staged <= '0;
+            capacitor_rounded_staged <= '0;
+            cap9_rounded_staged <= '0;
             capacitor_product_staged <= '0;
             cap9_product_staged <= '0;
             for (lane = 0; lane < 10; lane = lane + 1)
@@ -568,6 +667,10 @@ module network_kcl_v1_wide #(
                     column_staged <= '0;
                     product_stage_valid <= 1'b0;
                     column_stage_valid <= 1'b0;
+                    rounded_stage_valid <= 1'b0;
+                    rounded_column_staged <= '0;
+                    contribution_stage_valid <= 1'b0;
+                    contribution_column_staged <= '0;
                     columns_issued <= 1'b0;
                     finish_pending <= 1'b0;
                     finish_result_staged <= 1'b0;
@@ -575,10 +678,12 @@ module network_kcl_v1_wide #(
                     finish_selection_staged <= 1'b0;
                     current_ready <= tube_current_valid;
                     requested_fraction_latched <= requested_residual_fractional_bits;
+                    diagnostic_max_latched <= diagnostic_max_enable;
                     correction_scale_fallback <= 1'b0;
                     saturation_any <= 1'b0;
                     saturation_count <= '0;
                     current_saturation_running <= '0;
+                    maximum_pipeline_stage <= '0;
                     for (lane = 0; lane < 9; lane = lane + 1) begin
                         voltage_latched[lane] <= $signed(
                             voltage[lane * 40 +: 40]
@@ -637,15 +742,44 @@ module network_kcl_v1_wide #(
                             for (lane = 0; lane < 9; lane = lane + 1)
                                 matrix_current_staged[lane] <=
                                     matrix_current_from_product_by_row[lane];
-                            capacitor_current_staged <=
-                                capacitor_current_from_product;
-                            column_staged <= product_column_staged;
-                            column_stage_valid <= 1'b1;
-                            if (product_column_staged == 4'd0)
-                                cap9_current_latched_q44 <=
-                                    cap9_current_from_product_q44;
+                            if (PIPELINED_CAPACITOR_CURRENT) begin
+                                capacitor_rounded_staged <=
+                                    capacitor_rounded_from_product;
+                                rounded_column_staged <= product_column_staged;
+                                rounded_stage_valid <= 1'b1;
+                                if (product_column_staged == 4'd0)
+                                    cap9_rounded_staged <=
+                                        cap9_rounded_from_product_q44;
+                            end else begin
+                                capacitor_current_staged <=
+                                    capacitor_current_from_product;
+                                column_staged <= product_column_staged;
+                                column_stage_valid <= 1'b1;
+                                if (product_column_staged == 4'd0)
+                                    cap9_current_latched_q44 <=
+                                        cap9_current_from_product_q44;
+                            end
                         end else begin
-                            column_stage_valid <= 1'b0;
+                            if (PIPELINED_CAPACITOR_CURRENT)
+                                rounded_stage_valid <= 1'b0;
+                            else
+                                column_stage_valid <= 1'b0;
+                        end
+                        if (PIPELINED_CAPACITOR_CURRENT) begin
+                            if (rounded_stage_valid) begin
+                                for (lane = 0; lane < 9; lane = lane + 1)
+                                    matrix_current_aligned[lane] <=
+                                        matrix_current_staged[lane];
+                                capacitor_current_staged <=
+                                    capacitor_current_from_rounded;
+                                column_staged <= rounded_column_staged;
+                                column_stage_valid <= 1'b1;
+                                if (rounded_column_staged == 4'd0)
+                                    cap9_current_latched_q44 <=
+                                        cap9_current_from_rounded_q44;
+                            end else begin
+                                column_stage_valid <= 1'b0;
+                            end
                         end
                         if (column_stage_valid) begin
                             capacitor_current_result[column_staged] <=
@@ -658,14 +792,40 @@ module network_kcl_v1_wide #(
                                 ))
                                 current_saturation_running <=
                                     current_saturation_running + 1'b1;
+                            if (PIPELINED_ACCUMULATOR) begin
+                                for (lane = 0; lane < 9; lane = lane + 1)
+                                    column_contribution_staged[lane] <=
+                                        (PIPELINED_CAPACITOR_CURRENT
+                                            ? matrix_current_aligned[lane]
+                                            : matrix_current_staged[lane])
+                                        + capacitor_stamp(
+                                            int'(column_staged), lane,
+                                            capacitor_current_staged
+                                        );
+                                contribution_column_staged <= column_staged;
+                                contribution_stage_valid <= 1'b1;
+                            end else begin
+                                for (lane = 0; lane < 9; lane = lane + 1)
+                                    accumulator[lane] <= accumulator[lane]
+                                        + (PIPELINED_CAPACITOR_CURRENT
+                                            ? matrix_current_aligned[lane]
+                                            : matrix_current_staged[lane])
+                                        + capacitor_stamp(
+                                            int'(column_staged), lane,
+                                            capacitor_current_staged
+                                        );
+                                if (column_staged == 4'd8)
+                                    finish_pending <= 1'b1;
+                            end
+                        end else if (PIPELINED_ACCUMULATOR) begin
+                            contribution_stage_valid <= 1'b0;
+                        end
+                        if (PIPELINED_ACCUMULATOR
+                            && contribution_stage_valid) begin
                             for (lane = 0; lane < 9; lane = lane + 1)
                                 accumulator[lane] <= accumulator[lane]
-                                    + matrix_current_staged[lane]
-                                    + capacitor_stamp(
-                                        int'(column_staged), lane,
-                                        capacitor_current_staged
-                                    );
-                            if (column_staged == 4'd8)
+                                    + column_contribution_staged[lane];
+                            if (contribution_column_staged == 4'd8)
                                 finish_pending <= 1'b1;
                         end
                     end else begin
@@ -712,9 +872,9 @@ module network_kcl_v1_wide #(
                         q34_staged_by_row[lane] <= q34_by_row[lane];
                         q40_staged_by_row[lane] <= q40_by_row[lane];
                         q34_fit_staged_by_row[lane] <=
-                            !correction_overflow(q34_by_row[lane]);
+                            !correction_overflow(q34_by_row[lane][62:24]);
                         q40_fit_staged_by_row[lane] <=
-                            !correction_overflow(q40_by_row[lane]);
+                            !correction_overflow(q40_by_row[lane][62:24]);
                         absolute_staged_by_row[lane] <= absolute_q44(
                             final_residual_latched[lane]
                         );
@@ -727,10 +887,42 @@ module network_kcl_v1_wide #(
                     for (lane = 0; lane < 9; lane = lane + 1)
                         selected_staged_by_row[lane] <= selected_by_row[lane];
                     selected_fraction_staged <= selected_fraction;
-                    max_abs_staged <= max_abs_combined;
+                    if (PIPELINED_MAXIMUM && diagnostic_max_latched) begin
+                        for (lane = 0; lane < 4; lane = lane + 1)
+                            maximum_pair_staged[lane] <= maximum_pair[lane];
+                        maximum_row8_staged <= absolute_by_row[8];
+                        maximum_pipeline_stage <= 3'd1;
+                    end else begin
+                        max_abs_staged <= PIPELINED_MAXIMUM
+                            ? 63'd0 : max_abs_combined;
+                    end
                     saturation_staged <= saturation_combined;
                     saturation_count_staged <= saturation_count_combined;
                     finish_selection_staged <= 1'b1;
+                end else if (PIPELINED_MAXIMUM && diagnostic_max_latched
+                             && finish_selection_staged
+                             && maximum_pipeline_stage == 3'd1) begin
+                    maximum_quad_staged[0] <= maximum_u63(
+                        maximum_pair_staged[0], maximum_pair_staged[1]
+                    );
+                    maximum_quad_staged[1] <= maximum_u63(
+                        maximum_pair_staged[2], maximum_pair_staged[3]
+                    );
+                    maximum_pipeline_stage <= 3'd2;
+                end else if (PIPELINED_MAXIMUM && diagnostic_max_latched
+                             && finish_selection_staged
+                             && maximum_pipeline_stage == 3'd2) begin
+                    maximum_final_staged <= maximum_u63(
+                        maximum_quad_staged[0], maximum_quad_staged[1]
+                    );
+                    maximum_pipeline_stage <= 3'd3;
+                end else if (PIPELINED_MAXIMUM && diagnostic_max_latched
+                             && finish_selection_staged
+                             && maximum_pipeline_stage == 3'd3) begin
+                    max_abs_staged <= maximum_u63(
+                        maximum_final_staged, maximum_row8_staged
+                    );
+                    maximum_pipeline_stage <= 3'd4;
                 end else if (finish_result_staged) begin
                     for (lane = 0; lane < 9; lane = lane + 1)
                         residual[lane * 25 +: 25] <= saturate_correction(

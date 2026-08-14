@@ -59,7 +59,10 @@ endmodule
 
 module kcl_pnr_harness #(
     parameter bit PIPELINED_FINISH = 1'b0,
-    parameter bit PIPELINED_COLUMNS = 1'b0
+    parameter bit PIPELINED_COLUMNS = 1'b0,
+    parameter bit PIPELINED_ACCUMULATOR = 1'b0,
+    parameter bit PIPELINED_CAPACITOR_CURRENT = 1'b0,
+    parameter bit PIPELINED_MAXIMUM = 1'b0
 ) (
     input  logic fabric_clk,
     input  logic reset,
@@ -133,7 +136,10 @@ module kcl_pnr_harness #(
         ),
         .TRAPEZOIDAL(1'b1),
         .PIPELINED_FINISH(PIPELINED_FINISH),
-        .PIPELINED_COLUMNS(PIPELINED_COLUMNS)
+        .PIPELINED_COLUMNS(PIPELINED_COLUMNS),
+        .PIPELINED_ACCUMULATOR(PIPELINED_ACCUMULATOR),
+        .PIPELINED_CAPACITOR_CURRENT(PIPELINED_CAPACITOR_CURRENT),
+        .PIPELINED_MAXIMUM(PIPELINED_MAXIMUM)
     ) engine (
         .clk(fabric_clk),
         .rst_n,
@@ -143,6 +149,7 @@ module kcl_pnr_harness #(
         .capacitor_current_state_q44,
         .rhs_q44,
         .requested_residual_fractional_bits(6'd40),
+        .diagnostic_max_enable(1'b1),
         .tube_current_valid(1'b1),
         .tube_current_q31,
         .residual,
@@ -156,6 +163,50 @@ module kcl_pnr_harness #(
         .busy,
         .valid
     );
+
+endmodule
+
+module deep_pipelined_kcl_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+
+    kcl_pnr_harness #(
+        .PIPELINED_FINISH(1'b1),
+        .PIPELINED_COLUMNS(1'b1),
+        .PIPELINED_ACCUMULATOR(1'b1)
+    ) harness (.*);
+
+endmodule
+
+module max_pipelined_kcl_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+
+    kcl_pnr_harness #(
+        .PIPELINED_FINISH(1'b1),
+        .PIPELINED_COLUMNS(1'b1),
+        .PIPELINED_ACCUMULATOR(1'b1),
+        .PIPELINED_CAPACITOR_CURRENT(1'b1)
+    ) harness (.*);
+
+endmodule
+
+module diagnostic_pipelined_kcl_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+
+    kcl_pnr_harness #(
+        .PIPELINED_FINISH(1'b1),
+        .PIPELINED_COLUMNS(1'b1),
+        .PIPELINED_ACCUMULATOR(1'b1),
+        .PIPELINED_MAXIMUM(1'b1)
+    ) harness (.*);
 
 endmodule
 

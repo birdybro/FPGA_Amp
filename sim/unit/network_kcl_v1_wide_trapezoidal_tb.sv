@@ -3,7 +3,10 @@
 
 module network_kcl_v1_wide_trapezoidal_tb #(
     parameter bit PIPELINED_FINISH = 1'b0,
-    parameter bit PIPELINED_COLUMNS = 1'b0
+    parameter bit PIPELINED_COLUMNS = 1'b0,
+    parameter bit PIPELINED_ACCUMULATOR = 1'b0,
+    parameter bit PIPELINED_CAPACITOR_CURRENT = 1'b0,
+    parameter bit PIPELINED_MAXIMUM = 1'b0
 );
     logic clk;
     logic rst_n = 1'b0;
@@ -13,6 +16,7 @@ module network_kcl_v1_wide_trapezoidal_tb #(
     logic [479:0] capacitor_current_state_q44;
     logic [494:0] rhs_q44;
     logic [5:0] requested_residual_fractional_bits;
+    logic diagnostic_max_enable = 1'b1;
     logic tube_current_valid = 1'b0;
     logic [127:0] tube_current_q31;
     logic [224:0] residual;
@@ -30,7 +34,10 @@ module network_kcl_v1_wide_trapezoidal_tb #(
         .CAP_G_FILE("model/generated/v1_cap_conductance_q0_47_trapezoidal.mem"),
         .TRAPEZOIDAL(1'b1),
         .PIPELINED_FINISH(PIPELINED_FINISH),
-        .PIPELINED_COLUMNS(PIPELINED_COLUMNS)
+        .PIPELINED_COLUMNS(PIPELINED_COLUMNS),
+        .PIPELINED_ACCUMULATOR(PIPELINED_ACCUMULATOR),
+        .PIPELINED_CAPACITOR_CURRENT(PIPELINED_CAPACITOR_CURRENT),
+        .PIPELINED_MAXIMUM(PIPELINED_MAXIMUM)
     ) dut (.*);
 
     always #5 clk = ~clk;
@@ -132,15 +139,21 @@ module network_kcl_v1_wide_trapezoidal_tb #(
                 #1;
                 latency = latency + 1;
                 tube_current_valid = 1'b0;
-                if (latency > 24)
+                if (latency > 28)
                     $fatal(1, "timeout at vector %0d", vector_count);
             end
             expected_latency = 11 + (PIPELINED_FINISH ? 2 : 0)
-                               + (PIPELINED_COLUMNS ? 2 : 0);
+                               + (PIPELINED_COLUMNS ? 2 : 0)
+                               + ((PIPELINED_COLUMNS
+                                   && PIPELINED_ACCUMULATOR) ? 1 : 0)
+                               + ((PIPELINED_COLUMNS
+                                   && PIPELINED_CAPACITOR_CURRENT) ? 1 : 0);
             if (tube_delay + (PIPELINED_FINISH ? 3 : 1)
                 > expected_latency)
                 expected_latency = tube_delay
                                    + (PIPELINED_FINISH ? 3 : 1);
+            if (PIPELINED_FINISH && PIPELINED_MAXIMUM)
+                expected_latency = expected_latency + 3;
             if (latency != expected_latency) begin
                 $error("latency got=%0d expected=%0d delay=%0d",
                        latency, expected_latency, tube_delay);
@@ -203,7 +216,13 @@ module network_kcl_v1_wide_trapezoidal_tb #(
             $fatal(1, "FAIL: %0d wide trapezoidal KCL errors", errors);
         $display("PASS: %0d wide trapezoidal KCL vectors, early-current latency=%0d clocks",
                  vector_count, 11 + (PIPELINED_FINISH ? 2 : 0)
-                               + (PIPELINED_COLUMNS ? 2 : 0));
+                               + (PIPELINED_COLUMNS ? 2 : 0)
+                               + ((PIPELINED_COLUMNS
+                                   && PIPELINED_ACCUMULATOR) ? 1 : 0)
+                               + ((PIPELINED_COLUMNS
+                                   && PIPELINED_CAPACITOR_CURRENT) ? 1 : 0)
+                               + ((PIPELINED_FINISH
+                                   && PIPELINED_MAXIMUM) ? 3 : 0));
         $finish;
     end
 endmodule

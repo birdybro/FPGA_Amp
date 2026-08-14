@@ -538,7 +538,7 @@ The mono reference and complete 768 kHz circuit solver are operating:
   the raw -74.59 dBc bin is no longer left ambiguous or mislabeled as aliasing.
 
 There is no physical host-adapter backend, fabricated analog front end,
-converter board, completed named-part route, qualified speed-grade timing, or
+converter board, completed full-hierarchy named-part route, qualified speed-grade timing, or
 physical measurement yet. An experimental open XC7 placement now measures the
 solver timing harness at only 13.90 MHz against 98.304 MHz; this is a diagnosed
 architecture failure, not a timing-closure claim. A bit-exact three-clock
@@ -555,11 +555,15 @@ placement to 33.92 MHz, although its router2 attempt did not converge legally.
 A separately selectable parallel dual-triode schedule remains bit-exact while
 reducing the complete solver from 127 to 95 clocks. Optional KCL column/finish
 and chord-apply registers then produce an exact 119-clock complete solver. The
-pipelined chord routes at 100.92 MHz, but the pipelined KCL places at only 38.95
-MHz; this isolates the remaining timing failure. The complete candidate
-synthesizes to 16,348 logic cells and 209/240 DSP48E1s, leaving nine clocks per
-internal sample. None of these
-experiments is timing closure or a reference-mode change.
+pipelined chord routes at 100.92 MHz. A relaxed-constraint legal route of the
+15-clock KCL reaches 42.07 MHz and identifies its exact maximum-residual
+diagnostic as the limiter. Accumulator and final-only maximum pipelines plus an
+equivalent sign-extension overflow predicate raise the selected isolated KCL
+route to 92.23 MHz. The resulting complete solver remains exact at 126 clocks
+and synthesizes to 14,990 logic cells, 13,458 flip-flops, 209/240 DSP48E1s, and
+20 RAMB18 equivalents, leaving two clocks per internal sample. The isolated
+KCL still misses 98.304 MHz by 6.6%, and the complete hierarchy has not routed.
+None of these experiments is timing closure or a reference-mode change.
 All figures use the backend's unqualified `DEFAULT` timing grade. The implemented digital mute
 primitive is not independent analog speaker protection.
 
@@ -745,6 +749,8 @@ make openxc7-chord-pnr             # isolate banked chord-correction timing
 make openxc7-pipelined-kcl-pnr     # route bit-exact staged KCL candidate
 make openxc7-pipelined-chord-pnr   # route bit-exact staged chord candidate
 make openxc7-parallel-pipelined-solver-pnr # route 119-clock solver candidate
+make openxc7-diagnostic-pipelined-kcl-pnr # route 19-clock final-diagnostic KCL
+make openxc7-parallel-diagnostic-pipelined-solver-pnr # route 126-clock solver
 ```
 
 Run a user-supplied 48 kHz integer-PCM WAV through an explicitly selected V1

@@ -9,6 +9,9 @@ module v1_solver_mono_wide_tb #(
     parameter bit PARALLEL_TUBES = 1'b0,
     parameter bit PIPELINED_KCL_FINISH = 1'b0,
     parameter bit PIPELINED_KCL_COLUMNS = 1'b0,
+    parameter bit PIPELINED_KCL_ACCUMULATOR = 1'b0,
+    parameter bit PIPELINED_KCL_CAPACITOR_CURRENT = 1'b0,
+    parameter bit PIPELINED_KCL_MAXIMUM = 1'b0,
     parameter bit PIPELINED_CHORD_APPLY = 1'b0
 );
     localparam integer BASE_LATENCY = PARALLEL_TUBES
@@ -17,6 +20,10 @@ module v1_solver_mono_wide_tb #(
     localparam integer EXPECTED_LATENCY = BASE_LATENCY
         + (PIPELINED_KCL_FINISH ? 8 : 0)
         + (PIPELINED_KCL_COLUMNS ? 8 : 0)
+        + ((PIPELINED_KCL_COLUMNS && PIPELINED_KCL_ACCUMULATOR) ? 4 : 0)
+        + ((PIPELINED_KCL_COLUMNS
+            && PIPELINED_KCL_CAPACITOR_CURRENT) ? 4 : 0)
+        + ((PIPELINED_KCL_FINISH && PIPELINED_KCL_MAXIMUM) ? 3 : 0)
         + (PIPELINED_CHORD_APPLY ? (TERMINAL_CORRECTION ? 8 : 6) : 0);
     logic clk;
     logic rst_n = 1'b0;
@@ -70,6 +77,9 @@ module v1_solver_mono_wide_tb #(
         .PARALLEL_TUBES(PARALLEL_TUBES),
         .PIPELINED_KCL_FINISH(PIPELINED_KCL_FINISH),
         .PIPELINED_KCL_COLUMNS(PIPELINED_KCL_COLUMNS),
+        .PIPELINED_KCL_ACCUMULATOR(PIPELINED_KCL_ACCUMULATOR),
+        .PIPELINED_KCL_CAPACITOR_CURRENT(PIPELINED_KCL_CAPACITOR_CURRENT),
+        .PIPELINED_KCL_MAXIMUM(PIPELINED_KCL_MAXIMUM),
         .PIPELINED_CHORD_APPLY(PIPELINED_CHORD_APPLY)
     ) dut (.*);
     always #5 clk = ~clk;

@@ -51,11 +51,23 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sections is bit-exact at 84/95 clocks and fits structurally at 209/240 DSPs.
   The recovered margin now funds two KCL column-fill clocks, two KCL finish
   clocks, and two chord-apply clocks per pass: the complete solver is exact at
-  119 clocks and the chord route closes at 100.92 MHz. The isolated pipelined
-  KCL still places at only 38.95 MHz, so identify and split its remaining
-  registered-current/accumulator path within the nine-clock margin before any
-  reference/default selection.
+  119 clocks and the chord route closes at 100.92 MHz. A legal 42.07 MHz KCL
+  route instead identified the exact maximum diagnostic as the limiter.
+  Accumulator and final-only maximum pipelines plus exact sign-extension fit
+  tests now produce a bit-exact 126-clock complete schedule and raise the
+  isolated KCL to 92.23 MHz post-route. Close the remaining 6.6% KCL gap and
+  route the full 14,990-LC / 209-DSP hierarchy; only two clocks remain, so do
+  not add a per-pass stage or alter the frozen numerical contract.
 ## Completed this milestone
+
+- [x] Use legal route evidence to pipeline the KCL accumulator and only the
+  consumed final maximum-residual diagnostic. Preserve 1,024 vectors in each
+  integration mode and 512 complete stateful vectors, including all 48 format
+  fallbacks and 18 correction saturations. Replace generic signed-25 bounds
+  compares with the exact sign-extension predicate; improve isolated KCL
+  post-route timing from 42.07 through 64.90/72.31 to 92.23 MHz. Measure the
+  complete exact schedule at 126 clocks and 14,990 LC / 13,458 FF / 209 DSP /
+  20 RAMB18 equivalents without claiming full-hierarchy closure.
 
 - [x] Add selectable bit-exact timing boundaries to the KCL column/finish and
   chord apply paths. Preserve 1,024 vectors in each KCL integration mode, 1,024

@@ -3,7 +3,10 @@
 
 module network_kcl_v1_wide_tb #(
     parameter bit PIPELINED_FINISH = 1'b0,
-    parameter bit PIPELINED_COLUMNS = 1'b0
+    parameter bit PIPELINED_COLUMNS = 1'b0,
+    parameter bit PIPELINED_ACCUMULATOR = 1'b0,
+    parameter bit PIPELINED_CAPACITOR_CURRENT = 1'b0,
+    parameter bit PIPELINED_MAXIMUM = 1'b0
 );
     logic clk;
     logic rst_n = 1'b0;
@@ -28,7 +31,10 @@ module network_kcl_v1_wide_tb #(
 
     network_kcl_v1_wide #(
         .PIPELINED_FINISH(PIPELINED_FINISH),
-        .PIPELINED_COLUMNS(PIPELINED_COLUMNS)
+        .PIPELINED_COLUMNS(PIPELINED_COLUMNS),
+        .PIPELINED_ACCUMULATOR(PIPELINED_ACCUMULATOR),
+        .PIPELINED_CAPACITOR_CURRENT(PIPELINED_CAPACITOR_CURRENT),
+        .PIPELINED_MAXIMUM(PIPELINED_MAXIMUM)
     ) dut (
         .clk,
         .rst_n,
@@ -38,6 +44,7 @@ module network_kcl_v1_wide_tb #(
         .capacitor_current_state_q44,
         .rhs_q44,
         .requested_residual_fractional_bits,
+        .diagnostic_max_enable(1'b1),
         .tube_current_valid,
         .tube_current_q31,
         .residual,
@@ -131,18 +138,24 @@ module network_kcl_v1_wide_tb #(
                 #1;
                 latency = latency + 1;
                 tube_current_valid = 1'b0;
-                if (latency > 24)
+                if (latency > 28)
                     $fatal(1, "timeout at vector %0d delay=%0d",
                            vector_count, tube_delay);
             end
             // An early tube current now leaves one explicit finish-staging
             // clock. Delayed currents use the pre-existing KCL wait window.
             expected_latency = 11 + (PIPELINED_FINISH ? 2 : 0)
-                               + (PIPELINED_COLUMNS ? 2 : 0);
+                               + (PIPELINED_COLUMNS ? 2 : 0)
+                               + ((PIPELINED_COLUMNS
+                                   && PIPELINED_ACCUMULATOR) ? 1 : 0)
+                               + ((PIPELINED_COLUMNS
+                                   && PIPELINED_CAPACITOR_CURRENT) ? 1 : 0);
             if (tube_delay + (PIPELINED_FINISH ? 3 : 1)
                 > expected_latency)
                 expected_latency = tube_delay
                                    + (PIPELINED_FINISH ? 3 : 1);
+            if (PIPELINED_FINISH && PIPELINED_MAXIMUM)
+                expected_latency = expected_latency + 3;
             if (latency != expected_latency) begin
                 $error("latency got=%0d expected=%0d delay=%0d",
                        latency, expected_latency, tube_delay);
@@ -193,7 +206,13 @@ module network_kcl_v1_wide_tb #(
             $fatal(1, "FAIL: %0d wide KCL errors", errors);
         $display("PASS: %0d wide KCL vectors, early-current latency=%0d clocks",
                  vector_count, 11 + (PIPELINED_FINISH ? 2 : 0)
-                               + (PIPELINED_COLUMNS ? 2 : 0));
+                               + (PIPELINED_COLUMNS ? 2 : 0)
+                               + ((PIPELINED_COLUMNS
+                                   && PIPELINED_ACCUMULATOR) ? 1 : 0)
+                               + ((PIPELINED_COLUMNS
+                                   && PIPELINED_CAPACITOR_CURRENT) ? 1 : 0)
+                               + ((PIPELINED_FINISH
+                                   && PIPELINED_MAXIMUM) ? 3 : 0));
         $finish;
     end
 endmodule

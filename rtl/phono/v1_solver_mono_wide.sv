@@ -28,6 +28,12 @@ module v1_solver_mono_wide #(
     parameter bit PIPELINED_KCL_FINISH = 1'b0,
     // Register and overlap KCL matrix/capacitor column issue and accumulation.
     parameter bit PIPELINED_KCL_COLUMNS = 1'b0,
+    // Register each KCL column contribution before accumulator feedback.
+    parameter bit PIPELINED_KCL_ACCUMULATOR = 1'b0,
+    // Separate KCL capacitor-product rounding from current-history subtraction.
+    parameter bit PIPELINED_KCL_CAPACITOR_CURRENT = 1'b0,
+    // Pipeline the final-pass-only KCL maximum-residual diagnostic.
+    parameter bit PIPELINED_KCL_MAXIMUM = 1'b0,
     // Split chord scaling, node update, and saturation across registers.
     parameter bit PIPELINED_CHORD_APPLY = 1'b0
 ) (
@@ -424,6 +430,7 @@ module v1_solver_mono_wide #(
     logic [359:0] residual_voltage_flat;
     logic [494:0] residual_rhs_q44;
     logic [5:0] requested_residual_fractional_bits;
+    logic kcl_diagnostic_max_enable;
     logic kcl_tube_current_valid;
     logic [127:0] tube_current_flat;
     logic [224:0] residual;
@@ -450,6 +457,8 @@ module v1_solver_mono_wide #(
         // that just finished until this edge commits. Select the following
         // pass explicitly so the KCL engine latches the intended format.
         requested_residual_fractional_bits = 6'd30;
+        kcl_diagnostic_max_enable = (state == WAIT_CHORD) && chord_valid
+                                    && (correction_index == 2'd2);
         if ((state == WAIT_CHORD) && chord_valid) begin
             if (correction_index == 2'd0)
                 requested_residual_fractional_bits = 6'd34;
@@ -464,7 +473,10 @@ module v1_solver_mono_wide #(
         .CAP_G_FILE(CAP_G_FILE),
         .TRAPEZOIDAL(TRAPEZOIDAL),
         .PIPELINED_FINISH(PIPELINED_KCL_FINISH),
-        .PIPELINED_COLUMNS(PIPELINED_KCL_COLUMNS)
+        .PIPELINED_COLUMNS(PIPELINED_KCL_COLUMNS),
+        .PIPELINED_ACCUMULATOR(PIPELINED_KCL_ACCUMULATOR),
+        .PIPELINED_CAPACITOR_CURRENT(PIPELINED_KCL_CAPACITOR_CURRENT),
+        .PIPELINED_MAXIMUM(PIPELINED_KCL_MAXIMUM)
     ) kcl_engine (
         .clk,
         .rst_n,
@@ -474,6 +486,7 @@ module v1_solver_mono_wide #(
         .capacitor_current_state_q44(capacitor_current_flat),
         .rhs_q44(residual_rhs_q44),
         .requested_residual_fractional_bits,
+        .diagnostic_max_enable(kcl_diagnostic_max_enable),
         .tube_current_valid(kcl_tube_current_valid),
         .tube_current_q31(tube_current_flat),
         .residual,

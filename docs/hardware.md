@@ -172,18 +172,43 @@ The combined pipelined KCL remains bit-exact across 1,024 backward-Euler and
 only candidate placed at 40.00 MHz, and a superseded one-stage column candidate
 placed at 36.76 MHz. The selected two-fill-clock column pipeline plus finish
 pipeline uses 72 DSP48E1s and packs to 32,006 `SLICE_LUTX`, 9,356 `SLICE_FFX`,
-and 1,958 CARRY4s, but placement reaches only 38.95 MHz. Router2 reduced
-overuse from 37,268 on iteration 1 to 7,969 on iteration 2; routing was stopped
-because the placement result already misses the target by 2.52x. Thus the
-current pipeline has not closed KCL timing and remains diagnostic evidence.
+and 1,958 CARRY4s. Its initial 98.304 MHz placement reaches only 38.95 MHz. A
+subsequent 40 MHz request routes legally in 25 router2 iterations and measures
+42.07 MHz post-route. That route identifies four cascaded 63-bit comparisons
+in the exact maximum-absolute-residual diagnostic as the critical path rather
+than the physical accumulator.
 
-With parallel triodes and all KCL/chord timing boundaries enabled, the complete
-trapezoidal/banked/terminal solver remains bit-exact across 512 stateful vectors
-at 119 clocks, leaving nine of the 128 clocks available per internal sample.
-Yosys 0.66 measures its harness at 16,348 estimated logic cells, 12,378 flip-
-flops, 209 DSP48E1s, 16 RAMB18E1s, and two RAMB36E1s. The structural check has
-zero problems. This is a schedulable, structurally fitting timing candidate;
-whole-solver placement and KCL timing closure remain open.
+The route-informed schedule adds a register before the accumulator feedback
+and pipelines only the final solver pass's nine-row maximum diagnostic. Earlier
+KCL passes bypass the three maximum clocks because the solver does not consume
+that diagnostic until its final residual. The global Q30/Q34/Q40 fallback is
+unchanged. Signed 25-bit fit is expressed as the exactly equivalent sign-
+extension test on bits 62:24; Q34/Q40 saturation is known false after their
+existing all-row fit qualification, so only the registered Q30 fallback needs
+an overflow count. The standalone diagnostic-enabled KCL is bit-exact across
+1,024 vectors per integration method at 19 clocks.
+
+Successive legal routes measure 64.90 MHz after splitting the maximum tree,
+72.31 MHz after moving Q30 overflow work before global selection, and 92.23 MHz
+after using the exact sign-extension predicate. The selected seed-1 route packs
+to 29,514 `SLICE_LUTX`, 10,436 `SLICE_FFX`, 1,814 CARRY4s, and 72 DSP48E1s. Its
+10.84 ns critical path now forms a signed capacitor stamp and adds it to a
+registered matrix current; 3.34 ns is logic and 7.50 ns is routing. It misses
+the 98.304 MHz request by 6.6% under the experimental `DEFAULT` timing grade.
+An algebraically collapsed one-adder source form was tested and rejected: it
+placed at only 70.24 MHz and produced substantially worse router congestion.
+The completed 92.23 MHz result remains the measured baseline.
+
+With parallel triodes, KCL column/finish/accumulator boundaries, the final-only
+maximum pipeline, and chord-apply boundaries enabled, the complete trapezoidal/
+banked/terminal solver remains bit-exact across 512 stateful vectors at 126
+clocks, leaving two of the 128 clocks available per internal sample. Yosys 0.66
+measures its harness at 14,990 estimated logic cells, 13,458 flip-flops, 209
+DSP48E1s, 16 RAMB18E1s, and two RAMB36E1s. The structural check has zero
+problems. A separately verified capacitor-current rounding boundary would use
+127 clocks, but has not been promoted because the selected KCL route shows a
+different limiter. This is a structurally fitting schedule, not timing closure:
+the isolated KCL is still 6.6% short and the complete hierarchy has not routed.
 
 ## Measured out-of-context result
 

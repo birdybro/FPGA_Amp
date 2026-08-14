@@ -444,6 +444,26 @@ early-current clocks; the optional chord unit is exact across 1,024 vectors at
 12 clocks. These registers alter only scheduling, not formats, rounding,
 saturation, model coefficients, or the frozen physical circuit.
 
+Route extraction then showed that the exact nine-row maximum diagnostic, not
+the physical accumulator, limited this 15-clock KCL. `PIPELINED_ACCUMULATOR`
+registers matrix-current plus capacitor-stamp before its feedback addition;
+`PIPELINED_MAXIMUM` reduces the final pass's maximum through four registered
+single-comparator levels. The solver asserts that extra maximum schedule only
+for the residual it actually reports. Earlier residual passes do not consume
+the maximum and bypass its three clocks. The resulting complete solver is
+bit-exact across the same 512 vectors at 126 clocks, while a diagnostic-enabled
+standalone KCL is exact across 1,024 vectors per integration mode at 19 clocks.
+
+The signed 25-bit overflow predicate is implemented as an exact sign-extension
+test: a converted value fits when bits 62:25 all equal bit 24. Q34 and Q40 can
+be selected only after their all-row fit test, so their selected saturation
+count is necessarily zero; the only counted fallback is the registered Q30
+vector. The unit regression retains all 48 fallback vectors and 18 deliberate
+correction-saturation vectors. This source formulation reduces the selected
+open-flow KCL netlist to 29,514 packed LUT elements and improves legal routed
+timing from 64.90 to 92.23 MHz without changing any numerical result. The
+98.304 MHz target and full-solver route remain open.
+
 The backward-Euler terminal contract is also integrated in the bit-accurate
 48→768→48 kHz composition. A 64-output regression covers 1,024 internal circuit
 updates and matches RTL exactly at 127 clocks per solve with zero conversion,

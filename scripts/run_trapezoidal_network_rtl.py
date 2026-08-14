@@ -18,7 +18,16 @@ def main() -> int:
     parser.add_argument("--verilator", default="verilator")
     parser.add_argument("--pipelined-finish", action="store_true")
     parser.add_argument("--pipelined-columns", action="store_true")
+    parser.add_argument("--pipelined-accumulator", action="store_true")
+    parser.add_argument("--pipelined-capacitor-current", action="store_true")
+    parser.add_argument("--pipelined-maximum", action="store_true")
     args = parser.parse_args()
+    if args.pipelined_accumulator and not args.pipelined_columns:
+        parser.error("--pipelined-accumulator requires --pipelined-columns")
+    if args.pipelined_capacitor_current and not args.pipelined_columns:
+        parser.error("--pipelined-capacitor-current requires --pipelined-columns")
+    if args.pipelined_maximum and not args.pipelined_finish:
+        parser.error("--pipelined-maximum requires --pipelined-finish")
     verilator = shutil.which(args.verilator)
     if verilator is None:
         print("ERROR: verilator unavailable", file=sys.stderr)
@@ -38,6 +47,12 @@ def main() -> int:
         parameter_args.append("-GPIPELINED_FINISH=1")
     if args.pipelined_columns:
         parameter_args.append("-GPIPELINED_COLUMNS=1")
+    if args.pipelined_accumulator:
+        parameter_args.append("-GPIPELINED_ACCUMULATOR=1")
+    if args.pipelined_capacitor_current:
+        parameter_args.append("-GPIPELINED_CAPACITOR_CURRENT=1")
+    if args.pipelined_maximum:
+        parameter_args.append("-GPIPELINED_MAXIMUM=1")
     subprocess.run(
         [
             verilator, "--lint-only", "--timing", "-Wall", "-sv",
@@ -50,6 +65,13 @@ def main() -> int:
         "verilator_network_kcl_wide_trapezoidal"
         + ("_pipelined_finish" if args.pipelined_finish else "")
         + ("_pipelined_columns" if args.pipelined_columns else "")
+        + ("_pipelined_accumulator" if args.pipelined_accumulator else "")
+        + (
+            "_pipelined_capacitor_current"
+            if args.pipelined_capacitor_current
+            else ""
+        )
+        + ("_pipelined_maximum" if args.pipelined_maximum else "")
     )
     subprocess.run(
         [

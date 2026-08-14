@@ -221,7 +221,8 @@ scripts/run_frame_scheduler_formal.py  phase/zero-fill/counter induction
 | wide RHS RTL vs fixed network | 1,024 deterministic vectors | bit-exact, latency 2 |
 | wide KCL RTL vs fixed network | 1,024 deterministic vectors | bit-exact, early-current latency 11; delays through 19 clocks; 48 fallback / 18 overflow vectors |
 | trapezoidal wide KCL RTL vs fixed | 1,024 deterministic vectors | bit-exact residual/current state, early-current latency 11; delays through 19 clocks; 1,013 deliberate current-saturation vectors |
-| pipelined wide KCL RTL/open placement | 1,024 vectors per integration mode plus named-part placement | bit-exact, early-current latency 15; 38.95 MHz vs 98.304 MHz request, route stopped after placement miss (`DEFAULT` grade) |
+| pipelined wide KCL RTL/open route | 1,024 vectors per integration mode plus named-part route | bit-exact, early-current latency 15; legal relaxed-constraint route 42.07 MHz; exact maximum diagnostic is the critical cone (`DEFAULT` grade) |
+| diagnostic-pipelined wide KCL RTL/open route | 1,024 vectors per integration mode plus named-part route | bit-exact, diagnostic-enabled latency 19; 92.23 MHz vs 98.304 MHz request; 29,514 LUTX / 10,436 FFX / 1,814 CARRY4 / 72 DSP (`DEFAULT` grade) |
 | trapezoidal wide solver RTL vs fixed | 512 sequential samples | bit-exact all 29 state words and diagnostics, latency 116, zero events |
 | trapezoidal wide solver synthesis | Yosys 0.66 structural | 12,786 LC, 120 DSP48E1, 8 RAMB18E1 + 1 RAMB36E1; no Fmax claim |
 | value-only factorized wide/terminal solver RTL | 512 sequential samples per mode | every state/diagnostic bit-exact at 116/127 clocks; zero events |
@@ -243,6 +244,7 @@ scripts/run_frame_scheduler_formal.py  phase/zero-fill/counter induction
 | trapezoidal banked terminal solver synthesis | Yosys 0.66 structural | 14,945 LC, 174 DSP48E1, 8 RAMB18E1 + 1 RAMB36E1; no Fmax claim |
 | parallel-tube terminal solver RTL/synthesis | 512 sequential samples plus baseline regression | every state/diagnostic bit-exact, latency 95 vs 127 clocks; harness 15,887 LC / 7,360 FF / 209 DSP48E1 / 16 RAMB18E1 + 2 RAMB36E1; no Fmax claim |
 | parallel/pipelined terminal solver RTL/synthesis | 512 sequential samples plus default-path regressions | every state/diagnostic bit-exact, latency 119 clocks; harness 16,348 LC / 12,378 FF / 209 DSP48E1 / 16 RAMB18E1 + 2 RAMB36E1; no full-hierarchy Fmax claim |
+| parallel/diagnostic-pipelined terminal solver RTL/synthesis | 512 sequential samples plus both KCL integration modes | every state/diagnostic bit-exact, latency 126 clocks; harness 14,990 LC / 13,458 FF / 209 DSP48E1 / 16 RAMB18E1 + 2 RAMB36E1; isolated KCL 92.23 MHz, full route open |
 | trapezoidal banked terminal stream | 64 outputs / 1,024 circuit samples plus synthesis | bit-exact, zero diagnostics, 127 clocks; 20,241 LC / 222 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; no Fmax claim |
 | captured trapezoidal banked terminal stream frequency | 4,800 outputs each at 100 Hz/1/10/20 kHz | Q24 exact; <=0.000134 dB / <=0.000444 degree vs float; -74.79 dB worst linear-detrended null; zero diagnostics |
 | fixed V1 WAV/null regression | 1,024 frames; 11/73/997/7013 Hz plus synthetic pop | trapezoidal terminal path zero diagnostics/clips; injected 23-sample delay recovered; raw/latency-only/gain-aligned residual +2.405/-30.462/-100.810 dB |

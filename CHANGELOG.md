@@ -83,6 +83,17 @@ All notable engineering changes are recorded here. The project is pre-release; d
   98.304 MHz request under the experimental `DEFAULT` grade. The 72-DSP KCL is
   exact at 15 clocks but places at only 38.95 MHz; router2 was stopped after
   the placement miss, so neither KCL nor full-solver timing closure is claimed.
+- Continued KCL timing work from completed legal routes rather than placement
+  estimates. The 15-clock pipeline routes at 42.07 MHz with the exact nine-row
+  maximum diagnostic as its critical cone. Added selectable accumulator,
+  capacitor-current, and final-only maximum boundaries; only the maximum is
+  enabled on the solver pass that consumes it. Replaced generic signed-25
+  magnitude comparisons with an exactly equivalent sign-extension test and
+  proved all 1,024 backward-Euler, 1,024 trapezoidal, and 512 integrated vectors
+  bit-exact, including directed fallback/saturation cases. Successive legal KCL
+  routes improve to 64.90, 72.31, and 92.23 MHz. The selected 126-clock solver
+  synthesizes to 14,990 LC / 13,458 FF / 209 DSP / 20 RAMB18 equivalents; its
+  complete route and the remaining 6.6% isolated-KCL gap remain open.
 
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,

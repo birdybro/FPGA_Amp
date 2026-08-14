@@ -7,6 +7,9 @@ module v1_solver_mono_wide_trapezoidal_tb #(
     parameter bit PARALLEL_TUBES = 1'b0,
     parameter bit PIPELINED_KCL_FINISH = 1'b0,
     parameter bit PIPELINED_KCL_COLUMNS = 1'b0,
+    parameter bit PIPELINED_KCL_ACCUMULATOR = 1'b0,
+    parameter bit PIPELINED_KCL_CAPACITOR_CURRENT = 1'b0,
+    parameter bit PIPELINED_KCL_MAXIMUM = 1'b0,
     parameter bit PIPELINED_CHORD_APPLY = 1'b0
 );
     v1_solver_mono_wide_tb #(
@@ -16,6 +19,9 @@ module v1_solver_mono_wide_trapezoidal_tb #(
         .PARALLEL_TUBES(PARALLEL_TUBES),
         .PIPELINED_KCL_FINISH(PIPELINED_KCL_FINISH),
         .PIPELINED_KCL_COLUMNS(PIPELINED_KCL_COLUMNS),
+        .PIPELINED_KCL_ACCUMULATOR(PIPELINED_KCL_ACCUMULATOR),
+        .PIPELINED_KCL_CAPACITOR_CURRENT(PIPELINED_KCL_CAPACITOR_CURRENT),
+        .PIPELINED_KCL_MAXIMUM(PIPELINED_KCL_MAXIMUM),
         .PIPELINED_CHORD_APPLY(PIPELINED_CHORD_APPLY)
     ) testbench();
 endmodule
