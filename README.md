@@ -255,19 +255,23 @@ The mono reference and complete 768 kHz circuit solver are operating:
   a saturating snapshot sequence. Directed RTL covers accepted/invalid/unsafe
   commits, busy writes, clears, and malformed addresses; structural synthesis is
   323 LC / 715 FF / no DSP or block RAM. The wrapper below supplies pin
-  integration; SPI/host transport remains explicitly open.
-- A register-controlled pin wrapper now owns calibration and mute, freezes 20
+  integration; a host protocol is supplied by the SPI composition below.
+- A register-controlled pin wrapper now owns calibration and mute, freezes 21
   fabric-coherent status words, synchronizes sticky I²S faults, and transfers
   diagnostic clear once across the unrelated BCLK domain. Integration is
   warning-free; structural synthesis is 21,363 LC / 17,755 FF / 232 DSP48E1 /
-  8 RAMB18E1 + 1 RAMB36E1. Raw multibit I²S levels, SPI/host transport, and
+  8 RAMB18E1 + 1 RAMB36E1. Raw multibit I²S levels and
   named-part timing are not claimed.
 - A mode-0 SPI bridge now oversamples CS/SCLK/MOSI in the fabric domain and
   executes fixed 80-bit request/response frames on that register bus. Eight
   warning-free 5 MHz transactions cover real calibration, readback, malformed
   address, short frame, withheld response, and diagnostic clear. Standalone
-  synthesis is 112 LC / 172 FF / no DSP or RAM; placed SCLK limits and complete
-  SPI-to-pin-wrapper composition are still open.
+  synthesis is 112 LC / 172 FF / no DSP or RAM. The complete composition then
+  passes 15 SPI frames through the pin-facing hierarchy, including untorn
+  force-mute snapshots, snapshotted transport count, calibration ownership,
+  a retained short-frame fault, and one I²S-domain clear event. Flattened
+  synthesis is 21,506 LC / 17,959 FF /
+  232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; placed SCLK/CDC/I/O limits remain open.
 - A captured complete-stream sweep at 100 Hz, 1 kHz, 10 kHz, and 20 kHz proves
   all 19,200 Q8.24 outputs exact with zero diagnostics. Relative to the composed
   floating trapezoidal reference, gain/phase error stays within 0.000134 dB /
@@ -476,9 +480,9 @@ The mono reference and complete 768 kHz circuit solver are operating:
   fixed-rounding closure. The remaining 3 kHz output dominates by 102.37 dB, so
   the raw -74.59 dBc bin is no longer left ambiguous or mislabeled as aliasing.
 
-There is no control-register transport, fabricated analog front end, converter
-board, named-part timing result, or physical measurement yet. The implemented
-digital mute primitive is not independent analog speaker protection.
+There is no host software, fabricated analog front end, converter board,
+named-part timing result, or physical measurement yet. The implemented digital
+mute primitive is not independent analog speaker protection.
 
 ## Verification chain
 
@@ -599,6 +603,7 @@ make frame-scheduler-rtl           # deterministic 48 kHz fabric phase launch
 make mono-adapter-rtl               # exact framed PCM-to-model-to-PCM datapath
 make i2s-mono-top-rtl               # serial ADC through model to serial DAC
 make i2s-control-top-rtl            # register-owned pin hierarchy and clear CDC
+make i2s-spi-top-rtl                # complete SPI-controlled I2S audio hierarchy
 make synth                         # generic XC7 structural estimate
 make synth-factorized              # factorized tube structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
@@ -634,6 +639,7 @@ make synth-frame-scheduler         # frame-phase scheduler estimate
 make synth-mono-adapter            # calibrated accuracy-first fabric datapath
 make synth-i2s-mono-top            # protocol/CDC plus calibrated mono datapath
 make synth-i2s-control-top         # register-controlled complete pin hierarchy
+make synth-i2s-spi-top             # SPI transport plus complete pin hierarchy
 ```
 
 Run a user-supplied 48 kHz integer-PCM WAV through an explicitly selected V1

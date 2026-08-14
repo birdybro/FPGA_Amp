@@ -12,6 +12,10 @@ module phono_i2s_control_top_tb;
     logic fabric_rst_n = 1'b0;
     logic audio_rst_n = 1'b0;
     logic force_mute = 1'b0;
+    logic transport_frame_error_sticky = 1'b0;
+    logic transport_response_underflow_sticky = 1'b0;
+    logic [31:0] transport_completed_frame_count = '0;
+    logic transport_clear_diagnostics;
     logic control_request_valid = 1'b0;
     logic control_request_write = 1'b0;
     logic [7:0] control_request_address = '0;
@@ -30,6 +34,7 @@ module phono_i2s_control_top_tb;
     logic calibration_rejected_sticky;
     logic [31:0] captured_read_data;
     integer i2s_clear_pulse_count;
+    integer transport_clear_pulse_count;
     integer errors = 0;
 
     initial begin
@@ -50,6 +55,13 @@ module phono_i2s_control_top_tb;
             i2s_clear_pulse_count <= 0;
         else if (dut.i2s_clear_diagnostics)
             i2s_clear_pulse_count <= i2s_clear_pulse_count + 1;
+    end
+
+    always_ff @(posedge fabric_clk or negedge fabric_rst_n) begin
+        if (!fabric_rst_n)
+            transport_clear_pulse_count <= 0;
+        else if (transport_clear_diagnostics)
+            transport_clear_pulse_count <= transport_clear_pulse_count + 1;
     end
 
     task automatic bus_write(
@@ -170,6 +182,7 @@ module phono_i2s_control_top_tb;
             || calibration_accepted_sequence != 1
             || output_ramping || audio_clock_rate_locked
             || audio_clock_rate_error_sticky
+            || transport_clear_pulse_count != 1
             || ((^{i2s_dac_lrclk, i2s_dac_serial_data}) === 1'bx)) begin
             $error("unexpected controlled-top diagnostic");
             errors = errors + 1;

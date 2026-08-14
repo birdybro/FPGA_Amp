@@ -60,16 +60,17 @@ the audio solver.
 | `0x0d` | sticky status | R | bus, rejected, invalid, and unsafe evidence |
 | `0x20...` | diagnostic snapshot | R | retained configured diagnostic words |
 
-`phono_i2s_control_top` connects 20 words to that aperture:
+`phono_i2s_control_top` connects 21 words to that aperture:
 
 | Address | Snapshot contents |
 |---:|---|
-| `0x20` | clock lock/error, scheduled-frame, mute/ramp, calibration/configuration errors, synchronized I²S sticky faults, fabric FIFO faults, force mute |
+| `0x20` | clock lock/error, scheduled-frame, mute/ramp, calibration/configuration errors, synchronized I²S sticky faults, fabric FIFO faults, SPI frame/response faults, force mute |
 | `0x21` | measurement-valid, lock/error, good-window count, measured BCLK edges |
 | `0x22` | fabric RX/TX FIFO level and high-water views plus scheduler phase |
 | `0x23` | output gain, solver latency, minimum correction format, mute/ramp |
 | `0x24...0x31` | scheduler underflow, input endpoint, output PCM saturation/overrun, resampler saturation/overrun, input phase, output conversion, and six solver counters |
 | `0x32...0x33` | 63-bit preterminal solver residual, low word first |
+| `0x34` | saturating completed SPI-frame count |
 
 The four I²S-domain sticky bits are safe to synchronize because they remain
 asserted until an explicit clear. Their multibit FIFO level/high-water views are
@@ -159,5 +160,16 @@ register bank and calibration guard, including bad-address status, a ten-bit
 abort, a deliberately withheld reply, and diagnostic clear. The transport is
 warning-free and synthesizes to 112 LC / 172 FF / no DSP or RAM. This is not a
 placed SCLK-limit claim; the board constraint must preserve comfortable
-oversampling margin. Full pin-wrapper composition remains the next integration
-step. No protocol-specific state belongs in the audio solver.
+oversampling margin.
+
+`phono_i2s_spi_top` composes that transport with the complete pin-facing audio
+hierarchy. Its warning-free integration test executes 15 actual SPI frames,
+commits and reads back the converter calibration pair, demonstrates that a
+retained snapshot cannot tear when `force_mute` changes, takes a second image,
+captures a deliberately aborted frame, reads the snapshotted transport-frame
+count, and transfers one diagnostic-clear event into the unrelated I²S clock
+domain. Flattened XC7 structural synthesis
+is 21,506 estimated logic cells / 17,959 FF / 232 DSP48E1 /
+8 RAMB18E1 + 1 RAMB36E1. There is still no named-part SCLK, CDC, I/O, or
+98.304 MHz timing claim, and no host driver. No protocol-specific state belongs
+in the audio solver.

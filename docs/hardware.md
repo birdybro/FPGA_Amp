@@ -278,6 +278,24 @@ local-domain FIFO levels/watermarks, and the BCLK/fabric rate monitor; candidate
 register transport and coherent multi-domain diagnostic CDC are intentionally
 outside the top.
 
+The subsequently composed control hierarchy adds a 21-word retained fabric
+snapshot, safe synchronization of retained I²S fault bits, atomic calibration
+register ownership, and a toggle command crossing for I²S diagnostic clear.
+Adding the complete oversampled mode-0 SPI transport gives the current digital
+pin hierarchy:
+
+| Resource | Register-controlled | SPI-controlled |
+|---|---:|---:|
+| estimated logic cells | 21,363 | 21,506 |
+| flip-flops | 17,755 | 17,959 |
+| DSP48E1 | 232 | 232 |
+| RAMB18E1 / RAMB36E1 | 8 / 1 | 8 / 1 |
+
+Both flattened structural checks report zero problems. The SPI result includes
+the fixed 80-bit register transaction, frame/response diagnostics, and
+saturating completed-frame counter. It still has no package assignment, I/O
+delay, synchronizer placement, named-part timing, or physical converter claim.
+
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.
 Time-multiplexing it across triodes/channels is therefore favored over blind

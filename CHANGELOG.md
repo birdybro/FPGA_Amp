@@ -6,6 +6,16 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added the complete SPI-controlled pin hierarchy. `phono_i2s_spi_top` connects
+  the oversampled mode-0 transport to the atomic register/calibration bank and
+  I²S/model path. A warning-free 15-frame test covers startup calibration,
+  register readback, two retained diagnostic images across a live force-mute
+  change, a retained aborted-frame fault, snapshotted transport count, and one
+  fabric-to-BCLK diagnostic clear.
+  The snapshot aperture grows to 21 words and now records transport faults and
+  completed frames. Flattened XC7 structural synthesis is 21,506 LC /
+  17,959 FF / 232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1 with zero structural-check
+  problems; named-part SCLK, CDC, I/O, and fabric timing remain unproven.
 - Added a mode-0 SPI transport that oversamples asynchronous pins in the fabric
   domain and never creates a derived clock. Fixed 80-bit transactions carry a
   40-bit write/address/data request followed by status plus 32-bit read data.
@@ -20,7 +30,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
   clear command once to BCLK. Warning-free integration proves bus-owned startup
   calibration, untorn snapshots, force-mute capture, and clear CDC. Complete XC7
   structural synthesis is 21,363 LC / 17,755 FF / 232 DSP48E1 /
-  8 RAMB18E1 + 1 RAMB36E1; named-part timing and host transport remain open.
+  8 RAMB18E1 + 1 RAMB36E1; named-part timing and the subsequently added host
+  transport composition were still open at this layer.
 - Added a protocol-neutral fabric control register bank. It resets muted,
   snapshots 16 moving diagnostic words atomically, saturates snapshot/commit
   sequences, holds a coherent two-word converter-calibration shadow pair, and

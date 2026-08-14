@@ -18,6 +18,10 @@ module phono_i2s_control_top #(
     input  logic                 fabric_rst_n,
     input  logic                 audio_rst_n,
     input  logic                 force_mute,
+    input  logic                 transport_frame_error_sticky,
+    input  logic                 transport_response_underflow_sticky,
+    input  logic [31:0]          transport_completed_frame_count,
+    output logic                 transport_clear_diagnostics,
 
     input  logic                 control_request_valid,
     input  logic                 control_request_write,
@@ -38,7 +42,7 @@ module phono_i2s_control_top #(
     output logic                 calibration_rejected_sticky
 );
 
-    localparam int unsigned DIAGNOSTIC_WORD_COUNT = 20;
+    localparam int unsigned DIAGNOSTIC_WORD_COUNT = 21;
 
     logic i2s_clear_diagnostics;
     logic fabric_clear_diagnostics;
@@ -128,6 +132,8 @@ module phono_i2s_control_top #(
         .destination_pulse(i2s_clear_diagnostics)
     );
 
+    assign transport_clear_diagnostics = fabric_clear_diagnostics;
+
     always_comb begin
         diagnostic_words_flat = '0;
         diagnostic_words_flat[0*32 + 0] = audio_clock_rate_locked;
@@ -148,6 +154,10 @@ module phono_i2s_control_top #(
         diagnostic_words_flat[0*32 + 16] = rx_fifo_underflow_sticky;
         diagnostic_words_flat[0*32 + 17] = tx_fifo_overflow_sticky;
         diagnostic_words_flat[0*32 + 18] = force_mute;
+        diagnostic_words_flat[0*32 + 19] =
+            transport_frame_error_sticky;
+        diagnostic_words_flat[0*32 + 20] =
+            transport_response_underflow_sticky;
 
         diagnostic_words_flat[1*32 + 0] =
             audio_clock_measurement_valid;
@@ -196,6 +206,8 @@ module phono_i2s_control_top #(
             solver_last_residual_q44[31:0];
         diagnostic_words_flat[19*32 +: 31] =
             solver_last_residual_q44[62:32];
+        diagnostic_words_flat[20*32 +: 32] =
+            transport_completed_frame_count;
     end
 
     phono_control_registers #(

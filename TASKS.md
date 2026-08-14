@@ -29,12 +29,20 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Compose the SPI transport, fabric register bank, guarded calibration, and
+  pin-facing I²S/model hierarchy. Prove 15 complete 5 MHz frames through the
+  actual stack, including startup commit/readback, retained and refreshed
+  force-mute snapshots, a snapshotted short-frame fault and transport count,
+  and exactly one diagnostic clear in the unrelated BCLK domain. Synthesize the
+  flattened hierarchy to
+  21,506 LC / 17,959 FF / 232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1 with zero
+  structural-check problems; placed timing and host software remain open.
 - [x] Implement an oversampled SPI mode-0 transport for the fabric register bus
   without a derived clock. Prove eight 80-bit transactions through the real
   register/calibration guard at 5 MHz, including identity read, calibration
   writes/commit/readback, bus-error status, short frame, withheld response,
   diagnostic clear, and saturating completion count. Synthesize warning-free to
-  112 LC / 172 FF / no DSP or RAM. Full pin-wrapper composition remains open.
+  112 LC / 172 FF / no DSP or RAM. The complete composition is recorded above.
 - [x] Integrate the fabric register bank around the pin-facing mono hierarchy.
   Freeze 20 fabric-coherent diagnostic words, synchronize four sticky I²S
   faults, transfer diagnostic clear by one toggle event, and own calibration/
@@ -47,8 +55,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   and accepted sequences, retained rejection/bus errors, pulsed diagnostics
   clear, and atomic diagnostic snapshots. Prove accepted, invalid, unsafe,
   busy-write, bad-address, and snapshot-retention behavior warning-free;
-  synthesize to 323 LC / 715 FF / no DSP or RAM. Pin integration and transport
-  remain open.
+  synthesize to 323 LC / 715 FF / no DSP or RAM. Pin and SPI integration are
+  recorded above.
 - [x] Test three schedule-neutral refinements to the remaining trapezoidal
   terminal error. Preserve exact negative results showing that within-sample
   bank reselection worsens 1.5 V/recovery, 5/4 residual relaxation improves
@@ -443,10 +451,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   physical-unit calibration now composes with the accuracy-first mono core at
   the fabric frame boundary and a pin-facing top adds the asynchronous bridge.
   The modeled-output ramp and atomic converter-coefficient commit are now
-  integrated, and a register-controlled pin wrapper supplies shadow commit plus
-  coherent snapshots. SPI/host transport, CDC-safe multibit I²S level snapshots,
-  queued-frame/physical analog muting, rate-error handling, and CDC/I/O timing
-  constraints remain absent;
+  integrated, and the SPI-controlled pin wrapper supplies transport, shadow
+  commit, and coherent fabric snapshots. Host software, CDC-safe multibit I²S
+  level snapshots, queued-frame/physical analog muting, rate-error handling,
+  and CDC/I/O timing constraints remain absent;
   embedded assertions cannot be proven until a formal engine is available.
   The cubic and full-tube alias-family tests are captured from RTL; the latter
   is bounded below fixed rounding closure rather than inferred from the
