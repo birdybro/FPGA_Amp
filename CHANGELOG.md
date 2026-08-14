@@ -6,6 +6,15 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added exhaustive formal contracts for both converter-calibration arithmetic
+  boundaries. Twelve assertions prove the PCM24-to-Q8.24 valid-coefficient
+  shifted product always fits signed 32 bits, exact registered valid/output/
+  hold behavior, Q8.24-to-PCM24 clipping at both signed endpoints, and exact
+  clear/increment/saturation/sticky diagnostic transitions for arbitrary
+  samples and signed coefficients. Yosys 0.66 SAT temporal induction closes at
+  depth 2; a separate trace reaches an input endpoint, output saturation, and
+  both invalid-configuration stickies. The existing 4,159-vector-per-direction
+  Python/RTL test remains the bit-accurate implementation comparison.
 - Added a bounded arbitrary-clock formal contract for the BCLK-rate monitor
   used by the modern fail-closed mute guard. Sixteen assertions cover exact
   BCLK binary/Gray evolution, both synchronizer stages, measurement cadence,

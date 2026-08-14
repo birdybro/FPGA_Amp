@@ -69,6 +69,58 @@ module q8_24_to_pcm24 (
         end
     end
 
+`ifdef FORMAL
+    logic formal_past_valid;
+    logic signed [63:0] formal_saturated_pcm_wide;
+
+    always_comb begin
+        formal_saturated_pcm_wide = {
+            {40{saturated_pcm24[23]}}, saturated_pcm24
+        };
+        assert (formal_saturated_pcm_wide
+            == ((scaled_pcm_wide > 64'sd8388607)
+                ? 64'sd8388607
+                : (scaled_pcm_wide < -64'sd8388608)
+                    ? -64'sd8388608
+                    : scaled_pcm_wide));
+    end
+
+    always_ff @(posedge clk) begin
+        if (!rst_n) begin
+            formal_past_valid <= 1'b0;
+        end else begin
+            formal_past_valid <= 1'b1;
+            if (formal_past_valid) begin
+                assert (output_valid == $past(input_valid));
+                if ($past(input_valid)) begin
+                    assert (sample_output_pcm24
+                        == $past(coefficient_invalid
+                            ? 24'sd0 : saturated_pcm24));
+                end else begin
+                    assert (sample_output_pcm24
+                        == $past(sample_output_pcm24));
+                end
+                assert (saturation_count == $past(
+                    clear_diagnostics
+                        ? 32'd0
+                        : (input_valid && !coefficient_invalid
+                           && output_saturated
+                           && saturation_count != 32'hffff_ffff)
+                            ? saturation_count + 1'b1
+                            : saturation_count
+                ));
+                assert (configuration_error_sticky == $past(
+                    clear_diagnostics
+                        ? 1'b0
+                        : (input_valid && coefficient_invalid)
+                            ? 1'b1
+                            : configuration_error_sticky
+                ));
+            end
+        end
+    end
+`endif
+
 endmodule
 
 `default_nettype wire

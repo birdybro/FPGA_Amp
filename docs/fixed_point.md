@@ -56,6 +56,16 @@ structural synthesis reports 95 LC / 66 FF / 4 DSP48E1 for input and 86 LC / 58
 FF / 4 DSP48E1 for output. These dynamic-coefficient costs are not a stereo
 scheduling decision or a placed timing result.
 
+An independent formal gate exhaustively covers arbitrary PCM24/Q8.24 samples,
+signed 32-bit coefficients, valids, and diagnostic clears. Twelve properties
+prove that every valid positive input coefficient leaves the rounded/shifted
+product inside signed 32 bits before the explicit cast, that output conversion
+clips exactly to `0x7fffff`/`0x800000`, and that registered output/hold, valid,
+saturating counter, and sticky-error transitions are exact. Yosys 0.66 SAT
+temporal induction closes at depth 2; a separate trace reaches endpoint,
+saturation, and both invalid-configuration paths. This digital proof does not
+validate the physical volts represented by board-specific coefficients.
+
 ## Factorized tube candidate
 
 The improved candidate retains the Q8.24/Q12.20 voltage and Q0.31 current

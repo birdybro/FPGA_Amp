@@ -107,6 +107,16 @@ saturations and 52 invalid configurations; saturation is not weakened to make
 random vectors pass. Both diagnostic blocks are cleared explicitly after the
 count/sticky checks.
 
+`make formal-audio-calibration` complements those vectors with arbitrary
+full-width samples, coefficients, valid timing, and clears. Twelve assertions
+cover the input conversion's signed-32 post-shift range, exact registered
+valid/output/hold behavior in both directions, exact PCM24 clipping, saturating
+endpoint/saturation counters, and invalid-configuration sticky precedence.
+Yosys 0.66 SAT temporal induction closes at depth 2. A separate trace reaches
+one endpoint event, one output saturation, and both invalid-configuration
+stickies. This proves the digital arithmetic/control contract, not the physical
+converter voltage calibration.
+
 The frame-scheduler unit test reduces the period to eight clocks for directed
 coverage while preserving the production phase relationship. A source holds a
 nonzero frame until the one-clock ready pulse, leaves the next boundary empty,
@@ -258,6 +268,7 @@ scripts/run_frame_scheduler_formal.py  phase/zero-fill/counter induction
 | held-bus CDC snapshot RTL/formal/synthesis | three 16-bit captures; unrelated clocks plus destination reset during request; nine properties over every 40-step arbitrary-clock interleaving after shared startup reset | every directed image exact; bounded formal pass plus nonzero complete-transfer witness; warning-free; 5 LC / 75 FF / no DSP/RAM; no placed CDC or analog-metastability claim |
 | atomic multi-domain register snapshot RTL | same-clock unit plus controlled I²S hierarchy | image/sequence advance only on capture valid; busy command rejected; stopped BCLK times out with old image retained; later re-arm, timeout evidence capture, and clear exact; warning-free |
 | PCM24/Q8.24 calibration RTL | 4,159 vectors each direction | bit-exact, one clock, endpoint/invalid/4,079 output-saturation events checked; warning-free |
+| PCM24/Q8.24 calibration formal | arbitrary full-width samples/coefficients/valid/clear | 12 arithmetic and registered-state properties close Yosys SAT temporal induction at depth 2; endpoint/saturation/both-invalid witness found |
 | PCM24/Q8.24 calibration synthesis | Yosys 0.66 structural | input 95 LC/66 FF/4 DSP; output 86 LC/58 FF/4 DSP; no RAM/Fmax claim |
 | atomic calibration commit RTL | invalid/muted-valid/live-valid/clear sequence | active pair resets zero; muted pair commits together with one ack; rejected attempts preserve both values and set the correct sticky flag; warning-free |
 | atomic calibration commit formal | 12 arbitrary-input transition properties plus path witness | Yosys 0.66 SAT temporal induction closes at depth 2; invalid reject, atomic commit, and unsafe reject all reachable |

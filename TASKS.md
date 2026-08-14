@@ -29,6 +29,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Exhaustively prove converter-boundary arithmetic/control safety. Cover
+  the valid positive input-coefficient range before the explicit signed-32
+  cast, exact registered valid/output/hold behavior, output PCM endpoint
+  saturation, and both saturating counters/sticky-clear transitions in 12
+  assertions under arbitrary full-width samples and coefficients. Close Yosys
+  SAT temporal induction at depth 2 and reach endpoint, saturation, and both
+  invalid-configuration paths without replacing the Python bit-exact vectors.
 - [x] Bound the asynchronous BCLK-rate monitor that drives the modern
   fail-closed mute guard. In a reduced four-clock/two-window instance, prove 16
   exact BCLK binary/Gray, synchronizer, window, delta, lock/drop, saturation,

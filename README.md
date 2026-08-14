@@ -134,9 +134,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   and physical output volts back to saturating PCM24 with explicit positive
   Q8.24 coefficients, full-width products, symmetric rounding, endpoint/clip
   counters, and invalid-configuration muting. Python and warning-free RTL match
-  4,159 vectors per direction. Structural synthesis measures 95 LC / 66 FF / 4
-  DSP48E1 input and 86 LC / 58 FF / 4 DSP48E1 output. The serial bridge and
-  converter-specific control remain outside the framed fabric adapter below.
+  4,159 vectors per direction. Twelve full-width arithmetic/state properties
+  also close by SAT temporal induction at depth 2, including proof that valid
+  input conversion cannot silently truncate. Structural synthesis measures 95
+  LC / 66 FF / 4 DSP48E1 input and 86 LC / 58 FF / 4 DSP48E1 output. The
+  serial bridge and converter-specific control remain outside the framed
+  fabric adapter below.
 - The atomic calibration guard now has 12 arbitrary-input properties proven by
   Yosys SAT temporal induction at depth 2. They require exact acknowledge,
   simultaneous positive-pair commit only while muted, state retention on both
@@ -642,6 +645,7 @@ make formal-frame-scheduler        # cadence/zero-fill/counter induction
 make formal-cdc-snapshot           # bounded coherent held-bus CDC safety
 make formal-cdc-pulse              # bounded low-rate toggle CDC safety
 make formal-audio-clock            # bounded BCLK monitor safety/lock witness
+make formal-audio-calibration      # exhaustive converter rounding/saturation
 make audio-clock-rtl               # BCLK/fabric ratio lock and error monitor
 make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make cdc-pulse-rtl                # one-shot host command CDC

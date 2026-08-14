@@ -65,6 +65,51 @@ module pcm24_to_q8_24 (
         end
     end
 
+`ifdef FORMAL
+    logic formal_past_valid;
+
+    always_comb begin
+        if (!coefficient_invalid)
+            assert (($signed(rounded_product) >>> 23) <= 56'sd2147483647
+                && ($signed(rounded_product) >>> 23)
+                    >= -56'sd2147483648);
+    end
+
+    always_ff @(posedge clk) begin
+        if (!rst_n) begin
+            formal_past_valid <= 1'b0;
+        end else begin
+            formal_past_valid <= 1'b1;
+            if (formal_past_valid) begin
+                assert (output_valid == $past(input_valid));
+                if ($past(input_valid)) begin
+                    assert (sample_output_q24
+                        == $past(coefficient_invalid
+                            ? 32'sd0 : scaled_q24));
+                end else begin
+                    assert (sample_output_q24
+                        == $past(sample_output_q24));
+                end
+                assert (pcm_endpoint_count == $past(
+                    clear_diagnostics
+                        ? 32'd0
+                        : (input_valid && pcm_endpoint
+                           && pcm_endpoint_count != 32'hffff_ffff)
+                            ? pcm_endpoint_count + 1'b1
+                            : pcm_endpoint_count
+                ));
+                assert (configuration_error_sticky == $past(
+                    clear_diagnostics
+                        ? 1'b0
+                        : (input_valid && coefficient_invalid)
+                            ? 1'b1
+                            : configuration_error_sticky
+                ));
+            end
+        end
+    end
+`endif
+
 endmodule
 
 `default_nettype wire
