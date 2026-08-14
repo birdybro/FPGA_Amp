@@ -29,6 +29,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Bound the asynchronous BCLK-rate monitor that drives the modern
+  fail-closed mute guard. In a reduced four-clock/two-window instance, prove 16
+  exact BCLK binary/Gray, synchronizer, window, delta, lock/drop, saturation,
+  and sticky-clear properties for every 32-step arbitrary-clock interleaving.
+  Reach lock followed by a retained bad-rate state in 48 steps. Keep physical
+  clock accuracy, synchronizer placement/metastability, stopped-clock liveness,
+  and the production 1,024-edge ratio as separately verified claims.
 - [x] Bound the low-rate diagnostic-clear toggle CDC under arbitrary clock
   levels and a protocol assumption that the preceding event is observed before
   another launches. Prove ten exact pipeline, pulse-width, outstanding-event,

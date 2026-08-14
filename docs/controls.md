@@ -142,6 +142,10 @@ the retained rate error drives the modern immediate-mute input. Reacquiring
 three good windows restores lock but cannot release audio until the host clears
 the retained evidence. Snapshot word `0x20` bit 9 records that effective
 rate-fault mute state; bit 18 remains the independent external force-mute pin.
+The reduced-parameter formal instance proves 16 counter, CDC-pipeline, window,
+lock/drop, and sticky-clear properties through 32 arbitrary-clock steps and
+reaches lock followed by error. This is digital state-machine coverage; it does
+not replace physical clock measurement or placed CDC analysis.
 
 ## Required counters
 

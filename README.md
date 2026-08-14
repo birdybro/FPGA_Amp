@@ -111,10 +111,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   lock. Warning-free directed RTL acquires at the exact ratio, observes 11
   rather than 10 edges after a deliberate speed change, drops lock/latches the
   error, reacquires, clears, detects a stopped clock as zero edges, and revokes
-  live state on BCLK reset. The pin top
-  measures exactly 1,024 edges in four windows. Standalone synthesis is 68 LC /
-  125 FF / no DSP or RAM. This detects gross rate error; FIFO drift remains the
-  longer-term mismatch diagnostic and neither mechanism performs rate matching.
+  live state on BCLK reset. Sixteen properties hold over 32-step arbitrary-clock
+  traces in a reduced instance, and a witness locks before retaining a bad-rate
+  error. The pin top measures exactly 1,024 edges in four windows. Standalone
+  synthesis is 68 LC / 125 FF / no DSP or RAM. This detects gross rate error;
+  FIFO drift remains the longer-term mismatch diagnostic and neither mechanism
+  performs rate matching.
   The register-controlled wrapper now treats missing lock or retained rate
   error as an explicitly modern immediate-mute condition. A shortened-window
   integration test proves startup qualification, stopped-BCLK clamp, recovery
@@ -639,6 +641,7 @@ make formal-calibration-control    # atomic scaling commit/reject induction
 make formal-frame-scheduler        # cadence/zero-fill/counter induction
 make formal-cdc-snapshot           # bounded coherent held-bus CDC safety
 make formal-cdc-pulse              # bounded low-rate toggle CDC safety
+make formal-audio-clock            # bounded BCLK monitor safety/lock witness
 make audio-clock-rtl               # BCLK/fabric ratio lock and error monitor
 make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make cdc-pulse-rtl                # one-shot host command CDC

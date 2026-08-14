@@ -6,6 +6,15 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a bounded arbitrary-clock formal contract for the BCLK-rate monitor
+  used by the modern fail-closed mute guard. Sixteen assertions cover exact
+  BCLK binary/Gray evolution, both synchronizer stages, measurement cadence,
+  inactive/activation/window transitions, measured delta, lock qualification
+  and drop, counter saturation, and sticky-error clear precedence through 32
+  global steps in a reduced-parameter instance. A separate 48-step trace first
+  acquires lock and then retains an out-of-tolerance error while unlocked. This
+  proves digital state-machine safety, not Gray-bus placement, metastability,
+  absolute clock accuracy, or progress when either clock stops.
 - Added a bounded arbitrary-clock formal contract for the low-rate toggle-pulse
   CDC used by diagnostic clear. Ten embedded/harness assertions cover exact
   toggle and three-stage destination transitions, pulse decode/width, at-most-

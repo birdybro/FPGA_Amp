@@ -69,6 +69,19 @@ delivers two events. Progress with a stopped clock, independently resetting
 domains, events outside the separation contract, and analog metastability are
 not proven.
 
+The asynchronous audio-clock monitor's directed test uses 320-clock windows to
+acquire three exact ten-edge measurements, reject an 11-edge window, reacquire,
+clear retained evidence, reject a stopped clock as zero edges, and revoke live
+state after BCLK reset. `make formal-audio-clock` uses a reduced four-clock,
+one-edge, two-good-window instance with arbitrary BCLK/fabric clock levels and
+clear timing after disciplined startup reset. Sixteen assertions cover exact
+binary/Gray counter and synchronizer evolution, measurement cadence, every
+window-state branch, measured delta, lock/count invariants, and sticky-clear
+precedence through 32 global steps. A 48-step witness acquires lock and later
+retains a bad-rate error while unlocked. This bounded digital proof does not
+establish Gray-bus skew/placement, metastability MTBF, absolute clock accuracy,
+or progress if either clock stops.
+
 The I²S test passes 16 stereo frames through independent transmitter and
 receiver blocks, including signed 24-bit maximum/minimum and pseudorandom-like
 channel patterns. A separate monitor—not the receiver—requires 31 stable sampled
@@ -236,6 +249,7 @@ scripts/run_frame_scheduler_formal.py  phase/zero-fill/counter induction
 | asynchronous FIFO XC7 synthesis | Yosys 0.66 structural | 127 LC / 331 FF / no DSP or RAM; small memory expanded to registers; no Fmax/CDC claim |
 | toggle-pulse CDC RTL/formal/synthesis | two separated events over unrelated clocks plus explicit odd-toggle destination-reset replay; ten properties over every 40-step protocol-constrained arbitrary-clock interleaving | exact directed delivery/replay; bounded formal pass plus two-event witness; 1 LC / 5 FF; only for low-rate idempotent commands; no placed CDC or analog-metastability claim |
 | audio clock monitor RTL | exact 10-edge windows, then 11-edge fast and zero-edge stopped windows | three-window lock; bad window drops lock/latches error; exact rate reacquires; clear/reset inactive checked; warning-free |
+| audio clock monitor formal | reduced 4-clock windows, one expected edge, two lock windows; arbitrary post-reset clock levels/clear | 16 properties hold through 32 global steps; 48-step witness locks then drops with retained rate error; bounded digital claim only |
 | audio clock monitor synthesis | Yosys 0.66 structural | 68 LC / 125 FF / no DSP or RAM; zero warnings/problems; no placed CDC/clock-accuracy claim |
 | I²S protocol loopback | 16 signed stereo frames; 24-bit/32-slot | exact channels/endpoints; independent slot/delay monitor; directed framing/underflow flags |
 | I²S receiver/transmitter synthesis | Yosys 0.66 structural | RX 35 LC/105 FF; TX 97 LC/137 negative-edge FF; no warnings/DSP/RAM/Fmax claim |

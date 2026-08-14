@@ -165,6 +165,105 @@ module audio_clock_rate_monitor #(
         end
     end
 
+`ifdef FORMAL
+    logic formal_bclk_past_valid;
+    logic formal_fabric_past_valid;
+
+    always_ff @(posedge i2s_bclk) begin
+        if (!i2s_rst_n) begin
+            formal_bclk_past_valid <= 1'b0;
+        end else begin
+            formal_bclk_past_valid <= 1'b1;
+            if (formal_bclk_past_valid) begin
+                assert ({bclk_binary, bclk_active}
+                    == {$past(bclk_binary) + 1'b1, 1'b1});
+                assert (bclk_gray == binary_to_gray(bclk_binary));
+            end
+        end
+    end
+
+    always_ff @(posedge fabric_clk) begin
+        if (!fabric_rst_n) begin
+            formal_fabric_past_valid <= 1'b0;
+        end else begin
+            formal_fabric_past_valid <= 1'b1;
+            if (formal_fabric_past_valid) begin
+                assert ({bclk_gray_sync1, bclk_gray_sync2,
+                         bclk_active_sync1, bclk_active_sync2}
+                    == {$past(bclk_gray), $past(bclk_gray_sync1),
+                        $past(bclk_active), $past(bclk_active_sync1)});
+                assert (measurement_valid
+                    == ($past(bclk_active_sync2)
+                        && $past(monitor_active)
+                        && $past(window_counter)
+                            == WINDOW_COUNTER_WIDTH'(
+                                WINDOW_FABRIC_CLOCKS - 1)));
+
+                if (!$past(bclk_active_sync2)) begin
+                    assert ({window_counter, measurement_baseline,
+                             monitor_active, measured_bclk_edges,
+                             consecutive_good_windows, rate_locked}
+                        == {WINDOW_COUNTER_WIDTH'(0),
+                            $past(synchronized_bclk_binary), 1'b0,
+                            BCLK_COUNTER_WIDTH'(0), 8'(0), 1'b0});
+                end else if (!$past(monitor_active)) begin
+                    assert ({window_counter, measurement_baseline,
+                             monitor_active, measured_bclk_edges,
+                             consecutive_good_windows, rate_locked}
+                        == {WINDOW_COUNTER_WIDTH'(0),
+                            $past(synchronized_bclk_binary), 1'b1,
+                            BCLK_COUNTER_WIDTH'(0), 8'(0), 1'b0});
+                end else if ($past(window_counter)
+                             == WINDOW_COUNTER_WIDTH'(
+                                 WINDOW_FABRIC_CLOCKS - 1)) begin
+                    assert ({window_counter, measurement_baseline,
+                             monitor_active, measured_bclk_edges}
+                        == {WINDOW_COUNTER_WIDTH'(0),
+                            $past(synchronized_bclk_binary), 1'b1,
+                            $past(edge_delta)});
+                    if ($past(measurement_good)) begin
+                        assert ({consecutive_good_windows, rate_locked}
+                            == {($past(consecutive_good_windows)
+                                    < 8'(LOCK_WINDOWS)
+                                ? $past(consecutive_good_windows) + 1'b1
+                                : $past(consecutive_good_windows)),
+                                ($past(rate_locked)
+                                    || $past(consecutive_good_windows)
+                                        >= 8'(LOCK_WINDOWS - 1))});
+                    end else begin
+                        assert ({consecutive_good_windows, rate_locked}
+                            == {8'(0), 1'b0});
+                    end
+                end else begin
+                    assert ({window_counter, measurement_baseline,
+                             monitor_active, measured_bclk_edges,
+                             consecutive_good_windows, rate_locked}
+                        == {$past(window_counter) + 1'b1,
+                            $past(measurement_baseline), 1'b1,
+                            $past(measured_bclk_edges),
+                            $past(consecutive_good_windows),
+                            $past(rate_locked)});
+                end
+
+                assert (rate_error_sticky
+                    == ($past(clear_diagnostics)
+                        ? 1'b0
+                        : ($past(bclk_active_sync2)
+                            && $past(monitor_active)
+                            && $past(window_counter)
+                                == WINDOW_COUNTER_WIDTH'(
+                                    WINDOW_FABRIC_CLOCKS - 1)
+                            && !$past(measurement_good))
+                            ? 1'b1
+                            : $past(rate_error_sticky)));
+                assert (!measurement_valid || monitor_active);
+                assert (monitor_active
+                    || (!rate_locked && consecutive_good_windows == 0));
+            end
+        end
+    end
+`endif
+
 endmodule
 
 `default_nettype wire
