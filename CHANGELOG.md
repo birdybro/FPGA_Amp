@@ -6,6 +6,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a formal frame-scheduler contract. Nine arbitrary-source assertions
+  cover reset phase, deterministic wrap, ready/valid/present launch strobes,
+  accepted data, zero fill, and exact clear/increment/saturation behavior of the
+  32-bit underflow count. Yosys 0.66 SAT temporal induction closes at depth 2;
+  a separate trace reaches an absent boundary followed by a present launch.
 - Added a formal contract for atomic converter-calibration commits. Twelve
   arbitrary-input assertions cover reset, exact acknowledgment, simultaneous
   positive-pair commit only while muted, rejected-state immutability, invalid/

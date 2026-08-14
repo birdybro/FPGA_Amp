@@ -29,6 +29,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Formally prove deterministic frame scheduling under arbitrary source
+  validity/data and diagnostic clear. Use nine assertions for phase wrap,
+  ready/valid/present launch strobes, accepted data, zero fill, and the exact
+  saturating 32-bit underflow transition. Close Yosys 0.66 SAT temporal
+  induction at depth 2 and reach an absent boundary followed by a present one.
 - [x] Formally prove the atomic converter-calibration guard. Under arbitrary
   candidates, valid, mute, and clear inputs after reset, require exact
   acknowledge, simultaneous pair commit, rejection immutability, sticky

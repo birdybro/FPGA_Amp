@@ -144,7 +144,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   Warning-free RTL verifies held-frame handshakes, a missing-frame zero fill,
   phase alignment, and saturating underflow diagnostics. Generic synthesis is
   41 LC / 43 FF / no DSP or RAM. This aligns frequency-locked domains; it is not
-  asynchronous sample-rate conversion and cannot absorb oscillator drift.
+  asynchronous sample-rate conversion and cannot absorb oscillator drift. Nine
+  arbitrary-source assertions now prove phase wrap, launch strobes, accepted/
+  zero-filled data, and exact saturating-underflow transitions by temporal
+  induction at depth 2; a witness covers an absent then present boundary.
 - A fabric-domain mono adapter now composes that scheduler, both calibration
   boundaries, and the exact trapezoidal/banked/terminal phono stream. It models
   only left input and explicitly duplicates the mono result into both output
@@ -628,6 +631,7 @@ make mute-rtl                      # reset/ramp/fault output safety primitive
 make formal-mute                   # Yosys SAT safety-ramp induction + witness
 make formal-async-fifo             # bounded arbitrary-clock FIFO safety
 make formal-calibration-control    # atomic scaling commit/reject induction
+make formal-frame-scheduler        # cadence/zero-fill/counter induction
 make audio-clock-rtl               # BCLK/fabric ratio lock and error monitor
 make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make cdc-pulse-rtl                # one-shot host command CDC

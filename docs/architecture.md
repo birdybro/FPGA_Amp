@@ -142,6 +142,9 @@ zero frame to preserve solver cadence and increments a saturating underflow
 counter. If BCLK and fabric derive from independent nominal-48-kHz oscillators,
 FIFO occupancy will still drift toward overflow or underflow. This scheduler is
 therefore valid for frequency-locked clocks with arbitrary phase, not an ASRC.
+Nine arbitrary-source properties prove the exact phase, launch, zero-fill,
+accepted-data, and saturating-counter transition contract by Yosys temporal
+induction at depth 2; a separate trace reaches an absent then present boundary.
 
 `rtl/top/phono_fabric_mono_adapter.sv` is the first complete fabric-domain PCM
 composition. It selects PCM24 from the left 32-bit slot, applies the explicit

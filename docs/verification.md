@@ -120,6 +120,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 scripts/run_mute_formal.py          safety-ramp temporal induction/reachability
 scripts/run_async_fifo_formal.py    32-step arbitrary-clock FIFO safety bound
 scripts/run_calibration_control_formal.py  atomic calibration induction/witness
+scripts/run_frame_scheduler_formal.py  phase/zero-fill/counter induction
 ```
 
 ## Current acceptance record
@@ -223,6 +224,7 @@ scripts/run_calibration_control_formal.py  atomic calibration induction/witness
 | atomic calibration commit formal | 12 arbitrary-input transition properties plus path witness | Yosys 0.66 SAT temporal induction closes at depth 2; invalid reject, atomic commit, and unsafe reject all reachable |
 | atomic calibration commit synthesis | Yosys 0.66 structural | 14 LC / 67 FF / no DSP or RAM; zero warnings/problems; no Fmax/CDC claim |
 | fabric frame scheduler RTL | 3 launches at 8-clock test period | exact held A/zero-fill/B order after one-clock preprocess; phase zero; one underflow/clear; warning-free |
+| fabric frame scheduler formal | 9 arbitrary-source transition properties plus launch witness | Yosys 0.66 SAT temporal induction closes at depth 2; absent boundary increments once and following present boundary is reachable |
 | fabric frame scheduler synthesis | Yosys 0.66 structural, 2,048-clock default | 41 LC / 43 FF / no DSP or RAM; no Fmax/ASRC claim |
 | calibrated fabric mono adapter RTL | 64 PCM frames / 1,024 nonlinear updates | every input calibration, raw model output, and duplicated PCM frame bit-exact; unrelated right input ignored; five-clock stall held; directed overrun retains old frame and clears; model/calibration diagnostics zero; warning-free |
 | calibrated fabric mono adapter synthesis | Yosys 0.66 flattened structural | with output ramp: 20,489 LC / 15,592 FF / 232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; zero structural problems; no Fmax/CDC/stereo claim |
