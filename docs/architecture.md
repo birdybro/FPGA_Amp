@@ -129,7 +129,9 @@ coefficient pairs. The active pair resets to zero, commits atomically only
 while the output ramp is fully muted, and remains unchanged after invalid or
 live update attempts. Separate sticky flags distinguish bad values from unsafe
 timing. This closes the datapath-side atomicity rule, but not the host register
-protocol or CDC that must deliver a coherent candidate snapshot.
+protocol or CDC that must deliver a coherent candidate snapshot. Twelve
+arbitrary-input transition properties now close by Yosys SAT temporal induction
+at depth 2, with a separate reject/commit/reject reachability witness.
 
 `rtl/io/audio_frame_scheduler.sv` closes the phase-alignment gap without hiding
 rate mismatch. At the 98.304 MHz target it raises ready for one fabric clock per

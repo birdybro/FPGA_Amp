@@ -6,6 +6,13 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a formal contract for atomic converter-calibration commits. Twelve
+  arbitrary-input assertions cover reset, exact acknowledgment, simultaneous
+  positive-pair commit only while muted, rejected-state immutability, invalid/
+  unsafe sticky accumulation, and clear precedence. Yosys 0.66 SAT temporal
+  induction closes at depth 2; a separate trace reaches invalid rejection,
+  accepted commit, and unsafe rejection. The claim remains local to the guard,
+  not the host transport or physical converters.
 - Added a bounded multi-clock formal environment for the asynchronous FIFO.
   Thirteen embedded/harness properties cover Gray transitions, blocked
   pointers, occupancy/watermark bounds, read-valid timing, and diagnostic

@@ -119,6 +119,7 @@ scripts/characterize_factorized_frequency.py --trapezoidal  fixed integrator swe
 scripts/run_synthesis.py            XC7 structural resource report
 scripts/run_mute_formal.py          safety-ramp temporal induction/reachability
 scripts/run_async_fifo_formal.py    32-step arbitrary-clock FIFO safety bound
+scripts/run_calibration_control_formal.py  atomic calibration induction/witness
 ```
 
 ## Current acceptance record
@@ -219,6 +220,7 @@ scripts/run_async_fifo_formal.py    32-step arbitrary-clock FIFO safety bound
 | PCM24/Q8.24 calibration RTL | 4,159 vectors each direction | bit-exact, one clock, endpoint/invalid/4,079 output-saturation events checked; warning-free |
 | PCM24/Q8.24 calibration synthesis | Yosys 0.66 structural | input 95 LC/66 FF/4 DSP; output 86 LC/58 FF/4 DSP; no RAM/Fmax claim |
 | atomic calibration commit RTL | invalid/muted-valid/live-valid/clear sequence | active pair resets zero; muted pair commits together with one ack; rejected attempts preserve both values and set the correct sticky flag; warning-free |
+| atomic calibration commit formal | 12 arbitrary-input transition properties plus path witness | Yosys 0.66 SAT temporal induction closes at depth 2; invalid reject, atomic commit, and unsafe reject all reachable |
 | atomic calibration commit synthesis | Yosys 0.66 structural | 14 LC / 67 FF / no DSP or RAM; zero warnings/problems; no Fmax/CDC claim |
 | fabric frame scheduler RTL | 3 launches at 8-clock test period | exact held A/zero-fill/B order after one-clock preprocess; phase zero; one underflow/clear; warning-free |
 | fabric frame scheduler synthesis | Yosys 0.66 structural, 2,048-clock default | 41 LC / 43 FF / no DSP or RAM; no Fmax/ASRC claim |

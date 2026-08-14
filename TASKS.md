@@ -29,6 +29,12 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Formally prove the atomic converter-calibration guard. Under arbitrary
+  candidates, valid, mute, and clear inputs after reset, require exact
+  acknowledge, simultaneous pair commit, rejection immutability, sticky
+  accumulation, and clear precedence in 12 assertions. Close Yosys 0.66 SAT
+  temporal induction at depth 2 and find one invalid-reject/commit/unsafe-reject
+  witness. This covers the guard, not the upstream host transport.
 - [x] Add a sound bounded multi-clock formal environment around the asynchronous
   FIFO. After a shared reset asserted on local edges and released while clocks
   are low, leave both clock levels and all controls arbitrary. Prove 13 Gray,

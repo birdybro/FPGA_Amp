@@ -133,6 +133,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   4,159 vectors per direction. Structural synthesis measures 95 LC / 66 FF / 4
   DSP48E1 input and 86 LC / 58 FF / 4 DSP48E1 output. The serial bridge and
   converter-specific control remain outside the framed fabric adapter below.
+- The atomic calibration guard now has 12 arbitrary-input properties proven by
+  Yosys SAT temporal induction at depth 2. They require exact acknowledge,
+  simultaneous positive-pair commit only while muted, state retention on both
+  rejection paths, sticky diagnostics, and clear precedence. A satisfiable
+  trace includes invalid reject, accepted commit, and unsafe reject.
 - A deterministic fabric frame scheduler now accepts one held stereo frame per
   2,048-clock interval and launches it one clock before phase zero, so the
   registered input calibrator reaches the core on its required 48 kHz phase.
@@ -622,6 +627,7 @@ make guarded-stream-rtl            # mute/reset/warmup model-change sequence
 make mute-rtl                      # reset/ramp/fault output safety primitive
 make formal-mute                   # Yosys SAT safety-ramp induction + witness
 make formal-async-fifo             # bounded arbitrary-clock FIFO safety
+make formal-calibration-control    # atomic scaling commit/reject induction
 make audio-clock-rtl               # BCLK/fabric ratio lock and error monitor
 make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make cdc-pulse-rtl                # one-shot host command CDC

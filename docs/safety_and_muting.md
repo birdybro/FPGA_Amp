@@ -80,6 +80,15 @@ then releases audio state. This prevents mixed input/output scaling but does not
 flush the transmit FIFO or replace the longer model-change reset/warmup
 transaction.
 
+`make formal-calibration-control` proves the guard's complete one-clock
+transition contract for arbitrary candidates and controls. Twelve assertions
+require reset inactivity, exact acknowledge, simultaneous two-coefficient
+commit only for a positive pair while muted, preservation after invalid/unsafe
+attempts, exact sticky accumulation, and diagnostic-clear precedence. Temporal
+induction closes at depth 2, and a separate witness reaches invalid rejection,
+accepted commit, and unsafe rejection in one trace. This does not prove the
+upstream host transport or physical converter behavior.
+
 The integration regression uses four-sample ramps/warmup for tractable directed
 coverage and proves that reset never becomes active before mute, held output
 stays zero through reset/warmup, input phase diagnostics remain clear, exactly
