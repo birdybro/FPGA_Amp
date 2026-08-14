@@ -243,7 +243,8 @@ def main() -> int:
         "fallback_vectors": fallback_vectors,
         "correction_saturation_vectors": correction_saturation_vectors,
         "current_saturation_vectors": current_saturation_vectors,
-        "latency_clocks": 10,
+        "early_current_latency_clocks": 11,
+        "delayed_current_latency_clocks": "tube_delay + 1 for delay >= 10",
         "outputs": [
             str(path.relative_to(ROOT))
             for path in (

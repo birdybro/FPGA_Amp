@@ -43,11 +43,21 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   tube routes at 113.24 MHz. Its full harness packs at 49,530 `SLICE_LUTX`, 166
   DSP, 13 RAMB18E1, and 5 RAMB36E1. The isolated 54-DSP terminal-current block
   improves from 51.95 to 88.83 MHz when its exact overflow count is balanced,
-  but still misses 98.304 MHz. Finish both full routes, route KCL/chord in
-  isolation, and reschedule the proven dominant paths before any
-  reference/default selection.
+  but still misses 98.304 MHz. Isolated chord routes at 46.40 MHz and isolated
+  KCL routes at 16.64 MHz, with KCL's accumulator-to-global-fallback cone
+  matching the whole-solver failure. A bit-exact residual staging register and
+  balanced KCL reductions retain the 127-clock integrated contract and improve
+  KCL placement to 33.92 MHz; finish its legal route, then add finish-selection
+  staging and recover the required clocks through parallel physical tube
+  evaluation before any reference/default selection.
 ## Completed this milestone
 
+- [x] Isolate the actual network timing hierarchy. Measure chord correction at
+  46.40 MHz and the original KCL engine at 16.64 MHz post-route. Capture
+  capacitor 9 early, stage the final residual in the existing second-tube wait
+  window, and balance cross-row fit/max/saturation reductions. Preserve 1,024
+  backward-Euler, 1,024 trapezoidal, and 512 terminal-solver exact vectors;
+  retain 127 integrated clocks while improving KCL placement to 33.92 MHz.
 - [x] Factor the ten terminal trapezoidal current recomputations into a
   bit-exact timing unit, preserve both 512-vector solver regressions at 116/127
   clocks, and add named-part terminal/KCL/chord harnesses. Measure 54 DSPs and

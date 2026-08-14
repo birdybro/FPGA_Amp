@@ -104,6 +104,28 @@ target. The next experiment must separately route KCL and chord blocks, then
 pipeline or reschedule the dominant physical paths without changing the V1
 circuit law.
 
+The isolated banked chord corrector uses nine DSP48E1s and routes at 46.40 MHz.
+Its worst path is the final correction scaling, node subtraction, and
+saturation commit, not the nine-cycle coefficient MAC itself. The original
+wide trapezoidal KCL block uses 72 DSP48E1s and routes at only 16.64 MHz. Its
+60.09 ns critical cone begins at a stored accumulator, performs the final tube
+and capacitor-9 residual sum, propagates through the cross-row Q40/Q34/Q30
+fallback decision, and ends at the saturated residual register. This matches
+the whole-solver placement failure and establishes KCL as the primary limiter.
+
+The first KCL correction captures invariant capacitor 9 on the first matrix
+column and stages the complete physical residual when the second tube result
+arrives. That edge was already an integrated-solver wait, so all 512 complete
+solver vectors retain their exact 127-clock contract; a standalone request
+with an early tube result now takes 11 rather than 10 clocks. Serial procedural
+all-fit, maximum-residual, and saturation-count reductions were also replaced
+with explicit balanced trees. All 1,024 backward-Euler and 1,024 trapezoidal
+KCL vectors remain exact, including tube-result delays through 19 clocks. The
+revised isolated KCL placement estimate improves from 14.95 to 33.92 MHz;
+legal routing remains in progress. This is a measured improvement, not timing
+closure, and the remaining gap requires further staged finish selection and a
+solver schedule that can absorb it.
+
 ## Measured out-of-context result
 
 Yosys 0.66 `synth_xilinx -family xc7`, without I/O pads or clock buffer, reports

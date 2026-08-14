@@ -44,10 +44,12 @@ module network_kcl_v1_wide #(
     logic signed [47:0] capacitor_current_latched [0:9];
     logic signed [47:0] capacitor_current_result [0:8];
     logic signed [62:0] accumulator [0:8];
+    logic signed [62:0] final_residual_latched [0:8];
     logic signed [31:0] current_latched [0:3]; // ip1, ig1, ip2, ig2
     logic [5:0] requested_fraction_latched;
     logic [3:0] column;
     logic finish_pending;
+    logic finish_result_staged;
     logic current_ready;
     logic [3:0] current_saturation_running;
 
@@ -258,18 +260,53 @@ module network_kcl_v1_wide #(
     logic signed [43:0] cap9_delta_q30;
     logic signed [91:0] cap9_product;
     logic signed [62:0] cap9_current_q44;
-    logic signed [62:0] final_residual_by_row [0:8];
+    logic signed [62:0] cap9_current_latched_q44;
+    logic signed [31:0] finish_current_by_lane [0:3];
+    logic signed [62:0] final_residual_input_by_row [0:8];
     logic signed [62:0] q30_by_row [0:8];
     logic signed [62:0] q34_by_row [0:8];
     logic signed [62:0] q40_by_row [0:8];
     logic signed [62:0] selected_by_row [0:8];
-    logic q30_all_fit;
+    logic [8:0] q34_fit_by_row;
+    logic [8:0] q40_fit_by_row;
+    logic [8:0] selected_overflow_by_row;
+    logic [62:0] absolute_by_row [0:8];
+    logic [62:0] maximum_pair [0:3];
+    logic [62:0] maximum_quad [0:1];
     logic q34_all_fit;
     logic q40_all_fit;
     logic [5:0] selected_fraction;
     logic [62:0] max_abs_combined;
     logic saturation_combined;
     logic [3:0] saturation_count_combined;
+
+    function automatic logic [62:0] maximum_u63(
+        input logic [62:0] left,
+        input logic [62:0] right
+    );
+        begin
+            maximum_u63 = left > right ? left : right;
+        end
+    endfunction
+
+    function automatic logic [3:0] popcount9(input logic [8:0] bits);
+        logic [1:0] pair_0;
+        logic [1:0] pair_1;
+        logic [1:0] pair_2;
+        logic [1:0] pair_3;
+        logic [2:0] group_0;
+        logic [2:0] group_1;
+        begin
+            pair_0 = {1'b0, bits[0]} + {1'b0, bits[1]};
+            pair_1 = {1'b0, bits[2]} + {1'b0, bits[3]};
+            pair_2 = {1'b0, bits[4]} + {1'b0, bits[5]};
+            pair_3 = {1'b0, bits[6]} + {1'b0, bits[7]};
+            group_0 = {1'b0, pair_0} + {1'b0, pair_1};
+            group_1 = {1'b0, pair_2} + {1'b0, pair_3};
+            popcount9 = {1'b0, group_0} + {1'b0, group_1}
+                        + {3'b000, bits[8]};
+        end
+    endfunction
 
     always_comb begin
         for (int row = 0; row < 9; row = row + 1) begin
@@ -322,28 +359,46 @@ module network_kcl_v1_wide #(
             capacitor_current_next_q44[capacitor_index * 48 +: 48] =
                 capacitor_current_result[capacitor_index];
         capacitor_current_next_q44[9 * 48 +: 48] =
-            saturate_current_q44(cap9_current_q44);
+            saturate_current_q44(cap9_current_latched_q44);
         capacitor_current_saturation_count = current_saturation_running;
-        if (TRAPEZOIDAL && current_overflow(cap9_current_q44))
+        if (TRAPEZOIDAL && current_overflow(cap9_current_latched_q44))
             capacitor_current_saturation_count =
                 capacitor_current_saturation_count + 1'b1;
 
-        q30_all_fit = 1'b1;
-        q34_all_fit = 1'b1;
-        q40_all_fit = 1'b1;
-        for (int row = 0; row < 9; row = row + 1) begin
-            final_residual_by_row[row] = accumulator[row] + tube_stamp(
-                row,
-                current_latched[0], current_latched[1],
-                current_latched[2], current_latched[3]
-            ) + capacitor_stamp(9, row, cap9_current_q44);
-            q30_by_row[row] = convert_residual(final_residual_by_row[row], 6'd30);
-            q34_by_row[row] = convert_residual(final_residual_by_row[row], 6'd34);
-            q40_by_row[row] = convert_residual(final_residual_by_row[row], 6'd40);
-            q30_all_fit = q30_all_fit && !correction_overflow(q30_by_row[row]);
-            q34_all_fit = q34_all_fit && !correction_overflow(q34_by_row[row]);
-            q40_all_fit = q40_all_fit && !correction_overflow(q40_by_row[row]);
+        for (int current_index = 0; current_index < 4;
+             current_index = current_index + 1) begin
+            if (tube_current_valid)
+                finish_current_by_lane[current_index] = $signed(
+                    tube_current_q31[current_index * 32 +: 32]
+                );
+            else
+                finish_current_by_lane[current_index] =
+                    current_latched[current_index];
         end
+        for (int row = 0; row < 9; row = row + 1)
+            final_residual_input_by_row[row] = accumulator[row]
+                + tube_stamp(
+                    row,
+                    finish_current_by_lane[0], finish_current_by_lane[1],
+                    finish_current_by_lane[2], finish_current_by_lane[3]
+                )
+                + capacitor_stamp(9, row, cap9_current_latched_q44);
+
+        for (int row = 0; row < 9; row = row + 1) begin
+            q30_by_row[row] = convert_residual(
+                final_residual_latched[row], 6'd30
+            );
+            q34_by_row[row] = convert_residual(
+                final_residual_latched[row], 6'd34
+            );
+            q40_by_row[row] = convert_residual(
+                final_residual_latched[row], 6'd40
+            );
+            q34_fit_by_row[row] = !correction_overflow(q34_by_row[row]);
+            q40_fit_by_row[row] = !correction_overflow(q40_by_row[row]);
+        end
+        q34_all_fit = &q34_fit_by_row;
+        q40_all_fit = &q40_fit_by_row;
 
         selected_fraction = 6'd30;
         if (requested_fraction_latched == 6'd40) begin
@@ -355,22 +410,31 @@ module network_kcl_v1_wide #(
             selected_fraction = 6'd34;
         end
 
-        max_abs_combined = '0;
-        saturation_combined = 1'b0;
-        saturation_count_combined = '0;
         for (int row = 0; row < 9; row = row + 1) begin
             case (selected_fraction)
                 6'd40: selected_by_row[row] = q40_by_row[row];
                 6'd34: selected_by_row[row] = q34_by_row[row];
                 default: selected_by_row[row] = q30_by_row[row];
             endcase
-            if (absolute_q44(final_residual_by_row[row]) > max_abs_combined)
-                max_abs_combined = absolute_q44(final_residual_by_row[row]);
-            saturation_combined = saturation_combined
-                                  || correction_overflow(selected_by_row[row]);
-            if (correction_overflow(selected_by_row[row]))
-                saturation_count_combined = saturation_count_combined + 1'b1;
+            absolute_by_row[row] = absolute_q44(
+                final_residual_latched[row]
+            );
+            selected_overflow_by_row[row] = correction_overflow(
+                selected_by_row[row]
+            );
         end
+        maximum_pair[0] = maximum_u63(absolute_by_row[0], absolute_by_row[1]);
+        maximum_pair[1] = maximum_u63(absolute_by_row[2], absolute_by_row[3]);
+        maximum_pair[2] = maximum_u63(absolute_by_row[4], absolute_by_row[5]);
+        maximum_pair[3] = maximum_u63(absolute_by_row[6], absolute_by_row[7]);
+        maximum_quad[0] = maximum_u63(maximum_pair[0], maximum_pair[1]);
+        maximum_quad[1] = maximum_u63(maximum_pair[2], maximum_pair[3]);
+        max_abs_combined = maximum_u63(
+            maximum_u63(maximum_quad[0], maximum_quad[1]),
+            absolute_by_row[8]
+        );
+        saturation_combined = |selected_overflow_by_row;
+        saturation_count_combined = popcount9(selected_overflow_by_row);
     end
 
     integer lane;
@@ -387,11 +451,14 @@ module network_kcl_v1_wide #(
             requested_fraction_latched <= 6'd30;
             column <= '0;
             finish_pending <= 1'b0;
+            finish_result_staged <= 1'b0;
             current_ready <= 1'b0;
             current_saturation_running <= '0;
+            cap9_current_latched_q44 <= '0;
             for (lane = 0; lane < 9; lane = lane + 1) begin
                 voltage_latched[lane] <= '0;
                 accumulator[lane] <= '0;
+                final_residual_latched[lane] <= '0;
             end
             for (lane = 0; lane < 10; lane = lane + 1)
                 capacitor_latched[lane] <= '0;
@@ -408,6 +475,7 @@ module network_kcl_v1_wide #(
                     busy <= 1'b1;
                     column <= 4'd0;
                     finish_pending <= 1'b0;
+                    finish_result_staged <= 1'b0;
                     current_ready <= tube_current_valid;
                     requested_fraction_latched <= requested_residual_fractional_bits;
                     correction_scale_fallback <= 1'b0;
@@ -447,6 +515,12 @@ module network_kcl_v1_wide #(
                     current_ready <= 1'b1;
                 end
                 if (!finish_pending) begin
+                    // Capacitor 9 is invariant throughout the nine matrix
+                    // columns. Capture it on the first column so the finish
+                    // path starts at a register instead of another wide
+                    // multiply.
+                    if (column == 4'd0)
+                        cap9_current_latched_q44 <= cap9_current_q44;
                     capacitor_current_result[column] <=
                         saturate_current_q44(cap_current_q44);
                     if (TRAPEZOIDAL && current_overflow(cap_current_q44))
@@ -462,7 +536,18 @@ module network_kcl_v1_wide #(
                         finish_pending <= 1'b1;
                     else
                         column <= column + 1'b1;
-                end else if (current_ready) begin
+                end else if (!finish_result_staged
+                             && (current_ready || tube_current_valid)) begin
+                    // In the integrated solver the second tube result arrives
+                    // after the column MACs. Stage the complete physical KCL
+                    // residual on that otherwise-waiting edge, separating its
+                    // 63-bit sum from global Q40/Q34/Q30 fallback selection
+                    // without adding an integrated-solver clock.
+                    for (lane = 0; lane < 9; lane = lane + 1)
+                        final_residual_latched[lane] <=
+                            final_residual_input_by_row[lane];
+                    finish_result_staged <= 1'b1;
+                end else if (finish_result_staged) begin
                     for (lane = 0; lane < 9; lane = lane + 1)
                         residual[lane * 25 +: 25] <= saturate_correction(
                             selected_by_row[lane]
@@ -476,6 +561,7 @@ module network_kcl_v1_wide #(
                     busy <= 1'b0;
                     valid <= 1'b1;
                     finish_pending <= 1'b0;
+                    finish_result_staged <= 1'b0;
                     current_ready <= 1'b0;
                 end
             end

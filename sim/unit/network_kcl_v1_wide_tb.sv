@@ -106,7 +106,7 @@ module network_kcl_v1_wide_tb;
             for (integer lane = 0; lane < 4; lane = lane + 1)
                 tube_current_q31[lane * 32 +: 32] = current_value[lane][31:0];
 
-            tube_delay = vector_count % 12;
+            tube_delay = vector_count % 20;
             tube_current_valid = (tube_delay == 0);
             start = 1'b1;
             @(posedge clk);
@@ -125,11 +125,13 @@ module network_kcl_v1_wide_tb;
                 #1;
                 latency = latency + 1;
                 tube_current_valid = 1'b0;
-                if (latency > 14)
+                if (latency > 22)
                     $fatal(1, "timeout at vector %0d delay=%0d",
                            vector_count, tube_delay);
             end
-            expected_latency = tube_delay <= 9 ? 10 : tube_delay + 1;
+            // An early tube current now leaves one explicit finish-staging
+            // clock. Delayed currents use the pre-existing KCL wait window.
+            expected_latency = tube_delay <= 9 ? 11 : tube_delay + 1;
             if (latency != expected_latency) begin
                 $error("latency got=%0d expected=%0d delay=%0d",
                        latency, expected_latency, tube_delay);
@@ -178,7 +180,8 @@ module network_kcl_v1_wide_tb;
         $fclose(file_handle);
         if (errors != 0)
             $fatal(1, "FAIL: %0d wide KCL errors", errors);
-        $display("PASS: %0d wide KCL vectors, latency=10 clocks", vector_count);
+        $display("PASS: %0d wide KCL vectors, early-current latency=11 clocks",
+                 vector_count);
         $finish;
     end
 endmodule

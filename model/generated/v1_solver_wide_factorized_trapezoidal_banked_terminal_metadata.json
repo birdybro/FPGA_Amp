@@ -2,7 +2,7 @@
   "model": "12ax7_passive_riaa_v1",
   "algorithm": "wide trapezoidal Q30-voltage/Q4.44-current state, three adaptive Q30/Q34/Q40 chord corrections plus terminal Q40 correction with corrected current-history commit and preterminal residual diagnostic",
   "integration_method": "trapezoidal",
-  "tube_implementation": "factorized",
+  "tube_implementation": "factorized_hermite",
   "sample_rate_hz": 768000,
   "vectors": 512,
   "seed": 328099,

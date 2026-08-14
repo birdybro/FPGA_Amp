@@ -244,7 +244,8 @@ def main() -> int:
         "fallback_vectors": fallback_vectors,
         "saturation_vectors": saturation_vectors,
         "rhs_latency_clocks": 2,
-        "latency_clocks": 10,
+        "early_current_latency_clocks": 11,
+        "delayed_current_latency_clocks": "tube_delay + 1 for delay >= 10",
         "outputs": [
             str(path.relative_to(REPOSITORY_ROOT))
             for path in (

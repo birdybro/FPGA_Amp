@@ -547,7 +547,11 @@ value-only eight-clock tube candidate that independently reaches 113.24 MHz
 still places at only 13.67 MHz in the full solver. This disproves the earlier
 assumption that Hermite dominates the complete path. An extracted 54-DSP
 terminal-current block improves from 51.95 to 88.83 MHz after a bit-exact
-balanced diagnostic popcount, but still misses the target. None of these
+balanced diagnostic popcount, but still misses the target. Isolated chord and
+KCL routes measure 46.40 and 16.64 MHz respectively, identifying KCL's final
+residual/fallback cone as the primary limiter. A bit-exact residual register
+plus balanced KCL reductions retains 127 integrated clocks and improves KCL
+placement to 33.92 MHz; post-route measurement is still running. None of these
 experiments is timing closure or a reference-mode change.
 All figures use the backend's unqualified `DEFAULT` timing grade. The implemented digital mute
 primitive is not independent analog speaker protection.

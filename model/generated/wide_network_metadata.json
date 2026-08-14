@@ -31,7 +31,8 @@
   "fallback_vectors": 48,
   "saturation_vectors": 18,
   "rhs_latency_clocks": 2,
-  "latency_clocks": 10,
+  "early_current_latency_clocks": 11,
+  "delayed_current_latency_clocks": "tube_delay + 1 for delay >= 10",
   "outputs": [
     "model/generated/v1_static_matrix_q0_47.mem",
     "model/generated/v1_cap_conductance_q0_47.mem",

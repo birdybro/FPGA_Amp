@@ -52,6 +52,18 @@ All notable engineering changes are recorded here. The project is pre-release; d
   balanced popcount improves post-route timing from 51.95 to 88.83 MHz while
   preserving exact results. This still fails the 98.304 MHz target and is not
   represented as solver closure.
+- Completed the first block-level solver timing diagnosis. The isolated banked
+  chord corrector routes at 46.40 MHz, while the original 72-DSP wide KCL
+  engine routes at 16.64 MHz with a 60.09 ns accumulator-to-global-fallback
+  cone, establishing KCL rather than tube interpolation as the primary whole-
+  solver limiter. Capacitor 9 is now captured during the first matrix column,
+  the final physical residual is registered in the existing second-tube wait
+  window, and serial fit/max/saturation reductions are balanced. The 1,024-
+  vector backward-Euler and trapezoidal regressions now cover tube-result
+  delays through 19 clocks and remain exact; the complete 512-vector terminal
+  solver remains exact at 127 clocks. Revised KCL placement improves from
+  14.95 to 33.92 MHz; its legal route is still in progress and no closure is
+  claimed.
 
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,
