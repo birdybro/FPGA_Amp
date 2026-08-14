@@ -91,7 +91,12 @@ synchronized remote pointer; memory data crosses only after the corresponding
 pointer has propagated. Reads are registered. Overflow and underflow are sticky
 in their owning domains. Reset assertion may be asynchronous, but a board-level
 reset conditioner must deassert each reset synchronously to its clock. The FIFO
-is infrastructure outside the historical circuit behavior.
+is infrastructure outside the historical circuit behavior. Its reset, Gray,
+blocked-pointer, local-level/watermark, valid, and sticky-fault safety contract
+now has a 13-property, 32-global-step Yosys SAT bound over arbitrary clock and
+control interleavings. A full/overflow/underflow witness prevents vacuity;
+unbounded induction and analog metastability behavior remain outside that
+bounded result.
 
 The adjacent I²S primitives use the conventional Philips timing relationship:
 LRCLK low is left, the LRCLK transition occurs one BCLK before the MSB, receive

@@ -37,8 +37,13 @@ fills exactly, rejects and records a ninth word, drains in order, records an
 empty read, clears both owning-domain sticky flags, and preserves 128 further
 words over repeated pointer wraps. The RTL includes Gray one-bit-transition and
 blocked-pointer formal assertions under `FORMAL`; they are not claimed as proven
-because a sound multi-clock FIFO proof environment has not yet been packaged.
-The single-clock SAT proof above does not establish CDC correctness.
+for all time. `make formal-async-fifo` uses `clk2fflogic` to retain independent
+clock transitions and exhaustively checks 13 Gray-transition, blocked-pointer,
+occupancy/watermark, valid, and sticky-fault properties through 32 global formal
+steps after a disciplined shared-reset release. A separate satisfiable 24-step
+trace reaches depth four and both overflow/underflow stickies. Unbounded
+induction does not close with the current incomplete invariant set; the bounded
+result also cannot represent analog metastability.
 
 The I²S test passes 16 stereo frames through independent transmitter and
 receiver blocks, including signed 24-bit maximum/minimum and pseudorandom-like
@@ -113,6 +118,7 @@ scripts/study_trapezoidal_overload.py         floating integrator stability
 scripts/characterize_factorized_frequency.py --trapezoidal  fixed integrator sweep
 scripts/run_synthesis.py            XC7 structural resource report
 scripts/run_mute_formal.py          safety-ramp temporal induction/reachability
+scripts/run_async_fifo_formal.py    32-step arbitrary-clock FIFO safety bound
 ```
 
 ## Current acceptance record
@@ -200,6 +206,7 @@ scripts/run_mute_formal.py          safety-ramp temporal induction/reachability
 | output mute/ramp formal | 15 arbitrary-input properties after reset plus unity reachability | Yosys 0.66 SAT temporal induction closes at depth 2; four accepted samples reach `0xffff` |
 | output mute/ramp XC7 synthesis | Yosys 0.66 structural | 171 LC, 2 DSP48E1, no RAM; no Fmax claim |
 | asynchronous FIFO RTL | depth 8×32; unrelated 100/71.4 MHz clocks | exact directed full/empty plus 128 wrapped words; local levels reach 8 and return 0; watermarks retain/clear in owning domains; sticky faults clear |
+| asynchronous FIFO formal | depth 4×1; arbitrary post-reset clocks/controls | 13 properties hold through 32 global steps; 24-step witness reaches full and both fault stickies; unbounded induction not claimed |
 | asynchronous FIFO XC7 synthesis | Yosys 0.66 structural | 127 LC / 331 FF / no DSP or RAM; small memory expanded to registers; no Fmax/CDC claim |
 | audio clock monitor RTL | exact 10-edge windows, then 11-edge fast and zero-edge stopped windows | three-window lock; bad window drops lock/latches error; exact rate reacquires; clear/reset inactive checked; warning-free |
 | audio clock monitor synthesis | Yosys 0.66 structural | 68 LC / 125 FF / no DSP or RAM; zero warnings/problems; no placed CDC/clock-accuracy claim |

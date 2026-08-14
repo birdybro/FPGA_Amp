@@ -29,6 +29,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Add a sound bounded multi-clock formal environment around the asynchronous
+  FIFO. After a shared reset asserted on local edges and released while clocks
+  are low, leave both clock levels and all controls arbitrary. Prove 13 Gray,
+  blocked-pointer, occupancy/watermark, valid, and sticky-fault properties for
+  every 32-step interleaving; separately reach depth four and both illegal-side
+  stickies in 24 steps. Keep unbounded induction explicitly open because the
+  current invariant set does not close it.
 - [x] Formally verify the single-clock modern output mute/ramp control contract.
   With arbitrary post-reset data and controls, prove 15 reset, force-clamp,
   valid, hold, exact gain-transition, endpoint, monotonicity, and status
@@ -497,8 +504,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   framing and guarded operations; a physical adapter backend,
   queued-frame/physical analog muting, and CDC/I/O timing constraints remain
   absent. The single-clock mute/ramp properties now have a Yosys SAT proof;
-  embedded asynchronous-FIFO assertions still need a sound multi-clock proof
-  environment.
+  asynchronous-FIFO properties now have a 32-step arbitrary-clock SAT bound,
+  while a complete invariant set for unbounded induction remains open.
   The cubic and full-tube alias-family tests are captured from RTL; the latter
   is bounded below fixed rounding closure rather than inferred from the
   confounded raw bin.

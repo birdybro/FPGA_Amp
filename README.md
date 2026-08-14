@@ -87,8 +87,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   depth eight and both estimates return to zero after drain. Generic XC7 synthesis
   uses 127 logic cells / 331 flip-flops / no DSP or RAM; Yosys intentionally
   expands this small 8×32 memory to registers. Embedded formal invariants exist,
-  but their multi-clock proof environment is not yet packaged. The available
-  Yosys SAT engine is now used for the single-clock output-safety proof below.
+  and a depth-four formal instance now passes 13 properties for all arbitrary
+  clock/control interleavings over 32 global steps. A separate trace reaches
+  full plus both fault stickies. This is bounded safety evidence, not unbounded
+  induction or a physical metastability claim.
 - Separate I²S receive/transmit blocks now implement signed 24-bit stereo in
   32-BCLK slots with the mandatory one-clock I²S delay. A warning-free 16-frame
   loopback covers positive/negative endpoints, independent 32-period slot/delay
@@ -619,6 +621,7 @@ make stream-trapezoidal-terminal-banked-rtl # 127-clock trap terminal stream
 make guarded-stream-rtl            # mute/reset/warmup model-change sequence
 make mute-rtl                      # reset/ramp/fault output safety primitive
 make formal-mute                   # Yosys SAT safety-ramp induction + witness
+make formal-async-fifo             # bounded arbitrary-clock FIFO safety
 make audio-clock-rtl               # BCLK/fabric ratio lock and error monitor
 make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make cdc-pulse-rtl                # one-shot host command CDC

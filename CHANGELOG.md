@@ -6,6 +6,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a bounded multi-clock formal environment for the asynchronous FIFO.
+  Thirteen embedded/harness properties cover Gray transitions, blocked
+  pointers, occupancy/watermark bounds, read-valid timing, and diagnostic
+  sticky/clear behavior for every arbitrary clock/control interleaving through
+  32 global steps after disciplined reset. A separate 24-step satisfiable trace
+  reaches depth four plus overflow and underflow evidence. The result is
+  deliberately labeled bounded; the current invariant set does not close
+  unbounded induction and SAT does not model analog metastability.
 - Added a reproducible formal contract for the modern output mute/ramp. Fifteen
   assertions cover reset, force clamp, valid timing, held state, exact
   saturating gain transitions, endpoint output, monotonicity, and status under
