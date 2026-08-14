@@ -57,6 +57,18 @@ nonzero `0xa` transfer and returns to available. This is a bounded digital logic
 result: it neither proves progress if a clock stops, models analog metastability,
 nor covers an independently resetting destination in the formal environment.
 
+The toggle-pulse CDC directed test transfers two source commands across
+unrelated 10 ns/34 ns clocks. It also resets the destination while the retained
+source toggle is one and requires exactly one replay after release; only
+idempotent commands may use this primitive. `make formal-cdc-pulse` assumes a
+new event is launched only after the previous event has been observed, then
+leaves both clocks and source event timing arbitrary. Ten pipeline, decode,
+pulse-width, at-most-one-outstanding, no-fabrication, and delivery-accounting
+properties hold through 40 global steps. A satisfiable trace accepts and
+delivers two events. Progress with a stopped clock, independently resetting
+domains, events outside the separation contract, and analog metastability are
+not proven.
+
 The I²S test passes 16 stereo frames through independent transmitter and
 receiver blocks, including signed 24-bit maximum/minimum and pseudorandom-like
 channel patterns. A separate monitor—not the receiver—requires 31 stable sampled
@@ -222,6 +234,7 @@ scripts/run_frame_scheduler_formal.py  phase/zero-fill/counter induction
 | asynchronous FIFO RTL | depth 8×32; unrelated 100/71.4 MHz clocks | exact directed full/empty plus 128 wrapped words; local levels reach 8 and return 0; watermarks retain/clear in owning domains; sticky faults clear |
 | asynchronous FIFO formal | depth 4×1; arbitrary post-reset clocks/controls | 13 properties hold through 32 global steps; 24-step witness reaches full and both fault stickies; unbounded induction not claimed |
 | asynchronous FIFO XC7 synthesis | Yosys 0.66 structural | 127 LC / 331 FF / no DSP or RAM; small memory expanded to registers; no Fmax/CDC claim |
+| toggle-pulse CDC RTL/formal/synthesis | two separated events over unrelated clocks plus explicit odd-toggle destination-reset replay; ten properties over every 40-step protocol-constrained arbitrary-clock interleaving | exact directed delivery/replay; bounded formal pass plus two-event witness; 1 LC / 5 FF; only for low-rate idempotent commands; no placed CDC or analog-metastability claim |
 | audio clock monitor RTL | exact 10-edge windows, then 11-edge fast and zero-edge stopped windows | three-window lock; bad window drops lock/latches error; exact rate reacquires; clear/reset inactive checked; warning-free |
 | audio clock monitor synthesis | Yosys 0.66 structural | 68 LC / 125 FF / no DSP or RAM; zero warnings/problems; no placed CDC/clock-accuracy claim |
 | I²S protocol loopback | 16 signed stereo frames; 24-bit/32-slot | exact channels/endpoints; independent slot/delay monitor; directed framing/underflow flags |

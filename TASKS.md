@@ -29,6 +29,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Bound the low-rate diagnostic-clear toggle CDC under arbitrary clock
+  levels and a protocol assumption that the preceding event is observed before
+  another launches. Prove ten exact pipeline, pulse-width, outstanding-event,
+  no-fabrication, and accounting properties through 40 global steps; reach two
+  delivered events. Add directed evidence that destination reset with an odd
+  retained source toggle replays the idempotent command, and document that this
+  primitive is not a reset-independent or arbitrary-rate event channel.
 - [x] Bound the coherent held-bus CDC snapshot under arbitrary source and
   destination clock levels after disciplined shared startup reset. Prove nine
   capture provenance, hold stability, exact-data, valid-pulse, accounting, and

@@ -6,6 +6,15 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a bounded arbitrary-clock formal contract for the low-rate toggle-pulse
+  CDC used by diagnostic clear. Ten embedded/harness assertions cover exact
+  toggle and three-stage destination transitions, pulse decode/width, at-most-
+  one outstanding event, no fabricated delivery, and exact delivery accounting
+  through 40 global steps when a source event waits for the preceding event to
+  be observed. A separate trace delivers two events. The directed RTL test now
+  makes the reset contract explicit: destination reset while the source toggle
+  is odd replays the idempotent command once after release. This is not an
+  arbitrary-rate event channel or an analog-metastability proof.
 - Added a bounded arbitrary-clock formal contract for the coherent held-bus CDC
   snapshot. Nine embedded/harness assertions cover capture-event provenance,
   destination hold stability, exact returned data, one-cycle valid behavior,

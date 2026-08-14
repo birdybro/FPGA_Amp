@@ -81,8 +81,11 @@ asserted until an explicit clear. Their multibit FIFO level/high-water views use
 the held-bus request/acknowledge capture and enter the retained image only after
 the CDC transaction completes. A toggle-based command crossing converts one
 fabric diagnostic-clear pulse into one I²S-clock pulse. Its unit test transfers
-two events exactly once across unrelated clocks; structural synthesis is 1 LC /
-5 FF. This crossing is for low-rate idempotent host commands, not event traffic.
+two separated events across unrelated clocks and explicitly shows that
+destination reset with an odd retained source toggle replays the idempotent
+command once. Ten formal properties hold through 40 arbitrary-clock steps when
+each event waits for prior observation; structural synthesis is 1 LC / 5 FF.
+This crossing is not a reset-independent or arbitrary-rate event channel.
 
 ## Initial register groups
 

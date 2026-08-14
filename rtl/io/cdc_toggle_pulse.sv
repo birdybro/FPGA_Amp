@@ -40,6 +40,38 @@ module cdc_toggle_pulse (
         end
     end
 
+`ifdef FORMAL
+    logic formal_source_past_valid;
+    logic formal_destination_past_valid;
+
+    always_ff @(posedge source_clk) begin
+        if (!source_rst_n) begin
+            formal_source_past_valid <= 1'b0;
+        end else begin
+            formal_source_past_valid <= 1'b1;
+            if (formal_source_past_valid)
+                assert (source_toggle
+                    == ($past(source_toggle) ^ $past(source_pulse)));
+        end
+    end
+
+    always_ff @(posedge destination_clk) begin
+        if (!destination_rst_n) begin
+            formal_destination_past_valid <= 1'b0;
+        end else begin
+            formal_destination_past_valid <= 1'b1;
+            if (formal_destination_past_valid) begin
+                assert (destination_meta == $past(source_toggle));
+                assert (destination_sync == $past(destination_meta));
+                assert (destination_seen == $past(destination_sync));
+                assert (destination_pulse
+                    == ($past(destination_sync)
+                        ^ $past(destination_seen)));
+            end
+        end
+    end
+`endif
+
 endmodule
 
 `default_nettype wire

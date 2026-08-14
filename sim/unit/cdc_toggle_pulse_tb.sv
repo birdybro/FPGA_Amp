@@ -52,6 +52,21 @@ module cdc_toggle_pulse_tb;
             errors = errors + 1;
         end
 
+        // The primitive deliberately carries only a toggle, not an
+        // acknowledged event count. Resetting the destination while the
+        // source toggle is one replays the idempotent command after release.
+        // This behavior must remain explicit at integration boundaries.
+        @(negedge destination_clk);
+        destination_rst_n = 1'b0;
+        repeat (2) @(negedge destination_clk);
+        destination_rst_n = 1'b1;
+        repeat (6) @(posedge destination_clk);
+        #1;
+        if (destination_pulse_count != 1 || destination_pulse) begin
+            $error("destination reset did not replay odd source toggle once");
+            errors = errors + 1;
+        end
+
         send_source_pulse();
         repeat (6) @(posedge destination_clk);
         #1;
@@ -62,7 +77,7 @@ module cdc_toggle_pulse_tb;
 
         if (errors != 0)
             $fatal(1, "FAIL: %0d toggle-pulse errors", errors);
-        $display("PASS: two unrelated-clock command pulses transferred once");
+        $display("PASS: two commands transferred once; odd-toggle reset replay explicit");
         $finish;
     end
 

@@ -289,10 +289,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   primitive's stated control contract, not analog speaker safety.
 - A register-controlled pin wrapper now owns calibration and mute, freezes 22
   fabric-coherent status words, synchronizes sticky I²S faults, and transfers
-  diagnostic clear once across the unrelated BCLK domain. Integration is
-  warning-free. It also fails closed through BCLK qualification and after a
-  retained rate error without changing reference-circuit state. Structural
-  synthesis is 21,466 LC / 17,922 FF / 232 DSP48E1 /
+  low-rate idempotent diagnostic clear across the unrelated BCLK domain. Ten
+  properties hold over 40-step protocol-constrained arbitrary-clock traces,
+  with a two-event witness; directed RTL exposes the one replay caused by
+  destination reset while the retained source toggle is odd. Integration is
+  warning-free. The wrapper also fails closed through BCLK qualification and
+  after a retained rate error without changing reference-circuit state.
+  Structural synthesis is 21,466 LC / 17,922 FF / 232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1. The current 22-word image adds a coherent held-bus
   I²S occupancy capture; stopped BCLK times out explicitly without advancing
   the retained-image sequence. Named-part timing is not claimed.
@@ -635,6 +638,7 @@ make formal-async-fifo             # bounded arbitrary-clock FIFO safety
 make formal-calibration-control    # atomic scaling commit/reject induction
 make formal-frame-scheduler        # cadence/zero-fill/counter induction
 make formal-cdc-snapshot           # bounded coherent held-bus CDC safety
+make formal-cdc-pulse              # bounded low-rate toggle CDC safety
 make audio-clock-rtl               # BCLK/fabric ratio lock and error monitor
 make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make cdc-pulse-rtl                # one-shot host command CDC
