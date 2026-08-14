@@ -166,6 +166,23 @@ zero-flop intermediate transmitter report was a reporting defect and is not
 retained as evidence. BCLK edge timing, I/O delay, and converter setup/hold need
 named-part constraints and place-and-route.
 
+The composed bidirectional I²S/CDC bridge has this flattened structural result:
+
+| Resource | Count |
+|---|---:|
+| estimated logic cells | 549 |
+| flip-flops | 1,531 |
+| DSP48E1 / RAMB18E1 | 0 / 0 |
+
+The flip-flop total includes 1,024 data registers for two depth-8 × 64-bit
+FIFOs; Yosys reports their register expansion explicitly. Post-map flattening
+was added to the resource script after a rejected intermediate hierarchy report
+omitted instantiated primitive registers. The final total is 1,024 FDRE, 367
+FDCE, 3 FDPE, 131 falling-edge FDCE, and 6 falling-edge FDPE. Structural check
+finds zero problems. This remains an unplaced interface estimate: Gray-pointer
+CDC constraints, synchronizer placement, opposite-edge BCLK timing, and all
+board I/O delays still require the named FPGA and converter.
+
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.
 Time-multiplexing it across triodes/channels is therefore favored over blind

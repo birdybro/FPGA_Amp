@@ -26,6 +26,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Integrate the I²S protocol and CDC primitives into a bidirectional stereo
+  frame bridge. Preserve 20 exact BCLK-to-fabric-to-BCLK frames under unrelated
+  clocks and deliberate ready backpressure, verify owning-domain diagnostics,
+  and synthesize the flattened hierarchy to 549 LC / 1,531 FF with zero
+  structural problems and explicit register-expanded FIFO storage.
 - [x] Implement conventional 24-bit stereo I²S in 32-BCLK slots. Loop 16 signed
   frames exactly through warning-free receive/transmit RTL; independently check
   32-period slots and delay bits; inject framing and underflow faults; synthesize
@@ -330,10 +335,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   four frequencies and large-signal cross-layer coverage is still incomplete.
 - PCM WAV processing, explicit null comparison, and a deterministic distortion/
   IMD-product/overload suite now exist. Standardized IMD procedures, long WAV-
-  level recovery and licensed music remain absent. A first CDC FIFO now exists;
-  I²S protocol and CDC FIFO primitives exist, but serial/core integration and
-  CDC/I/O timing constraints remain absent; embedded
-  assertions cannot be proven until a formal engine is available.
+  level recovery and licensed music remain absent. The I²S protocol and CDC
+  FIFO primitives now form a bidirectional frame bridge, but calibrated
+  physical-unit/core integration and CDC/I/O timing constraints remain absent;
+  embedded assertions cannot be proven until a formal engine is available.
   The cubic and full-tube alias-family tests are captured from RTL; the latter
   is bounded below fixed rounding closure rather than inferred from the
   confounded raw bin.
@@ -348,6 +353,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 - [ ] Stereo scheduling and converter interface on Arty A7-100T reference platform.
 - [x] Standalone 24-bit/32-slot I²S receive/transmit protocol primitives.
+- [x] Bidirectional stereo-frame I²S/fabric asynchronous bridge.
 - [x] PCM WAV processing and latency/gain/fractional-delay null comparison.
 - [x] Deterministic WAV distortion/IMD-product/overload regression library.
 - [ ] Standardized IMD, long recovery, impulse, and licensed-music WAV gates.

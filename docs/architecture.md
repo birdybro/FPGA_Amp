@@ -93,8 +93,18 @@ frozen initial format is 24 signed sample bits in each 32-BCLK channel slot;
 inputs are sign-extended into `{left[31:0], right[31:0]}` frames and transmitter
 padding is zero. Receiver framing error and transmitter starvation are sticky.
 The transmit negative-edge registers require an explicit opposite-edge BCLK
-constraint in the placed design. These blocks do not establish whether FPGA or
-converter is final clock master and are not yet connected to the nonlinear core.
+constraint in the placed design.
+
+`rtl/io/i2s_async_bridge.sv` composes the protocol blocks and two depth-8,
+64-bit asynchronous FIFOs into a bidirectional stereo frame interface. Receive
+data is held under fabric ready/valid backpressure. Fabric transmit valid is
+accepted only when the transmit FIFO reports ready; violating that contract is
+retained as FIFO overflow. The BCLK prefetch never requests an empty FIFO, and
+the transmitter substitutes a zero frame plus a sticky starvation flag when no
+frame reaches a left-slot boundary. All framing, overflow, underflow, and serial
+starvation flags remain observable in their owning domains. The bridge does not
+establish whether FPGA or converter is final clock master and is not yet
+connected to physical-unit calibration or the nonlinear core.
 
 ## Stereo scheduling
 

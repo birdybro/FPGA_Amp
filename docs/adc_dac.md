@@ -53,8 +53,12 @@ The implemented protocol baseline is 24-bit signed I²S in 32-BCLK stereo slots,
 so 48 kHz produces the planned 3.072 MHz BCLK. Receiver and transmitter are
 separate BCLK-domain primitives with conventional one-bit-delay timing and no
 converter-specific register assumptions. A dual-clock FIFO exists for the case
-where BCLK/fabric phase is not proven synchronous. The blocks are not yet
-integrated, and no listed ADC/DAC has therefore been selected or validated.
+where BCLK/fabric phase is not proven synchronous. A bidirectional bridge now
+integrates the protocol blocks with independent depth-8 stereo-frame FIFOs and
+held ready/valid fabric interfaces. It deliberately performs no volts/code
+calibration, channel scheduling, rate matching between independent nominal
+sample clocks, or converter register setup. No listed ADC/DAC has therefore
+been selected or validated.
 
 Jitter sensitivity must be checked at the highest analog input frequency. For a
 20 kHz full-scale sine, 1 ps RMS aperture jitter alone corresponds to roughly

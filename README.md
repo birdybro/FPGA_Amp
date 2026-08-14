@@ -91,8 +91,16 @@ The mono reference and complete 768 kHz circuit solver are operating:
   loopback covers positive/negative endpoints, independent 32-period slot/delay
   monitoring, injected LRCLK framing failure, and transmit underflow/clear.
   Warning-free XC7 synthesis measures 35 LC / 105 rising-edge flops for receive
-  and 97 LC / 137 falling-edge flops for transmit, with no DSP or RAM. These are
-  protocol primitives; they are not yet a converter-connected stream top.
+  and 97 LC / 137 falling-edge flops for transmit, with no DSP or RAM.
+- A bidirectional I²S asynchronous bridge now composes those protocol blocks
+  with independent depth-8 stereo-frame FIFOs. A warning-free test sends 20
+  exact frames from BCLK to an unrelated fabric clock and back while applying
+  fabric receive backpressure; all six bridge diagnostics remain clean apart
+  from deliberate DAC startup starvation, which clears in its owning domain.
+  Flattened XC7 synthesis reports 549 LC / 1,531 FF / no DSP or RAM. The small
+  8×64 memories are explicitly register-expanded. Physical volts/code scaling,
+  the nonlinear core connection, converter configuration, and I/O timing remain
+  separate unfinished layers.
 - Exact RTL RHS and KCL engines stamp all ten capacitor histories and the
   physical conductance network. Each passes 1,024 vectors at 12 and 10 clocks.
 - The integrated solver matches 512 sequential fixed-model samples bit-for-bit
@@ -374,10 +382,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   fixed-rounding closure. The remaining 3 kHz output dominates by 102.37 dB, so
   the raw -74.59 dBc bin is no longer left ambiguous or mislabeled as aliasing.
 
-There is no converter-integrated serial-audio/CDC top, control-register transport, fabricated
-analog front end, converter board, named-part timing result, or physical
-measurement yet. The implemented mute primitive is not independent analog
-speaker protection.
+There is no calibrated serial-audio/nonlinear-core top, control-register
+transport, fabricated analog front end, converter board, named-part timing
+result, or physical measurement yet. The implemented mute primitive is not
+independent analog speaker protection.
 
 ## Verification chain
 
@@ -487,6 +495,7 @@ make guarded-stream-rtl            # mute/reset/warmup model-change sequence
 make mute-rtl                      # reset/ramp/fault output safety primitive
 make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make i2s-rtl                       # 24-bit/32-slot stereo protocol loopback
+make i2s-bridge-rtl                # exact bidirectional I2S/fabric CDC loopback
 make synth                         # generic XC7 structural estimate
 make synth-factorized              # factorized tube structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
@@ -511,6 +520,7 @@ make synth-stream-factorized       # smooth-tube stream resource estimate
 make synth-mute                    # output ramp structural estimate
 make synth-async-fifo              # depth-8 dual-clock FIFO estimate
 make synth-i2s                     # receiver/transmitter structural estimates
+make synth-i2s-bridge              # bidirectional protocol/CDC bridge estimate
 ```
 
 Run a user-supplied 48 kHz integer-PCM WAV through an explicitly selected V1

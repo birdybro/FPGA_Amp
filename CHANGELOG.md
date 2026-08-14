@@ -6,6 +6,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a bidirectional stereo I²S/fabric bridge around the protocol primitives
+  and two depth-8 × 64-bit asynchronous FIFOs. Warning-free simulation preserves
+  20 exact frames across unrelated clocks and deliberate receive backpressure,
+  checks six bridge diagnostics, and clears expected startup starvation in its
+  owning domain. Flattened XC7 synthesis is 549 logic cells / 1,531 flip-flops /
+  no DSP or RAM with explicit small-memory register expansion. Post-map
+  flattening also prevents the resource reporter from omitting instantiated
+  primitive registers; a rejected intermediate 67-FF count is not retained.
 - Added conventional 24-bit stereo I²S receive/transmit primitives in 32-BCLK
   slots. Warning-free loopback verifies 16 signed frames, independent slot/delay
   timing, LRCLK framing faults, and starvation; warning-free XC7 synthesis is

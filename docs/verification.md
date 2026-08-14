@@ -37,6 +37,15 @@ edges between LRCLK changes and a zero serial delay bit on each transition.
 Starving the next frame sets transmitter underflow; a one-edge LRCLK corruption
 sets receiver framing error; both sticky flags clear in the BCLK domain.
 
+The bidirectional bridge test uses a 20 ns BCLK and an unrelated, phase-offset
+13 ns fabric clock. An I²S transmitter supplies 20 nonzero signed stereo frames;
+the fabric scoreboards each receive handshake, loops each frame back, and
+deliberately removes receive ready one cycle in four. Held valid/data stability
+is checked during every stall. A second I²S receiver requires the exact same 20
+frames in order. Bridge framing and both FIFO overflow/underflow pairs remain
+clear; deliberate zero output during pipeline startup sets the serial underflow
+flag, which is then cleared in the BCLK domain.
+
 The analog/reference commands are intentionally separate so a missing external
 tool is not reported as a pass:
 
@@ -165,6 +174,8 @@ scripts/run_synthesis.py            XC7 structural resource report
 | asynchronous FIFO XC7 synthesis | Yosys 0.66 structural | 114 LC / 323 FF / no DSP or RAM; small memory expanded to registers; no Fmax/CDC claim |
 | I²S protocol loopback | 16 signed stereo frames; 24-bit/32-slot | exact channels/endpoints; independent slot/delay monitor; directed framing/underflow flags |
 | I²S receiver/transmitter synthesis | Yosys 0.66 structural | RX 35 LC/105 FF; TX 97 LC/137 negative-edge FF; no warnings/DSP/RAM/Fmax claim |
+| bidirectional I²S/CDC bridge RTL | 20 stereo frames; unrelated 50/76.9 MHz stress clocks | exact BCLK→fabric→BCLK order under one-in-four receive stalls; owning-domain diagnostics checked |
+| bidirectional I²S/CDC bridge synthesis | Yosys 0.66 flattened structural | 549 LC / 1,531 FF / no DSP or RAM; two 8×64 memories register-expanded; no Fmax/CDC claim |
 | guarded wide stream RTL | startup plus one state-reset transaction | warning-free; mute precedes reset; phase clean; one ack; unity restored |
 | guarded wide stream synthesis | Yosys 0.66 structural | 17,562 LC, 170 DSP48E1, 8 RAMB18E1; no Fmax claim |
 | fixed vs analytical level sweep | 0.5 mV–5 V, 1 kHz, 20–30 ms | first ≥1 dB compression 1.1 V; residual-limit failure 1.0 V; LUT clip 1.1 V |

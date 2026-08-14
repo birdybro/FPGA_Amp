@@ -60,6 +60,7 @@ def main() -> int:
             "async_fifo",
             "i2s_receiver",
             "i2s_transmitter",
+            "i2s_async_bridge",
         ),
         default="triode_12ax7",
     )
@@ -251,6 +252,12 @@ def main() -> int:
         "async_fifo": ["rtl/io/async_fifo.sv"],
         "i2s_receiver": ["rtl/io/i2s_receiver.sv"],
         "i2s_transmitter": ["rtl/io/i2s_transmitter.sv"],
+        "i2s_async_bridge": [
+            "rtl/io/async_fifo.sv",
+            "rtl/io/i2s_receiver.sv",
+            "rtl/io/i2s_transmitter.sv",
+            "rtl/io/i2s_async_bridge.sv",
+        ],
     }[args.top]
     log_path = results / f"yosys_xc7_{args.top}.log"
     # Only the legacy solver/stream aliases select the factorized primitive by
@@ -282,6 +289,12 @@ def main() -> int:
             "techmap -map +/xilinx/lut_map.v -map +/xilinx/cells_map.v -D LUT_WIDTH=6",
             "xilinx_dffopt",
             "opt_lut_ins -tech xilinx",
+            "clean",
+            # The Xilinx stat formatter aggregates LUTs through user-module
+            # hierarchy but does not aggregate primitive flip-flop submodules.
+            # Flatten only after mapping so the final resource table and JSON
+            # cannot silently omit registers from instantiated blocks.
+            "flatten",
             "clean",
             "hierarchy -check",
             "stat -tech xilinx",
