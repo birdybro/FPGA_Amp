@@ -7,6 +7,13 @@ ADC/DAC serial interfaces remain muted until clocks are stable, converter reset
 is released, frames are valid, and the model has produced a configurable number
 of valid samples.
 
+The pin top now reports live BCLK/fabric rate lock after three good measurement
+windows and latches any bad window. It does not automatically gate audio reset:
+holding the model consumer stopped for the roughly 1 ms acquisition while a
+converter streams would overflow the depth-8 receive FIFO. A board startup
+controller must coordinate converter data enable, FIFO draining/discard, clock
+lock, model initialization, and analog mute as one explicit sequence.
+
 The first implemented system-safety primitive is
 `rtl/audio/output_mute_ramp.sv`. It is deliberately downstream of and outside
 the historical model. At each valid 48 kHz output sample it moves a Q0.16 gain

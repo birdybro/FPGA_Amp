@@ -50,6 +50,11 @@ module phono_i2s_mono_top #(
     output logic [3:0]           tx_fifo_fabric_high_water,
     output logic [3:0]           tx_fifo_i2s_level,
     output logic [3:0]           tx_fifo_i2s_high_water,
+    output logic                 audio_clock_measurement_valid,
+    output logic [15:0]          audio_clock_measured_bclk_edges,
+    output logic [7:0]           audio_clock_good_windows,
+    output logic                 audio_clock_rate_locked,
+    output logic                 audio_clock_rate_error_sticky,
 
     output logic                 scheduled_frame_present,
     output logic [10:0]          scheduler_phase_counter,
@@ -80,6 +85,19 @@ module phono_i2s_mono_top #(
     logic [63:0] fabric_tx_frame_data;
     logic fabric_tx_frame_valid;
     logic fabric_tx_frame_ready;
+
+    audio_clock_rate_monitor clock_monitor (
+        .i2s_bclk,
+        .i2s_rst_n,
+        .fabric_clk,
+        .fabric_rst_n,
+        .clear_diagnostics(fabric_clear_diagnostics),
+        .measurement_valid(audio_clock_measurement_valid),
+        .measured_bclk_edges(audio_clock_measured_bclk_edges),
+        .consecutive_good_windows(audio_clock_good_windows),
+        .rate_locked(audio_clock_rate_locked),
+        .rate_error_sticky(audio_clock_rate_error_sticky)
+    );
 
     calibration_commit_guard calibration_control (
         .clk(fabric_clk),

@@ -92,6 +92,15 @@ Write-side values conservatively lag completed reads high and read-side values
 lag writes low; polling drift is useful evidence but is neither rate matching
 nor a coherent CDC snapshot.
 
+The pin top also instantiates a BCLK/fabric ratio monitor. Its default 333.33 µs
+window expects 1,024 ± 1 BCLK rising edges and requires three consecutive good
+windows, so nominal lock takes about 1 ms. One bad window drops lock immediately
+and latches an error. The exact-rate integration measures 1,024 edges in each of
+four windows. The ±1 count tolerance is a coarse ±0.098% configuration check;
+smaller sustained differences appear as FIFO occupancy drift. Board startup may
+observe this status but must not simply hold the depth-8 receive FIFO undrained
+for the entire acquisition interval.
+
 Jitter sensitivity must be checked at the highest analog input frequency. For a
 20 kHz full-scale sine, 1 ps RMS aperture jitter alone corresponds to roughly
 138 dB SNR; converter internal clocking, oscillator phase noise, and power noise

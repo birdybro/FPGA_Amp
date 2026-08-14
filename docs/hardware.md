@@ -194,6 +194,21 @@ owning-domain diagnostic clear. The locked-rate pin test measures one frame in
 all four views; directed bridge backpressure reaches RX 3/3 and TX 4/4 frames;
 the standalone test reaches the exact depth of eight.
 
+The standalone BCLK/fabric rate monitor has this warning-free structural
+result:
+
+| Resource | Count |
+|---|---:|
+| estimated logic cells | 68 |
+| flip-flops | 125 FDCE |
+| DSP48E1 / RAMB18E1 | 0 / 0 |
+
+This includes the 16-bit BCLK binary/Gray counter, two-stage Gray and active
+synchronizers, 15-bit 32,768-clock window counter, measurement/baseline state,
+three-window lock qualification, and sticky rate error. Structural check finds
+zero problems. It does not prove Gray-bus skew constraints, metastability MTBF,
+or absolute clock accuracy.
+
 The dynamic converter calibration primitives synthesize independently as:
 
 | Direction | Logic cells | Flip-flops | DSP48E1 | RAMB18E1 |
@@ -247,20 +262,21 @@ adapter produces the pin-facing digital hierarchy:
 
 | Resource | Count |
 |---|---:|
-| estimated logic cells | 20,934 |
-| flip-flops | 16,782 |
+| estimated logic cells | 21,014 |
+| flip-flops | 16,907 |
 | DSP48E1 | 232 |
 | RAMB18E1 / RAMB36E1 | 8 / 1 |
 
-The flip-flop total is 15,820 FDRE, 476 FDSE, 346 FDCE, 3 FDPE, 131
+The flip-flop total is 15,820 FDRE, 476 FDSE, 471 FDCE, 3 FDPE, 131
 falling-edge FDCE, and 6 falling-edge FDPE. Structural check reports zero
 problems; the 77 unique warnings retain local-array/FIFO register expansion and
 primitive resize notices. The result has no clock constraints, synchronizer
 placement, BCLK opposite-edge timing, board I/O delays, or named-part Fmax. It
 therefore proves structural composition, not a deployable converter interface.
-This hierarchy includes the atomic muted calibration commit guard and four
-local-domain FIFO levels/watermarks; candidate register transport and coherent
-diagnostic CDC are intentionally outside the top.
+This hierarchy includes the atomic muted calibration commit guard, four
+local-domain FIFO levels/watermarks, and the BCLK/fabric rate monitor; candidate
+register transport and coherent multi-domain diagnostic CDC are intentionally
+outside the top.
 
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.

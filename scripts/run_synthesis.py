@@ -57,6 +57,7 @@ def main() -> int:
             "phono_stream_mono_wide_trapezoidal_banked_terminal",
             "phono_stream_mono_wide_guarded",
             "output_mute_ramp",
+            "audio_clock_rate_monitor",
             "async_fifo",
             "i2s_receiver",
             "i2s_transmitter",
@@ -256,6 +257,7 @@ def main() -> int:
         ],
         "output_mute_ramp": ["rtl/audio/output_mute_ramp.sv"],
         "async_fifo": ["rtl/io/async_fifo.sv"],
+        "audio_clock_rate_monitor": ["rtl/io/audio_clock_rate_monitor.sv"],
         "i2s_receiver": ["rtl/io/i2s_receiver.sv"],
         "i2s_transmitter": ["rtl/io/i2s_transmitter.sv"],
         "i2s_async_bridge": [
@@ -300,6 +302,7 @@ def main() -> int:
             "rtl/audio/decimator_16x.sv",
             "rtl/audio/output_mute_ramp.sv",
             "rtl/control/calibration_commit_guard.sv",
+            "rtl/io/audio_clock_rate_monitor.sv",
             "rtl/io/async_fifo.sv",
             "rtl/io/i2s_receiver.sv",
             "rtl/io/i2s_transmitter.sv",

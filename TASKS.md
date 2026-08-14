@@ -26,13 +26,22 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Implement and integrate a Gray-counter BCLK/fabric rate monitor. Require
+  three consecutive 1,024 ± 1 edge windows for lock, drop lock and latch a bad
+  window, reacquire after correction, clear retained evidence, detect a stopped
+  BCLK as zero edges, and revoke live state on BCLK reset. The actual-rate pin
+  test measures 1,024 edges across four
+  windows without changing audio/latency. Synthesize standalone to 68 LC / 125
+  FF and the updated pin top to 21,014 LC / 16,907 FF / 232 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1.
 - [x] Add conservative local-domain occupancy and retained high-water
   diagnostics to both sides of each asynchronous FIFO. Reach exact depth eight,
   drain to zero, clear watermarks, and preserve the 128-word wrap test. At the
-  bridge backpressure records RX 3/3 and TX 4/4 frames without loss; at the
+  bridge, backpressure records RX 3/3 and TX 4/4 frames without loss; at the
   locked pin-level rate all four views peak at one frame without changing audio
   or latency. Updated synthesis is FIFO 127 LC / 331 FF, bridge 571 LC / 1,547
-  FF, and pin top 20,934 LC / 16,782 FF; no DSP/RAM change.
+  FF, and the later clock-monitored pin top 21,014 LC / 16,907 FF; no DSP/RAM
+  change from diagnostics.
 - [x] Correct the pin-level integration clocks from the accidentally ratio-only
   100/3.125 MHz test to the stated 98.304/3.072 MHz rates. Timestamp internal
   handshakes and serial boundaries; gate the deterministic intervals and record
@@ -46,7 +55,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   as exact mono duplicates. Retain expected startup starvation and zero all
   other diagnostics; atomically commit the startup converter-scaling pair while
   muted and reject a later live pair without changing active values; synthesize
-  the later occupancy-instrumented top to 20,934 LC / 16,782 FF /
+  the later clock-monitored top to 21,014 LC / 16,907 FF /
   232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1 with no placed CDC/I/O/converter claim.
 - [x] Add a protocol-neutral atomic calibration commit guard. Reset both active

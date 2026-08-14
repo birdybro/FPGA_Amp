@@ -76,6 +76,13 @@ LUT-range, request, and deadline counters.
 - Host UART/SPI/USB: separate control domain, synchronized register handshakes,
   with audio parameters applied atomically at a sample boundary.
 
+`rtl/io/audio_clock_rate_monitor.sv` independently checks the assumed rate
+relationship. A continuously incrementing BCLK-domain counter crosses as Gray
+code; the fabric domain measures 1,024 ± 1 rising edges per 32,768 fabric
+clocks and requires three good windows for lock. Any bad window immediately
+drops lock and latches a diagnostic. This is a roughly ±0.098% gross-rate check,
+not phase alignment or ASRC; FIFO occupancy remains the slower drift indicator.
+
 `rtl/io/async_fifo.sv` implements the fallback CDC primitive rather than
 assuming BCLK is synchronous to fabric. Each domain owns a binary pointer and
 exports only its Gray encoding through two explicitly marked synchronizer

@@ -57,6 +57,13 @@ synchronize or snapshot each owning-domain value before host access. Existing
 domain-local diagnostic clear inputs also reset the corresponding watermark to
 the current projected occupancy.
 
+Clock status now includes a fabric-domain measurement-valid pulse, last BCLK
+edge count, consecutive-good-window count, live rate-lock flag, and sticky rate
+error. The default monitor requires three 1,024 ± 1 edge windows. It is already
+in the fabric domain and can enter a future coherent diagnostic snapshot
+directly. Lock is live status; the sticky bit retains a bad window until the
+fabric diagnostic clear.
+
 ## Required counters
 
 ADC/DAC clip, internal-node saturation, LUT out-of-range, solver residual failure,

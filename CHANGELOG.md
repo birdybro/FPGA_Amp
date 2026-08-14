@@ -6,6 +6,17 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a Gray-counter BCLK/fabric rate monitor to the pin top. The default
+  fabric window requires 1,024 ± 1 BCLK edges and three consecutive good
+  windows for lock; one bad window immediately drops lock and latches an error.
+  Warning-free directed RTL locks on exact 10-edge short windows, observes 11
+  after a deliberate speed-up, recovers after three restored windows, clears
+  the sticky diagnostic, detects stopped BCLK as a zero-edge bad window, and
+  revokes live state on BCLK reset. The actual-rate
+  pin test measures exactly 1,024 edges in all four observed windows without
+  changing latency or PCM. Warning-free standalone synthesis is 68 LC / 125 FF
+  / no DSP or RAM; the updated pin top is 21,014 LC / 16,907 FF / 232 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1.
 - Added conservative local-domain FIFO occupancy and high-water diagnostics.
   Gray-to-binary conversion uses only the already synchronized remote pointer;
   write-side estimates may lag reads high and read-side estimates may lag writes
@@ -14,8 +25,9 @@ All notable engineering changes are recorded here. The project is pre-release; d
   wrap ordering. Both bridge and actual-rate pin regressions remain warning-free;
   deliberate bridge backpressure reaches RX 3/3 and TX 4/4 frames without loss,
   while all four locked-rate pin views peak at one frame. Updated synthesis is
-  127 LC / 331 FF for one 8×32 FIFO, 571 LC / 1,547 FF for the bridge, and
-  20,934 LC / 16,782 FF / 232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1 for the pin top.
+  127 LC / 331 FF for one 8×32 FIFO, 571 LC / 1,547 FF for the bridge, and,
+  with the later rate monitor, 21,014 LC / 16,907 FF / 232 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1 for the pin top.
 - Added a protocol-neutral atomic converter-calibration commit guard. The two
   active Q8.24 coefficients reset to zero and change together only for a
   positive candidate pair while the digital output is fully muted. Directed
@@ -23,8 +35,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
   rejection without active-value change, and diagnostic clear. The pin-level
   regression now commits its startup pair before audio-state release and
   rejects a later live update. Standalone XC7 synthesis is 14 LC / 67 FF / no
-  DSP or RAM with zero warnings and structural problems; the updated complete
-  later occupancy-instrumented pin top is 20,934 LC / 16,782 FF / 232 DSP48E1 /
+  DSP or RAM with zero warnings and structural problems; the later
+  clock-monitored pin top is 21,014 LC / 16,907 FF / 232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1.
 - Added the pin-facing digital mono top that composes the asynchronous I²S
   bridge with the calibrated accuracy-first adapter. An exactly rate-locked but
@@ -32,8 +44,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
   matches all 64 calibrated serial inputs and raw model outputs, and recovers 45
   consecutive observable DAC frames as exact mono duplicates. Expected startup
   serial starvation is retained and every other diagnostic stays zero.
-  With the later integrated output ramp and calibration guard, flattened XC7
-  synthesis is 20,934 LC / 16,782 FF / 232 DSP48E1 /
+  With the later integrated safety, calibration, and clock diagnostics,
+  flattened XC7 synthesis is 21,014 LC / 16,907 FF / 232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1; converter selection, placed timing, physical analog
   mute, and validation remain open.
 - Added the calibrated fabric mono adapter around the exact
@@ -568,7 +580,7 @@ All notable engineering changes are recorded here. The project is pre-release; d
   synchronously clears the ramp state. Eight-sample integration regressions
   reach unity before the first nonzero fixture output and retain all 64 raw
   model/PCM comparisons. With the later calibration guard, the muted
-  fabric/pin hierarchies measure 20,489/20,934 LC, 15,592/16,782 FF, and 232
+  fabric/pin hierarchies measure 20,489/21,014 LC, 15,592/16,907 FF, and 232
   DSP48E1s. Queued CDC frames still require physical analog muting for immediate
   fault response.
 - Increased the factorized grid-current table from 128 to 1,024 entries after a

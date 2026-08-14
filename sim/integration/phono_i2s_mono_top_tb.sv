@@ -60,6 +60,11 @@ module phono_i2s_mono_top_tb;
     logic [3:0] tx_fifo_fabric_high_water;
     logic [3:0] tx_fifo_i2s_level;
     logic [3:0] tx_fifo_i2s_high_water;
+    logic audio_clock_measurement_valid;
+    logic [15:0] audio_clock_measured_bclk_edges;
+    logic [7:0] audio_clock_good_windows;
+    logic audio_clock_rate_locked;
+    logic audio_clock_rate_error_sticky;
     logic scheduled_frame_present;
     logic [10:0] scheduler_phase_counter;
     logic [31:0] scheduler_underflow_count;
@@ -99,6 +104,7 @@ module phono_i2s_mono_top_tb;
     integer file_handle;
     integer scan_count;
     integer index;
+    integer audio_clock_measurement_count;
     logic [3:0] observed_rx_fifo_i2s_high_water;
     logic [3:0] observed_rx_fifo_fabric_high_water;
     logic [3:0] observed_tx_fifo_fabric_high_water;
@@ -207,6 +213,11 @@ module phono_i2s_mono_top_tb;
         .tx_fifo_fabric_high_water,
         .tx_fifo_i2s_level,
         .tx_fifo_i2s_high_water,
+        .audio_clock_measurement_valid,
+        .audio_clock_measured_bclk_edges,
+        .audio_clock_good_windows,
+        .audio_clock_rate_locked,
+        .audio_clock_rate_error_sticky,
         .scheduled_frame_present,
         .scheduler_phase_counter,
         .scheduler_underflow_count,
@@ -270,6 +281,9 @@ module phono_i2s_mono_top_tb;
     // treating the first nonzero PCM code as the resampler's group delay.
     always @(posedge fabric_clk) begin
         fabric_cycle_count <= fabric_cycle_count + 1'b1;
+        if (audio_clock_measurement_valid)
+            audio_clock_measurement_count <=
+                audio_clock_measurement_count + 1;
         if (dut.fabric_rx_frame_valid && dut.fabric_rx_frame_ready
             && first_fabric_rx_accept_cycle < 0) begin
             first_fabric_rx_accept_cycle <= fabric_cycle_count;
@@ -445,6 +459,7 @@ module phono_i2s_mono_top_tb;
         first_nonzero_dac_frame_ns = -1.0;
         first_tx_fifo_word_seen = 1'b0;
         first_tx_serial_frame_started = 1'b0;
+        audio_clock_measurement_count = 0;
         observed_rx_fifo_i2s_high_water = '0;
         observed_rx_fifo_fabric_high_water = '0;
         observed_tx_fifo_fabric_high_water = '0;
@@ -536,6 +551,7 @@ module phono_i2s_mono_top_tb;
             || output_configuration_error_sticky
             || calibration_invalid_update_sticky
             || calibration_unsafe_update_sticky
+            || audio_clock_rate_error_sticky
             || output_frame_overrun_count != 0
             || resampler_saturation_count != 0
             || resampler_overrun_count != 0
@@ -569,6 +585,13 @@ module phono_i2s_mono_top_tb;
         observed_rx_fifo_fabric_high_water = rx_fifo_fabric_high_water;
         observed_tx_fifo_fabric_high_water = tx_fifo_fabric_high_water;
         observed_tx_fifo_i2s_high_water = tx_fifo_i2s_high_water;
+        if (!audio_clock_rate_locked || audio_clock_good_windows != 8'd3
+            || audio_clock_measured_bclk_edges < 16'd1023
+            || audio_clock_measured_bclk_edges > 16'd1025
+            || audio_clock_measurement_count < 3) begin
+            $error("audio clock did not establish expected locked rate");
+            error_count = error_count + 1;
+        end
         if (output_gain_q16 != 16'hffff || output_muted
             || output_ramping) begin
             $error("pin-top startup ramp did not reach exact unity");
@@ -658,6 +681,12 @@ module phono_i2s_mono_top_tb;
                observed_tx_fifo_fabric_high_water);
         $write("\"tx_fifo_i2s_high_water\":%0d,",
                observed_tx_fifo_i2s_high_water);
+        $write("\"audio_clock_measured_bclk_edges\":%0d,",
+               audio_clock_measured_bclk_edges);
+        $write("\"audio_clock_good_windows\":%0d,",
+               audio_clock_good_windows);
+        $write("\"audio_clock_measurement_count\":%0d,",
+               audio_clock_measurement_count);
         $write("\"first_adc_frame_complete_ns\":%.6f,",
                first_adc_frame_complete_ns);
         $write("\"first_fabric_rx_accept_ns\":%.6f,",

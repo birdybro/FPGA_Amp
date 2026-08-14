@@ -17,6 +17,10 @@ REPORT_PREFIX = "LATENCY_REPORT "
 FABRIC_HZ = 98_304_000
 I2S_BCLK_HZ = 3_072_000
 SAMPLE_RATE_HZ = 48_000
+CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS = 32_768
+CLOCK_MONITOR_EXPECTED_BCLK_EDGES = 1_024
+CLOCK_MONITOR_EDGE_TOLERANCE = 1
+CLOCK_MONITOR_LOCK_WINDOWS = 3
 
 
 def _build_latency_report(markers: dict[str, int | float]) -> dict[str, object]:
@@ -85,6 +89,20 @@ def _build_latency_report(markers: dict[str, int | float]) -> dict[str, object]:
             "locked-rate FIFO occupancy changed: "
             f"measured={measured_watermarks}, expected={expected_watermarks}"
         )
+    expected_clock_monitor = {
+        "audio_clock_measured_bclk_edges": CLOCK_MONITOR_EXPECTED_BCLK_EDGES,
+        "audio_clock_good_windows": CLOCK_MONITOR_LOCK_WINDOWS,
+        "audio_clock_measurement_count": 4,
+    }
+    measured_clock_monitor = {
+        name: int(markers[name]) for name in expected_clock_monitor
+    }
+    if measured_clock_monitor != expected_clock_monitor:
+        raise RuntimeError(
+            "audio clock monitor changed: "
+            f"measured={measured_clock_monitor}, "
+            f"expected={expected_clock_monitor}"
+        )
 
     def delta_ns(end: str, start: str) -> float:
         return float(markers[end]) - float(markers[start])
@@ -140,10 +158,17 @@ def _build_latency_report(markers: dict[str, int | float]) -> dict[str, object]:
             "fabric_hz": FABRIC_HZ,
             "sample_bits": 24,
             "slot_bits": 32,
+            "rate_monitor": {
+                "window_fabric_clocks": CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS,
+                "expected_bclk_edges": CLOCK_MONITOR_EXPECTED_BCLK_EDGES,
+                "edge_tolerance": CLOCK_MONITOR_EDGE_TOLERANCE,
+                "lock_windows": CLOCK_MONITOR_LOCK_WINDOWS,
+            },
         },
         "markers": markers,
         "intervals": intervals,
         "locked_rate_fifo_high_water": measured_watermarks,
+        "audio_clock_rate_monitor": measured_clock_monitor,
         "interpretation": {
             "frame_boundary_latency": (
                 "From the first complete ADC PCM frame to completion of the "
@@ -161,6 +186,11 @@ def _build_latency_report(markers: dict[str, int | float]) -> dict[str, object]:
                 "Each watermark is local to the named clock domain; write-side "
                 "levels conservatively lag reads high and read-side levels lag "
                 "writes low. They are not a coherent multi-clock snapshot."
+            ),
+            "clock_monitor_scope": (
+                "The Gray edge-counter monitor checks BCLK frequency against "
+                "fabric windows; it does not establish phase, perform rate "
+                "matching, or replace placed CDC timing constraints."
             ),
         },
     }
@@ -200,6 +230,7 @@ def main() -> int:
         "rtl/audio/decimator_16x.sv",
         "rtl/audio/output_mute_ramp.sv",
         "rtl/control/calibration_commit_guard.sv",
+        "rtl/io/audio_clock_rate_monitor.sv",
         "rtl/io/async_fifo.sv",
         "rtl/io/i2s_receiver.sv",
         "rtl/io/i2s_transmitter.sv",

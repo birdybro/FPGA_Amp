@@ -103,6 +103,15 @@ The mono reference and complete 768 kHz circuit solver are operating:
   4/4-frame transmit high-water marks without loss. Flattened XC7
   synthesis reports 571 LC / 1,547 FF / no DSP or RAM. The small
   8×64 memories are explicitly register-expanded.
+- A Gray-counter audio-clock monitor now measures BCLK over 32,768 fabric
+  clocks, accepts 1,024 ± 1 edges, and requires three consecutive windows for
+  lock. Warning-free directed RTL acquires at the exact ratio, observes 11
+  rather than 10 edges after a deliberate speed change, drops lock/latches the
+  error, reacquires, clears, detects a stopped clock as zero edges, and revokes
+  live state on BCLK reset. The pin top
+  measures exactly 1,024 edges in four windows. Standalone synthesis is 68 LC /
+  125 FF / no DSP or RAM. This detects gross rate error; FIFO drift remains the
+  longer-term mismatch diagnostic and neither mechanism performs rate matching.
 - Standalone converter calibration now maps PCM24 to physical input Q8.24 volts
   and physical output volts back to saturating PCM24 with explicit positive
   Q8.24 coefficients, full-width products, symmetric rounding, endpoint/clip
@@ -147,8 +156,8 @@ The mono reference and complete 768 kHz circuit solver are operating:
   or three 48 kHz frames from the first complete ADC PCM frame to the first
   complete valid model-output DAC frame. This is transport latency, not FIR or
   circuit group delay. All four local FIFO views remain at a one-frame
-  high-water mark. Flattened
-  synthesis is 20,934 LC / 16,782 FF / 232 DSP48E1 /
+  high-water mark, and the clock monitor is locked after four exact 1,024-edge
+  windows. Flattened synthesis is 21,014 LC / 16,907 FF / 232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1. This is a
   digital protocol integration, not placed CDC/I/O timing or converter/analog
   validation. The digital ramp cannot revoke frames already queued in the CDC
@@ -546,6 +555,7 @@ make stream-trapezoidal-rtl        # complete trapezoidal reference stream
 make stream-trapezoidal-terminal-banked-rtl # 127-clock trap terminal stream
 make guarded-stream-rtl            # mute/reset/warmup model-change sequence
 make mute-rtl                      # reset/ramp/fault output safety primitive
+make audio-clock-rtl               # BCLK/fabric ratio lock and error monitor
 make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make i2s-rtl                       # 24-bit/32-slot stereo protocol loopback
 make i2s-bridge-rtl                # exact bidirectional I2S/fabric CDC loopback
@@ -576,6 +586,7 @@ make synth-halfband                # complete interpolator/decimator estimates
 make synth-stream                  # complete reference-stream estimate
 make synth-stream-factorized       # smooth-tube stream resource estimate
 make synth-mute                    # output ramp structural estimate
+make synth-audio-clock             # audio clock ratio monitor estimate
 make synth-async-fifo              # depth-8 dual-clock FIFO estimate
 make synth-i2s                     # receiver/transmitter structural estimates
 make synth-i2s-bridge              # bidirectional protocol/CDC bridge estimate
