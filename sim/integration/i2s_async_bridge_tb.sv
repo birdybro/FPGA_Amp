@@ -3,6 +3,7 @@
 
 module i2s_async_bridge_tb;
     localparam int FRAME_COUNT = 20;
+    localparam int INITIAL_BACKPRESSURE_CYCLES = 400;
 
     logic i2s_bclk;
     logic i2s_rst_n = 1'b0;
@@ -37,6 +38,14 @@ module i2s_async_bridge_tb;
     logic tx_fifo_overflow;
     logic tx_fifo_underflow;
     logic tx_serial_underflow;
+    logic [3:0] rx_fifo_i2s_level;
+    logic [3:0] rx_fifo_i2s_high_water;
+    logic [3:0] rx_fifo_fabric_level;
+    logic [3:0] rx_fifo_fabric_high_water;
+    logic [3:0] tx_fifo_fabric_level;
+    logic [3:0] tx_fifo_fabric_high_water;
+    logic [3:0] tx_fifo_i2s_level;
+    logic [3:0] tx_fifo_i2s_high_water;
 
     logic [63:0] expected [0:FRAME_COUNT-1];
     integer fabric_rx_index;
@@ -84,7 +93,15 @@ module i2s_async_bridge_tb;
         .rx_fifo_underflow_sticky(rx_fifo_underflow),
         .tx_fifo_overflow_sticky(tx_fifo_overflow),
         .tx_fifo_underflow_sticky(tx_fifo_underflow),
-        .tx_serial_underflow_sticky(tx_serial_underflow)
+        .tx_serial_underflow_sticky(tx_serial_underflow),
+        .rx_fifo_i2s_level,
+        .rx_fifo_i2s_high_water,
+        .rx_fifo_fabric_level,
+        .rx_fifo_fabric_high_water,
+        .tx_fifo_fabric_level,
+        .tx_fifo_fabric_high_water,
+        .tx_fifo_i2s_level,
+        .tx_fifo_i2s_high_water
     );
 
     i2s_receiver dac_sink (
@@ -133,9 +150,11 @@ module i2s_async_bridge_tb;
             stalled_rx_data <= '0;
         end else begin
             fabric_cycle_count <= fabric_cycle_count + 1;
-            // Deliberate one-in-four backpressure verifies that the bridge
-            // holds a complete frame stable until ready returns.
-            fabric_rx_ready <= fabric_cycle_count[1:0] != 2'b01;
+            // Initial multi-frame backpressure raises occupancy without
+            // overflowing, then one-in-four stalls exercise held-data timing.
+            fabric_rx_ready <=
+                fabric_cycle_count >= INITIAL_BACKPRESSURE_CYCLES
+                && fabric_cycle_count[1:0] != 2'b01;
             fabric_tx_valid <= 1'b0;
             if (stalled_rx_valid) begin
                 if (!fabric_rx_valid || fabric_rx_data !== stalled_rx_data) begin
@@ -231,6 +250,15 @@ module i2s_async_bridge_tb;
             $error("unexpected bridge/sink diagnostic");
             errors = errors + 1;
         end
+        if (rx_fifo_i2s_high_water != 4'd3
+            || rx_fifo_fabric_high_water != 4'd3
+            || tx_fifo_fabric_high_water != 4'd4
+            || tx_fifo_i2s_high_water != 4'd4
+            || rx_fifo_i2s_level > 8 || rx_fifo_fabric_level > 8
+            || tx_fifo_fabric_level > 8 || tx_fifo_i2s_level > 8) begin
+            $error("invalid bridge occupancy level/watermark");
+            errors = errors + 1;
+        end
         // Startup starvation is expected because the ADC path must first fill
         // and cross; clear it, then ensure the clear reaches the BCLK block.
         if (!tx_serial_underflow) begin
@@ -253,7 +281,9 @@ module i2s_async_bridge_tb;
         errors = errors + fabric_errors + dac_errors;
         if (errors != 0)
             $fatal(1, "FAIL: %0d I2S asynchronous bridge errors", errors);
-        $display("PASS: 20 stereo frames across BCLK/fabric FIFOs and back");
+        $display("PASS: 20 frames; high-water rx_i2s/fabric=%0d/%0d tx_fabric/i2s=%0d/%0d",
+                 rx_fifo_i2s_high_water, rx_fifo_fabric_high_water,
+                 tx_fifo_fabric_high_water, tx_fifo_i2s_high_water);
         $finish;
     end
 endmodule

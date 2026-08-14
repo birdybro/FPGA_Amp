@@ -159,6 +159,10 @@ phase acquisition. This avoids both an initial scheduled zero and the hidden
 pre-input state advance described above. The demonstrated clocks are exactly
 frequency locked at 3.072 and 98.304 MHz but have unrelated phase. Independent
 nominal-rate oscillators remain invalid because FIFO occupancy would drift.
+The bridge now exposes occupancy and high-water diagnostics in each FIFO's two
+local domains. They use synchronized Gray-pointer conversion and retain the
+expected conservative staleness; the locked-rate integration peaks at one frame
+in every view. A future control/status CDC must snapshot them before host use.
 The fabric reset also resets active calibration to zero. A valid measured pair
 is committed while `audio_rst_n` keeps the output ramp muted, and audio state is
 released only after the one-clock commit acknowledgment. Later coefficient

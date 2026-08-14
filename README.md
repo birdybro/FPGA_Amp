@@ -81,9 +81,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   uses 9 DSP48E1 blocks and no block RAM.
 - A device-neutral depth-8 dual-clock FIFO now crosses full audio words with
   binary local/Gray synchronized pointers, two-flop CDC synchronizers, registered
-  reads, and sticky overflow/underflow. Unrelated 100/71.4 MHz test clocks preserve
-  a 128-word wrap sequence after directed full/empty faults. Generic XC7 synthesis
-  uses 114 logic cells / 323 flip-flops / no DSP or RAM; Yosys intentionally
+  reads, sticky overflow/underflow, and conservative local-domain occupancy plus
+  high-water diagnostics. Unrelated 100/71.4 MHz test clocks preserve a 128-word
+  wrap sequence after directed full/empty faults; directed fill reaches exactly
+  depth eight and both estimates return to zero after drain. Generic XC7 synthesis
+  uses 127 logic cells / 331 flip-flops / no DSP or RAM; Yosys intentionally
   expands this small 8×32 memory to registers. Embedded formal invariants exist,
   but no formal engine is installed in the current environment.
 - Separate I²S receive/transmit blocks now implement signed 24-bit stereo in
@@ -97,7 +99,9 @@ The mono reference and complete 768 kHz circuit solver are operating:
   exact frames from BCLK to an unrelated fabric clock and back while applying
   fabric receive backpressure; all six bridge diagnostics remain clean apart
   from deliberate DAC startup starvation, which clears in its owning domain.
-  Flattened XC7 synthesis reports 549 LC / 1,531 FF / no DSP or RAM. The small
+  Directed multi-frame receive backpressure records 3/3-frame receive and
+  4/4-frame transmit high-water marks without loss. Flattened XC7
+  synthesis reports 571 LC / 1,547 FF / no DSP or RAM. The small
   8×64 memories are explicitly register-expanded.
 - Standalone converter calibration now maps PCM24 to physical input Q8.24 volts
   and physical output volts back to saturating PCM24 with explicit positive
@@ -142,7 +146,9 @@ The mono reference and complete 768 kHz circuit solver are operating:
   diagnostic. Timestamped serial/fabric events measure 192 BCLKs, 62.500 µs,
   or three 48 kHz frames from the first complete ADC PCM frame to the first
   complete valid model-output DAC frame. This is transport latency, not FIR or
-  circuit group delay. Flattened synthesis is 20,910 LC / 16,766 FF / 232 DSP48E1 /
+  circuit group delay. All four local FIFO views remain at a one-frame
+  high-water mark. Flattened
+  synthesis is 20,934 LC / 16,782 FF / 232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1. This is a
   digital protocol integration, not placed CDC/I/O timing or converter/analog
   validation. The digital ramp cannot revoke frames already queued in the CDC

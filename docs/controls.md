@@ -47,6 +47,16 @@ as a new transaction. Muted digital state makes the coefficient transition
 click-free at the model boundary, but does not empty PCM already queued for the
 DAC.
 
+The asynchronous audio FIFOs now expose local occupancy estimates and retained
+high-water marks in all four owning-domain views (receive I²S/fabric and
+transmit fabric/I²S). These values are derived from the local binary pointer and
+the already synchronized remote Gray pointer. A write-side level may lag a read
+high; a read-side level may lag a write low. They are intentionally raw-domain
+diagnostics, not a coherent snapshot. The future status register layer must
+synchronize or snapshot each owning-domain value before host access. Existing
+domain-local diagnostic clear inputs also reset the corresponding watermark to
+the current projected occupancy.
+
 ## Required counters
 
 ADC/DAC clip, internal-node saturation, LUT out-of-range, solver residual failure,

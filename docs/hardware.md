@@ -143,14 +143,14 @@ configuration:
 
 | Resource | Count |
 |---|---:|
-| estimated logic cells | 114 |
-| flip-flops | 323 (256 FDRE + 66 FDCE + 1 FDPE) |
+| estimated logic cells | 127 |
+| flip-flops | 331 (256 FDRE + 74 FDCE + 1 FDPE) |
 | DSP48E1 / RAMB18E1 | 0 / 0 |
 
 The structural check reports zero problems. Yosys emits one source-level warning
 that it replaces the small dual-clock memory with registers; this is consistent
-with the reported 256 data plus 67 control/synchronizer flip-flops and is retained, not mislabeled as a
-techmap resize warning. Deeper hardware FIFOs need a named-part inference/IP
+with the reported 256 data plus 67 control/synchronizer and eight watermark
+flip-flops and is retained, not mislabeled as a techmap resize warning. Deeper hardware FIFOs need a named-part inference/IP
 comparison before assuming block-RAM mapping. This result has no CDC timing or
 metastability MTBF claim without the placed design and clock constraints.
 
@@ -172,18 +172,27 @@ The composed bidirectional I²S/CDC bridge has this flattened structural result:
 
 | Resource | Count |
 |---|---:|
-| estimated logic cells | 549 |
-| flip-flops | 1,531 |
+| estimated logic cells | 571 |
+| flip-flops | 1,547 |
 | DSP48E1 / RAMB18E1 | 0 / 0 |
 
 The flip-flop total includes 1,024 data registers for two depth-8 × 64-bit
 FIFOs; Yosys reports their register expansion explicitly. Post-map flattening
 was added to the resource script after a rejected intermediate hierarchy report
-omitted instantiated primitive registers. The final total is 1,024 FDRE, 367
+omitted instantiated primitive registers. The final total is 1,024 FDRE, 383
 FDCE, 3 FDPE, 131 falling-edge FDCE, and 6 falling-edge FDPE. Structural check
 finds zero problems. This remains an unplaced interface estimate: Gray-pointer
 CDC constraints, synchronizer placement, opposite-edge BCLK timing, and all
 board I/O delays still require the named FPGA and converter.
+
+Each FIFO now exports an occupancy estimate and high-water mark in both local
+clock domains. Gray-to-binary conversion uses only the already synchronized
+remote pointer. Write-side occupancy may conservatively lag reads high and
+read-side occupancy may lag writes low, so the four values are diagnostics, not
+a coherent cross-domain snapshot. Their watermarks clear with the existing
+owning-domain diagnostic clear. The locked-rate pin test measures one frame in
+all four views; directed bridge backpressure reaches RX 3/3 and TX 4/4 frames;
+the standalone test reaches the exact depth of eight.
 
 The dynamic converter calibration primitives synthesize independently as:
 
@@ -238,19 +247,20 @@ adapter produces the pin-facing digital hierarchy:
 
 | Resource | Count |
 |---|---:|
-| estimated logic cells | 20,910 |
-| flip-flops | 16,766 |
+| estimated logic cells | 20,934 |
+| flip-flops | 16,782 |
 | DSP48E1 | 232 |
 | RAMB18E1 / RAMB36E1 | 8 / 1 |
 
-The flip-flop total is 15,820 FDRE, 476 FDSE, 330 FDCE, 3 FDPE, 131
+The flip-flop total is 15,820 FDRE, 476 FDSE, 346 FDCE, 3 FDPE, 131
 falling-edge FDCE, and 6 falling-edge FDPE. Structural check reports zero
 problems; the 77 unique warnings retain local-array/FIFO register expansion and
 primitive resize notices. The result has no clock constraints, synchronizer
 placement, BCLK opposite-edge timing, board I/O delays, or named-part Fmax. It
 therefore proves structural composition, not a deployable converter interface.
-This hierarchy includes the atomic muted calibration commit guard; candidate
-register transport and its CDC are intentionally outside the top.
+This hierarchy includes the atomic muted calibration commit guard and four
+local-domain FIFO levels/watermarks; candidate register transport and coherent
+diagnostic CDC are intentionally outside the top.
 
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.

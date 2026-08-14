@@ -86,6 +86,11 @@ and selected nonlinear stream. Its regression uses the exact planned ratio,
 is released first; after a received frame crosses and is held, fabric-synchronous
 audio reset is released. This proves one reset/rate contract in simulation, not
 that either the FPGA or an unselected converter is the hardware clock master.
+Each receive/transmit FIFO now reports local-domain occupancy and a retained
+high-water mark. At the exact locked test rate all four views peak at one frame.
+Write-side values conservatively lag completed reads high and read-side values
+lag writes low; polling drift is useful evidence but is neither rate matching
+nor a coherent CDC snapshot.
 
 Jitter sensitivity must be checked at the highest analog input frequency. For a
 20 kHz full-scale sine, 1 ps RMS aperture jitter alone corresponds to roughly

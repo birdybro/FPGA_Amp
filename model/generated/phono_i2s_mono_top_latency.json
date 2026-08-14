@@ -20,6 +20,10 @@
     "first_tx_serial_frame_start_bclk": 195,
     "first_dac_model_frame_bclk": 252,
     "first_nonzero_dac_frame_bclk": 1468,
+    "rx_fifo_i2s_high_water": 1,
+    "rx_fifo_fabric_high_water": 1,
+    "tx_fifo_fabric_high_water": 1,
+    "tx_fifo_i2s_high_water": 1,
     "first_adc_frame_complete_ns": 19406.489623,
     "first_fabric_rx_accept_ns": 40606.637529,
     "first_model_input_ns": 40616.810055,
@@ -48,9 +52,16 @@
     "adc_complete_to_dac_complete_samples": 3.0,
     "first_model_frame_to_first_nonzero_ns": 395833.33414399996
   },
+  "locked_rate_fifo_high_water": {
+    "rx_fifo_i2s_high_water": 1,
+    "rx_fifo_fabric_high_water": 1,
+    "tx_fifo_fabric_high_water": 1,
+    "tx_fifo_i2s_high_water": 1
+  },
   "interpretation": {
     "frame_boundary_latency": "From the first complete ADC PCM frame to completion of the first corresponding valid model-output DAC frame.",
     "not_group_delay": "Valid transport latency and first quantized nonzero index do not replace the separately measured FIR/circuit group delay.",
-    "excluded": "ADC/DAC digital filters, converter aperture, analog filters, and board propagation are not simulated."
+    "excluded": "ADC/DAC digital filters, converter aperture, analog filters, and board propagation are not simulated.",
+    "fifo_level_semantics": "Each watermark is local to the named clock domain; write-side levels conservatively lag reads high and read-side levels lag writes low. They are not a coherent multi-clock snapshot."
   }
 }

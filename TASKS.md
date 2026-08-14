@@ -26,6 +26,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Add conservative local-domain occupancy and retained high-water
+  diagnostics to both sides of each asynchronous FIFO. Reach exact depth eight,
+  drain to zero, clear watermarks, and preserve the 128-word wrap test. At the
+  bridge backpressure records RX 3/3 and TX 4/4 frames without loss; at the
+  locked pin-level rate all four views peak at one frame without changing audio
+  or latency. Updated synthesis is FIFO 127 LC / 331 FF, bridge 571 LC / 1,547
+  FF, and pin top 20,934 LC / 16,782 FF; no DSP/RAM change.
 - [x] Correct the pin-level integration clocks from the accidentally ratio-only
   100/3.125 MHz test to the stated 98.304/3.072 MHz rates. Timestamp internal
   handshakes and serial boundaries; gate the deterministic intervals and record
@@ -39,7 +46,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   as exact mono duplicates. Retain expected startup starvation and zero all
   other diagnostics; atomically commit the startup converter-scaling pair while
   muted and reject a later live pair without changing active values; synthesize
-  the guarded top to 20,910 LC / 16,766 FF /
+  the later occupancy-instrumented top to 20,934 LC / 16,782 FF /
   232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1 with no placed CDC/I/O/converter claim.
 - [x] Add a protocol-neutral atomic calibration commit guard. Reset both active
@@ -75,7 +82,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Integrate the I²S protocol and CDC primitives into a bidirectional stereo
   frame bridge. Preserve 20 exact BCLK-to-fabric-to-BCLK frames under unrelated
   clocks and deliberate ready backpressure, verify owning-domain diagnostics,
-  and synthesize the flattened hierarchy to 549 LC / 1,531 FF with zero
+  and synthesize the later instrumented hierarchy to 571 LC / 1,547 FF with zero
   structural problems and explicit register-expanded FIFO storage.
 - [x] Implement conventional 24-bit stereo I²S in 32-BCLK slots. Loop 16 signed
   frames exactly through warning-free receive/transmit RTL; independently check
@@ -84,7 +91,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Implement a device-neutral dual-clock FIFO with Gray pointer crossings,
   two-flop synchronizers, registered read data, sticky overflow/underflow, and
   embedded formal invariants. Preserve directed and 128 wrapped words under
-  unrelated clocks; synthesize depth 8×32 to 114 LC / 323 FF with zero
+  unrelated clocks; with later occupancy watermarks, synthesize depth 8×32 to
+  127 LC / 331 FF with zero
   structural problems and a documented register-expansion warning.
 - [x] Add nine original, physically scaled PCM24 regressions covering silence,
   nominal/low-level THD, high-frequency intermodulation products, multitone,

@@ -52,6 +52,14 @@ module phono_i2s_mono_top_tb;
     logic tx_fifo_overflow_sticky;
     logic tx_fifo_underflow_sticky;
     logic tx_serial_underflow_sticky;
+    logic [3:0] rx_fifo_i2s_level;
+    logic [3:0] rx_fifo_i2s_high_water;
+    logic [3:0] rx_fifo_fabric_level;
+    logic [3:0] rx_fifo_fabric_high_water;
+    logic [3:0] tx_fifo_fabric_level;
+    logic [3:0] tx_fifo_fabric_high_water;
+    logic [3:0] tx_fifo_i2s_level;
+    logic [3:0] tx_fifo_i2s_high_water;
     logic scheduled_frame_present;
     logic [10:0] scheduler_phase_counter;
     logic [31:0] scheduler_underflow_count;
@@ -91,6 +99,10 @@ module phono_i2s_mono_top_tb;
     integer file_handle;
     integer scan_count;
     integer index;
+    logic [3:0] observed_rx_fifo_i2s_high_water;
+    logic [3:0] observed_rx_fifo_fabric_high_water;
+    logic [3:0] observed_tx_fifo_fabric_high_water;
+    logic [3:0] observed_tx_fifo_i2s_high_water;
     string marker;
     logic dac_scoreboard_started;
 
@@ -187,6 +199,14 @@ module phono_i2s_mono_top_tb;
         .tx_fifo_overflow_sticky,
         .tx_fifo_underflow_sticky,
         .tx_serial_underflow_sticky,
+        .rx_fifo_i2s_level,
+        .rx_fifo_i2s_high_water,
+        .rx_fifo_fabric_level,
+        .rx_fifo_fabric_high_water,
+        .tx_fifo_fabric_level,
+        .tx_fifo_fabric_high_water,
+        .tx_fifo_i2s_level,
+        .tx_fifo_i2s_high_water,
         .scheduled_frame_present,
         .scheduler_phase_counter,
         .scheduler_underflow_count,
@@ -425,6 +445,10 @@ module phono_i2s_mono_top_tb;
         first_nonzero_dac_frame_ns = -1.0;
         first_tx_fifo_word_seen = 1'b0;
         first_tx_serial_frame_started = 1'b0;
+        observed_rx_fifo_i2s_high_water = '0;
+        observed_rx_fifo_fabric_high_water = '0;
+        observed_tx_fifo_fabric_high_water = '0;
+        observed_tx_fifo_i2s_high_water = '0;
         file_handle = $fopen(
             "sim/vectors/generated/phono_fabric_mono_adapter.txt", "r"
         );
@@ -529,6 +553,22 @@ module phono_i2s_mono_top_tb;
             $error("unexpected I2S-top diagnostic");
             error_count = error_count + 1;
         end
+        if (rx_fifo_i2s_high_water == 0 || rx_fifo_i2s_high_water > 8
+            || rx_fifo_fabric_high_water == 0
+            || rx_fifo_fabric_high_water > 8
+            || tx_fifo_fabric_high_water == 0
+            || tx_fifo_fabric_high_water > 8
+            || tx_fifo_i2s_high_water == 0
+            || tx_fifo_i2s_high_water > 8
+            || rx_fifo_i2s_level > 8 || rx_fifo_fabric_level > 8
+            || tx_fifo_fabric_level > 8 || tx_fifo_i2s_level > 8) begin
+            $error("invalid pin-top FIFO occupancy level/watermark");
+            error_count = error_count + 1;
+        end
+        observed_rx_fifo_i2s_high_water = rx_fifo_i2s_high_water;
+        observed_rx_fifo_fabric_high_water = rx_fifo_fabric_high_water;
+        observed_tx_fifo_fabric_high_water = tx_fifo_fabric_high_water;
+        observed_tx_fifo_i2s_high_water = tx_fifo_i2s_high_water;
         if (output_gain_q16 != 16'hffff || output_muted
             || output_ramping) begin
             $error("pin-top startup ramp did not reach exact unity");
@@ -610,6 +650,14 @@ module phono_i2s_mono_top_tb;
                first_dac_model_frame_bclk);
         $write("\"first_nonzero_dac_frame_bclk\":%0d,",
                first_nonzero_dac_frame_bclk);
+        $write("\"rx_fifo_i2s_high_water\":%0d,",
+               observed_rx_fifo_i2s_high_water);
+        $write("\"rx_fifo_fabric_high_water\":%0d,",
+               observed_rx_fifo_fabric_high_water);
+        $write("\"tx_fifo_fabric_high_water\":%0d,",
+               observed_tx_fifo_fabric_high_water);
+        $write("\"tx_fifo_i2s_high_water\":%0d,",
+               observed_tx_fifo_i2s_high_water);
         $write("\"first_adc_frame_complete_ns\":%.6f,",
                first_adc_frame_complete_ns);
         $write("\"first_fabric_rx_accept_ns\":%.6f,",

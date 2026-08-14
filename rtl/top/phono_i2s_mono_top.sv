@@ -42,6 +42,14 @@ module phono_i2s_mono_top #(
     output logic                 tx_fifo_overflow_sticky,
     output logic                 tx_fifo_underflow_sticky,
     output logic                 tx_serial_underflow_sticky,
+    output logic [3:0]           rx_fifo_i2s_level,
+    output logic [3:0]           rx_fifo_i2s_high_water,
+    output logic [3:0]           rx_fifo_fabric_level,
+    output logic [3:0]           rx_fifo_fabric_high_water,
+    output logic [3:0]           tx_fifo_fabric_level,
+    output logic [3:0]           tx_fifo_fabric_high_water,
+    output logic [3:0]           tx_fifo_i2s_level,
+    output logic [3:0]           tx_fifo_i2s_high_water,
 
     output logic                 scheduled_frame_present,
     output logic [10:0]          scheduler_phase_counter,
@@ -116,7 +124,15 @@ module phono_i2s_mono_top #(
         .rx_fifo_underflow_sticky,
         .tx_fifo_overflow_sticky,
         .tx_fifo_underflow_sticky,
-        .tx_serial_underflow_sticky
+        .tx_serial_underflow_sticky,
+        .rx_fifo_i2s_level,
+        .rx_fifo_i2s_high_water,
+        .rx_fifo_fabric_level,
+        .rx_fifo_fabric_high_water,
+        .tx_fifo_fabric_level,
+        .tx_fifo_fabric_high_water,
+        .tx_fifo_i2s_level,
+        .tx_fifo_i2s_high_water
     );
 
     phono_fabric_mono_adapter #(

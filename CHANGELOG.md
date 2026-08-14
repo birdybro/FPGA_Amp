@@ -6,6 +6,16 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added conservative local-domain FIFO occupancy and high-water diagnostics.
+  Gray-to-binary conversion uses only the already synchronized remote pointer;
+  write-side estimates may lag reads high and read-side estimates may lag writes
+  low, so no coherent cross-domain snapshot is claimed. The depth-8 unit reaches
+  exactly eight, drains to zero, clears both watermarks, and preserves 128-word
+  wrap ordering. Both bridge and actual-rate pin regressions remain warning-free;
+  deliberate bridge backpressure reaches RX 3/3 and TX 4/4 frames without loss,
+  while all four locked-rate pin views peak at one frame. Updated synthesis is
+  127 LC / 331 FF for one 8×32 FIFO, 571 LC / 1,547 FF for the bridge, and
+  20,934 LC / 16,782 FF / 232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1 for the pin top.
 - Added a protocol-neutral atomic converter-calibration commit guard. The two
   active Q8.24 coefficients reset to zero and change together only for a
   positive candidate pair while the digital output is fully muted. Directed
@@ -14,7 +24,7 @@ All notable engineering changes are recorded here. The project is pre-release; d
   regression now commits its startup pair before audio-state release and
   rejects a later live update. Standalone XC7 synthesis is 14 LC / 67 FF / no
   DSP or RAM with zero warnings and structural problems; the updated complete
-  pin top is 20,910 LC / 16,766 FF / 232 DSP48E1 /
+  later occupancy-instrumented pin top is 20,934 LC / 16,782 FF / 232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1.
 - Added the pin-facing digital mono top that composes the asynchronous I²S
   bridge with the calibrated accuracy-first adapter. An exactly rate-locked but
@@ -23,7 +33,7 @@ All notable engineering changes are recorded here. The project is pre-release; d
   consecutive observable DAC frames as exact mono duplicates. Expected startup
   serial starvation is retained and every other diagnostic stays zero.
   With the later integrated output ramp and calibration guard, flattened XC7
-  synthesis is 20,910 LC / 16,766 FF / 232 DSP48E1 /
+  synthesis is 20,934 LC / 16,782 FF / 232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1; converter selection, placed timing, physical analog
   mute, and validation remain open.
 - Added the calibrated fabric mono adapter around the exact
@@ -57,7 +67,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
   and two depth-8 × 64-bit asynchronous FIFOs. Warning-free simulation preserves
   20 exact frames across unrelated clocks and deliberate receive backpressure,
   checks six bridge diagnostics, and clears expected startup starvation in its
-  owning domain. Flattened XC7 synthesis is 549 logic cells / 1,531 flip-flops /
+  owning domain. With later occupancy instrumentation, flattened XC7 synthesis
+  is 571 logic cells / 1,547 flip-flops /
   no DSP or RAM with explicit small-memory register expansion. Post-map
   flattening also prevents the resource reporter from omitting instantiated
   primitive registers; a rejected intermediate 67-FF count is not retained.
@@ -70,7 +81,7 @@ All notable engineering changes are recorded here. The project is pre-release; d
   pointer synchronization, registered reads, sticky per-domain overflow/
   underflow, and embedded formal invariants. Unrelated-clock simulation covers
   exact fill/drain faults and 128 wrapped words; generic XC7 synthesis reports
-  114 logic cells / 323 flip-flops with the small memory explicitly expanded to
+  127 logic cells / 331 flip-flops with later occupancy watermarks and the small memory explicitly expanded to
   registers and zero structural problems.
 - Added simultaneous least-squares tone, H2--H10 THD, and explicitly selected
   intermodulation-product measurement plus nine original PCM24 fixtures. The
@@ -557,7 +568,7 @@ All notable engineering changes are recorded here. The project is pre-release; d
   synchronously clears the ramp state. Eight-sample integration regressions
   reach unity before the first nonzero fixture output and retain all 64 raw
   model/PCM comparisons. With the later calibration guard, the muted
-  fabric/pin hierarchies measure 20,489/20,910 LC, 15,592/16,766 FF, and 232
+  fabric/pin hierarchies measure 20,489/20,934 LC, 15,592/16,782 FF, and 232
   DSP48E1s. Queued CDC frames still require physical analog muting for immediate
   fault response.
 - Increased the factorized grid-current table from 128 to 1,024 entries after a

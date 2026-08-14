@@ -30,7 +30,18 @@ module i2s_async_bridge #(
     output logic                 rx_fifo_underflow_sticky,
     output logic                 tx_fifo_overflow_sticky,
     output logic                 tx_fifo_underflow_sticky,
-    output logic                 tx_serial_underflow_sticky
+    output logic                 tx_serial_underflow_sticky,
+
+    // Local-domain occupancy estimates and watermarks. Write-side values may
+    // conservatively lag reads high; read-side values may lag writes low.
+    output logic [FIFO_ADDRESS_WIDTH:0] rx_fifo_i2s_level,
+    output logic [FIFO_ADDRESS_WIDTH:0] rx_fifo_i2s_high_water,
+    output logic [FIFO_ADDRESS_WIDTH:0] rx_fifo_fabric_level,
+    output logic [FIFO_ADDRESS_WIDTH:0] rx_fifo_fabric_high_water,
+    output logic [FIFO_ADDRESS_WIDTH:0] tx_fifo_fabric_level,
+    output logic [FIFO_ADDRESS_WIDTH:0] tx_fifo_fabric_high_water,
+    output logic [FIFO_ADDRESS_WIDTH:0] tx_fifo_i2s_level,
+    output logic [FIFO_ADDRESS_WIDTH:0] tx_fifo_i2s_high_water
 );
 
     logic [63:0] rx_serial_frame_data;
@@ -78,6 +89,8 @@ module i2s_async_bridge #(
         .wr_clear_overflow(i2s_clear_diagnostics),
         .wr_full(rx_fifo_full),
         .wr_overflow_sticky(rx_fifo_overflow_sticky),
+        .wr_level(rx_fifo_i2s_level),
+        .wr_high_water(rx_fifo_i2s_high_water),
         .rd_clk(fabric_clk),
         .rd_rst_n(fabric_rst_n),
         .rd_enable(rx_fifo_read_enable),
@@ -85,7 +98,9 @@ module i2s_async_bridge #(
         .rd_valid(rx_fifo_read_valid),
         .rd_clear_underflow(fabric_clear_diagnostics),
         .rd_empty(rx_fifo_empty),
-        .rd_underflow_sticky(rx_fifo_underflow_sticky)
+        .rd_underflow_sticky(rx_fifo_underflow_sticky),
+        .rd_level(rx_fifo_fabric_level),
+        .rd_high_water(rx_fifo_fabric_high_water)
     );
 
     // Convert the FIFO's registered read pulse into a held ready/valid source.
@@ -135,6 +150,8 @@ module i2s_async_bridge #(
         .wr_clear_overflow(fabric_clear_diagnostics),
         .wr_full(tx_fifo_full),
         .wr_overflow_sticky(tx_fifo_overflow_sticky),
+        .wr_level(tx_fifo_fabric_level),
+        .wr_high_water(tx_fifo_fabric_high_water),
         .rd_clk(i2s_bclk),
         .rd_rst_n(i2s_rst_n),
         .rd_enable(tx_fifo_read_enable),
@@ -142,7 +159,9 @@ module i2s_async_bridge #(
         .rd_valid(tx_fifo_read_valid),
         .rd_clear_underflow(i2s_clear_diagnostics),
         .rd_empty(tx_fifo_empty),
-        .rd_underflow_sticky(tx_fifo_underflow_sticky)
+        .rd_underflow_sticky(tx_fifo_underflow_sticky),
+        .rd_level(tx_fifo_i2s_level),
+        .rd_high_water(tx_fifo_i2s_high_water)
     );
 
     always_ff @(posedge i2s_bclk or negedge i2s_rst_n) begin

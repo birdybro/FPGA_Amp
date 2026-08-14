@@ -71,6 +71,20 @@ def _build_latency_report(markers: dict[str, int | float]) -> dict[str, object]:
             "pin-top latency changed: "
             f"measured={measured_differences}, expected={expected_differences}"
         )
+    expected_watermarks = {
+        "rx_fifo_i2s_high_water": 1,
+        "rx_fifo_fabric_high_water": 1,
+        "tx_fifo_fabric_high_water": 1,
+        "tx_fifo_i2s_high_water": 1,
+    }
+    measured_watermarks = {
+        name: int(markers[name]) for name in expected_watermarks
+    }
+    if measured_watermarks != expected_watermarks:
+        raise RuntimeError(
+            "locked-rate FIFO occupancy changed: "
+            f"measured={measured_watermarks}, expected={expected_watermarks}"
+        )
 
     def delta_ns(end: str, start: str) -> float:
         return float(markers[end]) - float(markers[start])
@@ -129,6 +143,7 @@ def _build_latency_report(markers: dict[str, int | float]) -> dict[str, object]:
         },
         "markers": markers,
         "intervals": intervals,
+        "locked_rate_fifo_high_water": measured_watermarks,
         "interpretation": {
             "frame_boundary_latency": (
                 "From the first complete ADC PCM frame to completion of the "
@@ -141,6 +156,11 @@ def _build_latency_report(markers: dict[str, int | float]) -> dict[str, object]:
             "excluded": (
                 "ADC/DAC digital filters, converter aperture, analog filters, "
                 "and board propagation are not simulated."
+            ),
+            "fifo_level_semantics": (
+                "Each watermark is local to the named clock domain; write-side "
+                "levels conservatively lag reads high and read-side levels lag "
+                "writes low. They are not a coherent multi-clock snapshot."
             ),
         },
     }
