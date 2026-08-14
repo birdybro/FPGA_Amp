@@ -151,6 +151,15 @@ All notable engineering changes are recorded here. The project is pre-release; d
   timing analysis in a useful interval, so no Fmax is reported and the
   80%-LUT complete candidate is not promoted.
 
+- Added an asserted capacitor-only KCL soft-multiplier scope. It remaps exactly
+  the two 48x44 products while leaving nine matrix products DSP-backed.
+  Isolated packing uses 36,327 LUTX / 10,436 FFX / 1,798 CARRY4 / 54 DSP.
+  Seed 1 and its ineffective timeout-divisor retry fail the same 10,001-attempt
+  FFX legalization; seed 2 completes placement at only 37.57 MHz, so routing is
+  skipped. The complete candidate packs at 66,341 LUTX / 14,590 FFX / 3,948
+  CARRY4 / 171 DSP. This smaller 18-DSP exchange is also rejected because its
+  unpipelined soft products materially worsen isolated timing.
+
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,
   0--80 bit-count bound/transition, one-cycle request decode and exact fields,

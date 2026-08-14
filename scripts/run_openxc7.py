@@ -223,10 +223,16 @@ def main() -> int:
         type=Path,
         help="nextpnr Python hook to run after packing and before placement",
     )
-    parser.add_argument(
+    soft_kcl_mapping = parser.add_mutually_exclusive_group()
+    soft_kcl_mapping.add_argument(
         "--soft-kcl-multipliers",
         action="store_true",
         help="map the KCL engine's eleven multipliers to LUT logic",
+    )
+    soft_kcl_mapping.add_argument(
+        "--soft-kcl-capacitor-multipliers",
+        action="store_true",
+        help="map only the KCL engine's two capacitor multipliers to LUT logic",
     )
     parser.add_argument(
         "--timing-allow-fail",
@@ -356,6 +362,8 @@ def main() -> int:
         synthesis_command.extend(
             ["--soft-multiplier-module", "network_kcl_v1_wide"]
         )
+    elif args.soft_kcl_capacitor_multipliers:
+        synthesis_command.append("--soft-kcl-capacitor-multipliers")
     synthesis = subprocess.run(
         synthesis_command,
         cwd=REPOSITORY_ROOT,
@@ -439,6 +447,9 @@ def main() -> int:
             else None
         ),
         "soft_kcl_multipliers": args.soft_kcl_multipliers,
+        "soft_kcl_capacitor_multipliers": (
+            args.soft_kcl_capacitor_multipliers
+        ),
         "fasm": (
             str(fasm.relative_to(REPOSITORY_ROOT))
             if not args.pack_only and not args.place_only and fasm.exists()

@@ -589,7 +589,10 @@ placement in a useful interval, so no timing result is claimed. The open runner
 now has a pack-only stage that records this exact utilization while explicitly
 leaving placement and Fmax incomplete. The candidate is retained as
 resource-sharing evidence, not promoted as the default full-solver timing
-solution. None
+solution. Softening only the two capacitor multipliers is less expensive—the
+complete solver packs at 66,341 LUT elements and 171 DSPs—but its isolated KCL
+places at only 37.57 MHz (seed 2), versus the all-DSP KCL's completed 92.23 MHz
+route. Routing and complete placement are skipped. None
 of these experiments is timing closure or a reference-mode change.
 All figures use the backend's unqualified `DEFAULT` timing grade. The implemented digital mute
 primitive is not independent analog speaker protection.
@@ -787,7 +790,9 @@ make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-place # place 
 make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-timing-place # tagged weight-20 experiment
 make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-regions-place # overlapping hierarchy floorplan
 make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-soft-kcl-pack # exact all-soft-KCL resource trade
+make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-soft-kcl-capacitors-pack # partial-soft full pack
 make openxc7-diagnostic-pipelined-kcl-soft-pack # isolated all-soft-KCL pack
+make openxc7-diagnostic-pipelined-kcl-soft-capacitors-place # partial-soft seed-2 timing
 make openxc7-a200t-parallel-diagnostic-pipelined-solver-place # compare A200T
 ```
 

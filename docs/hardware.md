@@ -308,7 +308,7 @@ from 3,010,517 to 2,006,868 units. This validates explicit hierarchy placement
 as a useful optimization, but its 2.67x remaining frequency gap requires a
 broader arithmetic/scheduling change; routing is deliberately skipped.
 
-### Soft KCL multiplier experiment
+### Soft KCL multiplier experiments
 
 The KCL source contains eleven signed multipliers; their widths expand to 72
 DSP48E1s in the selected isolated implementation. A reproducible Yosys branch
@@ -336,6 +336,26 @@ finishes normally and labels placement/timing as incomplete. All-soft KCL is
 therefore not promoted: it removes DSP pressure at the cost of severe LUT and
 placement pressure. Partial multiplier sharing or a scheduled, explicitly
 pipelined soft-multiply kernel remains a distinct future experiment.
+
+A second mapping softens only the two 48-by-44-bit capacitor-current
+multipliers, selected by cell type, hierarchy, and operand-width parameter with
+an asserted count of two. The nine 41-by-40 matrix multipliers remain hard.
+This removes 18 rather than 72 DSP48E1s. Isolated synthesis reports 12,710
+estimated logic cells and 54 DSPs; exact packing uses 36,327 LUTX, 10,436 FFX,
+1,798 CARRY4s, and 54 DSPs. Seed 1 fails strict legalization on one FFX after
+the backend's 10,001-attempt minimum. Reducing the documented timeout divisor
+from 8 to 4 reproduces the same minimum and failure, so this is not represented
+as increased placement effort. Seed 2 legalizes and reaches only 37.57 MHz
+after placement, versus the selected all-DSP KCL's completed 92.23 MHz route.
+Routing is deliberately skipped after the 2.62x placement miss.
+
+The partial mapping raises the complete shared-terminal solver from 15,072 to
+21,333 estimated logic cells. It packs legally at 66,341 LUTX, 14,590 FFX,
+3,948 CARRY4s, 171 DSPs, 16 RAMB18s, and two RAMB36s. This is a much smaller LUT
+penalty than all-soft KCL, but it adds 6,827 LUT elements while the isolated
+block loses 59.2% of its measured frequency. Complete placement is therefore
+not justified. Static hard-block removal without an explicit registered
+soft-multiply schedule is rejected for both tested scopes.
 
 ### XC7A200T capacity experiment
 

@@ -122,12 +122,21 @@ def main() -> int:
         type=validated_result_tag,
         help="retain tagged synthesis logs and summaries for an experiment",
     )
-    parser.add_argument(
+    soft_multiplier_mapping = parser.add_mutually_exclusive_group()
+    soft_multiplier_mapping.add_argument(
         "--soft-multiplier-module",
         choices=("network_kcl_v1_wide",),
         help=(
             "map every multiplier in the selected module hierarchy to LUT "
             "logic instead of DSP48E1s"
+        ),
+    )
+    soft_multiplier_mapping.add_argument(
+        "--soft-kcl-capacitor-multipliers",
+        action="store_true",
+        help=(
+            "map only the two 48x44 KCL capacitor multipliers to LUT logic; "
+            "retain the nine matrix multipliers in DSP48E1s"
         ),
     )
     args = parser.parse_args()
@@ -627,13 +636,29 @@ def main() -> int:
     synthesis_command = (
         f"synth_xilinx -family xc7 -top {actual_top}{out_of_context_flags}"
     )
+    soft_multiplier_scope = None
     if args.soft_multiplier_module is not None:
         module_pattern = f"*{args.soft_multiplier_module}*"
+        soft_multiplier_selection = f"{module_pattern}/t:$mul"
+        expected_soft_multiplier_count = 11
+        soft_multiplier_scope = "kcl_all"
+    elif args.soft_kcl_capacitor_multipliers:
+        module_pattern = "*network_kcl_v1_wide*"
+        soft_multiplier_selection = (
+            f"{module_pattern}/t:$mul "
+            f"{module_pattern}/r:A_WIDTH=48 %i"
+        )
+        expected_soft_multiplier_count = 2
+        soft_multiplier_scope = "kcl_capacitors"
+    if soft_multiplier_scope is not None:
         commands.extend(
             [
                 f"{synthesis_command} -run begin:map_dsp",
-                f"select -assert-count 11 {module_pattern}/t:$mul",
-                f"chtype -set $__soft_mul {module_pattern}/t:$mul",
+                (
+                    f"select -assert-count {expected_soft_multiplier_count} "
+                    f"{soft_multiplier_selection}"
+                ),
+                f"chtype -set $__soft_mul {soft_multiplier_selection}",
                 f"{synthesis_command} -run map_dsp:map_luts",
             ]
         )
@@ -744,6 +769,7 @@ def main() -> int:
         "top": args.top,
         "result_tag": args.result_tag,
         "soft_multiplier_module": args.soft_multiplier_module,
+        "soft_multiplier_scope": soft_multiplier_scope,
         "yosys": subprocess.check_output([str(yosys), "-V"], text=True).strip(),
         "estimated_logic_cells": int(lc_match.group(1)) if lc_match else None,
         "lut_by_size": {f"LUT{size}": count(f"LUT{size}") for size in range(2, 7)},

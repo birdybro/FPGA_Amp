@@ -78,8 +78,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   multipliers to LUT logic is legal but grows the complete candidate to
   101,479/126,800 packed LUT elements while reducing DSPs to 117; the isolated
   71,592-LUT block does not complete analytical placement in a useful interval,
-  so no Fmax is claimed. Develop a broader cross-block time-multiplexed schedule
-  or a partially shared multiplier kernel; only one clock remains in this
+  so no Fmax is claimed. Softening only the two capacitor multipliers reduces
+  the full design to 171 DSPs at 66,341 LUTX, but the isolated KCL places at
+  only 37.57 MHz and is also rejected. Develop a broader cross-block
+  time-multiplexed schedule with registered multiplier boundaries; only one
+  clock remains in this
   candidate, so do not add a per-pass stage or alter the frozen numerical
   contract.
 ## Completed this milestone
@@ -90,6 +93,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   101,479 LUTX / 117 DSP packing. Stop two non-convergent exploratory
   placements without claiming timing, retain normal pack summaries, and reject
   the all-soft mapping as the current A100T implementation.
+
+- [x] Measure a narrower soft-multiplier split. Assert selection of only the
+  two 48x44 capacitor multipliers while retaining nine DSP-backed matrix
+  multipliers. Record 36,327 LUTX / 54 DSP and 37.57 MHz for isolated seed-2
+  placement, versus the selected 72-DSP KCL's 92.23 MHz route; pack the full
+  hierarchy at 66,341 LUTX / 171 DSP and reject further implementation work on
+  an unpipelined soft-multiply branch.
 
 - [x] Implement and measure two-batch terminal-current resource sharing. Use
   fixed lane-pair muxes to avoid synthesis-created variable-index trees, pass
