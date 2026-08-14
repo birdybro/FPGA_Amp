@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run reproducible out-of-context XC7 structural synthesis for project RTL."""
+"""Run reproducible XC7 synthesis for project RTL."""
 
 from __future__ import annotations
 
@@ -74,8 +74,17 @@ def main() -> int:
             "phono_i2s_mono_top",
             "phono_i2s_control_top",
             "phono_i2s_spi_top",
+            "solver_pnr_harness",
         ),
         default="triode_12ax7",
+    )
+    parser.add_argument(
+        "--pnr-json",
+        type=Path,
+        help=(
+            "also insert top-level XC7 I/O/clock buffers and write a JSON "
+            "netlist suitable for the open nextpnr-himbaechel flow"
+        ),
     )
     args = parser.parse_args()
     yosys = locate("yosys")
@@ -387,8 +396,19 @@ def main() -> int:
             "rtl/top/phono_i2s_control_top.sv",
             "rtl/top/phono_i2s_spi_top.sv",
         ],
+        "solver_pnr_harness": [
+            "rtl/tube/triode_12ax7_factorized.sv",
+            "rtl/circuit/network_rhs_v1_wide.sv",
+            "rtl/circuit/network_kcl_v1_wide.sv",
+            "rtl/circuit/chord_corrector_v1_wide.sv",
+            "rtl/phono/v1_solver_mono_wide.sv",
+            "rtl/phono/v1_solver_mono_wide_trapezoidal_banked_terminal.sv",
+            "rtl/diagnostics/solver_pnr_harness.sv",
+        ],
     }[args.top]
-    log_path = results / f"yosys_xc7_{args.top}.log"
+    pnr_mode = args.pnr_json is not None
+    log_suffix = "_pnr" if pnr_mode else ""
+    log_path = results / f"yosys_xc7_{args.top}{log_suffix}.log"
     # Only the legacy solver/stream aliases select the factorized primitive by
     # overriding a wrapper parameter.  The factorized tube primitive is itself
     # a real top-level module despite sharing the same suffix.
@@ -407,9 +427,10 @@ def main() -> int:
     commands = [f"read_verilog -sv {' '.join(sources)}"]
     if parameter_command is not None:
         commands.append(parameter_command)
+    out_of_context_flags = "" if pnr_mode else " -noiopad -noclkbuf"
     commands.extend(
         [
-            f"synth_xilinx -family xc7 -top {actual_top} -noiopad -noclkbuf -run begin:map_luts",
+            f"synth_xilinx -family xc7 -top {actual_top}{out_of_context_flags} -run begin:map_luts",
             "opt_expr -mux_undef -noclkinv",
             f"abc -exe {abc} -luts 2:2,3,6:5,10,20",
             "clean",
@@ -419,6 +440,14 @@ def main() -> int:
             "xilinx_dffopt",
             "opt_lut_ins -tech xilinx",
             "clean",
+        ]
+    )
+    if pnr_mode:
+        # This is the standard synth_xilinx finalize step.  I/O cells were
+        # inserted before map_luts because -noiopad was deliberately omitted.
+        commands.append("clkbufmap -buf BUFG O:I")
+    commands.extend(
+        [
             # The Xilinx stat formatter aggregates LUTs through user-module
             # hierarchy but does not aggregate primitive flip-flop submodules.
             # Flatten only after mapping so the final resource table and JSON
@@ -430,6 +459,16 @@ def main() -> int:
             "check -noinit",
         ]
     )
+    pnr_json_path = None
+    if args.pnr_json is not None:
+        pnr_json_path = args.pnr_json
+        if not pnr_json_path.is_absolute():
+            pnr_json_path = REPOSITORY_ROOT / pnr_json_path
+        pnr_json_path.parent.mkdir(parents=True, exist_ok=True)
+        # Match the synth_xilinx JSON finalizer: primitive simulation models
+        # loaded as whiteboxes must become blackboxes before serialization.
+        commands.append("blackbox =A:whitebox")
+        commands.append(f"write_json {json.dumps(str(pnr_json_path))}")
     script = "; ".join(commands)
     environment = os.environ.copy()
     local_library = REPOSITORY_ROOT / ".tools" / "root" / "usr" / "lib"
@@ -487,7 +526,11 @@ def main() -> int:
             "Yosys techmap; see full log."
         )
     summary = {
-        "flow": "Yosys out-of-context synth_xilinx XC7; no place/route",
+        "flow": (
+            "Yosys synth_xilinx XC7 netlist for open place/route"
+            if pnr_mode
+            else "Yosys out-of-context synth_xilinx XC7; no place/route"
+        ),
         "top": args.top,
         "yosys": subprocess.check_output([str(yosys), "-V"], text=True).strip(),
         "estimated_logic_cells": int(lc_match.group(1)) if lc_match else None,
@@ -517,9 +560,16 @@ def main() -> int:
         "yosys_warning_count": warning_count,
         "warning_note": warning_note,
         "fmax_mhz": None,
-        "timing_note": "Fmax requires a named part plus vendor place-and-route and is not claimed here.",
+        "timing_note": (
+            "Timing is established only by a subsequent named-part open "
+            "place-and-route run; synthesis alone makes no Fmax claim."
+            if pnr_mode
+            else "Fmax requires named-part place-and-route and is not claimed here."
+        ),
     }
-    summary_path = results / f"synthesis_{args.top}_summary.json"
+    if pnr_json_path is not None:
+        summary["pnr_json"] = str(pnr_json_path.relative_to(REPOSITORY_ROOT))
+    summary_path = results / f"synthesis_{args.top}{log_suffix}_summary.json"
     summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=2))
     return 0

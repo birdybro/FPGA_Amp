@@ -3,7 +3,26 @@
 Sources are grouped by the decision they support. Scanned manufacturer material
 is treated as primary even when a third-party archive hosts the scan. A web
 article describing a historical circuit is provenance for that circuit, not a
-general authority on tube physics. Links were checked 2026-08-12.
+general authority on tube physics. Links were checked 2026-08-14.
+
+## Open FPGA implementation flow
+
+- YosysHQ, [nextpnr](https://github.com/YosysHQ/nextpnr). The upstream README
+  identifies the Project-X-Ray-backed Xilinx 7-series backend as experimental.
+  The pinned source also explicitly lists `xc7a100t` in the Himbaechel-Xilinx
+  device generator while exposing only a `DEFAULT` timing grade. These facts
+  support using the flow for reproducible placement/routing evidence while
+  withholding qualified XC7A100T-1 signoff claims.
+- F4PGA, [Project X-Ray](https://github.com/f4pga/prjxray) and
+  [prjxray-db](https://github.com/f4pga/prjxray-db). These are the open 7-series
+  bitstream documentation/tooling and device database consumed by nextpnr. The
+  checked database contains `artix7/xc7a100tcsg324-1`, the exact provisional
+  Arty A7-100T part.
+- Digilent,
+  [Arty-A7-100 master XDC](https://github.com/Digilent/digilent-xdc/blob/master/Arty-A7-100-Master.xdc).
+  Primary board-source provenance for the E3 oscillator, D9 button, and H5 LED
+  locations used by the timing-only solver harness. Those three pins do not
+  define the eventual converter daughterboard or audio clock circuit.
 
 ## Frozen V1 circuit and equalization
 

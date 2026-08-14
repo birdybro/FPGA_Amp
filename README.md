@@ -531,8 +531,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   the raw -74.59 dBc bin is no longer left ambiguous or mislabeled as aliasing.
 
 There is no physical host-adapter backend, fabricated analog front end,
-converter board, named-part timing result, or physical measurement yet. The
-implemented digital mute primitive is not independent analog speaker protection.
+converter board, completed named-part route, qualified speed-grade timing, or
+physical measurement yet. An experimental open XC7 placement now measures the
+solver timing harness at only 13.90 MHz against 98.304 MHz; this is a diagnosed
+architecture failure, not a timing-closure claim. The implemented digital mute
+primitive is not independent analog speaker protection.
 
 ## Verification chain
 
@@ -699,6 +702,9 @@ make synth-mono-adapter            # calibrated accuracy-first fabric datapath
 make synth-i2s-mono-top            # protocol/CDC plus calibrated mono datapath
 make synth-i2s-control-top         # register-controlled complete pin hierarchy
 make synth-i2s-spi-top             # SPI transport plus complete pin hierarchy
+make tools-openxc7                 # build pinned open XC7 P&R tools locally
+make openxc7-probe                 # report Yosys/nextpnr/database revisions
+make openxc7-pnr                   # route the solver timing harness on A7-100T
 ```
 
 Run a user-supplied 48 kHz integer-PCM WAV through an explicitly selected V1
@@ -738,8 +744,10 @@ under `model/generated/` as part of the numerical contract.
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
 path is further reducing terminal-solver approximation error without breaking
 the 128-clock deadline and proving the 98.304 MHz one-clock-margin design in
-named-part place-and-route; the latter requires vendor tooling not present in
-the current environment.
+named-part place-and-route. The required Linux flow is Yosys plus the
+experimental nextpnr-Himbaechel/Project X-Ray XC7 backend; Vivado is not part
+of the project flow, and the backend's `DEFAULT` timing grade is not presented
+as qualified XC7A100T-1 signoff.
 
 ## License
 

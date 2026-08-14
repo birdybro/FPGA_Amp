@@ -34,6 +34,13 @@ These instructions apply to the entire repository.
 - Update `TASKS.md` and `CHANGELOG.md` continuously when milestones, discrepancies, circuit values, arithmetic, or measured results change.
 - Do not stop merely because an intermediate milestone works while another meaningful, unblocked verification step is available.
 
+## FPGA toolchain
+
+- The required synthesis, place/route, bitstream, programming, and verification flow must use open-source tools and be runnable on Linux without Vivado or another proprietary FPGA suite.
+- Use Yosys for synthesis and formal work. The provisional Artix-7 flow uses nextpnr-Himbaechel with Project X-Ray data; keep the backend's experimental status and timing-model limitations explicit.
+- A routed result is not a speed-grade timing claim when the backend does not distinguish that speed grade. Preserve tool versions, constraints, seeds, reports, and logs for every physical result.
+- Do not make a bitstream or hardware-readiness claim until the open bitstream generator, complete board constraints, clock generation, and programming/capture path have each been exercised.
+
 ## Physical engineering
 
 - Do not imply that the FPGA or DAC can drive passive loudspeakers directly.

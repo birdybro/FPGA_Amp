@@ -4,9 +4,42 @@
 
 The provisional FPGA is the Digilent Arty A7-100T (XC7A100T). It offers roughly
 101,440 logic cells, 240 DSP48E1 blocks, and 4,860 Kib of block RAM. It is widely
-supported by Vivado and Yosys, but has no precision audio converter on board; a
-short, controlled-interface converter daughterboard is required. Core RTL stays
-device-neutral and Xilinx primitives are not used in the tube module.
+available and Project X-Ray contains the exact `xc7a100tcsg324-1` database, but
+has no precision audio converter on board; a short, controlled-interface
+converter daughterboard is required. Core RTL stays device-neutral and Xilinx
+primitives are not used in the tube module.
+
+The required Linux implementation flow is fully open source: Yosys produces
+the XC7 JSON netlist and nextpnr-Himbaechel performs packing, placement, and
+routing against Project X-Ray data. The upstream nextpnr project labels its
+7-series backend experimental. At the pinned revision it imports timing data
+under a single `DEFAULT` grade rather than identifying XC7A100T-1, so a routed
+frequency result is valuable engineering evidence but is not mislabeled as a
+certified `-1` speed-grade limit. `scripts/bootstrap_openxc7.sh` builds the
+pinned backend without root access; `make openxc7-probe` records the installed
+versions and database. No Vivado step is part of the required flow.
+
+## First named-part placement diagnosis
+
+`solver_pnr_harness` wraps the complete 127-clock
+trapezoidal/banked/terminal solver with an internal deterministic stimulus and
+a one-bit registered signature. Only the Arty oscillator, one button, and one
+LED are package pins, so wide debug buses cannot distort the I/O requirement.
+Yosys 0.66 measures the harness at 14,967 estimated logic cells, 6,372
+flip-flops, 174 DSP48E1s, eight RAMB18E1s, and one RAMB36E1. The open XC7
+packer expands this to 50,789 `SLICE_LUTX` elements, including 29,653 LUT1s,
+plus 3,770 CARRY4s and the same DSP/RAM count.
+
+With seed 1, one thread, router2, and a 98.304 MHz request, nextpnr commit
+`4d23515` reports only 13.90 MHz after placement. This is an experimental
+`DEFAULT`-grade estimate, not a qualified -1 speed result, but the 7.07x miss is
+too large to treat as a signoff nuance. Source inspection identifies three
+dependent multiplications in each cubic-Hermite evaluation, followed in two
+phases by another dependent multiply. The tube arithmetic therefore needs a
+pipelined or separately error-bounded approximation architecture. The
+historical circuit and numerical tolerances are not changed to hide this
+timing failure. Router2 completion and post-route critical-path extraction
+remain in progress for this baseline.
 
 ## Measured out-of-context result
 
@@ -128,8 +161,8 @@ problems and 72 techmap resize warnings. Relative to the nominal wide stream, th
 selector and terminal control add 974 estimated logic cells but no DSP or block
 RAM. Its 127-clock solver latency leaves one clock between 768 kHz deadlines at
 98.304 MHz. This structural fit does not establish that the one-clock margin
-will close routing on XC7A100T; vendor place-and-route is required before this
-mode can be selected for hardware.
+will close routing on XC7A100T; the named-part open-source place/route flow must
+close before this mode can be selected for hardware.
 
 The complete trapezoidal banked terminal stream measures 20,241 logic cells,
 222 DSP48E1s, eight RAMB18E1s, and one RAMB36E1 with zero structural check
@@ -308,8 +341,10 @@ without an end-to-end error/resource comparison.
 
 ## Required next implementation evidence
 
-1. Run Vivado synthesis/place/route on the exact Arty part and record worst slack,
-   clocks, utilization, power estimate, and all CDC/timing exceptions.
+1. Run Yosys and nextpnr-Himbaechel on the exact Arty part and record achieved
+   frequency, clocks, utilization, routing status, and every timing exception.
+   Treat the backend's `DEFAULT` timing grade separately from a qualified
+   XC7A100T-1 signoff claim.
 2. Establish a stereo resource strategy within the measured 168-DSP mono budget.
 3. Capture FPGA results and compare bit-for-bit with the fixed model before any
    analog loopback claim.

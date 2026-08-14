@@ -1,6 +1,6 @@
 # Engineering task ledger
 
-Last updated: 2026-08-13
+Last updated: 2026-08-14
 
 ## Current milestone
 
@@ -26,7 +26,14 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [ ] Prove 98.304 MHz named-part timing for the 127-clock trapezoidal terminal
   stream. Generic synthesis fits XC7A100T structurally at 20,241 LC / 222 of
   240 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1, but the parallel terminal-current path and one-clock
-  sample margin require Vivado place-and-route before hardware selection.
+  sample margin require the open Yosys/nextpnr-Himbaechel place/route flow
+  before hardware selection. Project X-Ray contains the exact
+  `xc7a100tcsg324-1` part, but the current experimental backend uses a single
+  `DEFAULT` timing grade, so routing evidence and qualified -1 speed-grade
+  signoff must remain distinct. The first full-solver harness packs at 50,789
+  `SLICE_LUTX` / 174 DSP and reaches only 13.90 MHz after placement. Diagnose
+  the routed path, then pipeline or replace the dependent three-multiply cubic
+  Hermite kernel without weakening fixed-model equivalence.
 ## Completed this milestone
 
 - [x] Bound the oversampled SPI transport under arbitrary asynchronous raw-pin,
@@ -555,7 +562,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   The cubic and full-tube alias-family tests are captured from RTL; the latter
   is bounded below fixed rounding closure rather than inferred from the
   confounded raw bin.
-- No vendor place-and-route/Fmax, FPGA capture, analog converter, or physical tube
+- No qualified named-speed-grade Fmax, FPGA capture, analog converter, or physical tube
   measurement exists.
 - GE curve digitization has ±0.05 mA visual uncertainty; production tube spread
   and tolerance statistics are not characterized.

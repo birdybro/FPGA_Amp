@@ -6,6 +6,22 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Adopted a fully open Linux FPGA implementation path. A pinned non-root
+  bootstrap now builds nextpnr-Himbaechel for XC7A100T against Project X-Ray,
+  and `run_openxc7.py` probes versions then composes Yosys synthesis with
+  deterministic named-part packing, placement, routing, FASM, log, and JSON
+  report generation. Added a three-pin Arty-A7-100 timing harness around the
+  complete 127-clock trapezoidal/banked/terminal solver so its internal
+  arithmetic can be routed without turning wide diagnostic buses into package
+  pins. The backend is explicitly experimental and reports a `DEFAULT` timing
+  grade; no qualified XC7A100T-1 or bitstream claim is inferred.
+- The first accuracy-first solver harness packs on `xc7a100tcsg324-1` at
+  50,789 `SLICE_LUTX`, 6,372 flip-flops, 3,770 CARRY4, 174 DSP48E1, eight
+  RAMB18E1, and one RAMB36E1. Seed-1 placement reaches only 13.90 MHz against
+  98.304 MHz. The result exposes the dependent cubic-Hermite multiplier chain
+  as architecture debt; it is retained as a failing timing baseline rather
+  than being concealed or called qualified speed-grade signoff.
+
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,
   0--80 bit-count bound/transition, one-cycle request decode and exact fields,
