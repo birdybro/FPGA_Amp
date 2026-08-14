@@ -164,6 +164,12 @@ is committed while `audio_rst_n` keeps the output ramp muted, and audio state is
 released only after the one-clock commit acknowledgment. Later coefficient
 updates require an explicit ramp-down to the same muted state.
 
+At this fixed phase, timestamped RTL events measure 192 BCLKs (62.500 µs,
+three 48 kHz frames) from completion of the first ADC PCM frame to completion
+of the first valid model-output DAC frame. That is valid-token transport only;
+it does not replace the independently measured resampler/circuit group delay or
+include physical converter latency.
+
 ## Stereo scheduling
 
 Duplicating the accuracy-first tube primitive would consume 32 DSPs and 94

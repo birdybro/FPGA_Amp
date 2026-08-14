@@ -96,9 +96,22 @@ must be evaluated together rather than quoting one time-domain number.
 
 The tube LUT is eight 98.304 MHz clocks (0.0814 µs) per evaluation. Digital
 frame flow now exists through I²S, interpolation, solver, decimation, the
-modern digital output ramp, and output serialization, but its transport/group-
-delay report and physical analog mute are still incomplete. Converter digital-
-filter and analog latency remain unknown.
-Each block will publish integer/fractional sample delay. The final end-to-end
-report will use an analog loopback impulse/correlation measurement, not the sum
-of optimistic data-sheet typical values.
+modern digital output ramp, and output serialization. The pin-level RTL now
+timestamps actual valid/ready and serial-frame events at 3.072/98.304 MHz. From
+completion of the first ADC PCM frame to completion of the first corresponding
+valid model-output DAC frame it measures exactly 192 BCLKs: 62.500 µs or 3.000
+48 kHz sample periods. Within the fabric path, accepted calibrated input to the
+first model output-valid is 273 fabric clocks (2.7771 µs); mute/output
+calibration adds two clocks and the held transmit frame is accepted one clock
+later. The detailed reproducible event report is
+`model/generated/phono_i2s_mono_top_latency.json`.
+
+This is transaction/valid transport latency, not signal group delay. The first
+fixture code becomes nonzero at output index 19 because of initialized circuit
+state, filtering, and PCM quantization; that index is retained as a regression
+but is not used as an impulse-delay estimate. The separately measured identity
+resampler has 51 samples of causal converter delay, while a real circuit also
+has frequency-dependent phase. Converter digital filters, aperture, analog
+filters, and board propagation remain unknown. Final end-to-end latency will
+use an analog loopback impulse/correlation measurement, not a sum of optimistic
+data-sheet typical values.

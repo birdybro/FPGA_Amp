@@ -26,6 +26,12 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Correct the pin-level integration clocks from the accidentally ratio-only
+  100/3.125 MHz test to the stated 98.304/3.072 MHz rates. Timestamp internal
+  handshakes and serial boundaries; gate the deterministic intervals and record
+  192 BCLK / 62.500 us / 3.000 sample periods from the first complete ADC frame
+  to the first complete valid model-output DAC frame. Keep this transport result
+  separate from resampler/circuit and physical-converter group delay.
 - [x] Compose the I²S/CDC bridge with the calibrated accuracy-first mono
   adapter. Under exactly frequency-locked 3.072/98.304 MHz clocks with unrelated
   phase, deliver all 64 serial stereo inputs to calibrated model state exactly,

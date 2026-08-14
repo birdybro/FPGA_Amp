@@ -1,10 +1,12 @@
-`timescale 1ns/1ps
+`timescale 1ns/1fs
 `default_nettype none
 
 module phono_i2s_mono_top_tb;
     localparam int VECTOR_COUNT = 64;
     localparam int INPUT_FULL_SCALE_PEAK_VOLTS_Q24 = 335544;
     localparam int OUTPUT_RECIPROCAL_FULL_SCALE_Q24 = 2097152;
+    localparam realtime FABRIC_HALF_PERIOD_NS = 5.086263020833;
+    localparam realtime I2S_BCLK_HALF_PERIOD_NS = 162.760416666667;
 
     logic i2s_bclk;
     logic i2s_rst_n = 1'b0;
@@ -91,6 +93,31 @@ module phono_i2s_mono_top_tb;
     integer index;
     string marker;
     logic dac_scoreboard_started;
+
+    longint unsigned fabric_cycle_count;
+    longint unsigned bclk_rising_edge_count;
+    longint signed first_fabric_rx_accept_cycle;
+    longint signed first_model_input_cycle;
+    longint signed first_model_output_cycle;
+    longint signed first_calibrated_output_cycle;
+    longint signed first_fabric_tx_accept_cycle;
+    longint signed first_adc_frame_complete_bclk;
+    longint signed first_tx_fifo_read_bclk;
+    longint signed first_tx_serial_frame_start_bclk;
+    longint signed first_dac_model_frame_bclk;
+    longint signed first_nonzero_dac_frame_bclk;
+    realtime first_adc_frame_complete_ns;
+    realtime first_fabric_rx_accept_ns;
+    realtime first_model_input_ns;
+    realtime first_model_output_ns;
+    realtime first_calibrated_output_ns;
+    realtime first_fabric_tx_accept_ns;
+    realtime first_tx_fifo_read_ns;
+    realtime first_tx_serial_frame_start_ns;
+    realtime first_dac_model_frame_ns;
+    realtime first_nonzero_dac_frame_ns;
+    logic first_tx_fifo_word_seen;
+    logic first_tx_serial_frame_started;
 
     function automatic logic [63:0] stereo_frame(
         input logic signed [23:0] left,
@@ -199,12 +226,12 @@ module phono_i2s_mono_top_tb;
     initial begin
         fabric_clk = 1'b0;
         #3;
-        forever #5 fabric_clk = ~fabric_clk;
+        forever #(FABRIC_HALF_PERIOD_NS) fabric_clk = ~fabric_clk;
     end
     initial begin
         i2s_bclk = 1'b0;
         #37;
-        forever #160 i2s_bclk = ~i2s_bclk;
+        forever #(I2S_BCLK_HALF_PERIOD_NS) i2s_bclk = ~i2s_bclk;
     end
 
     task automatic enqueue_adc(input logic [63:0] value);
@@ -218,6 +245,68 @@ module phono_i2s_mono_top_tb;
             adc_frame_valid = 1'b0;
         end
     endtask
+
+    // Absolute event markers make transport latency reproducible without
+    // treating the first nonzero PCM code as the resampler's group delay.
+    always @(posedge fabric_clk) begin
+        fabric_cycle_count <= fabric_cycle_count + 1'b1;
+        if (dut.fabric_rx_frame_valid && dut.fabric_rx_frame_ready
+            && first_fabric_rx_accept_cycle < 0) begin
+            first_fabric_rx_accept_cycle <= fabric_cycle_count;
+            first_fabric_rx_accept_ns <= $realtime;
+        end
+        if (audio_rst_n && dut.adapter.calibrated_input_valid
+            && first_model_input_cycle < 0) begin
+            first_model_input_cycle <= fabric_cycle_count;
+            first_model_input_ns <= $realtime;
+        end
+        if (audio_rst_n && dut.adapter.model_output_valid
+            && first_model_output_cycle < 0) begin
+            first_model_output_cycle <= fabric_cycle_count;
+            first_model_output_ns <= $realtime;
+        end
+        if (audio_rst_n && dut.adapter.calibrated_output_valid
+            && first_calibrated_output_cycle < 0) begin
+            first_calibrated_output_cycle <= fabric_cycle_count;
+            first_calibrated_output_ns <= $realtime;
+        end
+        if (dut.fabric_tx_frame_valid && dut.fabric_tx_frame_ready
+            && first_fabric_tx_accept_cycle < 0) begin
+            first_fabric_tx_accept_cycle <= fabric_cycle_count;
+            first_fabric_tx_accept_ns <= $realtime;
+        end
+    end
+
+    always @(posedge i2s_bclk) begin
+        bclk_rising_edge_count <= bclk_rising_edge_count + 1'b1;
+        #1;
+        if (dut.bridge.rx_serial_frame_valid
+            && first_adc_frame_complete_bclk < 0) begin
+            first_adc_frame_complete_bclk <= bclk_rising_edge_count;
+            first_adc_frame_complete_ns <= $realtime;
+        end
+        if (dut.bridge.tx_fifo_read_valid
+            && first_tx_fifo_read_bclk < 0) begin
+            first_tx_fifo_read_bclk <= bclk_rising_edge_count;
+            first_tx_fifo_read_ns <= $realtime;
+            first_tx_fifo_word_seen <= 1'b1;
+        end
+        if (dac_frame_valid && first_tx_serial_frame_started
+            && first_dac_model_frame_bclk < 0) begin
+            first_dac_model_frame_bclk <= bclk_rising_edge_count;
+            first_dac_model_frame_ns <= $realtime;
+        end
+    end
+
+    always @(negedge i2s_bclk) begin
+        if (first_tx_fifo_word_seen && !first_tx_serial_frame_started
+            && dut.bridge.transmitter.entering_left_slot
+            && dut.bridge.transmitter.pending_valid) begin
+            first_tx_serial_frame_started <= 1'b1;
+            first_tx_serial_frame_start_bclk <= bclk_rising_edge_count;
+            first_tx_serial_frame_start_ns <= $realtime;
+        end
+    end
 
     // Check the complete serial receive/CDC/calibration input path before the
     // nonlinear state can obscure an ordering or channel-selection error.
@@ -274,6 +363,8 @@ module phono_i2s_mono_top_tb;
             if (!dac_scoreboard_started && dac_frame_data != 64'd0) begin
                 dac_scoreboard_started <= 1'b1;
                 dac_output_index <= first_nonzero_output;
+                first_nonzero_dac_frame_ns <= $realtime;
+                first_nonzero_dac_frame_bclk <= bclk_rising_edge_count;
                 if (dac_frame_data !== duplicate_frame(
                     expected_output[first_nonzero_output]
                 )) begin
@@ -310,6 +401,30 @@ module phono_i2s_mono_top_tb;
         dac_output_index = 0;
         first_nonzero_output = -1;
         dac_scoreboard_started = 1'b0;
+        fabric_cycle_count = 0;
+        bclk_rising_edge_count = 0;
+        first_fabric_rx_accept_cycle = -1;
+        first_model_input_cycle = -1;
+        first_model_output_cycle = -1;
+        first_calibrated_output_cycle = -1;
+        first_fabric_tx_accept_cycle = -1;
+        first_adc_frame_complete_bclk = -1;
+        first_tx_fifo_read_bclk = -1;
+        first_tx_serial_frame_start_bclk = -1;
+        first_dac_model_frame_bclk = -1;
+        first_nonzero_dac_frame_bclk = -1;
+        first_adc_frame_complete_ns = -1.0;
+        first_fabric_rx_accept_ns = -1.0;
+        first_model_input_ns = -1.0;
+        first_model_output_ns = -1.0;
+        first_calibrated_output_ns = -1.0;
+        first_fabric_tx_accept_ns = -1.0;
+        first_tx_fifo_read_ns = -1.0;
+        first_tx_serial_frame_start_ns = -1.0;
+        first_dac_model_frame_ns = -1.0;
+        first_nonzero_dac_frame_ns = -1.0;
+        first_tx_fifo_word_seen = 1'b0;
+        first_tx_serial_frame_started = 1'b0;
         file_handle = $fopen(
             "sim/vectors/generated/phono_fabric_mono_adapter.txt", "r"
         );
@@ -455,11 +570,63 @@ module phono_i2s_mono_top_tb;
             $error("expected exhausted test-source underflow was not retained");
             error_count = error_count + 1;
         end
+        if (first_adc_frame_complete_bclk < 0
+            || first_fabric_rx_accept_cycle < 0
+            || first_model_input_cycle < 0
+            || first_model_output_cycle < 0
+            || first_calibrated_output_cycle < 0
+            || first_fabric_tx_accept_cycle < 0
+            || first_tx_fifo_read_bclk < 0
+            || first_tx_serial_frame_start_bclk < 0
+            || first_tx_serial_frame_start_ns < 0.0
+            || first_dac_model_frame_bclk < 0
+            || first_nonzero_dac_frame_bclk < 0
+            || first_nonzero_dac_frame_ns < 0.0) begin
+            $error("one or more latency markers were not observed");
+            error_count = error_count + 1;
+        end
 
         error_count = error_count + input_error_count + launch_error_count
                       + dac_error_count;
         if (error_count != 0)
             $fatal(1, "FAIL: %0d pin-facing mono-top errors", error_count);
+        $write("LATENCY_REPORT {");
+        $write("\"first_nonzero_output_index\":%0d,",
+               first_nonzero_output);
+        $write("\"first_adc_frame_complete_bclk\":%0d,",
+               first_adc_frame_complete_bclk);
+        $write("\"first_fabric_rx_accept_cycle\":%0d,",
+               first_fabric_rx_accept_cycle);
+        $write("\"first_model_input_cycle\":%0d,", first_model_input_cycle);
+        $write("\"first_model_output_cycle\":%0d,", first_model_output_cycle);
+        $write("\"first_calibrated_output_cycle\":%0d,",
+               first_calibrated_output_cycle);
+        $write("\"first_fabric_tx_accept_cycle\":%0d,",
+               first_fabric_tx_accept_cycle);
+        $write("\"first_tx_fifo_read_bclk\":%0d,", first_tx_fifo_read_bclk);
+        $write("\"first_tx_serial_frame_start_bclk\":%0d,",
+               first_tx_serial_frame_start_bclk);
+        $write("\"first_dac_model_frame_bclk\":%0d,",
+               first_dac_model_frame_bclk);
+        $write("\"first_nonzero_dac_frame_bclk\":%0d,",
+               first_nonzero_dac_frame_bclk);
+        $write("\"first_adc_frame_complete_ns\":%.6f,",
+               first_adc_frame_complete_ns);
+        $write("\"first_fabric_rx_accept_ns\":%.6f,",
+               first_fabric_rx_accept_ns);
+        $write("\"first_model_input_ns\":%.6f,", first_model_input_ns);
+        $write("\"first_model_output_ns\":%.6f,", first_model_output_ns);
+        $write("\"first_calibrated_output_ns\":%.6f,",
+               first_calibrated_output_ns);
+        $write("\"first_fabric_tx_accept_ns\":%.6f,",
+               first_fabric_tx_accept_ns);
+        $write("\"first_tx_fifo_read_ns\":%.6f,", first_tx_fifo_read_ns);
+        $write("\"first_tx_serial_frame_start_ns\":%.6f,",
+               first_tx_serial_frame_start_ns);
+        $write("\"first_dac_model_frame_ns\":%.6f,",
+               first_dac_model_frame_ns);
+        $display("\"first_nonzero_dac_frame_ns\":%.6f}",
+                 first_nonzero_dac_frame_ns);
         $display("PASS: %0d serial inputs and %0d post-startup DAC frames exact",
                  model_input_index, VECTOR_COUNT - first_nonzero_output);
         $finish;

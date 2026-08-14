@@ -4,13 +4,146 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+REPORT_PREFIX = "LATENCY_REPORT "
+FABRIC_HZ = 98_304_000
+I2S_BCLK_HZ = 3_072_000
+SAMPLE_RATE_HZ = 48_000
+
+
+def _build_latency_report(markers: dict[str, int | float]) -> dict[str, object]:
+    expected_first_nonzero_output_index = 19
+    if (
+        int(markers["first_nonzero_output_index"])
+        != expected_first_nonzero_output_index
+    ):
+        raise RuntimeError(
+            "first quantized nonzero output changed: "
+            f"{markers['first_nonzero_output_index']} != "
+            f"{expected_first_nonzero_output_index}"
+        )
+    expected_differences = {
+        "fabric_rx_to_model_input_clocks": 1,
+        "model_input_to_output_clocks": 273,
+        "model_output_to_calibrated_output_clocks": 2,
+        "calibrated_output_to_tx_accept_clocks": 1,
+        "adc_complete_to_dac_complete_bclks": 192,
+        "model_frame_to_first_nonzero_bclks": (
+            expected_first_nonzero_output_index * 64
+        ),
+    }
+    measured_differences = {
+        "fabric_rx_to_model_input_clocks": (
+            int(markers["first_model_input_cycle"])
+            - int(markers["first_fabric_rx_accept_cycle"])
+        ),
+        "model_input_to_output_clocks": (
+            int(markers["first_model_output_cycle"])
+            - int(markers["first_model_input_cycle"])
+        ),
+        "model_output_to_calibrated_output_clocks": (
+            int(markers["first_calibrated_output_cycle"])
+            - int(markers["first_model_output_cycle"])
+        ),
+        "calibrated_output_to_tx_accept_clocks": (
+            int(markers["first_fabric_tx_accept_cycle"])
+            - int(markers["first_calibrated_output_cycle"])
+        ),
+        "adc_complete_to_dac_complete_bclks": (
+            int(markers["first_dac_model_frame_bclk"])
+            - int(markers["first_adc_frame_complete_bclk"])
+        ),
+        "model_frame_to_first_nonzero_bclks": (
+            int(markers["first_nonzero_dac_frame_bclk"])
+            - int(markers["first_dac_model_frame_bclk"])
+        ),
+    }
+    if measured_differences != expected_differences:
+        raise RuntimeError(
+            "pin-top latency changed: "
+            f"measured={measured_differences}, expected={expected_differences}"
+        )
+
+    def delta_ns(end: str, start: str) -> float:
+        return float(markers[end]) - float(markers[start])
+
+    end_to_end_ns = delta_ns(
+        "first_dac_model_frame_ns", "first_adc_frame_complete_ns"
+    )
+    expected_end_to_end_ns = (
+        measured_differences["adc_complete_to_dac_complete_bclks"]
+        * 1.0e9
+        / I2S_BCLK_HZ
+    )
+    if abs(end_to_end_ns - expected_end_to_end_ns) > 0.001:
+        raise RuntimeError(
+            "absolute I2S rate changed: timestamp latency "
+            f"{end_to_end_ns:.9f} ns != clock-count latency "
+            f"{expected_end_to_end_ns:.9f} ns"
+        )
+    intervals = {
+        **measured_differences,
+        "adc_complete_to_fabric_rx_accept_ns": delta_ns(
+            "first_fabric_rx_accept_ns", "first_adc_frame_complete_ns"
+        ),
+        "model_input_to_output_ns": delta_ns(
+            "first_model_output_ns", "first_model_input_ns"
+        ),
+        "fabric_tx_accept_to_fifo_read_ns": delta_ns(
+            "first_tx_fifo_read_ns", "first_fabric_tx_accept_ns"
+        ),
+        "fifo_read_to_serial_frame_start_ns": delta_ns(
+            "first_tx_serial_frame_start_ns", "first_tx_fifo_read_ns"
+        ),
+        "serial_frame_start_to_dac_complete_ns": delta_ns(
+            "first_dac_model_frame_ns", "first_tx_serial_frame_start_ns"
+        ),
+        "adc_complete_to_dac_complete_simulation_ns": end_to_end_ns,
+        "adc_complete_to_dac_complete_clock_derived_ns": expected_end_to_end_ns,
+        "adc_complete_to_dac_complete_samples": (
+            measured_differences["adc_complete_to_dac_complete_bclks"]
+            * SAMPLE_RATE_HZ
+            / I2S_BCLK_HZ
+        ),
+        "first_model_frame_to_first_nonzero_ns": delta_ns(
+            "first_nonzero_dac_frame_ns", "first_dac_model_frame_ns"
+        ),
+    }
+    return {
+        "schema_version": 1,
+        "scope": "RTL serial-frame transport at configured locked clocks",
+        "clock_contract": {
+            "sample_rate_hz": SAMPLE_RATE_HZ,
+            "i2s_bclk_hz": I2S_BCLK_HZ,
+            "fabric_hz": FABRIC_HZ,
+            "sample_bits": 24,
+            "slot_bits": 32,
+        },
+        "markers": markers,
+        "intervals": intervals,
+        "interpretation": {
+            "frame_boundary_latency": (
+                "From the first complete ADC PCM frame to completion of the "
+                "first corresponding valid model-output DAC frame."
+            ),
+            "not_group_delay": (
+                "Valid transport latency and first quantized nonzero index do "
+                "not replace the separately measured FIR/circuit group delay."
+            ),
+            "excluded": (
+                "ADC/DAC digital filters, converter aperture, analog filters, "
+                "and board propagation are not simulated."
+            ),
+        },
+    }
 
 
 def main() -> int:
@@ -80,11 +213,28 @@ def main() -> int:
         cwd=REPOSITORY_ROOT,
         check=True,
     )
-    subprocess.run(
+    simulation = subprocess.run(
         [str(build / "Vphono_i2s_mono_top_tb")],
         cwd=REPOSITORY_ROOT,
         check=True,
+        capture_output=True,
+        text=True,
     )
+    sys.stdout.write(simulation.stdout)
+    sys.stderr.write(simulation.stderr)
+    match = re.search(
+        r"^" + REPORT_PREFIX + r"(\{.*\})$",
+        simulation.stdout,
+        flags=re.MULTILINE,
+    )
+    if match is None:
+        raise RuntimeError("pin-top simulation did not emit a latency report")
+    report = _build_latency_report(json.loads(match.group(1)))
+    report_path = (
+        REPOSITORY_ROOT / "model/generated/phono_i2s_mono_top_latency.json"
+    )
+    report_path.write_text(json.dumps(report, indent=2) + "\n")
+    print(json.dumps(report, indent=2))
     return 0
 
 

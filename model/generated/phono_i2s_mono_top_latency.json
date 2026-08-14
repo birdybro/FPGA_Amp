@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "scope": "RTL serial-frame transport at configured locked clocks",
+  "clock_contract": {
+    "sample_rate_hz": 48000,
+    "i2s_bclk_hz": 3072000,
+    "fabric_hz": 98304000,
+    "sample_bits": 24,
+    "slot_bits": 32
+  },
+  "markers": {
+    "first_nonzero_output_index": 19,
+    "first_adc_frame_complete_bclk": 60,
+    "first_fabric_rx_accept_cycle": 3991,
+    "first_model_input_cycle": 3992,
+    "first_model_output_cycle": 4265,
+    "first_calibrated_output_cycle": 4267,
+    "first_fabric_tx_accept_cycle": 4268,
+    "first_tx_fifo_read_bclk": 137,
+    "first_tx_serial_frame_start_bclk": 195,
+    "first_dac_model_frame_bclk": 252,
+    "first_nonzero_dac_frame_bclk": 1468,
+    "first_adc_frame_complete_ns": 19406.489623,
+    "first_fabric_rx_accept_ns": 40606.637529,
+    "first_model_input_ns": 40616.810055,
+    "first_model_output_ns": 43393.909653,
+    "first_calibrated_output_ns": 43414.254705,
+    "first_fabric_tx_accept_ns": 43424.427231,
+    "first_tx_fifo_read_ns": 44471.593841,
+    "first_tx_serial_frame_start_ns": 63513.56263,
+    "first_dac_model_frame_ns": 81906.489751,
+    "first_nonzero_dac_frame_ns": 477739.823895
+  },
+  "intervals": {
+    "fabric_rx_to_model_input_clocks": 1,
+    "model_input_to_output_clocks": 273,
+    "model_output_to_calibrated_output_clocks": 2,
+    "calibrated_output_to_tx_accept_clocks": 1,
+    "adc_complete_to_dac_complete_bclks": 192,
+    "model_frame_to_first_nonzero_bclks": 1216,
+    "adc_complete_to_fabric_rx_accept_ns": 21200.147906,
+    "model_input_to_output_ns": 2777.0995980000007,
+    "fabric_tx_accept_to_fifo_read_ns": 1047.1666100000002,
+    "fifo_read_to_serial_frame_start_ns": 19041.968789,
+    "serial_frame_start_to_dac_complete_ns": 18392.927121,
+    "adc_complete_to_dac_complete_simulation_ns": 62500.000128,
+    "adc_complete_to_dac_complete_clock_derived_ns": 62500.0,
+    "adc_complete_to_dac_complete_samples": 3.0,
+    "first_model_frame_to_first_nonzero_ns": 395833.33414399996
+  },
+  "interpretation": {
+    "frame_boundary_latency": "From the first complete ADC PCM frame to completion of the first corresponding valid model-output DAC frame.",
+    "not_group_delay": "Valid transport latency and first quantized nonzero index do not replace the separately measured FIR/circuit group delay.",
+    "excluded": "ADC/DAC digital filters, converter aperture, analog filters, and board propagation are not simulated."
+  }
+}

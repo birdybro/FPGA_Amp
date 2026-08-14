@@ -139,7 +139,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   scaling pair now resets to zero and commits atomically only while the output
   ramp is muted. The same test accepts the startup pair, then rejects a live
   candidate without changing either active coefficient and clears the unsafe
-  diagnostic. Flattened synthesis is 20,910 LC / 16,766 FF / 232 DSP48E1 /
+  diagnostic. Timestamped serial/fabric events measure 192 BCLKs, 62.500 µs,
+  or three 48 kHz frames from the first complete ADC PCM frame to the first
+  complete valid model-output DAC frame. This is transport latency, not FIR or
+  circuit group delay. Flattened synthesis is 20,910 LC / 16,766 FF / 232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1. This is a
   digital protocol integration, not placed CDC/I/O timing or converter/analog
   validation. The digital ramp cannot revoke frames already queued in the CDC

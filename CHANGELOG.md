@@ -281,6 +281,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Fixed
 
+- Corrected the pin-level integration bench's absolute clocks. Its former
+  5 ns/160 ns half-periods exercised the correct 32:1 ratio but were actually
+  100/3.125 MHz, not the documented 98.304/3.072 MHz. Femtosecond-resolution
+  periods now exercise the stated rates without changing exact frame/model
+  results. Timestamped handshake and serial markers are regression-gated and
+  record 192 BCLKs / 62.500 µs / 3.000 samples from first complete ADC frame to
+  first complete valid model-output DAC frame; this is transport latency, not
+  signal group delay.
 - Corrected synthesis resource reporting to count mapped RAMB36E1 primitives
   and publish RAMB18-equivalent totals. Every factorized-tube hierarchy maps
   eight RAMB18E1s plus one RAMB36E1 (10 RAMB18-equivalents); earlier eight-only
