@@ -117,6 +117,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   integration test proves startup qualification, stopped-BCLK clamp, recovery
   that remains latched, coherent fault snapshot, and host clear before release;
   model scheduling continues silently so the receive FIFO is not filled.
+- A reusable 16-bit held-bus CDC snapshot now uses a four-phase handshake, two
+  data synchronizer stages, and a final settling clock. Three warning-free
+  captures survive unrelated clocks and a destination reset during a request;
+  generic synthesis is 5 LC / 75 FF with no warnings. Register-bank integration
+  is the next step before raw I²S occupancy values can be claimed coherent.
 - Standalone converter calibration now maps PCM24 to physical input Q8.24 volts
   and physical output volts back to saturating PCM24 with explicit positive
   Q8.24 coefficients, full-width products, symmetric rounding, endpoint/clip

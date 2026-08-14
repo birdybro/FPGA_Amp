@@ -120,9 +120,12 @@ the already synchronized remote Gray pointer. A write-side level may lag a read
 high; a read-side level may lag a write low. They are intentionally raw-domain
 diagnostics, not a coherent snapshot. Only fabric-owned views may connect
 directly to the implemented snapshot bank; I²S-owned values still require safe
-synchronization or a domain-local snapshot. Existing domain-local diagnostic
-clear inputs also reset the corresponding watermark to the current projected
-occupancy.
+synchronization or a domain-local snapshot. `cdc_word_snapshot` now provides
+that primitive: a four-phase request/acknowledge handshake holds all source bits
+stable through two destination synchronizers and delays valid by a further
+clock. It is not yet connected to the register snapshot transaction. Existing
+domain-local diagnostic clear inputs also reset the corresponding watermark to
+the current projected occupancy.
 
 Clock status now includes a fabric-domain measurement-valid pulse, last BCLK
 edge count, consecutive-good-window count, live rate-lock flag, and sticky rate

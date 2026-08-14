@@ -29,6 +29,12 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Implement the held-bus CDC primitive needed for coherent I²S-domain
+  occupancy snapshots. Use a four-phase request/acknowledge protocol, hold all
+  16 bits through two synchronizer stages plus a settling clock, re-arm safely,
+  and survive destination reset during an active request. Prove three exact
+  captures warning-free and synthesize to 5 LC / 75 FF / no DSP or RAM. Register
+  transaction integration remains the next step.
 - [x] Define the host-side SPI/register ABI in dependency-free Python. Encode
   exact ten-byte full-duplex frames, validate identity/version/capabilities and
   response status, require explicit mute ownership for snapshot/clear commands,

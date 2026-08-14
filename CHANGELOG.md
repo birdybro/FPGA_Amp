@@ -6,6 +6,12 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a reusable 16-bit held-bus CDC snapshot primitive. Its four-phase
+  request/acknowledge handshake holds destination data stable through two
+  source-clock synchronizer stages and one final settling clock. Three exact,
+  warning-free captures cover unrelated clocks and destination reset during an
+  active request. XC7 structural synthesis is 5 LC / 75 FF / no DSP or RAM with
+  zero warnings/problems; register-bank integration is intentionally separate.
 - Added `fpga_amp.host_control`, a dependency-free host definition of the
   ten-byte full-duplex SPI/register ABI. It validates identity, ABI,
   capabilities, lengths, reserved status, and bus errors; makes mute ownership

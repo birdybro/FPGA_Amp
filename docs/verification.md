@@ -195,6 +195,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | I²S receiver/transmitter synthesis | Yosys 0.66 structural | RX 35 LC/105 FF; TX 97 LC/137 negative-edge FF; no warnings/DSP/RAM/Fmax claim |
 | bidirectional I²S/CDC bridge RTL | 20 stereo frames; unrelated 50/76.9 MHz stress clocks | exact BCLK→fabric→BCLK order after multi-frame plus one-in-four receive stalls; local RX I²S/fabric watermarks 3/3 and TX fabric/I²S 4/4; owning-domain diagnostics checked |
 | bidirectional I²S/CDC bridge synthesis | Yosys 0.66 flattened structural | with four local-domain levels/watermarks: 571 LC / 1,547 FF / no DSP or RAM; two 8×64 memories register-expanded; no Fmax/CDC claim |
+| held-bus CDC snapshot RTL/synthesis | three 16-bit captures; unrelated clocks plus destination reset during request | every image exact; warning-free; 5 LC / 75 FF / no DSP/RAM; no placed CDC claim |
 | PCM24/Q8.24 calibration RTL | 4,159 vectors each direction | bit-exact, one clock, endpoint/invalid/4,079 output-saturation events checked; warning-free |
 | PCM24/Q8.24 calibration synthesis | Yosys 0.66 structural | input 95 LC/66 FF/4 DSP; output 86 LC/58 FF/4 DSP; no RAM/Fmax claim |
 | atomic calibration commit RTL | invalid/muted-valid/live-valid/clear sequence | active pair resets zero; muted pair commits together with one ack; rejected attempts preserve both values and set the correct sticky flag; warning-free |
