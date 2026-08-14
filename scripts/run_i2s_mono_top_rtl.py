@@ -223,6 +223,7 @@ def main() -> int:
         "rtl/circuit/network_rhs_v1_wide.sv",
         "rtl/circuit/network_kcl_v1_wide.sv",
         "rtl/circuit/chord_corrector_v1_wide.sv",
+        "rtl/circuit/terminal_current_update_v1.sv",
         "rtl/phono/v1_solver_mono_wide.sv",
         "rtl/filters/halfband_interpolator_2x.sv",
         "rtl/filters/halfband_decimator_2x.sv",

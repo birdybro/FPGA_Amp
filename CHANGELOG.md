@@ -18,9 +18,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - The first accuracy-first solver harness packs on `xc7a100tcsg324-1` at
   50,789 `SLICE_LUTX`, 6,372 flip-flops, 3,770 CARRY4, 174 DSP48E1, eight
   RAMB18E1, and one RAMB36E1. Seed-1 placement reaches only 13.90 MHz against
-  98.304 MHz. The result exposes the dependent cubic-Hermite multiplier chain
-  as architecture debt; it is retained as a failing timing baseline rather
-  than being concealed or called qualified speed-grade signoff.
+  98.304 MHz. A controlled value-only tube substitution later reaches only
+  13.67 MHz at placement, so the earlier Hermite-path diagnosis is explicitly
+  rejected rather than preserved as a convenient explanation. Both are
+  retained as failing timing baselines, not qualified speed-grade signoff.
 - Added a bit-exact iterative Q0.16 cubic-Hermite kernel that preserves the
   established signed-32 wrap and add-half rounding contract while scheduling
   one full-width 32x17 multiply per clock. It passes 4,096 deterministic
@@ -39,7 +40,18 @@ All notable engineering changes are recorded here. The project is pre-release; d
   plate-current error. The RTL passes 4,110 tube vectors and both 512-vector
   wide/terminal solver regressions exactly at 116/127 clocks. The isolated
   tube routes at 113.24 MHz (`DEFAULT` grade) with 27 DSP48E1s; complete solver
-  synthesis falls from 174 to 166 DSPs and full routing remains in progress.
+  synthesis falls from 174 to 166 DSPs, but full placement reaches only 13.67
+  MHz versus the Hermite solver's 13.90 MHz. It is therefore not promoted to
+  the reference/default path; full routing remains in progress for detailed
+  path evidence.
+- Factored the ten parallel trapezoidal terminal-current recomputations into a
+  separately routable, bit-exact module and added terminal-current, KCL, and
+  chord timing harnesses to the open flow. Both 512-vector solver regressions
+  retain 116/127-clock latency. The isolated terminal block uses 54 DSP48E1s;
+  replacing its serial diagnostic overflow sum with an explicitly widened
+  balanced popcount improves post-route timing from 51.95 to 88.83 MHz while
+  preserving exact results. This still fails the 98.304 MHz target and is not
+  represented as solver closure.
 
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,

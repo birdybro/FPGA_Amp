@@ -31,17 +31,28 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   `xc7a100tcsg324-1` part, but the current experimental backend uses a single
   `DEFAULT` timing grade, so routing evidence and qualified -1 speed-grade
   signoff must remain distinct. The first full-solver harness packs at 50,789
-  `SLICE_LUTX` / 174 DSP and reaches only 13.90 MHz after placement. Diagnose
-  the routed path. A standalone bit-exact iterative Hermite replacement now
+  `SLICE_LUTX` / 174 DSP and reaches only 13.90 MHz after placement. A
+  value-only tube substitution places at 13.67 MHz, falsifying the hypothesis
+  that Hermite is the dominant whole-solver limiter. A standalone bit-exact
+  iterative Hermite replacement now
   closes post-route at 132.54 MHz with two DSPs and three-clock latency, but
   inserting that latency into all three dependent tube functions would exceed
   the current 127-clock solver budget. The separately named value-only linear
   candidate instead retains eight clocks: 100,000-point error is 47.49 nA
   worst, tube and complete terminal solver RTL are bit-exact, and the isolated
   tube routes at 113.24 MHz. Its full harness packs at 49,530 `SLICE_LUTX`, 166
-  DSP, 13 RAMB18E1, and 5 RAMB36E1; finish routing and compare its post-route
-  path before any reference/default selection.
+  DSP, 13 RAMB18E1, and 5 RAMB36E1. The isolated 54-DSP terminal-current block
+  improves from 51.95 to 88.83 MHz when its exact overflow count is balanced,
+  but still misses 98.304 MHz. Finish both full routes, route KCL/chord in
+  isolation, and reschedule the proven dominant paths before any
+  reference/default selection.
 ## Completed this milestone
+
+- [x] Factor the ten terminal trapezoidal current recomputations into a
+  bit-exact timing unit, preserve both 512-vector solver regressions at 116/127
+  clocks, and add named-part terminal/KCL/chord harnesses. Measure 54 DSPs and
+  51.95 MHz for the original serial overflow count, replace it with an exact
+  balanced popcount, and improve isolated post-route timing to 88.83 MHz.
 
 - [x] Implement and independently label the value-only factorized timing
   candidate. Reproduce its 1,024/8,192/4,096 tables; measure 47.49 nA worst

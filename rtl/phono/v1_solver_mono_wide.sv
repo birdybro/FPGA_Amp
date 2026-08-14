@@ -275,52 +275,11 @@ module v1_solver_mono_wide #(
         end
     endfunction
 
-    // Match round_shift() in the bit-accurate model.  CAP_G_FILE is Q0.47,
-    // the voltage delta is Q30, and the committed current is Q4.44, hence a
-    // 33-bit right shift after adding a positive half-LSB bias.
-    function automatic logic signed [62:0] rounded_capacitor_current_q44(
-        input logic signed [91:0] product
-    );
-        logic signed [91:0] biased;
-        begin
-            biased = product + (92'sd1 <<< 32);
-            rounded_capacitor_current_q44 = 63'($signed(biased) >>> 33);
-        end
-    endfunction
-
-    function automatic logic signed [47:0] saturate_current_q44(
-        input logic signed [62:0] value
-    );
-        begin
-            if (value > 63'sd140737488355327)
-                saturate_current_q44 = 48'sh7fffffffffff;
-            else if (value < -63'sd140737488355328)
-                saturate_current_q44 = 48'sh800000000000;
-            else
-                saturate_current_q44 = value[47:0];
-        end
-    endfunction
-
-    function automatic logic current_exceeds_48(
-        input logic signed [62:0] value
-    );
-        begin
-            current_exceeds_48 = (value > 63'sd140737488355327)
-                                 || (value < -63'sd140737488355328);
-        end
-    endfunction
-
-    // The file-backed KCL engine must support selectable integration assets,
-    // but the terminal trapezoidal path is specific to the frozen 768 kHz V1
-    // model.  Emitting these coefficients as constants lets synthesis reduce
-    // ten simultaneous products instead of inferring full variable 48x44
-    // multipliers.  The generator also emits the matching .mem file used by
-    // the bit-accurate KCL engine and vectors.
-`include "model/generated/v1_cap_conductance_q0_47_trapezoidal.svh"
-
     logic [359:0] voltage_flat;
     logic [399:0] capacitor_flat;
     logic [479:0] capacitor_current_flat;
+    logic [399:0] terminal_capacitor_flat;
+    logic [479:0] terminal_current_flat;
     logic [479:0] capacitor_current_next_unused;
     logic [3:0] capacitor_current_saturation_unused;
     logic signed [41:0] capacitor_voltage_a [0:9];
@@ -334,15 +293,32 @@ module v1_solver_mono_wide #(
     logic signed [41:0] terminal_capacitor_voltage_b [0:9];
     logic signed [42:0] terminal_capacitor_difference [0:9];
     logic [3:0] terminal_capacitor_saturation_count;
-    logic signed [43:0] terminal_current_voltage_delta [0:9];
-    logic signed [91:0] terminal_current_product [0:9];
-    logic signed [62:0] terminal_current_value [0:9];
-    logic signed [47:0] terminal_current_next [0:9];
     logic [3:0] terminal_current_saturation_count;
+    logic [9:0] capacitor_saturation_by_lane;
+    logic [9:0] terminal_capacitor_saturation_by_lane;
+
+    function automatic logic [3:0] popcount10(input logic [9:0] bits);
+        logic [1:0] pair_0;
+        logic [1:0] pair_1;
+        logic [1:0] pair_2;
+        logic [1:0] pair_3;
+        logic [1:0] pair_4;
+        logic [2:0] group_0;
+        logic [2:0] group_1;
+        begin
+            pair_0 = {1'b0, bits[0]} + {1'b0, bits[1]};
+            pair_1 = {1'b0, bits[2]} + {1'b0, bits[3]};
+            pair_2 = {1'b0, bits[4]} + {1'b0, bits[5]};
+            pair_3 = {1'b0, bits[6]} + {1'b0, bits[7]};
+            pair_4 = {1'b0, bits[8]} + {1'b0, bits[9]};
+            group_0 = {1'b0, pair_0} + {1'b0, pair_1};
+            group_1 = {1'b0, pair_2} + {1'b0, pair_3};
+            popcount10 = {1'b0, group_0} + {1'b0, group_1}
+                         + {2'b00, pair_4};
+        end
+    endfunction
+
     always_comb begin
-        capacitor_saturation_count = '0;
-        terminal_capacitor_saturation_count = '0;
-        terminal_current_saturation_count = '0;
         for (int lane = 0; lane < 9; lane = lane + 1) begin
             voltage_flat[lane * 40 +: 40] = node_voltage[lane];
             node_voltage_debug[lane * 40 +: 40] = node_voltage[lane];
@@ -371,8 +347,9 @@ module v1_solver_mono_wide #(
                 $signed({capacitor_voltage_a[lane][41], capacitor_voltage_a[lane]})
                 - $signed({capacitor_voltage_b[lane][41], capacitor_voltage_b[lane]});
             capacitor_next[lane] = saturate_40(capacitor_difference[lane]);
-            if (exceeds_40(capacitor_difference[lane]))
-                capacitor_saturation_count = capacitor_saturation_count + 1'b1;
+            capacitor_saturation_by_lane[lane] = exceeds_40(
+                capacitor_difference[lane]
+            );
 
             terminal_capacitor_voltage_a[lane] = '0;
             terminal_capacitor_voltage_b[lane] = '0;
@@ -392,37 +369,27 @@ module v1_solver_mono_wide #(
             terminal_capacitor_next[lane] = saturate_40(
                 terminal_capacitor_difference[lane]
             );
-            if (exceeds_40(terminal_capacitor_difference[lane]))
-                terminal_capacitor_saturation_count =
-                    terminal_capacitor_saturation_count + 1'b1;
-
-            // The terminal chord changes the committed branch voltage after
-            // the final KCL engine pass.  Trapezoidal mode must therefore
-            // recompute i[n] = G*(v[n]-v[n-1])-i[n-1] from that corrected,
-            // saturated voltage.  Ten parallel constant products keep this
-            // commit on the existing final WAIT_CHORD edge (127 clocks).
-            terminal_current_voltage_delta[lane] =
-                $signed({{4{terminal_capacitor_next[lane][39]}},
-                         terminal_capacitor_next[lane]})
-                - $signed({{4{capacitor_state[lane][39]}},
-                           capacitor_state[lane]});
-            terminal_current_product[lane] =
-                v1_terminal_cap_g_q47(lane)
-                * terminal_current_voltage_delta[lane];
-            terminal_current_value[lane] =
-                rounded_capacitor_current_q44(
-                    terminal_current_product[lane]
-                ) - $signed({{15{capacitor_current_state[lane][47]}},
-                             capacitor_current_state[lane]});
-            terminal_current_next[lane] = saturate_current_q44(
-                terminal_current_value[lane]
+            terminal_capacitor_flat[lane * 40 +: 40] =
+                terminal_capacitor_next[lane];
+            terminal_capacitor_saturation_by_lane[lane] = exceeds_40(
+                terminal_capacitor_difference[lane]
             );
-            if (TRAPEZOIDAL
-                && current_exceeds_48(terminal_current_value[lane]))
-                terminal_current_saturation_count =
-                    terminal_current_saturation_count + 1'b1;
         end
+        capacitor_saturation_count = popcount10(
+            capacitor_saturation_by_lane
+        );
+        terminal_capacitor_saturation_count = popcount10(
+            terminal_capacitor_saturation_by_lane
+        );
     end
+
+    terminal_current_update_v1 terminal_current_engine (
+        .terminal_voltage_q30(terminal_capacitor_flat),
+        .previous_voltage_q30(capacitor_flat),
+        .previous_current_q44(capacitor_current_flat),
+        .next_current_q44(terminal_current_flat),
+        .saturation_count(terminal_current_saturation_count)
+    );
 
     logic rhs_start;
     logic [494:0] rhs_result;
@@ -768,7 +735,9 @@ module v1_solver_mono_wide #(
                                     terminal_capacitor_next[lane];
                                 if (TRAPEZOIDAL)
                                     capacitor_current_state[lane] <=
-                                        terminal_current_next[lane];
+                                        $signed(terminal_current_flat[
+                                            lane * 48 +: 48
+                                        ]);
                             end
                             output_q32 <= corrected_node_voltage[8];
                             sample_latency_cycles <= cycle_count + 1'b1;

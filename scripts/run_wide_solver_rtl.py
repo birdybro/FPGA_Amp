@@ -59,6 +59,7 @@ def main() -> int:
         "rtl/circuit/network_rhs_v1_wide.sv",
         "rtl/circuit/network_kcl_v1_wide.sv",
         "rtl/circuit/chord_corrector_v1_wide.sv",
+        "rtl/circuit/terminal_current_update_v1.sv",
         "rtl/phono/v1_solver_mono_wide.sv",
         "sim/integration/v1_solver_mono_wide_tb.sv",
     ]

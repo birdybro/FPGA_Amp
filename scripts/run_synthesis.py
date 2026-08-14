@@ -81,6 +81,9 @@ def main() -> int:
             "linear_solver_pnr_harness",
             "hermite_pnr_harness",
             "linear_tube_pnr_harness",
+            "terminal_current_pnr_harness",
+            "kcl_pnr_harness",
+            "chord_pnr_harness",
         ),
         default="triode_12ax7",
     )
@@ -442,6 +445,18 @@ def main() -> int:
             "rtl/tube/triode_12ax7_factorized_linear.sv",
             "rtl/diagnostics/linear_tube_pnr_harness.sv",
         ],
+        "terminal_current_pnr_harness": [
+            "rtl/circuit/terminal_current_update_v1.sv",
+            "rtl/diagnostics/solver_block_pnr_harnesses.sv",
+        ],
+        "kcl_pnr_harness": [
+            "rtl/circuit/network_kcl_v1_wide.sv",
+            "rtl/diagnostics/solver_block_pnr_harnesses.sv",
+        ],
+        "chord_pnr_harness": [
+            "rtl/circuit/chord_corrector_v1_wide.sv",
+            "rtl/diagnostics/solver_block_pnr_harnesses.sv",
+        ],
     }[args.top]
     # The wide solver has a compile-time selectable value-only tube candidate.
     # Include its definition for every wide hierarchy; the default parameter
@@ -452,6 +467,17 @@ def main() -> int:
         and linear_tube_source not in sources
     ):
         sources.insert(1, linear_tube_source)
+    # Terminal trapezoidal correction is instantiated by the wide solver even
+    # when the corresponding parameter is disabled.  Keep the dependency in
+    # one place so every solver, stream, adapter, and board hierarchy compiles
+    # the identical source set.
+    terminal_current_source = "rtl/circuit/terminal_current_update_v1.sv"
+    if (
+        "rtl/phono/v1_solver_mono_wide.sv" in sources
+        and terminal_current_source not in sources
+    ):
+        solver_index = sources.index("rtl/phono/v1_solver_mono_wide.sv")
+        sources.insert(solver_index, terminal_current_source)
     pnr_mode = args.pnr_json is not None
     log_suffix = "_pnr" if pnr_mode else ""
     log_path = results / f"yosys_xc7_{args.top}{log_suffix}.log"

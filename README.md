@@ -542,11 +542,13 @@ converter board, completed named-part route, qualified speed-grade timing, or
 physical measurement yet. An experimental open XC7 placement now measures the
 solver timing harness at only 13.90 MHz against 98.304 MHz; this is a diagnosed
 architecture failure, not a timing-closure claim. A bit-exact three-clock
-Hermite kernel independently routes at 132.54 MHz with two DSP48E1s, proving a
-viable local timing fix, but it is not yet integrated because the additional
-serial tube latency exceeds the current solver schedule. A value-only
-eight-clock tube candidate independently reaches 113.24 MHz and has entered
-full-solver routing; it is not yet timing closure or a reference-mode change.
+Hermite kernel independently routes at 132.54 MHz with two DSP48E1s, but a
+value-only eight-clock tube candidate that independently reaches 113.24 MHz
+still places at only 13.67 MHz in the full solver. This disproves the earlier
+assumption that Hermite dominates the complete path. An extracted 54-DSP
+terminal-current block improves from 51.95 to 88.83 MHz after a bit-exact
+balanced diagnostic popcount, but still misses the target. None of these
+experiments is timing closure or a reference-mode change.
 All figures use the backend's unqualified `DEFAULT` timing grade. The implemented digital mute
 primitive is not independent analog speaker protection.
 
@@ -726,6 +728,9 @@ make openxc7-pnr                   # route the solver timing harness on A7-100T
 make openxc7-hermite-pnr           # route the Hermite timing harness on A7-100T
 make openxc7-linear-tube-pnr       # route the value-only tube harness
 make openxc7-linear-solver-pnr     # route the value-only complete solver
+make openxc7-terminal-current-pnr  # isolate terminal companion-current timing
+make openxc7-kcl-pnr               # isolate wide KCL timing
+make openxc7-chord-pnr             # isolate banked chord-correction timing
 ```
 
 Run a user-supplied 48 kHz integer-PCM WAV through an explicitly selected V1

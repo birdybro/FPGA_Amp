@@ -33,13 +33,12 @@ plus 3,770 CARRY4s and the same DSP/RAM count.
 With seed 1, one thread, router2, and a 98.304 MHz request, nextpnr commit
 `4d23515` reports only 13.90 MHz after placement. This is an experimental
 `DEFAULT`-grade estimate, not a qualified -1 speed result, but the 7.07x miss is
-too large to treat as a signoff nuance. Source inspection identifies three
-dependent multiplications in each cubic-Hermite evaluation, followed in two
-phases by another dependent multiply. The tube arithmetic therefore needs a
-pipelined or separately error-bounded approximation architecture. The
-historical circuit and numerical tolerances are not changed to hide this
-timing failure. Router2 completion and post-route critical-path extraction
-remain in progress for this baseline.
+too large to treat as a signoff nuance. The value-only tube substitution later
+placed at 13.67 MHz despite its isolated 113.24 MHz result. That controlled
+experiment falsifies the initial hypothesis that cubic Hermite is the dominant
+complete-solver path. The historical circuit and numerical tolerances are not
+changed to hide this timing failure. Router2 completion and post-route
+critical-path extraction remain in progress for both full baselines.
 
 ### Bit-exact Hermite timing experiment
 
@@ -84,8 +83,26 @@ Python candidate at 127 clocks. Its named-part synthesis measures 14,140
 estimated logic cells, 6,282 flip-flops, 166 DSP48E1s, 13 RAMB18E1s, and five
 RAMB36E1s; packing expands it to 49,530 `SLICE_LUTX` and 3,710 CARRY4. This is
 eight fewer DSPs and 1,259 fewer packed LUT elements than the Hermite harness,
-at the cost of additional RAM. Full route/timing is still in progress and no
-whole-solver closure is inferred from the isolated tube result.
+at the cost of additional RAM. Placement reaches only 13.67 MHz, statistically
+indistinguishable from and slightly below the Hermite solver's 13.90 MHz.
+Therefore it is not a whole-solver timing solution and is not promoted to the
+reference/default implementation. Full routing remains in progress only to
+extract the detailed path and congestion evidence.
+
+### Solver-block timing isolation
+
+The ten simultaneous trapezoidal terminal-current recomputations are factored
+into `terminal_current_update_v1` without changing their single-edge contract.
+Both 512-vector solver regressions remain bit exact at 116 and 127 clocks. The
+three-pin isolated harness measures 54 DSP48E1s, 5,442 packed `SLICE_LUTX`,
+1,281 `SLICE_FFX`, and 612 CARRY4s. A literal serial overflow-count expression
+initially limited post-route timing to 51.95 MHz. Replacing only that diagnostic
+sum with an explicitly widened balanced popcount raises the measured result to
+88.83 MHz. It still fails 98.304 MHz and does not claim full-solver closure,
+but it converts a source-level suspicion into a measured, reproducible timing
+target. The next experiment must separately route KCL and chord blocks, then
+pipeline or reschedule the dominant physical paths without changing the V1
+circuit law.
 
 ## Measured out-of-context result
 
