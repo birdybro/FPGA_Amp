@@ -29,6 +29,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Bound the oversampled SPI transport under arbitrary asynchronous raw-pin,
+  response, and clear activity. Prove 11 synchronizer, bit-count, request,
+  response-state, saturating-frame-count, frame-reset, and sticky-precedence
+  properties through 32 fabric clocks; separately reach request decode,
+  short-frame, and response-underflow paths in 100 steps. Keep the eight-frame
+  directed integration as byte-order/full-frame evidence and do not claim
+  unbounded induction or a placed SCLK limit.
 - [x] Exhaustively prove converter-boundary arithmetic/control safety. Cover
   the valid positive input-coefficient range before the explicit signed-32
   cast, exact registered valid/output/hold behavior, output PCM endpoint

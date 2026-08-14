@@ -172,6 +172,92 @@ module spi_control_transport (
         end
     end
 
+`ifdef FORMAL
+    logic formal_past_valid;
+    logic formal_request_event;
+    logic formal_complete_event;
+    logic formal_short_frame_event;
+    logic formal_underflow_event;
+
+    always_comb begin
+        formal_request_event = !cs_sync && !cs_previous
+            && !sclk_previous && sclk_sync && bit_count == 7'd39;
+        formal_complete_event = !cs_sync && !cs_previous
+            && !sclk_previous && sclk_sync && bit_count == 7'd79;
+        formal_short_frame_event = cs_sync && !cs_previous
+            && bit_count != 0 && bit_count != 7'd80;
+        formal_underflow_event = !cs_sync && !cs_previous
+            && sclk_previous && !sclk_sync
+            && bit_count >= 7'd40 && bit_count < 7'd80
+            && !response_ready
+            && !(control_response_valid && awaiting_response);
+    end
+
+    always_ff @(posedge fabric_clk) begin
+        if (!fabric_rst_n) begin
+            formal_past_valid <= 1'b0;
+        end else begin
+            formal_past_valid <= 1'b1;
+            if (formal_past_valid) begin
+                assert ({cs_meta, cs_sync, sclk_meta, sclk_sync,
+                         mosi_meta, mosi_sync}
+                    == {$past(spi_cs_n), $past(cs_meta),
+                        $past(spi_sclk), $past(sclk_meta),
+                        $past(spi_mosi), $past(mosi_meta)});
+                assert (bit_count <= 7'd80);
+                assert (!(awaiting_response && response_ready));
+                assert (!control_request_address[7]);
+                assert (control_request_valid == $past(
+                    formal_request_event
+                ));
+                if (control_request_valid) begin
+                    assert ({control_request_write,
+                             control_request_address,
+                             control_request_write_data}
+                        == {$past(request_shift[38]), 1'b0,
+                            $past(request_shift[37:31]),
+                            $past(request_shift[30:0]),
+                            $past(mosi_sync)});
+                end
+                assert (bit_count == $past(
+                    (cs_sync || cs_previous)
+                        ? 7'd0
+                        : (!sclk_previous && sclk_sync
+                           && bit_count < 7'd80)
+                            ? bit_count + 1'b1
+                            : bit_count
+                ));
+                assert (completed_frame_count == $past(
+                    formal_complete_event
+                        ? increment_saturating(completed_frame_count)
+                        : completed_frame_count
+                ));
+                assert (frame_error_sticky == $past(
+                    formal_short_frame_event
+                        ? 1'b1
+                        : clear_diagnostics
+                            ? 1'b0
+                            : frame_error_sticky
+                ));
+                assert (response_underflow_sticky == $past(
+                    clear_diagnostics
+                        ? 1'b0
+                        : formal_underflow_event
+                            ? 1'b1
+                            : response_underflow_sticky
+                ));
+                if ($past(cs_sync || cs_previous)) begin
+                    assert ({spi_miso, bit_count, request_shift,
+                             response_shift, awaiting_response,
+                             response_ready}
+                        == {1'b0, 7'd0, 39'd0, 40'd0,
+                            1'b0, 1'b0});
+                end
+            end
+        end
+    end
+`endif
+
 endmodule
 
 `default_nettype wire

@@ -6,6 +6,15 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
+  control transport. Eleven assertions cover the two-stage pin synchronizers,
+  0--80 bit-count bound/transition, one-cycle request decode and exact fields,
+  mutually exclusive response states, saturating completed-frame count, frame
+  reset, and exact diagnostic clear/error precedence through 32 fabric clocks.
+  A separate 100-step trace reaches a decoded request plus short-frame and
+  response-underflow evidence. The existing eight complete transactions remain
+  the byte-order/full-frame check; unbounded induction, placed SCLK limits, and
+  analog asynchronous-input behavior are not claimed.
 - Added exhaustive formal contracts for both converter-calibration arithmetic
   boundaries. Twelve assertions prove the PCM24-to-Q8.24 valid-coefficient
   shifted product always fits signed 32 bits, exact registered valid/output/

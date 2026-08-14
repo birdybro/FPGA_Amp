@@ -125,6 +125,17 @@ one-clock preprocessing register and phase counter require outputs `[frame A,
 zero, frame B]` only at consumer phase zero. Exactly one underflow is retained
 and then cleared. The test does not claim asynchronous rate conversion.
 
+The mode-0 SPI integration drives eight complete 80-bit frames at 5 MHz through
+the real register bank and calibration guard, plus a ten-bit abort and withheld
+response. `make formal-spi-control` independently leaves the asynchronous pins,
+response channel, and diagnostic clear arbitrary. Eleven synchronization,
+bit-count, request-field, response-state, saturating-count, frame-reset, and
+sticky-precedence assertions hold through 32 fabric clocks. Because a request
+requires 40 synchronized input bits, a separate 100-step satisfiable trace
+reaches request decode plus short-frame and underflow evidence. The result is
+explicitly bounded and does not prove analog metastability, a placed SCLK rate,
+or complete-frame wire order; the directed integration supplies the latter.
+
 The analog/reference commands are intentionally separate so a missing external
 tool is not reported as a pass:
 
@@ -280,6 +291,7 @@ scripts/run_frame_scheduler_formal.py  phase/zero-fill/counter induction
 | calibrated fabric mono adapter synthesis | Yosys 0.66 flattened structural | with output ramp: 20,489 LC / 15,592 FF / 232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; zero structural problems; no Fmax/CDC/stereo claim |
 | pin-facing I²S mono top RTL | 64 serial inputs; actual 3.072/98.304 MHz clocks with unrelated phase | startup calibration atomic; model/PCM exact; 45 DAC frames exact; FIFO high-water 1; four clock windows measure 1,024 edges and lock; live update rejected; transport 192 BCLK / 62.500 µs / 3 samples; startup starvation retained; warning-free |
 | pin-facing I²S mono top synthesis | Yosys 0.66 flattened structural | with output ramp, calibration guard, FIFO diagnostics, rate monitor: 21,014 LC / 16,907 FF / 232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; zero structural problems; no placed CDC/I/O/converter claim |
+| SPI control transport RTL/formal/synthesis | eight complete 5 MHz frames plus abort/withheld response; 11 properties over 32 arbitrary-pin fabric steps and a 100-step request/error witness | exact directed wire order/read/write/errors; bounded formal pass; 112 LC / 172 FF / no DSP/RAM; no placed SCLK/metastability claim |
 | SPI-controlled pin top RTL | 15 mode-0 frames plus one aborted frame at 5 MHz; 100 MHz fabric and unrelated BCLK | identity, calibration commit/readback, retained short-frame fault, retained then refreshed force-mute snapshot, snapshotted transport count, and one BCLK-domain diagnostic clear all exact; warning-free |
 | SPI-controlled pin top synthesis | Yosys 0.66 flattened structural | 22-word multi-domain snapshot, timeout, fail-closed BCLK guard, and transport: 21,589 LC / 18,094 FF / 232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; zero structural problems; no placed SCLK/CDC/I/O/Fmax claim |
 | controlled clock-fault mute RTL | 320-clock windows, exactly 10 BCLK edges, three-window lock | startup fail-closed; stopped BCLK drops lock and clamps output; reacquisition stays clamped behind sticky evidence; snapshot exact; fabric/I²S clear releases guard; warning-free |

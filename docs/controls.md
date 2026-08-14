@@ -178,6 +178,15 @@ warning-free and synthesizes to 112 LC / 172 FF / no DSP or RAM. This is not a
 placed SCLK-limit claim; the board constraint must preserve comfortable
 oversampling margin.
 
+`make formal-spi-control` additionally leaves all three raw SPI pins, register
+response timing/data, and diagnostic clear arbitrary after reset. Eleven
+properties cover synchronization, the bit-count bound and transition, exact
+request decode, response-state exclusion, saturating completed count, frame
+reset, and sticky precedence through 32 fabric clocks. A separate 100-step
+trace reaches request, short-frame, and underflow evidence. This is bounded
+digital safety evidence; the directed eight-frame test remains the full-frame
+wire-order check, and placed SCLK timing/metastability are not proven.
+
 `phono_i2s_spi_top` composes that transport with the complete pin-facing audio
 hierarchy. Its warning-free integration test executes 15 actual SPI frames,
 commits and reads back the converter calibration pair, demonstrates that a

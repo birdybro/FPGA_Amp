@@ -307,8 +307,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
 - A mode-0 SPI bridge now oversamples CS/SCLK/MOSI in the fabric domain and
   executes fixed 80-bit request/response frames on that register bus. Eight
   warning-free 5 MHz transactions cover real calibration, readback, malformed
-  address, short frame, withheld response, and diagnostic clear. Standalone
-  synthesis is 112 LC / 172 FF / no DSP or RAM. The complete composition then
+  address, short frame, withheld response, and diagnostic clear. Eleven safety
+  properties hold through 32 arbitrary-pin fabric steps, and a 100-step witness
+  reaches request decode plus both transport errors. Standalone synthesis is
+  112 LC / 172 FF / no DSP or RAM. The complete composition then
   passes 15 SPI frames through the pin-facing hierarchy, including untorn
   force-mute snapshots, snapshotted transport count, calibration ownership,
   a retained short-frame fault, and one I²S-domain clear event. Flattened
@@ -646,6 +648,7 @@ make formal-cdc-snapshot           # bounded coherent held-bus CDC safety
 make formal-cdc-pulse              # bounded low-rate toggle CDC safety
 make formal-audio-clock            # bounded BCLK monitor safety/lock witness
 make formal-audio-calibration      # exhaustive converter rounding/saturation
+make formal-spi-control            # bounded arbitrary-pin SPI state safety
 make audio-clock-rtl               # BCLK/fabric ratio lock and error monitor
 make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make cdc-pulse-rtl                # one-shot host command CDC
