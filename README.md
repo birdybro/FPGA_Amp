@@ -250,6 +250,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   residual-limit acceptance. Reference behavior and production coefficients
   remain unchanged; `make terminal-bank-study`, `make terminal-relaxation-study`,
   and `make dual-triode-bank-study` regenerate the evidence.
+- A protocol-neutral fabric register bank now resets muted, atomically commits
+  the two converter-calibration shadows, and freezes 16 diagnostic words behind
+  a saturating snapshot sequence. Directed RTL covers accepted/invalid/unsafe
+  commits, busy writes, clears, and malformed addresses; structural synthesis is
+  323 LC / 715 FF / no DSP or block RAM. Pin integration and SPI/host transport
+  remain explicitly open.
 - A captured complete-stream sweep at 100 Hz, 1 kHz, 10 kHz, and 20 kHz proves
   all 19,200 Q8.24 outputs exact with zero diagnostics. Relative to the composed
   floating trapezoidal reference, gain/phase error stays within 0.000134 dB /
@@ -574,6 +580,7 @@ make i2s-rtl                       # 24-bit/32-slot stereo protocol loopback
 make i2s-bridge-rtl                # exact bidirectional I2S/fabric CDC loopback
 make calibration-rtl               # bit-exact PCM24/physical-volts boundary
 make calibration-control-rtl       # atomic muted coefficient-pair commit
+make control-registers-rtl         # snapshot/shadow/transaction register bank
 make frame-scheduler-rtl           # deterministic 48 kHz fabric phase launch
 make mono-adapter-rtl               # exact framed PCM-to-model-to-PCM datapath
 make i2s-mono-top-rtl               # serial ADC through model to serial DAC
@@ -605,6 +612,7 @@ make synth-i2s                     # receiver/transmitter structural estimates
 make synth-i2s-bridge              # bidirectional protocol/CDC bridge estimate
 make synth-calibration             # dynamic converter-scaling estimates
 make synth-calibration-control     # atomic calibration guard estimate
+make synth-control-registers       # fabric control/snapshot register estimate
 make synth-frame-scheduler         # frame-phase scheduler estimate
 make synth-mono-adapter            # calibrated accuracy-first fabric datapath
 make synth-i2s-mono-top            # protocol/CDC plus calibrated mono datapath

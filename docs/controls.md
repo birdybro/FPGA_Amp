@@ -5,13 +5,60 @@ boundary. Host protocol parsing never writes datapath registers directly. A
 shadow bank, commit sequence number, and acknowledge bit make multiregister
 changes atomic; model changes invoke mute/state initialization before commit.
 
-The datapath-side reset transaction is now implemented by `model_change_guard`.
+The datapath-side reset transaction is implemented by `model_change_guard`.
 Software asserts a level request only after `output_ready`, holds it until the
 one-cycle acknowledgment, then deasserts it to re-arm the next transaction.
 Acknowledgment follows muted core reset plus 64 valid warmup outputs; it does not
 claim that ramp-up has reached unity. `change_busy` remains asserted during
-ramp-up and `output_ready` identifies the eventual full-gain state. The shadow
-register bank and host protocol that supply the parameter snapshot remain open.
+ramp-up and `output_ready` identifies the eventual full-gain state. Model-asset
+shadow registers and a host protocol remain open.
+
+`phono_control_registers` now supplies the first concrete fabric-domain host
+boundary. Its protocol-neutral request/registered-response bus accepts one
+32-bit word transaction per fabric clock. It resets with mute asserted, owns a
+coherent two-register calibration shadow pair, converts a commit command into
+one update pulse, waits for the existing guard response, and records attempted
+and accepted transaction sequences separately. Shadow writes are rejected while
+a commit is pending. An invalid or live/unmuted attempt advances only the
+attempted sequence and latches explicit rejected status; it cannot change the
+active pair.
+
+The same block copies all configured diagnostic input words on one snapshot
+command. A saturating sequence identifies each completed image, and subsequent
+reads access only the retained image. The inputs to that port must already be
+in the fabric domain; this block does not pretend that unsynchronized I²S-domain
+levels form a coherent word. A single control write can also pulse the existing
+fabric diagnostic clear and independently clear register-local sticky evidence.
+Verilator proves snapshot retention across changing live inputs, reset-muted
+state, accepted/invalid/unsafe calibration transactions, pending-pair write
+rejection, clear pulses, and bad-address reporting. XC7 structural synthesis is
+323 estimated logic cells / 715 flip-flops / no DSP or block RAM; the one Yosys
+warning is the expected 16x32 snapshot array expansion to registers. No Fmax is
+claimed.
+
+## Implemented word register map
+
+Addresses are word addresses, not byte addresses. There are no partial writes.
+SPI, UART, or an embedded processor may translate to this bus without changing
+the audio solver.
+
+| Address | Name | Access | Meaning |
+|---:|---|---|---|
+| `0x00` | identity | R | `0x46504741` (`FPGA`) |
+| `0x01` | ABI version | R | major/minor `0x0001_0000` |
+| `0x02` | capabilities | R | snapshot, calibration, mute, diagnostic clear |
+| `0x03` | live status | R | mute, muted, ramping, commit busy, snapshot valid |
+| `0x04` | control | R/W | bit 0 mute level; bits 1/2/3 snapshot, diagnostic clear, local-sticky clear commands |
+| `0x05` | snapshot sequence | R | saturating completed-image sequence |
+| `0x06` | calibration attempted | R | saturating commit-attempt sequence |
+| `0x07` | calibration accepted | R | sequence of the last accepted attempt |
+| `0x08` | ADC calibration shadow | R/W | signed Q8.24 input peak volts |
+| `0x09` | DAC calibration shadow | R/W | signed Q8.24 reciprocal output peak volts |
+| `0x0a` | calibration command | W | bit 0 commits the complete shadow pair |
+| `0x0b` | ADC calibration active | R | guard-owned active coefficient |
+| `0x0c` | DAC calibration active | R | guard-owned active coefficient |
+| `0x0d` | sticky status | R | bus, rejected, invalid, and unsafe evidence |
+| `0x20...` | diagnostic snapshot | R | retained configured diagnostic words |
 
 ## Initial register groups
 
@@ -39,28 +86,27 @@ values unchanged and set separate sticky diagnostics. The host must commit a
 valid startup pair before releasing audio state; otherwise the arithmetic
 blocks deliberately emit valid zero samples and flag invalid configuration.
 
-This guard is protocol-neutral and contains no hidden CDC or coefficient slew.
-Candidates and `update_valid` must already be synchronous to the fabric clock.
-The future shadow-register/host transaction layer must hold a coherent pair,
-observe the acknowledgment, and prevent a stale request from being interpreted
-as a new transaction. Muted digital state makes the coefficient transition
-click-free at the model boundary, but does not empty PCM already queued for the
-DAC.
+This guard and its register bank are protocol-neutral and contain no hidden CDC
+or coefficient slew. Bus requests must already be synchronous to the fabric
+clock. Muted digital state makes the coefficient transition click-free at the
+model boundary, but does not empty PCM already queued for the DAC. Pin-top
+integration and physical analog mute sequencing therefore remain required.
 
 The asynchronous audio FIFOs now expose local occupancy estimates and retained
 high-water marks in all four owning-domain views (receive I²S/fabric and
 transmit fabric/I²S). These values are derived from the local binary pointer and
 the already synchronized remote Gray pointer. A write-side level may lag a read
 high; a read-side level may lag a write low. They are intentionally raw-domain
-diagnostics, not a coherent snapshot. The future status register layer must
-synchronize or snapshot each owning-domain value before host access. Existing
-domain-local diagnostic clear inputs also reset the corresponding watermark to
-the current projected occupancy.
+diagnostics, not a coherent snapshot. Only fabric-owned views may connect
+directly to the implemented snapshot bank; I²S-owned values still require safe
+synchronization or a domain-local snapshot. Existing domain-local diagnostic
+clear inputs also reset the corresponding watermark to the current projected
+occupancy.
 
 Clock status now includes a fabric-domain measurement-valid pulse, last BCLK
 edge count, consecutive-good-window count, live rate-lock flag, and sticky rate
 error. The default monitor requires three 1,024 ± 1 edge windows. It is already
-in the fabric domain and can enter a future coherent diagnostic snapshot
+in the fabric domain and can enter the implemented coherent diagnostic snapshot
 directly. Lock is live status; the sticky bit retains a bad window until the
 fabric diagnostic clear.
 

@@ -6,6 +6,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a protocol-neutral fabric control register bank. It resets muted,
+  snapshots 16 moving diagnostic words atomically, saturates snapshot/commit
+  sequences, holds a coherent two-word converter-calibration shadow pair, and
+  distinguishes accepted, invalid, unsafe, busy, and malformed transactions.
+  Warning-free Verilator covers retained snapshots, two diagnostic clear pulses,
+  and the real calibration guard. XC7 structural synthesis reports 323 LC /
+  715 FF / no DSP or block RAM with one expected snapshot-array expansion
+  warning and no timing claim.
 - Added reproducible schedule-neutral terminal-solver rejection studies.
   Corrected-state bank reselection improves the 1.0 V burst by only 0.101 mV
   while worsening the 1.5 V and recovery results. Unconditional 5/4 terminal-

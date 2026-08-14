@@ -29,6 +29,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Implement a protocol-neutral fabric control register bank with reset-muted
+  state, a coherent calibration shadow/commit transaction, distinct attempted
+  and accepted sequences, retained rejection/bus errors, pulsed diagnostics
+  clear, and atomic diagnostic snapshots. Prove accepted, invalid, unsafe,
+  busy-write, bad-address, and snapshot-retention behavior warning-free;
+  synthesize to 323 LC / 715 FF / no DSP or RAM. Pin integration and transport
+  remain open.
 - [x] Test three schedule-neutral refinements to the remaining trapezoidal
   terminal error. Preserve exact negative results showing that within-sample
   bank reselection worsens 1.5 V/recovery, 5/4 residual relaxation improves
@@ -423,8 +430,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   physical-unit calibration now composes with the accuracy-first mono core at
   the fabric frame boundary and a pin-facing top adds the asynchronous bridge.
   The modeled-output ramp and atomic converter-coefficient commit are now
-  integrated, but host register transport/CDC, queued-frame/physical analog
-  muting, rate-error handling, and CDC/I/O timing constraints remain absent;
+  integrated, and a fabric register bank supplies shadow commit plus coherent
+  snapshots. Pin-top register integration, SPI/host transport, I²S-domain
+  diagnostic CDC, queued-frame/physical analog muting, rate-error handling, and
+  CDC/I/O timing constraints remain absent;
   embedded assertions cannot be proven until a formal engine is available.
   The cubic and full-tube alias-family tests are captured from RTL; the latter
   is bounded below fixed rounding closure rather than inferred from the

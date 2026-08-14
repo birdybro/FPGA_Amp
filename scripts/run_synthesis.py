@@ -66,6 +66,7 @@ def main() -> int:
             "q8_24_to_pcm24",
             "audio_frame_scheduler",
             "calibration_commit_guard",
+            "phono_control_registers",
             "phono_fabric_mono_adapter",
             "phono_i2s_mono_top",
         ),
@@ -271,6 +272,9 @@ def main() -> int:
         "audio_frame_scheduler": ["rtl/io/audio_frame_scheduler.sv"],
         "calibration_commit_guard": [
             "rtl/control/calibration_commit_guard.sv"
+        ],
+        "phono_control_registers": [
+            "rtl/control/phono_control_registers.sv"
         ],
         "phono_fabric_mono_adapter": [
             "rtl/tube/triode_12ax7_factorized.sv",
