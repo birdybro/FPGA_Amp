@@ -39,6 +39,7 @@ SUPPORTED_TOPS = (
     "chord_pnr_harness",
     "pipelined_chord_pnr_harness",
 )
+RUN_TAG_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 
 
 def chipdb_device_name(part: str) -> str:
@@ -48,6 +49,17 @@ def chipdb_device_name(part: str) -> str:
     if match is None:
         raise ValueError(f"cannot derive an XC7 chipdb density from part {part!r}")
     return match.group(1)
+
+
+def validated_run_tag(tag: str) -> str:
+    """Return a filesystem-safe experiment tag or raise an argparse error."""
+
+    if RUN_TAG_PATTERN.fullmatch(tag) is None:
+        raise argparse.ArgumentTypeError(
+            "run tag must be 1-64 lowercase letters, digits, underscores, or "
+            "hyphens and must start with a letter or digit"
+        )
+    return tag
 
 
 def locate(name: str) -> Path | None:
@@ -171,6 +183,14 @@ def main() -> int:
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--threads", type=int, default=1)
     parser.add_argument(
+        "--run-tag",
+        type=validated_run_tag,
+        help=(
+            "retain this experiment in a tagged output subdirectory and "
+            "summary instead of replacing the untagged artifacts"
+        ),
+    )
+    parser.add_argument(
         "--placer-heap-timingweight",
         type=int,
         default=10,
@@ -259,6 +279,8 @@ def main() -> int:
     if args.device != DEFAULT_DEVICE:
         output_dir = output_dir / args.device
     output_dir = output_dir / args.top
+    if args.run_tag is not None:
+        output_dir = output_dir / args.run_tag
     output_dir.mkdir(parents=True, exist_ok=True)
     netlist = output_dir / f"{args.top}.json"
     fasm = output_dir / f"{args.top}.fasm"
@@ -334,6 +356,7 @@ def main() -> int:
         "router": args.router,
         "seed": args.seed,
         "threads": args.threads,
+        "run_tag": args.run_tag,
         "placer_heap_timingweight": args.placer_heap_timingweight,
         "placer_heap_cell_placement_timeout": (
             args.placer_heap_cell_placement_timeout
@@ -359,11 +382,12 @@ def main() -> int:
     } | measured_report_summary(
         report, log=log, route_requested=not args.place_only
     )
+    run_tag = f"_{args.run_tag}" if args.run_tag is not None else ""
     summary_path = (
         REPOSITORY_ROOT
         / "reference"
         / "results"
-        / f"openxc7_{args.top}{device_tag}{stage_tag}_summary.json"
+        / f"openxc7_{args.top}{device_tag}{run_tag}{stage_tag}_summary.json"
     )
     summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=2))

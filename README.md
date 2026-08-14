@@ -577,8 +577,10 @@ last schedule clock (127 total). Fixed lane-pair muxes let the isolated block
 route at 90.50 MHz with the default placement weight and 99.59 MHz with a
 measured timing weight of 20, closing its 98.304 MHz isolated constraint. The
 complete 189-DSP hierarchy still places at only 25.02 MHz with 59,514 LUTX and
-14,590 FFX under the default weight. It is retained as resource-sharing
-evidence, not promoted as the default full-solver timing solution. None
+14,590 FFX under the default weight. Timing weight 20 improves that placement
+to 32.56 MHz, still below both the target and the selected 209-DSP baseline's
+34.20 MHz. It is retained as resource-sharing evidence, not promoted as the
+default full-solver timing solution. None
 of these experiments is timing closure or a reference-mode change.
 All figures use the backend's unqualified `DEFAULT` timing grade. The implemented digital mute
 primitive is not independent analog speaker protection.
@@ -773,6 +775,7 @@ make openxc7-diagnostic-pipelined-kcl-pnr # route 19-clock final-diagnostic KCL
 make openxc7-parallel-diagnostic-pipelined-solver-place # diagnose full placement
 make openxc7-parallel-diagnostic-pipelined-solver-pnr # route 126-clock solver
 make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-place # place 189-DSP candidate
+make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-timing-place # tagged weight-20 experiment
 make openxc7-a200t-parallel-diagnostic-pipelined-solver-place # compare A200T
 ```
 

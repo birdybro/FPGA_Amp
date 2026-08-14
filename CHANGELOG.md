@@ -124,6 +124,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
   / 3,964 CARRY4. The candidate is retained for reproducible resource evidence
   but is not promoted because it worsens full placement.
 
+- Added validated open-XC7 experiment tags so tuning runs retain separate
+  netlists, placed designs, logs, reports, and summaries. A tagged
+  timing-weight-20 placement improves the 189-DSP shared-terminal solver from
+  25.02 to 32.56 MHz, but still misses 98.304 MHz and remains below the selected
+  209-DSP baseline's 34.20 MHz. Region analysis shows the terminal DSP span
+  expands to 91 by 167 coordinates, rejecting placer-weight tuning as the
+  hierarchy-congestion fix.
+
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,
   0--80 bit-count bound/transition, one-cycle request decode and exact fields,

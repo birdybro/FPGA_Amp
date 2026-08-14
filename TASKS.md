@@ -68,7 +68,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   isolated block at 90.50 MHz with the default weight and 99.59 MHz with timing
   weight 20, closing that block's constraint. The complete hierarchy
   nevertheless places at only 25.02 MHz with 59,514 LUTX / 14,590 FFX, worse
-  than baseline. Resource sharing in one block is therefore also insufficient.
+  than baseline. Timing weight 20 raises the complete candidate only to 32.56
+  MHz and disperses its 34 terminal DSPs across a 91-by-167 coordinate region;
+  it remains slower than the selected baseline's 34.20 MHz. Resource sharing
+  in one block and placer-weight tuning are therefore both insufficient.
   Develop an explicit
   hierarchy placement strategy or a broader cross-block time-multiplexed
   schedule; only one clock remains in this candidate, so do not add a per-pass
@@ -83,6 +86,12 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   measure the complete 189-DSP hierarchy at only 25.02 MHz placement. Keep the
   implementation selectable and reject it as the default full-solver timing
   fix rather than reporting an isolated-only resource/timing win.
+
+- [x] Preserve open-XC7 tuning experiments with validated, filesystem-safe run
+  tags. Reproduce the isolated timing-weight-20 closure in its own artifact
+  directory, then place the complete shared-terminal solver at the same weight.
+  Measure only 32.56 MHz versus the 98.304 MHz target and retain the default
+  25.02 MHz evidence separately.
 
 - [x] Extend the pinned nextpnr-Himbaechel bootstrap and device-qualified runner
   to XC7A200T, add a Nexys Video timing-only harness, and place the unchanged

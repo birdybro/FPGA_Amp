@@ -29,6 +29,26 @@ class OpenXc7ToolTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "cannot derive"):
             RUN_OPENXC7.chipdb_device_name("ice40up5k")
 
+    def test_run_tag_accepts_safe_bounded_names(self) -> None:
+        for tag in ("timingweight20", "seed_2", "kcl-share-v1", "a"):
+            with self.subTest(tag=tag):
+                self.assertEqual(RUN_OPENXC7.validated_run_tag(tag), tag)
+
+    def test_run_tag_rejects_paths_and_ambiguous_names(self) -> None:
+        for tag in (
+            "../baseline",
+            "nested/run",
+            "UpperCase",
+            "-leading",
+            "contains space",
+            "x" * 65,
+        ):
+            with self.subTest(tag=tag):
+                with self.assertRaisesRegex(
+                    RUN_OPENXC7.argparse.ArgumentTypeError, "run tag"
+                ):
+                    RUN_OPENXC7.validated_run_tag(tag)
+
 
 if __name__ == "__main__":
     unittest.main()

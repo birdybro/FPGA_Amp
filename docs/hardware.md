@@ -271,6 +271,16 @@ single hierarchy's DSP count is therefore insufficient by itself. The isolated
 99.59 MHz result does not supersede the separately measured 25.02 MHz complete
 hierarchy result.
 
+A tagged timing-weight-20 placement raises the complete candidate to 32.56 MHz
+but still misses 98.304 MHz by 66.9% and remains below the selected 209-DSP
+schedule's 34.20 MHz default-weight result. That run packs 59,539 `SLICE_LUTX`,
+14,590 `SLICE_FFX`, 3,964 CARRY4s, and 189 DSPs. Its terminal-current DSP region
+actually expands to 91 by 167 coordinate units while KCL remains spread 60 by
+197, so the timing preference does not create useful hierarchy locality.
+Routing remains unjustified. The open-flow runner's `--run-tag` option retains
+the netlist, placed design, logs, reports, and compact summary for tuning runs
+without overwriting the untagged baseline evidence.
+
 ### XC7A200T capacity experiment
 
 The pinned bootstrap now generates both `xc7a100t` and `xc7a200t` chip
