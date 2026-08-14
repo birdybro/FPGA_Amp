@@ -2,15 +2,29 @@
   "schema_version": 1,
   "model_mode": "banked-terminal-trapezoidal",
   "category": "FPGA approximation verification; no creative processing",
-  "vector_count": 9,
-  "total_external_frames": 32448,
-  "total_internal_model_updates": 519168,
+  "vector_count": 14,
+  "total_external_frames": 69440,
+  "total_internal_model_updates": 1111040,
   "total_fixed_model_diagnostic_count": 0,
   "total_output_wav_clip_count": 0,
   "acceptance": {
     "nominal_1khz_thd_percent_limit": 0.1,
     "low_level_1khz_thd_percent_limit": 0.2,
-    "silence_rms_v_limit": 0.001
+    "silence_rms_v_limit": 0.001,
+    "smpte_profile_sideband_imd_percent_range": [
+      0.4,
+      0.55
+    ],
+    "impulse_causal_delay_samples_range": [
+      0,
+      128
+    ],
+    "impulse_minimum_response_peak_v": 0.0001,
+    "recovery_0p5v_seconds_after_input_burst_range": [
+      0.14,
+      0.16
+    ],
+    "recovery_0p5v_final_10ms_rms_v_limit": 0.03
   },
   "vectors": [
     {
@@ -370,6 +384,138 @@
       }
     },
     {
+      "name": "smpte_profile_60hz_7khz",
+      "description": "SMPTE RP 120-style 60 Hz/7 kHz tones at 4:1 peak ratio; sideband-fit profile, not analyzer-conformance claim",
+      "frame_count": 4800,
+      "input_full_scale_peak_v": 0.01,
+      "output_full_scale_peak_v": 4.0,
+      "fixed_model_diagnostic_count": 0,
+      "output_wav_clip_count": 0,
+      "full_output": {
+        "sample_count": 4800,
+        "mean": 0.013415640592575074,
+        "rms": 1.9206584870003254,
+        "minimum": -2.816831588745117,
+        "maximum": 2.8919782638549805,
+        "maximum_absolute": 2.8919782638549805
+      },
+      "analysis_kind": "smpte_modulation",
+      "analysis": {
+        "sample_rate_hz": 48000.0,
+        "start_sample": 2400,
+        "stop_sample": 4800,
+        "sample_count": 2400,
+        "dc": -0.0536518442630769,
+        "tones": [
+          {
+            "frequency_hz": 60.0,
+            "sine_coefficient": 1.1896590042821453,
+            "cosine_coefficient": -2.435959469964179,
+            "peak_amplitude": 2.7109384142355117,
+            "rms_amplitude": 1.916922936085036,
+            "phase_deg": -63.97032463787633
+          },
+          {
+            "frequency_hz": 7000.0,
+            "sine_coefficient": -0.01811200799551358,
+            "cosine_coefficient": 0.026352095768804304,
+            "peak_amplitude": 0.03197620654545785,
+            "rms_amplitude": 0.022610592484914913,
+            "phase_deg": 124.50105488012971
+          },
+          {
+            "frequency_hz": 6940.0,
+            "sine_coefficient": -2.8313333577150573e-05,
+            "cosine_coefficient": 5.9072460237341584e-05,
+            "peak_amplitude": 6.550725468788403e-05,
+            "rms_amplitude": 4.632062400671705e-05,
+            "phase_deg": 115.60832396730108
+          },
+          {
+            "frequency_hz": 7060.0,
+            "sine_coefficient": -7.262698558146638e-05,
+            "cosine_coefficient": 2.8158285125284843e-05,
+            "peak_amplitude": 7.789459580643167e-05,
+            "rms_amplitude": 5.5079796912513036e-05,
+            "phase_deg": 158.80813745780597
+          },
+          {
+            "frequency_hz": 6880.0,
+            "sine_coefficient": -1.6099576506681257e-05,
+            "cosine_coefficient": -8.261836855927296e-06,
+            "peak_amplitude": 1.8095698713463422e-05,
+            "rms_amplitude": 1.2795591270598668e-05,
+            "phase_deg": -152.8344175400518
+          },
+          {
+            "frequency_hz": 7120.0,
+            "sine_coefficient": -1.4591389653539899e-05,
+            "cosine_coefficient": -7.598265077013444e-06,
+            "peak_amplitude": 1.6451209201818367e-05,
+            "rms_amplitude": 1.1632761585324296e-05,
+            "phase_deg": -152.4923744784083
+          }
+        ],
+        "interval_rms": 1.917814186635823,
+        "residual_rms": 0.005286474154621715,
+        "normalized_residual_db": -51.19280827218792,
+        "profile": "SMPTE RP 120-style 60 Hz / 7 kHz, 4:1 input profile",
+        "low_frequency_hz": 60.0,
+        "high_frequency_hz": 7000.0,
+        "maximum_sideband_order": 2,
+        "low_to_high_output_peak_ratio": 84.77986312671584,
+        "sideband_pairs": [
+          {
+            "order": 1,
+            "lower": {
+              "frequency_hz": 6940.0,
+              "sine_coefficient": -2.8313333577150573e-05,
+              "cosine_coefficient": 5.9072460237341584e-05,
+              "peak_amplitude": 6.550725468788403e-05,
+              "rms_amplitude": 4.632062400671705e-05,
+              "phase_deg": 115.60832396730108
+            },
+            "upper": {
+              "frequency_hz": 7060.0,
+              "sine_coefficient": -7.262698558146638e-05,
+              "cosine_coefficient": 2.8158285125284843e-05,
+              "peak_amplitude": 7.789459580643167e-05,
+              "rms_amplitude": 5.5079796912513036e-05,
+              "phase_deg": 158.80813745780597
+            },
+            "modulation_depth_ratio": 0.004484642363391463,
+            "modulation_depth_percent": 0.44846423633914634
+          },
+          {
+            "order": 2,
+            "lower": {
+              "frequency_hz": 6880.0,
+              "sine_coefficient": -1.6099576506681257e-05,
+              "cosine_coefficient": -8.261836855927296e-06,
+              "peak_amplitude": 1.8095698713463422e-05,
+              "rms_amplitude": 1.2795591270598668e-05,
+              "phase_deg": -152.8344175400518
+            },
+            "upper": {
+              "frequency_hz": 7120.0,
+              "sine_coefficient": -1.4591389653539899e-05,
+              "cosine_coefficient": -7.598265077013444e-06,
+              "peak_amplitude": 1.6451209201818367e-05,
+              "rms_amplitude": 1.1632761585324296e-05,
+              "phase_deg": -152.4923744784083
+            },
+            "modulation_depth_ratio": 0.0010803941945449155,
+            "modulation_depth_percent": 0.10803941945449155
+          }
+        ],
+        "imd_ratio": 0.004612945777172297,
+        "imd_percent": 0.4612945777172297,
+        "imd_db": -46.72043300544259,
+        "measurement_definition": "RSS across sideband orders of (lower peak + upper peak) / 7 kHz carrier peak; ideal symmetric AM therefore reports its modulation depth",
+        "conformance_note": "frequency/ratio profile and traceable sideband fit only; no claim of calibrated SMPTE RP 120 instrument conformance"
+      }
+    },
+    {
       "name": "multitone_100_1k_10k",
       "description": "three simultaneous 1.5 mV-peak audio-band tones",
       "frame_count": 4096,
@@ -502,6 +648,61 @@
       }
     },
     {
+      "name": "impulse_control_silence",
+      "description": "matched silence control for differential impulse analysis",
+      "frame_count": 4096,
+      "input_full_scale_peak_v": 0.02,
+      "output_full_scale_peak_v": 8.0,
+      "fixed_model_diagnostic_count": 0,
+      "output_wav_clip_count": 0,
+      "full_output": {
+        "sample_count": 4096,
+        "mean": -0.00017251749522984028,
+        "rms": 0.00017386208926103752,
+        "minimum": -0.0002040863037109375,
+        "maximum": 4.76837158203125e-06,
+        "maximum_absolute": 0.0002040863037109375
+      },
+      "analysis_kind": "summary"
+    },
+    {
+      "name": "impulse_5mv_one_sample",
+      "description": "single 5 mV input sample with matched silence control",
+      "frame_count": 4096,
+      "input_full_scale_peak_v": 0.02,
+      "output_full_scale_peak_v": 8.0,
+      "fixed_model_diagnostic_count": 0,
+      "output_wav_clip_count": 0,
+      "full_output": {
+        "sample_count": 4096,
+        "mean": 0.000895138131454587,
+        "rms": 0.0054410115818298395,
+        "minimum": -0.013120651245117188,
+        "maximum": 0.13794612884521484,
+        "maximum_absolute": 0.13794612884521484
+      },
+      "analysis_kind": "paired_impulse",
+      "analysis": {
+        "control_vector": "impulse_control_silence",
+        "input_event_sample": 1024,
+        "detection_threshold_v": 3.814697265625e-06,
+        "first_detected_output_sample": 1058,
+        "causal_delay_samples": 34,
+        "pre_event_maximum_absolute_v": 0.0,
+        "peak_output_sample": 1076,
+        "peak_output_v": 0.13811779022216797,
+        "maximum_absolute_output_v": 0.13811779022216797,
+        "final_512_sample_tail": {
+          "sample_count": 512,
+          "mean": 4.4014304876327515e-05,
+          "rms": 4.449026599159262e-05,
+          "minimum": 7.62939453125e-06,
+          "maximum": 5.340576171875e-05,
+          "maximum_absolute": 5.340576171875e-05
+        }
+      }
+    },
+    {
       "name": "log_sweep_20hz_20khz",
       "description": "100 ms logarithmic 20 Hz to 20 kHz sweep at 5 mV peak",
       "frame_count": 4800,
@@ -555,6 +756,62 @@
           "maximum": 2.379669189453125,
           "maximum_absolute": 2.379669189453125
         }
+      }
+    },
+    {
+      "name": "recovery_control_250ms",
+      "description": "undisturbed 5 mV-peak control for paired recovery analysis",
+      "frame_count": 12000,
+      "input_full_scale_peak_v": 1.0,
+      "output_full_scale_peak_v": 128.0,
+      "fixed_model_diagnostic_count": 0,
+      "output_wav_clip_count": 0,
+      "full_output": {
+        "sample_count": 12000,
+        "mean": 0.0001018079121907552,
+        "rms": 0.400559936581283,
+        "minimum": -0.5712738037109375,
+        "maximum": 0.783172607421875,
+        "maximum_absolute": 0.783172607421875
+      },
+      "analysis_kind": "summary"
+    },
+    {
+      "name": "recovery_0p5v_250ms",
+      "description": "5 ms, 0.5 V-peak accepted-range burst with 235 ms observation",
+      "frame_count": 12000,
+      "input_full_scale_peak_v": 1.0,
+      "output_full_scale_peak_v": 128.0,
+      "fixed_model_diagnostic_count": 0,
+      "output_wav_clip_count": 0,
+      "full_output": {
+        "sample_count": 12000,
+        "mean": -0.026478609720865885,
+        "rms": 5.996328735148271,
+        "minimum": -50.53594970703125,
+        "maximum": 71.13423156738281,
+        "maximum_absolute": 71.13423156738281
+      },
+      "analysis_kind": "paired_recovery",
+      "analysis": {
+        "control_vector": "recovery_control_250ms",
+        "input_burst_start_sample": 480,
+        "input_burst_stop_sample": 720,
+        "nominal_control_tail_rms_v": 0.4008719837896716,
+        "ten_percent_nominal_threshold_v_rms": 0.04008719837896716,
+        "recovery": {
+          "threshold_rms": 0.04008719837896716,
+          "window_samples": 48,
+          "window_seconds": 0.001,
+          "start_sample": 720,
+          "recovered_sample": 7812,
+          "recovery_seconds_after_start": 0.14775,
+          "final_window_rms": 0.01780516776487434,
+          "maximum_post_start_window_rms": 39.99374595468133
+        },
+        "peak_post_burst_deviation_v": 59.408233642578125,
+        "final_10ms_deviation_rms_v": 0.01865010558353151,
+        "timing_note": "recovery is relative to the input burst stop and therefore retains the causal interpolation/circuit/decimation delay"
       }
     }
   ],

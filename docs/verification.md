@@ -161,7 +161,7 @@ scripts/run_synthesis.py            XC7 structural resource report
 | trapezoidal banked terminal stream | 64 outputs / 1,024 circuit samples plus synthesis | bit-exact, zero diagnostics, 127 clocks; 20,241 LC / 222 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; no Fmax claim |
 | captured trapezoidal banked terminal stream frequency | 4,800 outputs each at 100 Hz/1/10/20 kHz | Q24 exact; <=0.000134 dB / <=0.000444 degree vs float; -74.79 dB worst linear-detrended null; zero diagnostics |
 | fixed V1 WAV/null regression | 1,024 frames; 11/73/997/7013 Hz plus synthetic pop | trapezoidal terminal path zero diagnostics/clips; injected 23-sample delay recovered; raw/latency-only/gain-aligned residual +2.405/-30.462/-100.810 dB |
-| deterministic PCM audio suite | 9 vectors / 32,448 outputs / 519,168 internal updates | zero diagnostics/clips; 5/0.5 mV H2–H10 THD 0.019826%/0.011559%; explicit 1/18/21 kHz two-tone products |
+| deterministic PCM audio suite | 14 vectors / 69,440 outputs / 1,111,040 internal updates | zero diagnostics/clips; 5/0.5 mV H2–H10 THD 0.019826%/0.011559%; profile sideband IMD 0.461295%; impulse onset 34 samples / peak 138.118 mV; paired 0.5 V recovery 147.750 ms |
 | trapezoidal 48 kHz stream vs fixed | 64 outputs / 1,024 circuit samples | bit-exact, zero diagnostics, 116-clock solver |
 | trapezoidal stream synthesis | Yosys 0.66 structural | 17,735 LC, 168 DSP48E1, 8 RAMB18E1 + 1 RAMB36E1; no Fmax claim |
 | wide factorized solver RTL vs fixed | 512 sequential samples | bit-exact all 19 states and diagnostics, latency 116, zero events |
@@ -252,6 +252,30 @@ and is not presented as a standards-compliant CCIF/ITU scalar. Silence produces
 174.6 uV RMS of deterministic initialized fixed-model offset over the first
 1,024 outputs; that is numerical/startup behavior, not stochastic circuit noise.
 
+The separate `smpte_profile_60hz_7khz` fixture uses 60 Hz and 7 kHz at a 4:1
+input peak ratio. Its simultaneous least-squares analysis fits the carrier plus
+first- and second-order upper/lower sidebands. Each sideband pair reports
+`(lower peak + upper peak) / carrier peak`, which returns the modulation depth
+for ideal symmetric AM; the scalar is the root-sum-square of the two pair
+depths. The frozen result is 0.461295%. This is a traceable standards-profile
+regression, not a claim that software filtering, calibration, bandwidth, and
+uncertainty satisfy every requirement of SMPTE RP 120. The V1 RIAA response
+also changes the 4:1 input ratio to an 84.78:1 output peak ratio; that physical
+equalization is measured, not normalized away.
+
+The impulse and recovery gates use separately initialized matched controls.
+Subtracting the silence control proves the 5 mV one-sample impulse residual is
+exactly zero before input sample 1,024, first exceeds four output PCM LSBs after
+34 samples, and peaks at 138.118 mV after 52 samples. This thresholded onset is
+not the previously measured 51-sample identity-resampler group delay. The
+250 ms recovery pair replaces the nominal 5 mV tone with a 0.5 V tone for 5 ms
+and subtracts an undisturbed trajectory. A 1 ms sliding-RMS envelope crosses
+10% of the 400.872 mV nominal RMS for the final time 147.750 ms after the input
+burst stop. This WAV metric deliberately retains interpolation/circuit/
+decimation delay; the upstream 768 kHz solver-only result is 146.570 ms. The
+final 10 ms deviation is 18.650 mV RMS. Multi-second 1.0/1.5 V floating-model
+recovery remains characterization outside the accepted fixed-solver region.
+
 The complete-stream frequency report performs no alignment. It fits the raw
 48 kHz input/output with absolute sample indices. A separate identity-path
 interpolator/decimator measurement establishes the 51-sample causal converter
@@ -259,11 +283,11 @@ delay; only the field named `circuit_attributed_after_converter_removal`
 subtracts that converter phase. End-to-end fields retain the physical latency.
 
 Implemented audio fixtures now cover silence, log sweep, low-level/nominal sine,
-multitone, selected high-frequency intermodulation products, synthetic pops,
-11 Hz warp, and grid-conduction overload. Still missing are a separately gated
-impulse response, standardized SMPTE/CCIF measurement procedures, long WAV-level
-recovery, and licensed/locally supplied music. Every found numerical bug gets
-the smallest durable regression vector.
+multitone, selected high-frequency intermodulation products, the 60 Hz/7 kHz
+SMPTE-style profile above, synthetic pops, a separately gated impulse, 11 Hz
+warp, grid-conduction overload, and paired long recovery. A calibrated full
+SMPTE/CCIF analyzer implementation and licensed/locally supplied music remain
+absent. Every found numerical bug gets the smallest durable regression vector.
 
 ## Physical verification plan
 

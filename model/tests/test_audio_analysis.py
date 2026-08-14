@@ -17,6 +17,8 @@ from fpga_amp.audio_analysis import (  # noqa: E402
     harmonic_analysis,
     intermodulation_analysis,
     signal_summary,
+    smpte_modulation_analysis,
+    sustained_recovery_analysis,
 )
 
 
@@ -69,6 +71,50 @@ class AudioAnalysisTests(unittest.TestCase):
         self.assertAlmostEqual(amplitudes[2], 0.002, places=12)
         self.assertAlmostEqual(amplitudes[3], 0.001, places=12)
         self.assertIn("not labeled", result["note"])
+
+    def test_smpte_profile_fit_recovers_ideal_am_modulation_depth(self) -> None:
+        low = self._sine(60.0, 0.4)
+        modulation = 1.0 + 0.02 * np.sin(
+            2.0 * np.pi * 60.0 * self.indices / self.sample_rate_hz + 0.3
+        )
+        carrier = modulation * self._sine(7000.0, 0.1, -0.2)
+        result = smpte_modulation_analysis(
+            low + carrier,
+            self.sample_rate_hz,
+            60.0,
+            7000.0,
+            maximum_sideband_order=2,
+        )
+        self.assertAlmostEqual(
+            result["low_to_high_output_peak_ratio"], 4.0, places=12
+        )
+        self.assertAlmostEqual(
+            result["sideband_pairs"][0]["modulation_depth_ratio"],
+            0.02,
+            places=12,
+        )
+        self.assertAlmostEqual(
+            result["sideband_pairs"][1]["modulation_depth_ratio"],
+            0.0,
+            places=12,
+        )
+        self.assertAlmostEqual(result["imd_percent"], 2.0, places=10)
+        self.assertIn("no claim", result["conformance_note"])
+
+    def test_sustained_recovery_reports_final_crossing(self) -> None:
+        values = np.zeros(1000, dtype=np.float64)
+        values[100:300] = 2.0
+        values[450:500] = 1.5
+        result = sustained_recovery_analysis(
+            values,
+            1000.0,
+            1.0,
+            100,
+            window_seconds=0.001,
+        )
+        self.assertEqual(result["window_samples"], 1)
+        self.assertEqual(result["recovered_sample"], 500)
+        self.assertAlmostEqual(result["recovery_seconds_after_start"], 0.4)
 
     def test_signal_summary_preserves_signed_extrema(self) -> None:
         result = signal_summary(np.array([-0.75, -0.25, 0.25, 0.5]))

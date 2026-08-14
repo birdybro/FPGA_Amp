@@ -108,6 +108,14 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   warp, pop, log sweep, and 1.5 V overload. Process 32,448 outputs / 519,168
   nonlinear updates with zero model diagnostics or WAV clips; measure
   0.019826%/0.011559% H2--H10 THD at 5/0.5 mV peak.
+- [x] Extend the deterministic audio suite to 14 vectors / 69,440 external
+  frames / 1,111,040 nonlinear updates. Add a 60 Hz/7 kHz, 4:1
+  SMPTE-RP-120-style sideband profile (explicitly not an analyzer-conformance
+  claim), a differential 5 mV one-sample impulse, and paired 250 ms nominal/
+  0.5 V overload trajectories. With zero fixed diagnostics or WAV clips,
+  measure 0.461295% profile IMD, a strictly causal 34-sample impulse onset and
+  138.118 mV peak, and 147.750 ms 10%-nominal recovery relative to the input
+  burst stop.
 - [x] Add dependency-free 16/24/32-bit PCM WAV I/O, explicit peak-voltage
   scaling through the exact fixed V1 stream, and transparent latency/gain/
   fractional-delay null tooling. Run a 1,024-frame terminal-trapezoidal audio
@@ -397,10 +405,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - The full-phono circuit RTL is bit-exact to fixed Python and now has nominal
   four-point solver and complete-stream captures. SPICE comparison remains at
   four frequencies and large-signal cross-layer coverage is still incomplete.
-- PCM WAV processing, explicit null comparison, and a deterministic distortion/
-  IMD-product/overload suite now exist. Standardized IMD procedures, long WAV-
-  level recovery and licensed music remain absent. The I²S protocol and CDC
-  FIFO primitives now form a bidirectional frame bridge, and standalone
+- PCM WAV processing, explicit null comparison, and deterministic distortion,
+  IMD-product, SMPTE-profile, impulse, and paired long-recovery gates now exist.
+  The SMPTE-profile sideband fit is traceable but is not a calibrated RP 120
+  instrument implementation; licensed/user-supplied music remains absent. The
+  I²S protocol and CDC FIFO primitives now form a bidirectional frame bridge, and standalone
   physical-unit calibration now composes with the accuracy-first mono core at
   the fabric frame boundary and a pin-facing top adds the asynchronous bridge.
   The modeled-output ramp and atomic converter-coefficient commit are now
@@ -429,7 +438,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Atomic muted converter-calibration commit boundary and diagnostics.
 - [x] PCM WAV processing and latency/gain/fractional-delay null comparison.
 - [x] Deterministic WAV distortion/IMD-product/overload regression library.
-- [ ] Standardized IMD, long recovery, impulse, and licensed-music WAV gates.
+- [x] Traceable SMPTE-profile sideband, paired long-recovery, and impulse WAV
+  gates.
+- [ ] Licensed/user-supplied music WAV gate with provenance and redistribution
+  rights.
 - [ ] Fabricated MM front end, ADC/FPGA/DAC loopback, and calibrated line output.
 - [ ] Validated phase inverter, power tubes, transformer, dynamic supply, feedback,
   and speaker interaction for one selected integrated-amplifier circuit.

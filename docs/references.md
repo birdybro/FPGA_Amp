@@ -118,3 +118,25 @@ for those types is claimed from modern reissue marketing data.
   Current DAC candidates spanning integrated voltage output through higher-
   performance external-I/V designs. PCB selection awaits measured clock,
   headroom, and output-stage requirements.
+
+## Audio measurement procedures
+
+- SMPTE, [Recommended Practice document index](https://www.smpte.org/standards/document-index/RP),
+  entry for RP 120, *Measurement of Intermodulation Distortion in Motion-Picture
+  Audio Systems*, and DOI
+  [10.5594/SMPTE.RP120.2005](https://doi.org/10.5594/SMPTE.RP120.2005).
+  This establishes the authoritative procedure identity and scope. The complete
+  normative text is not redistributed by this repository, so the regression is
+  deliberately called an RP-120-style frequency/ratio profile rather than a
+  conformance implementation.
+- Audio Precision,
+  [Portable One Dual Domain Specifications](https://www.audioprecision.com/fileadmin-ap/technical-library/P-1_DD_Specifications.pdf),
+  Appendix G. This primary analyzer-manufacturer specification identifies the
+  commonly implemented 60 Hz + 7 kHz or 250 Hz + 8 kHz stimulus, 4:1 LF:HF
+  ratio, and amplitude-modulation-product measurement associated with
+  SMPTE/DIN IMD. It supports the V1 60 Hz/7 kHz profile and sideband analysis;
+  it does not substitute for RP 120 calibration or uncertainty requirements.
+- IEC, [IEC 60268-3:2018](https://webstore.iec.ch/en/publication/32788),
+  *Sound system equipment – Part 3: Amplifiers*. This is the current amplifier
+  characteristic/measurement-method reference for future physical line and
+  power-amplifier qualification. V1 does not claim IEC conformance.

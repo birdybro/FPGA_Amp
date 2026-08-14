@@ -6,6 +6,17 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Extended the original deterministic PCM24 suite from nine to fourteen
+  vectors. The exact fixed stream now processes 69,440 external frames /
+  1,111,040 nonlinear updates with zero diagnostics or WAV clips. A 60 Hz/
+  7 kHz, 4:1 SMPTE-RP-120-style profile reports 0.461295% first/second
+  sideband-pair IMD while explicitly declining calibrated conformance; a paired
+  5 mV one-sample impulse is exactly zero before the event, crosses four output
+  LSBs after 34 samples, and peaks at 138.118 mV; paired nominal/0.5 V, 250 ms
+  records measure final 1 ms RMS-threshold recovery at 147.750 ms relative to
+  the input burst stop and 18.650 mV RMS deviation over the final 10 ms.
+  Known-signal unit tests prove ideal AM-depth recovery and final-crossing
+  semantics, including a synthetic late rebound.
 - Added a Gray-counter BCLK/fabric rate monitor to the pin top. The default
   fabric window requires 1,024 ± 1 BCLK edges and three consecutive good
   windows for lock; one bad window immediately drops lock and latches an error.

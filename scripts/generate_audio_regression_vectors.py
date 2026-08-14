@@ -42,6 +42,8 @@ def _log_sweep(frame_count: int, start_hz: float, stop_hz: float, peak_v: float)
 def _vectors() -> list[dict[str, object]]:
     nominal_index = np.arange(4096, dtype=np.float64)
     short_index = np.arange(2048, dtype=np.float64)
+    smpte_index = np.arange(4800, dtype=np.float64)
+    long_index = np.arange(12_000, dtype=np.float64)
     overload = _sine(nominal_index, 1000.0, 0.005)
     burst_start = 1536
     burst_stop = burst_start + 240
@@ -51,6 +53,17 @@ def _vectors() -> list[dict[str, object]]:
     pop = _sine(short_index, 1000.0, 0.005)
     pop[768] += 0.020
     pop[769] -= 0.012
+    impulse_control = np.zeros(4096, dtype=np.float64)
+    impulse = impulse_control.copy()
+    impulse_event_sample = 1024
+    impulse[impulse_event_sample] = 0.005
+    recovery_control = _sine(long_index, 1000.0, 0.005)
+    recovery = recovery_control.copy()
+    recovery_burst_start = 480
+    recovery_burst_stop = 720
+    recovery[recovery_burst_start:recovery_burst_stop] = _sine(
+        long_index[recovery_burst_start:recovery_burst_stop], 1000.0, 0.500
+    )
     return [
         {
             "name": "silence",
@@ -101,6 +114,25 @@ def _vectors() -> list[dict[str, object]]:
             },
         },
         {
+            "name": "smpte_profile_60hz_7khz",
+            "description": (
+                "SMPTE RP 120-style 60 Hz/7 kHz tones at 4:1 peak ratio; "
+                "sideband-fit profile, not analyzer-conformance claim"
+            ),
+            "samples_v": _sine(smpte_index, 60.0, 0.004)
+            + _sine(smpte_index, 7000.0, 0.001),
+            "input_full_scale_peak_v": 0.01,
+            "output_full_scale_peak_v": 4.0,
+            "analysis": {
+                "kind": "smpte_modulation",
+                "low_frequency_hz": 60.0,
+                "high_frequency_hz": 7000.0,
+                "input_peak_ratio": 4.0,
+                "maximum_sideband_order": 2,
+                "start_sample": 2400,
+            },
+        },
+        {
             "name": "multitone_100_1k_10k",
             "description": "three simultaneous 1.5 mV-peak audio-band tones",
             "samples_v": _sine(nominal_index, 100.0, 0.0015)
@@ -140,6 +172,26 @@ def _vectors() -> list[dict[str, object]]:
             },
         },
         {
+            "name": "impulse_control_silence",
+            "description": "matched silence control for differential impulse analysis",
+            "samples_v": impulse_control,
+            "input_full_scale_peak_v": 0.02,
+            "output_full_scale_peak_v": 8.0,
+            "analysis": {"kind": "summary"},
+        },
+        {
+            "name": "impulse_5mv_one_sample",
+            "description": "single 5 mV input sample with matched silence control",
+            "samples_v": impulse,
+            "input_full_scale_peak_v": 0.02,
+            "output_full_scale_peak_v": 8.0,
+            "analysis": {
+                "kind": "paired_impulse",
+                "control_vector": "impulse_control_silence",
+                "event_sample": impulse_event_sample,
+            },
+        },
+        {
             "name": "log_sweep_20hz_20khz",
             "description": "100 ms logarithmic 20 Hz to 20 kHz sweep at 5 mV peak",
             "samples_v": _log_sweep(4800, 20.0, 20_000.0, 0.005),
@@ -158,6 +210,30 @@ def _vectors() -> list[dict[str, object]]:
                 "burst_start_sample": burst_start,
                 "burst_stop_sample": burst_stop,
                 "tail_start_sample": 3072,
+            },
+        },
+        {
+            "name": "recovery_control_250ms",
+            "description": "undisturbed 5 mV-peak control for paired recovery analysis",
+            "samples_v": recovery_control,
+            "input_full_scale_peak_v": 1.0,
+            "output_full_scale_peak_v": 128.0,
+            "analysis": {"kind": "summary"},
+        },
+        {
+            "name": "recovery_0p5v_250ms",
+            "description": (
+                "5 ms, 0.5 V-peak accepted-range burst with 235 ms observation"
+            ),
+            "samples_v": recovery,
+            "input_full_scale_peak_v": 1.0,
+            "output_full_scale_peak_v": 128.0,
+            "analysis": {
+                "kind": "paired_recovery",
+                "control_vector": "recovery_control_250ms",
+                "burst_start_sample": recovery_burst_start,
+                "burst_stop_sample": recovery_burst_stop,
+                "rms_window_seconds": 0.001,
             },
         },
     ]

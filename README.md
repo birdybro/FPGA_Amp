@@ -258,13 +258,19 @@ The mono reference and complete 768 kHz circuit solver are operating:
   latency-aligned, and -100.810 dB opt-in gain-aligned residuals as separate
   fields. Optional fractional alignment is labeled with its interpolation
   method; it is never enabled by default.
-- A separate nine-vector PCM24 library exercises silence, 5/0.5 mV 1 kHz,
-  19/20 kHz products, 100 Hz/1/10 kHz multitone, 11 Hz warp, a synthetic pop,
-  a 20 Hz–20 kHz log sweep, and a 1.5 V/5 ms overload burst. All 32,448 external
-  frames / 519,168 nonlinear updates pass with zero model diagnostics or WAV
-  clips. Measured at the WAV boundary, H2–H10 THD is 0.019826% at 5 mV peak and
-  0.011559% at 0.5 mV peak. The 19/20 kHz report retains the 1/18/21 kHz product
-  amplitudes and explicitly does not claim a standards-compliant CCIF scalar.
+- A 14-vector PCM24 library exercises silence, 5/0.5 mV 1 kHz, selected
+  19/20 kHz products, a 60 Hz/7 kHz 4:1 SMPTE-style profile, a 100 Hz/1/10 kHz
+  multitone, 11 Hz warp, a record pop, a separately controlled impulse, a
+  20 Hz–20 kHz log sweep, and both short severe and paired 250 ms accepted-range
+  overload records. All 69,440 external frames / 1,111,040 nonlinear updates
+  pass with zero model diagnostics or WAV clips. H2–H10 THD is 0.019826% at
+  5 mV peak and 0.011559% at 0.5 mV; profile sideband IMD is 0.461295%. The
+  5 mV one-sample impulse is strictly causal, first exceeds four PCM LSBs after
+  34 samples, and peaks at 138.118 mV. Paired 0.5 V recovery crosses 10% of
+  nominal RMS at 147.750 ms after the input burst stop and ends at 18.650 mV
+  RMS over the final 10 ms. The high-frequency fixture remains a selected-
+  product report, and the SMPTE-style fit is not a calibrated RP 120
+  conformance claim.
 - Moving only the shallow trapezoidal threshold from -2.50 to -2.75 V prevents
   bank activation at 0.5 V, preserves zero 1.0 V failures, and reduces final
   10 ms mean error from 1.042 to 0.537 mV with the former 128-point grid-current

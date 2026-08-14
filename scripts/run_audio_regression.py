@@ -19,6 +19,8 @@ from fpga_amp.audio_analysis import (  # noqa: E402
     harmonic_analysis,
     intermodulation_analysis,
     signal_summary,
+    smpte_modulation_analysis,
+    sustained_recovery_analysis,
 )
 from fpga_amp.audio_io import read_pcm_wav  # noqa: E402
 
@@ -75,6 +77,15 @@ def _measure(vector: dict[str, object], output_v: np.ndarray) -> dict[str, objec
             [float(value) for value in analysis["products_hz"]],
             start_sample=int(analysis["start_sample"]),
         )
+    elif kind == "smpte_modulation":
+        result["analysis"] = smpte_modulation_analysis(
+            output_v,
+            sample_rate_hz,
+            float(analysis["low_frequency_hz"]),
+            float(analysis["high_frequency_hz"]),
+            maximum_sideband_order=int(analysis["maximum_sideband_order"]),
+            start_sample=int(analysis["start_sample"]),
+        )
     elif kind == "tones":
         result["analysis"] = fit_tones(
             output_v,
@@ -104,9 +115,76 @@ def _measure(vector: dict[str, object], output_v: np.ndarray) -> dict[str, objec
             "output_observation_stop_sample": window_stop,
             "output_observation": signal_summary(output_v[window_start:window_stop]),
         }
-    elif kind != "summary":
+    elif kind not in ("summary", "paired_impulse", "paired_recovery"):
         raise ValueError(f"unknown analysis kind {kind}")
     return result
+
+
+def _paired_impulse_measurement(
+    vector: dict[str, object], output_v: np.ndarray, control_v: np.ndarray
+) -> dict[str, object]:
+    if output_v.shape != control_v.shape:
+        raise RuntimeError("impulse/control WAV lengths differ")
+    event_sample = int(vector["analysis"]["event_sample"])
+    residual = output_v - control_v
+    output_lsb_v = float(vector["output_full_scale_peak_v"]) / float(1 << 23)
+    detection_threshold_v = 4.0 * output_lsb_v
+    detected = np.flatnonzero(np.abs(residual) > detection_threshold_v)
+    first_detected = None if detected.size == 0 else int(detected[0])
+    peak_index = int(np.argmax(np.abs(residual)))
+    final_tail = residual[-512:]
+    return {
+        "control_vector": vector["analysis"]["control_vector"],
+        "input_event_sample": event_sample,
+        "detection_threshold_v": detection_threshold_v,
+        "first_detected_output_sample": first_detected,
+        "causal_delay_samples": (
+            None if first_detected is None else first_detected - event_sample
+        ),
+        "pre_event_maximum_absolute_v": float(np.max(np.abs(residual[:event_sample]))),
+        "peak_output_sample": peak_index,
+        "peak_output_v": float(residual[peak_index]),
+        "maximum_absolute_output_v": float(np.max(np.abs(residual))),
+        "final_512_sample_tail": signal_summary(final_tail),
+    }
+
+
+def _paired_recovery_measurement(
+    vector: dict[str, object], output_v: np.ndarray, control_v: np.ndarray
+) -> dict[str, object]:
+    if output_v.shape != control_v.shape:
+        raise RuntimeError("recovery/control WAV lengths differ")
+    analysis = vector["analysis"]
+    sample_rate_hz = float(vector["sample_rate_hz"])
+    burst_start = int(analysis["burst_start_sample"])
+    burst_stop = int(analysis["burst_stop_sample"])
+    residual = output_v - control_v
+    nominal_tail = control_v[-4800:]
+    nominal_rms_v = float(np.sqrt(np.mean(np.square(nominal_tail))))
+    threshold_v = 0.10 * nominal_rms_v
+    recovery = sustained_recovery_analysis(
+        residual,
+        sample_rate_hz,
+        threshold_v,
+        burst_stop,
+        window_seconds=float(analysis["rms_window_seconds"]),
+    )
+    return {
+        "control_vector": analysis["control_vector"],
+        "input_burst_start_sample": burst_start,
+        "input_burst_stop_sample": burst_stop,
+        "nominal_control_tail_rms_v": nominal_rms_v,
+        "ten_percent_nominal_threshold_v_rms": threshold_v,
+        "recovery": recovery,
+        "peak_post_burst_deviation_v": float(np.max(np.abs(residual[burst_stop:]))),
+        "final_10ms_deviation_rms_v": float(
+            np.sqrt(np.mean(np.square(residual[-480:])))
+        ),
+        "timing_note": (
+            "recovery is relative to the input burst stop and therefore retains "
+            "the causal interpolation/circuit/decimation delay"
+        ),
+    }
 
 
 def main() -> int:
@@ -123,6 +201,7 @@ def main() -> int:
     output_directory.mkdir(parents=True, exist_ok=True)
 
     reports: list[dict[str, object]] = []
+    outputs_by_name: dict[str, np.ndarray] = {}
     total_diagnostics = 0
     total_output_clips = 0
     for vector in manifest["vectors"]:
@@ -136,6 +215,7 @@ def main() -> int:
         )
         total_diagnostics += diagnostic_count
         total_output_clips += output_clips
+        outputs_by_name[str(vector["name"])] = output_v
         reports.append(
             {
                 "name": vector["name"],
@@ -154,9 +234,36 @@ def main() -> int:
         )
 
     by_name = {str(report["name"]): report for report in reports}
+    manifest_by_name = {str(vector["name"]): vector for vector in manifest["vectors"]}
+    impulse_name = "impulse_5mv_one_sample"
+    impulse_vector = manifest_by_name[impulse_name]
+    impulse_control_name = str(impulse_vector["analysis"]["control_vector"])
+    impulse_measurement = _paired_impulse_measurement(
+        impulse_vector,
+        outputs_by_name[impulse_name],
+        outputs_by_name[impulse_control_name],
+    )
+    by_name[impulse_name]["analysis"] = impulse_measurement
+    recovery_name = "recovery_0p5v_250ms"
+    recovery_vector = manifest_by_name[recovery_name]
+    recovery_control_name = str(recovery_vector["analysis"]["control_vector"])
+    recovery_measurement = _paired_recovery_measurement(
+        recovery_vector,
+        outputs_by_name[recovery_name],
+        outputs_by_name[recovery_control_name],
+    )
+    by_name[recovery_name]["analysis"] = recovery_measurement
     nominal_thd = float(by_name["nominal_1khz"]["analysis"]["thd_percent"])
     low_level_thd = float(by_name["low_level_1khz"]["analysis"]["thd_percent"])
     silence_rms_v = float(by_name["silence"]["full_output"]["rms"])
+    smpte_imd_percent = float(
+        by_name["smpte_profile_60hz_7khz"]["analysis"]["imd_percent"]
+    )
+    impulse_delay = impulse_measurement["causal_delay_samples"]
+    impulse_peak_v = float(impulse_measurement["maximum_absolute_output_v"])
+    recovery_seconds = recovery_measurement["recovery"][
+        "recovery_seconds_after_start"
+    ]
     if total_diagnostics != 0:
         raise RuntimeError(f"audio suite produced {total_diagnostics} fixed-model events")
     if total_output_clips != 0:
@@ -167,6 +274,23 @@ def main() -> int:
         raise RuntimeError(f"low-level WAV THD {low_level_thd:.6f}% exceeds 0.2% gate")
     if silence_rms_v >= 0.001:
         raise RuntimeError(f"initialized silence output {silence_rms_v:.9f} V exceeds 1 mV")
+    if not 0.40 <= smpte_imd_percent <= 0.55:
+        raise RuntimeError(
+            f"SMPTE-profile sideband IMD {smpte_imd_percent:.6f}% is outside "
+            "the frozen 0.40..0.55% behavior range"
+        )
+    if impulse_measurement["pre_event_maximum_absolute_v"] != 0.0:
+        raise RuntimeError("impulse residual is nonzero before the input event")
+    if impulse_delay is None or not 0 <= int(impulse_delay) <= 128:
+        raise RuntimeError(f"impulse response delay {impulse_delay} is outside 0..128 samples")
+    if impulse_peak_v <= 0.0001:
+        raise RuntimeError(f"impulse response peak {impulse_peak_v:.9f} V is not observable")
+    if recovery_seconds is None or not 0.140 <= float(recovery_seconds) <= 0.160:
+        raise RuntimeError(
+            f"0.5 V paired WAV recovery {recovery_seconds} s is outside 140..160 ms"
+        )
+    if float(recovery_measurement["final_10ms_deviation_rms_v"]) >= 0.030:
+        raise RuntimeError("0.5 V recovery final 10 ms residual exceeds 30 mV RMS")
 
     summary = {
         "schema_version": 1,
@@ -182,6 +306,11 @@ def main() -> int:
             "nominal_1khz_thd_percent_limit": 0.1,
             "low_level_1khz_thd_percent_limit": 0.2,
             "silence_rms_v_limit": 0.001,
+            "smpte_profile_sideband_imd_percent_range": [0.40, 0.55],
+            "impulse_causal_delay_samples_range": [0, 128],
+            "impulse_minimum_response_peak_v": 0.0001,
+            "recovery_0p5v_seconds_after_input_burst_range": [0.140, 0.160],
+            "recovery_0p5v_final_10ms_rms_v_limit": 0.030,
         },
         "vectors": reports,
         "artifact_note": "PCM WAVs and per-vector reports are reproducible under build/",
@@ -190,7 +319,8 @@ def main() -> int:
     destination.write_text(json.dumps(summary, indent=2, allow_nan=False) + "\n")
     print(
         f"audio regression passed: {len(reports)} vectors, "
-        f"nominal THD={nominal_thd:.6f}%, low-level THD={low_level_thd:.6f}%"
+        f"nominal THD={nominal_thd:.6f}%, low-level THD={low_level_thd:.6f}%, "
+        f"profile IMD={smpte_imd_percent:.6f}%, recovery={recovery_seconds:.6f} s"
     )
     return 0
 
