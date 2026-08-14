@@ -6,6 +6,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a bounded arbitrary-clock formal contract for the coherent held-bus CDC
+  snapshot. Nine embedded/harness assertions cover capture-event provenance,
+  destination hold stability, exact returned data, one-cycle valid behavior,
+  request/completion accounting, and idle only after completion through 40
+  global steps. A separate satisfiable trace transfers nonzero `0xa` data and
+  returns to idle. This digital safety result assumes one disciplined shared
+  startup reset; destination reset during an active request remains covered by
+  the directed RTL regression, and analog metastability is not modeled.
 - Added a formal frame-scheduler contract. Nine arbitrary-source assertions
   cover reset phase, deterministic wrap, ready/valid/present launch strobes,
   accepted data, zero fill, and exact clear/increment/saturation behavior of the

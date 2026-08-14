@@ -29,6 +29,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Bound the coherent held-bus CDC snapshot under arbitrary source and
+  destination clock levels after disciplined shared startup reset. Prove nine
+  capture provenance, hold stability, exact-data, valid-pulse, accounting, and
+  idle properties through 40 global steps, then find a nonzero complete-transfer
+  witness. Keep the result explicitly bounded and retain the directed
+  destination-reset-during-request RTL test because mid-transaction reset is
+  outside the formal environment.
 - [x] Formally prove deterministic frame scheduling under arbitrary source
   validity/data and diagnostic clear. Use nine assertions for phase wrap,
   ready/valid/present launch strobes, accepted data, zero fill, and the exact

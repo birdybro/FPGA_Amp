@@ -115,6 +115,54 @@ module cdc_word_snapshot #(
         end
     end
 
+`ifdef FORMAL
+    logic [WIDTH-1:0] formal_captured_reference;
+    logic formal_source_past_valid;
+    logic formal_destination_past_valid;
+
+    // Formal-only state mirrors the destination capture event. Keeping these
+    // checks beside the private handshake state avoids pretending that the
+    // held bus is a public asynchronous interface.
+    always_ff @(posedge destination_clk) begin
+        if (!destination_rst_n) begin
+            formal_captured_reference <= '0;
+            formal_destination_past_valid <= 1'b0;
+        end else begin
+            formal_destination_past_valid <= 1'b1;
+            if (source_request_sync && !destination_acknowledge_level)
+                formal_captured_reference <= destination_live_data;
+
+            assert (destination_snapshot_hold
+                == formal_captured_reference);
+            if (formal_destination_past_valid) begin
+                if (destination_acknowledge_level
+                    && !$past(destination_acknowledge_level)) begin
+                    assert ($past(source_request_sync));
+                    assert (destination_snapshot_hold
+                        == $past(destination_live_data));
+                end
+                if ($past(destination_acknowledge_level))
+                    assert (destination_snapshot_hold
+                        == $past(destination_snapshot_hold));
+            end
+        end
+    end
+
+    always_ff @(posedge source_clk) begin
+        if (!source_rst_n) begin
+            formal_source_past_valid <= 1'b0;
+        end else begin
+            formal_source_past_valid <= 1'b1;
+            if (source_snapshot_valid) begin
+                assert (source_snapshot_data == formal_captured_reference);
+                assert (!source_capture_pending);
+                if (formal_source_past_valid)
+                    assert (!$past(source_snapshot_valid));
+            end
+        end
+    end
+`endif
+
 endmodule
 
 `default_nettype wire

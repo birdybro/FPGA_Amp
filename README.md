@@ -123,9 +123,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
 - A reusable 16-bit held-bus CDC snapshot now uses a four-phase handshake, two
   data synchronizer stages, and a final settling clock. Three warning-free
   captures survive unrelated clocks and a destination reset during a request;
-  generic synthesis is 5 LC / 75 FF with no warnings. The register bank now
-  waits for this capture before advancing its snapshot sequence and packs all
-  four I²S-domain FIFO level/high-water nibbles at `0x35`.
+  nine properties also hold for every 40-step arbitrary-clock formal
+  interleaving after shared startup reset, with a nonzero complete-transfer
+  witness. Generic synthesis is 5 LC / 75 FF with no warnings. The register
+  bank waits for this capture before advancing its snapshot sequence and packs
+  all four I²S-domain FIFO level/high-water nibbles at `0x35`.
 - Standalone converter calibration now maps PCM24 to physical input Q8.24 volts
   and physical output volts back to saturating PCM24 with explicit positive
   Q8.24 coefficients, full-width products, symmetric rounding, endpoint/clip
@@ -632,6 +634,7 @@ make formal-mute                   # Yosys SAT safety-ramp induction + witness
 make formal-async-fifo             # bounded arbitrary-clock FIFO safety
 make formal-calibration-control    # atomic scaling commit/reject induction
 make formal-frame-scheduler        # cadence/zero-fill/counter induction
+make formal-cdc-snapshot           # bounded coherent held-bus CDC safety
 make audio-clock-rtl               # BCLK/fabric ratio lock and error monitor
 make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make cdc-pulse-rtl                # one-shot host command CDC

@@ -45,6 +45,18 @@ trace reaches depth four and both overflow/underflow stickies. Unbounded
 induction does not close with the current incomplete invariant set; the bounded
 result also cannot represent analog metastability.
 
+The held-bus snapshot test uses unrelated 10 ns source and 14 ns destination
+clocks to require three exact 16-bit captures and recovery when the destination
+is reset during an active request. `make formal-cdc-snapshot` separately leaves
+both clock levels, request, and four-bit live data arbitrary after a disciplined
+shared startup reset. Nine assertions cover destination capture provenance and
+hold stability, exact source-domain data, one-cycle valid, completion bounded by
+accepted requests, and idle only after all accepted requests complete for every
+40-step interleaving. A separate satisfiable trace accepts and completes one
+nonzero `0xa` transfer and returns to available. This is a bounded digital logic
+result: it neither proves progress if a clock stops, models analog metastability,
+nor covers an independently resetting destination in the formal environment.
+
 The I²S test passes 16 stereo frames through independent transmitter and
 receiver blocks, including signed 24-bit maximum/minimum and pseudorandom-like
 channel patterns. A separate monitor—not the receiver—requires 31 stable sampled
@@ -216,7 +228,7 @@ scripts/run_frame_scheduler_formal.py  phase/zero-fill/counter induction
 | I²S receiver/transmitter synthesis | Yosys 0.66 structural | RX 35 LC/105 FF; TX 97 LC/137 negative-edge FF; no warnings/DSP/RAM/Fmax claim |
 | bidirectional I²S/CDC bridge RTL | 20 stereo frames; unrelated 50/76.9 MHz stress clocks | exact BCLK→fabric→BCLK order after multi-frame plus one-in-four receive stalls; local RX I²S/fabric watermarks 3/3 and TX fabric/I²S 4/4; owning-domain diagnostics checked |
 | bidirectional I²S/CDC bridge synthesis | Yosys 0.66 flattened structural | with four local-domain levels/watermarks: 571 LC / 1,547 FF / no DSP or RAM; two 8×64 memories register-expanded; no Fmax/CDC claim |
-| held-bus CDC snapshot RTL/synthesis | three 16-bit captures; unrelated clocks plus destination reset during request | every image exact; warning-free; 5 LC / 75 FF / no DSP/RAM; no placed CDC claim |
+| held-bus CDC snapshot RTL/formal/synthesis | three 16-bit captures; unrelated clocks plus destination reset during request; nine properties over every 40-step arbitrary-clock interleaving after shared startup reset | every directed image exact; bounded formal pass plus nonzero complete-transfer witness; warning-free; 5 LC / 75 FF / no DSP/RAM; no placed CDC or analog-metastability claim |
 | atomic multi-domain register snapshot RTL | same-clock unit plus controlled I²S hierarchy | image/sequence advance only on capture valid; busy command rejected; stopped BCLK times out with old image retained; later re-arm, timeout evidence capture, and clear exact; warning-free |
 | PCM24/Q8.24 calibration RTL | 4,159 vectors each direction | bit-exact, one clock, endpoint/invalid/4,079 output-saturation events checked; warning-free |
 | PCM24/Q8.24 calibration synthesis | Yosys 0.66 structural | input 95 LC/66 FF/4 DSP; output 86 LC/58 FF/4 DSP; no RAM/Fmax claim |
