@@ -19,13 +19,16 @@ certified `-1` speed-grade limit. `scripts/bootstrap_openxc7.sh` builds the
 pinned backend without root access; `make openxc7-probe` records the installed
 versions and database. No Vivado step is part of the required flow.
 
-`run_openxc7.py --place-only` stops cleanly after packing and placement, writes
-a separate placed netlist/log/report/summary, and records placement Fmax without
-claiming a route. It exists for candidates whose placement miss is too large to
-justify a long router run. `analyze_openxc7_placement.py` groups a flattened
-placed JSON by the major solver blocks and reports resource counts, bounding
-boxes, and hard-block centroids. These diagnostic artifacts remain generated;
-their measured conclusions are recorded here.
+`run_openxc7.py --pack-only` records exact named-part packing and utilization
+without claiming placement or timing. `--place-only` continues through
+placement, writes a separate placed netlist/log/report/summary, and records
+placement Fmax without claiming a route. These stages exist for candidates
+whose congestion makes the next implementation step impractical or whose
+placement miss is too large to justify a long router run.
+`analyze_openxc7_placement.py` groups a flattened placed JSON by the major
+solver blocks and reports resource counts, bounding boxes, and hard-block
+centroids. These diagnostic artifacts remain generated; their measured
+conclusions are recorded here.
 
 ## First named-part placement diagnosis
 
@@ -304,6 +307,35 @@ DSP span contracts from 91 by 167 to 31 by 161. Total annealed wire length falls
 from 3,010,517 to 2,006,868 units. This validates explicit hierarchy placement
 as a useful optimization, but its 2.67x remaining frequency gap requires a
 broader arithmetic/scheduling change; routing is deliberately skipped.
+
+### Soft KCL multiplier experiment
+
+The KCL source contains eleven signed multipliers; their widths expand to 72
+DSP48E1s in the selected isolated implementation. A reproducible Yosys branch
+stops immediately before `map_dsp`, asserts that exactly those eleven `$mul`
+cells exist under `network_kcl_v1_wide`, marks them for soft multiplication,
+and then resumes the standard XC7 mapping flow. This is a technology-mapping
+experiment: it changes neither RTL, fixed-point widths, rounding, saturation,
+nor the 19-clock KCL schedule.
+
+The isolated KCL maps from 72 DSPs to zero, but Yosys grows from the selected
+implementation's compact hard-multiplier structure to 43,389 estimated logic
+cells. Exact nextpnr packing consumes 71,592/126,800 `SLICE_LUTX`, 10,436
+`SLICE_FFX`, and 1,843 CARRY4s. In the complete shared-terminal solver, KCL
+softening reduces the DSP count from 189 to 117 but raises estimated logic from
+15,072 to 51,475 cells. Exact packing consumes 101,479/126,800 LUT elements
+(80%), 14,590 FFX, 3,993 CARRY4s, 117 DSPs, 16 RAMB18s, and two RAMB36s.
+
+No Fmax is claimed. The isolated 56%-LUT candidate did not finish placement in
+a useful diagnostic interval: the default run completed five analytical
+iterations in about 7 minutes 20 seconds without reaching timing analysis, and
+an eightfold tighter heap-attempt bound reproduced 81.39 and 77.29 second first
+iterations because that option does not bound the dominant analytical phase.
+Both exploratory placement runs were stopped. The retained `--pack-only` flow
+finishes normally and labels placement/timing as incomplete. All-soft KCL is
+therefore not promoted: it removes DSP pressure at the cost of severe LUT and
+placement pressure. Partial multiplier sharing or a scheduled, explicitly
+pipelined soft-multiply kernel remains a distinct future experiment.
 
 ### XC7A200T capacity experiment
 

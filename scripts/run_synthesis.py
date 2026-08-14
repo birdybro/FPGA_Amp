@@ -14,6 +14,16 @@ import sys
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+RESULT_TAG_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
+
+
+def validated_result_tag(tag: str) -> str:
+    if RESULT_TAG_PATTERN.fullmatch(tag) is None:
+        raise argparse.ArgumentTypeError(
+            "result tag must be 1-64 lowercase letters, digits, underscores, "
+            "or hyphens and must start with a letter or digit"
+        )
+    return tag
 
 
 def locate(name: str) -> Path | None:
@@ -105,6 +115,19 @@ def main() -> int:
         help=(
             "also insert top-level XC7 I/O/clock buffers and write a JSON "
             "netlist suitable for the open nextpnr-himbaechel flow"
+        ),
+    )
+    parser.add_argument(
+        "--result-tag",
+        type=validated_result_tag,
+        help="retain tagged synthesis logs and summaries for an experiment",
+    )
+    parser.add_argument(
+        "--soft-multiplier-module",
+        choices=("network_kcl_v1_wide",),
+        help=(
+            "map every multiplier in the selected module hierarchy to LUT "
+            "logic instead of DSP48E1s"
         ),
     )
     args = parser.parse_args()
@@ -575,7 +598,8 @@ def main() -> int:
         solver_index = sources.index("rtl/phono/v1_solver_mono_wide.sv")
         sources.insert(solver_index, terminal_current_source)
     pnr_mode = args.pnr_json is not None
-    log_suffix = "_pnr" if pnr_mode else ""
+    result_tag = f"_{args.result_tag}" if args.result_tag is not None else ""
+    log_suffix = ("_pnr" if pnr_mode else "") + result_tag
     log_path = results / f"yosys_xc7_{args.top}{log_suffix}.log"
     # Only the legacy solver/stream aliases select the factorized primitive by
     # overriding a wrapper parameter.  The factorized tube primitive is itself
@@ -600,9 +624,23 @@ def main() -> int:
     if parameter_command is not None:
         commands.append(parameter_command)
     out_of_context_flags = "" if pnr_mode else " -noiopad -noclkbuf"
+    synthesis_command = (
+        f"synth_xilinx -family xc7 -top {actual_top}{out_of_context_flags}"
+    )
+    if args.soft_multiplier_module is not None:
+        module_pattern = f"*{args.soft_multiplier_module}*"
+        commands.extend(
+            [
+                f"{synthesis_command} -run begin:map_dsp",
+                f"select -assert-count 11 {module_pattern}/t:$mul",
+                f"chtype -set $__soft_mul {module_pattern}/t:$mul",
+                f"{synthesis_command} -run map_dsp:map_luts",
+            ]
+        )
+    else:
+        commands.append(f"{synthesis_command} -run begin:map_luts")
     commands.extend(
         [
-            f"synth_xilinx -family xc7 -top {actual_top}{out_of_context_flags} -run begin:map_luts",
             "opt_expr -mux_undef -noclkinv",
             f"abc -exe {abc} -luts 2:2,3,6:5,10,20",
             "clean",
@@ -704,6 +742,8 @@ def main() -> int:
             else "Yosys out-of-context synth_xilinx XC7; no place/route"
         ),
         "top": args.top,
+        "result_tag": args.result_tag,
+        "soft_multiplier_module": args.soft_multiplier_module,
         "yosys": subprocess.check_output([str(yosys), "-V"], text=True).strip(),
         "estimated_logic_cells": int(lc_match.group(1)) if lc_match else None,
         "lut_by_size": {f"LUT{size}": count(f"LUT{size}") for size in range(2, 7)},

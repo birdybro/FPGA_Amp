@@ -582,8 +582,14 @@ to 32.56 MHz, still below both the target and the selected 209-DSP baseline's
 34.20 MHz. An overlapping hierarchy floorplan then reaches 36.83 MHz by keeping
 KCL/RHS in the left and center DSP columns and nonlinear blocks in the center
 and right columns. This is the best complete placement so far, but remains
-2.67x short. The candidate is retained as resource-sharing evidence, not
-promoted as the default full-solver timing solution. None
+2.67x short. Mapping all eleven KCL multipliers to LUT logic removes 72 more
+DSPs, but the complete shared solver then packs to 101,479/126,800 LUT elements
+(80%) and 117 DSPs; even the isolated 71,592-LUT KCL did not complete analytical
+placement in a useful interval, so no timing result is claimed. The open runner
+now has a pack-only stage that records this exact utilization while explicitly
+leaving placement and Fmax incomplete. The candidate is retained as
+resource-sharing evidence, not promoted as the default full-solver timing
+solution. None
 of these experiments is timing closure or a reference-mode change.
 All figures use the backend's unqualified `DEFAULT` timing grade. The implemented digital mute
 primitive is not independent analog speaker protection.
@@ -780,6 +786,8 @@ make openxc7-parallel-diagnostic-pipelined-solver-pnr # route 126-clock solver
 make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-place # place 189-DSP candidate
 make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-timing-place # tagged weight-20 experiment
 make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-regions-place # overlapping hierarchy floorplan
+make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-soft-kcl-pack # exact all-soft-KCL resource trade
+make openxc7-diagnostic-pipelined-kcl-soft-pack # isolated all-soft-KCL pack
 make openxc7-a200t-parallel-diagnostic-pipelined-solver-place # compare A200T
 ```
 

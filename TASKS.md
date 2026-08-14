@@ -74,10 +74,22 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   in one block and placer-weight tuning are therefore both insufficient. An
   overlapping hierarchy floorplan improves the candidate to 36.83 MHz by
   reserving left/center DSP columns for KCL/RHS and center/right columns for
-  nonlinear blocks, but still misses by 2.67x. Develop a broader cross-block
-  time-multiplexed schedule; only one clock remains in this candidate, so do
-  not add a per-pass stage or alter the frozen numerical contract.
+  nonlinear blocks, but still misses by 2.67x. Mapping all eleven KCL
+  multipliers to LUT logic is legal but grows the complete candidate to
+  101,479/126,800 packed LUT elements while reducing DSPs to 117; the isolated
+  71,592-LUT block does not complete analytical placement in a useful interval,
+  so no Fmax is claimed. Develop a broader cross-block time-multiplexed schedule
+  or a partially shared multiplier kernel; only one clock remains in this
+  candidate, so do not add a per-pass stage or alter the frozen numerical
+  contract.
 ## Completed this milestone
+
+- [x] Add an exact open-XC7 pack-only measurement stage and evaluate mapping
+  all eleven KCL multipliers to LUT logic. Assert the multiplier selection in
+  Yosys before remapping; measure isolated 71,592 LUTX / 0 DSP and complete
+  101,479 LUTX / 117 DSP packing. Stop two non-convergent exploratory
+  placements without claiming timing, retain normal pack summaries, and reject
+  the all-soft mapping as the current A100T implementation.
 
 - [x] Implement and measure two-batch terminal-current resource sharing. Use
   fixed lane-pair muxes to avoid synthesis-created variable-index trees, pass

@@ -140,6 +140,17 @@ All notable engineering changes are recorded here. The project is pre-release; d
   from 3,010,517 to 2,006,868 units. The remaining 2.67x timing gap rejects
   floorplanning alone; routing remains skipped.
 
+- Added a first-class pack-only open-XC7 stage that writes a packed netlist,
+  exact utilization report, and tagged summary while explicitly withholding
+  placement, routing, and timing claims. Added a selective Yosys experiment
+  that stops before DSP mapping, asserts exactly eleven KCL multipliers, maps
+  them to soft logic, and resumes the standard XC7 flow without changing RTL
+  arithmetic. Isolated KCL packs legally at 71,592 LUTX / 10,436 FFX / 1,843
+  CARRY4 / 0 DSP; the complete shared solver packs at 101,479 LUTX / 14,590 FFX
+  / 3,993 CARRY4 / 117 DSP. Two exploratory isolated placements did not reach
+  timing analysis in a useful interval, so no Fmax is reported and the
+  80%-LUT complete candidate is not promoted.
+
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,
   0--80 bit-count bound/transition, one-cycle request decode and exact fields,

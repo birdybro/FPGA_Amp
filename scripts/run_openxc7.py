@@ -98,12 +98,17 @@ def version_line(executable: Path, argument: str) -> str:
 
 
 def measured_report_summary(
-    report: Path, *, log: Path | None = None, route_requested: bool = True
+    report: Path,
+    *,
+    log: Path | None = None,
+    placement_requested: bool = True,
+    route_requested: bool = True,
 ) -> dict[str, object]:
     """Extract stable, compact evidence from a nextpnr JSON report."""
 
     if not report.exists():
         return {
+            "pack_completed": False,
             "placement_completed": False,
             "route_completed": False,
             "timing_pass": None,
@@ -114,6 +119,7 @@ def measured_report_summary(
         payload = json.loads(report.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return {
+            "pack_completed": False,
             "placement_completed": False,
             "route_completed": False,
             "timing_pass": None,
@@ -138,11 +144,15 @@ def measured_report_summary(
             name: {"achieved": float(achieved), "constraint": float(constraint)}
             for name, achieved, constraint in matches
         }
-    timing_pass = bool(clocks) and all(
-        values["achieved"] is not None
-        and values["constraint"] is not None
-        and values["achieved"] >= values["constraint"]
-        for values in clocks.values()
+    timing_pass = (
+        all(
+            values["achieved"] is not None
+            and values["constraint"] is not None
+            and values["achieved"] >= values["constraint"]
+            for values in clocks.values()
+        )
+        if clocks
+        else None
     )
     utilization_payload = payload.get("utilization", {})
     resource_names = (
@@ -161,7 +171,8 @@ def measured_report_summary(
         if name in utilization_payload
     }
     return {
-        "placement_completed": True,
+        "pack_completed": True,
+        "placement_completed": placement_requested,
         "route_completed": route_requested,
         "timing_pass": timing_pass,
         "clock_fmax_mhz": clocks,
@@ -213,12 +224,25 @@ def main() -> int:
         help="nextpnr Python hook to run after packing and before placement",
     )
     parser.add_argument(
+        "--soft-kcl-multipliers",
+        action="store_true",
+        help="map the KCL engine's eleven multipliers to LUT logic",
+    )
+    parser.add_argument(
         "--timing-allow-fail",
         action="store_true",
         help="finish routing and emit a report even when the timing target fails",
     )
     stop_stage = parser.add_mutually_exclusive_group()
     stop_stage.add_argument("--synth-only", action="store_true")
+    stop_stage.add_argument(
+        "--pack-only",
+        action="store_true",
+        help=(
+            "pack and emit an exact utilization report without running the "
+            "placer; use this for candidates whose placement is impractical"
+        ),
+    )
     stop_stage.add_argument(
         "--place-only",
         action="store_true",
@@ -300,25 +324,40 @@ def main() -> int:
     netlist = output_dir / f"{args.top}.json"
     fasm = output_dir / f"{args.top}.fasm"
     placed_netlist = output_dir / f"{args.top}_placed.json"
-    stage_tag = "_place" if args.place_only else ""
+    packed_netlist = output_dir / f"{args.top}_packed.json"
+    if args.pack_only:
+        stage_tag = "_pack"
+        implementation_stage = "packing"
+        implementation_artifact = packed_netlist
+    elif args.place_only:
+        stage_tag = "_place"
+        implementation_stage = "placement"
+        implementation_artifact = placed_netlist
+    else:
+        stage_tag = ""
+        implementation_stage = "route"
+        implementation_artifact = fasm
     report = output_dir / f"{args.top}_nextpnr{stage_tag}_report.json"
     log = output_dir / f"{args.top}_nextpnr{stage_tag}.log"
-    for stale_artifact in (
-        report,
-        log,
-        placed_netlist if args.place_only else fasm,
-    ):
+    for stale_artifact in (report, log, implementation_artifact):
         stale_artifact.unlink(missing_ok=True)
 
+    synthesis_command = [
+        sys.executable,
+        str(REPOSITORY_ROOT / "scripts" / "run_synthesis.py"),
+        "--top",
+        args.top,
+        "--pnr-json",
+        str(netlist),
+    ]
+    if args.run_tag is not None:
+        synthesis_command.extend(["--result-tag", args.run_tag])
+    if args.soft_kcl_multipliers:
+        synthesis_command.extend(
+            ["--soft-multiplier-module", "network_kcl_v1_wide"]
+        )
     synthesis = subprocess.run(
-        [
-            sys.executable,
-            str(REPOSITORY_ROOT / "scripts" / "run_synthesis.py"),
-            "--top",
-            args.top,
-            "--pnr-json",
-            str(netlist),
-        ],
+        synthesis_command,
         cwd=REPOSITORY_ROOT,
         env=command_environment(),
         check=False,
@@ -352,7 +391,9 @@ def main() -> int:
         "-o",
         f"xdc={xdc}",
     ]
-    if args.place_only:
+    if args.pack_only:
+        command.extend(["--pack-only", "--write", str(packed_netlist)])
+    elif args.place_only:
         command.extend(["--no-route", "--write", str(placed_netlist)])
     else:
         command.extend(["-o", f"fasm={fasm}"])
@@ -378,9 +419,14 @@ def main() -> int:
         "placer_heap_cell_placement_timeout": (
             args.placer_heap_cell_placement_timeout
         ),
-        "implementation_stage": "placement" if args.place_only else "route",
+        "implementation_stage": implementation_stage,
         "nextpnr_returncode": placed.returncode,
         "netlist": str(netlist.relative_to(REPOSITORY_ROOT)),
+        "packed_netlist": (
+            str(packed_netlist.relative_to(REPOSITORY_ROOT))
+            if packed_netlist.exists()
+            else None
+        ),
         "placed_netlist": (
             str(placed_netlist.relative_to(REPOSITORY_ROOT))
             if placed_netlist.exists()
@@ -392,9 +438,10 @@ def main() -> int:
             if pre_place_script is not None
             else None
         ),
+        "soft_kcl_multipliers": args.soft_kcl_multipliers,
         "fasm": (
             str(fasm.relative_to(REPOSITORY_ROOT))
-            if not args.place_only and fasm.exists()
+            if not args.pack_only and not args.place_only and fasm.exists()
             else None
         ),
         "report": str(report.relative_to(REPOSITORY_ROOT)) if report.exists() else None,
@@ -402,7 +449,10 @@ def main() -> int:
         "bitstream_generated": False,
         "hardware_ready": False,
     } | measured_report_summary(
-        report, log=log, route_requested=not args.place_only
+        report,
+        log=log,
+        placement_requested=not args.pack_only,
+        route_requested=not args.pack_only and not args.place_only,
     )
     run_tag = f"_{args.run_tag}" if args.run_tag is not None else ""
     summary_path = (
