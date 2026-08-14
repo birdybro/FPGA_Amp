@@ -534,7 +534,11 @@ There is no physical host-adapter backend, fabricated analog front end,
 converter board, completed named-part route, qualified speed-grade timing, or
 physical measurement yet. An experimental open XC7 placement now measures the
 solver timing harness at only 13.90 MHz against 98.304 MHz; this is a diagnosed
-architecture failure, not a timing-closure claim. The implemented digital mute
+architecture failure, not a timing-closure claim. A bit-exact three-clock
+Hermite kernel independently routes at 132.54 MHz with two DSP48E1s, proving a
+viable local timing fix, but it is not yet integrated because the additional
+serial tube latency exceeds the current solver schedule. Both figures use the
+backend's unqualified `DEFAULT` timing grade. The implemented digital mute
 primitive is not independent analog speaker protection.
 
 ## Verification chain
@@ -702,9 +706,12 @@ make synth-mono-adapter            # calibrated accuracy-first fabric datapath
 make synth-i2s-mono-top            # protocol/CDC plus calibrated mono datapath
 make synth-i2s-control-top         # register-controlled complete pin hierarchy
 make synth-i2s-spi-top             # SPI transport plus complete pin hierarchy
+make hermite-rtl                   # bit-exact iterative Hermite regression
+make synth-hermite                 # isolated Hermite resource measurement
 make tools-openxc7                 # build pinned open XC7 P&R tools locally
 make openxc7-probe                 # report Yosys/nextpnr/database revisions
 make openxc7-pnr                   # route the solver timing harness on A7-100T
+make openxc7-hermite-pnr           # route the Hermite timing harness on A7-100T
 ```
 
 Run a user-supplied 48 kHz integer-PCM WAV through an explicitly selected V1

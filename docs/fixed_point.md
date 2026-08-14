@@ -109,6 +109,17 @@ also matches 64 outputs / 1,024 nonlinear updates exactly and synthesizes to
 14,290 logic cells, 156 DSP48E1s, and 8 RAMB18E1 + 1 RAMB36E1. Both implementations remain
 named while wider equivalence testing is open.
 
+The standalone `hermite_q16_pipeline` makes the same arithmetic boundaries an
+explicit reusable contract. It performs the three Horner products over three
+clocks with one selected multiplier input, retains the 49-bit product, and
+wraps to signed 32 bits after every rounded shift/add exactly as the original
+function. Synthetic full-range operands are therefore defined as well as the
+physically bounded table values. It passes 4,096 exact vectors and preserves
+the complete factorized-tube regression. Yosys infers two DSP48E1s rather than
+the dependent combinational chain; named-part open routing reports 132.54 MHz
+at the experimental `DEFAULT` grade. This kernel has not changed the current
+eight-clock tube or 127-clock solver numerical/cycle contract.
+
 ## Circuit-state chord candidate
 
 The complete Python fixed candidate uses heterogeneous 32-bit voltage formats:

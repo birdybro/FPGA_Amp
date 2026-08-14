@@ -216,6 +216,14 @@ does not alter this schedule. The measured hierarchy trade is 8,024 LC / 89 DSP 
 47 RAMB18 for the surface mode and 9,148 LC / 108 DSP / 8 RAMB18 + 1 RAMB36 for factorized
 mode. These are generic structural counts, not timing closure.
 
+A separate bit-exact iterative Hermite kernel now proves that one product per
+clock can route at 132.54 MHz in the open XC7 flow, but it takes three clocks
+for one interpolation. It is not part of the eight-clock tube contract above.
+The reciprocal, softplus, and power evaluations depend serially on one another,
+and two of their results feed additional products; a direct substitution would
+consume the solver's margin. Complete tube-cycle rescheduling is therefore a
+prerequisite to integration, even though the local timing experiment passes.
+
 At complete-stream scope the corresponding counts are 13,170 LC / 137 DSP /
 47 RAMB18 for the surface mode and 14,290 LC / 156 DSP / 8 RAMB18 + 1 RAMB36 for the
 factorized mode. Both produce exact mode-specific fixed-model outputs.

@@ -32,10 +32,21 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   `DEFAULT` timing grade, so routing evidence and qualified -1 speed-grade
   signoff must remain distinct. The first full-solver harness packs at 50,789
   `SLICE_LUTX` / 174 DSP and reaches only 13.90 MHz after placement. Diagnose
-  the routed path, then pipeline or replace the dependent three-multiply cubic
-  Hermite kernel without weakening fixed-model equivalence.
+  the routed path. A standalone bit-exact iterative Hermite replacement now
+  closes post-route at 132.54 MHz with two DSPs and three-clock latency, but
+  inserting that latency into all three dependent tube functions would exceed
+  the current 127-clock solver budget. Characterize a complete tube schedule
+  (including reciprocal/grid and plate/softplus dependent products), then
+  integrate or select a separately error-bounded faster approximation without
+  weakening fixed-model equivalence.
 ## Completed this milestone
 
+- [x] Break the three-dependent-multiply cubic-Hermite path into a reusable,
+  bit-exact iterative kernel. Verify 4,096 full-range vectors, reset, and a
+  start-while-busy transition; preserve all 4,110 factorized-tube vectors;
+  measure 265 LC / 2 DSP structurally and 132.54 MHz after named-part routing.
+  Keep its experimental `DEFAULT` timing grade and unintegrated cycle cost
+  explicit.
 - [x] Bound the oversampled SPI transport under arbitrary asynchronous raw-pin,
   response, and clear activity. Prove 11 synchronizer, bit-count, request,
   response-state, saturating-frame-count, frame-reset, and sticky-precedence

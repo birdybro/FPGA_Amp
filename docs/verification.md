@@ -212,6 +212,7 @@ scripts/run_frame_scheduler_formal.py  phase/zero-fill/counter induction
 | wide-state frequency sweep | 5 mV, 20/50/100/1k/10k/20k Hz | <=0.000196 dB gain, <=0.000982 degree phase, zero diagnostics |
 | wide-state overload burst | 20 mV / 0.5 / 1.0 / 1.5 V | recovery improved; 1,122/1,695 failures at 1/1.5 V; 729 safe scale fallbacks at 1.5 V |
 | factorized RTL vs fixed tube | 4,110 randomized/directed vectors | bit-exact including all expected clip flags, latency 8 |
+| iterative Hermite RTL vs fixed kernel | 4,096 full-range directed/random vectors plus busy/reset transitions | bit-exact, latency 3; 265 LC / 2 DSP OOC; named-part route 132.54 MHz vs 98.304 MHz (`DEFAULT` grade) |
 | RTL vs fixed LUT | 4,096 deterministic vectors | bit-exact, latency 8 |
 | chord RTL vs fixed correction | 1,024 deterministic vectors | bit-exact, latency 10, 18 saturation cases |
 | wide chord RTL vs fixed correction | 1,024 deterministic vectors | bit-exact, latency 10, 95 saturation vectors; Q30/Q34/Q40 |

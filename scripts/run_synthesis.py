@@ -31,6 +31,7 @@ def main() -> int:
         choices=(
             "triode_12ax7",
             "triode_12ax7_factorized",
+            "hermite_q16_pipeline",
             "chord_corrector_v1",
             "chord_corrector_v1_wide",
             "network_rhs_v1",
@@ -75,6 +76,7 @@ def main() -> int:
             "phono_i2s_control_top",
             "phono_i2s_spi_top",
             "solver_pnr_harness",
+            "hermite_pnr_harness",
         ),
         default="triode_12ax7",
     )
@@ -97,6 +99,7 @@ def main() -> int:
     sources = {
         "triode_12ax7": ["rtl/tube/triode_12ax7.sv"],
         "triode_12ax7_factorized": ["rtl/tube/triode_12ax7_factorized.sv"],
+        "hermite_q16_pipeline": ["rtl/math/hermite_q16_pipeline.sv"],
         "chord_corrector_v1": ["rtl/circuit/chord_corrector_v1.sv"],
         "chord_corrector_v1_wide": ["rtl/circuit/chord_corrector_v1_wide.sv"],
         "network_rhs_v1": ["rtl/circuit/network_rhs_v1.sv"],
@@ -404,6 +407,10 @@ def main() -> int:
             "rtl/phono/v1_solver_mono_wide.sv",
             "rtl/phono/v1_solver_mono_wide_trapezoidal_banked_terminal.sv",
             "rtl/diagnostics/solver_pnr_harness.sv",
+        ],
+        "hermite_pnr_harness": [
+            "rtl/math/hermite_q16_pipeline.sv",
+            "rtl/diagnostics/hermite_pnr_harness.sv",
         ],
     }[args.top]
     pnr_mode = args.pnr_json is not None

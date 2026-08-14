@@ -41,6 +41,33 @@ historical circuit and numerical tolerances are not changed to hide this
 timing failure. Router2 completion and post-route critical-path extraction
 remain in progress for this baseline.
 
+### Bit-exact Hermite timing experiment
+
+`hermite_q16_pipeline` preserves the factorized tube's exact cubic-Hermite
+Horner arithmetic: signed 32-bit state wraps at the same boundaries, each
+32-by-17-bit product is retained at 49 bits, and add-half arithmetic-shift
+rounding is unchanged. It accepts one request while idle and emits the result
+three clocks later, ignoring starts while busy. The test covers 4,096
+deterministic directed/random full-range input tuples plus in-flight reset; the
+existing 4,110-vector complete tube regression also remains exact.
+
+Out-of-context Yosys synthesis reports 265 estimated logic cells, 198
+flip-flops, two DSP48E1s, no RAM, no warnings, and no structural problems. The
+three-pin `hermite_pnr_harness` packs to 886 `SLICE_LUTX`, 231 `SLICE_FFX`, 49
+CARRY4, and two DSP48E1s. With the same part, XDC, seed, router, and 98.304 MHz
+request as the solver baseline, routing completes in seven router2 iterations
+and reports 132.54 MHz post-route. This demonstrates that the separated kernel
+meets the open backend estimate; it does not establish qualified -1 timing or
+complete-solver closure.
+
+The kernel is intentionally not wired into the accuracy-first tube yet. The
+three physical table evaluations are serially dependent, and the reciprocal
+and softplus results each feed another multiplication. A direct substitution
+therefore consumes more than the existing eight-clock tube contract and, when
+repeated across solver passes, exceeds the 127-clock internal-sample deadline.
+The next architecture step must budget those dependencies explicitly instead
+of trading away the reference law or silently lowering oversampling.
+
 ## Measured out-of-context result
 
 Yosys 0.66 `synth_xilinx -family xc7`, without I/O pads or clock buffer, reports

@@ -17,6 +17,7 @@ LOCAL_ROOT = REPOSITORY_ROOT / ".tools" / "root" / "usr"
 DEFAULT_DEVICE = "xc7a100tcsg324-1"
 DEFAULT_FREQUENCY_MHZ = 98.304
 DEFAULT_TOP = "solver_pnr_harness"
+SUPPORTED_TOPS = (DEFAULT_TOP, "hermite_pnr_harness")
 
 
 def locate(name: str) -> Path | None:
@@ -54,9 +55,66 @@ def version_line(executable: Path, argument: str) -> str:
     return completed.stdout.splitlines()[0] if completed.stdout else "unknown"
 
 
+def measured_report_summary(report: Path) -> dict[str, object]:
+    """Extract stable, compact evidence from a nextpnr JSON report."""
+
+    if not report.exists():
+        return {
+            "route_completed": False,
+            "timing_pass": None,
+            "clock_fmax_mhz": {},
+            "utilization": {},
+        }
+    try:
+        payload = json.loads(report.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {
+            "route_completed": False,
+            "timing_pass": None,
+            "clock_fmax_mhz": {},
+            "utilization": {},
+        }
+
+    clocks = {
+        name: {
+            "achieved": values.get("achieved"),
+            "constraint": values.get("constraint"),
+        }
+        for name, values in payload.get("fmax", {}).items()
+    }
+    timing_pass = bool(clocks) and all(
+        values["achieved"] is not None
+        and values["constraint"] is not None
+        and values["achieved"] >= values["constraint"]
+        for values in clocks.values()
+    )
+    utilization_payload = payload.get("utilization", {})
+    resource_names = (
+        "SLICE_LUTX",
+        "SLICE_FFX",
+        "CARRY4",
+        "DSP48E1_DSP48E1",
+        "RAMB18E1_RAMB18E1",
+        "RAMB36E1_RAMB36E1",
+        "BUFGCTRL",
+        "PAD",
+    )
+    utilization = {
+        name: utilization_payload[name]
+        for name in resource_names
+        if name in utilization_payload
+    }
+    return {
+        "route_completed": True,
+        "timing_pass": timing_pass,
+        "clock_fmax_mhz": clocks,
+        "utilization": utilization,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--top", default=DEFAULT_TOP, choices=(DEFAULT_TOP,))
+    parser.add_argument("--top", default=DEFAULT_TOP, choices=SUPPORTED_TOPS)
     parser.add_argument("--device", default=DEFAULT_DEVICE)
     parser.add_argument("--frequency-mhz", type=float, default=DEFAULT_FREQUENCY_MHZ)
     parser.add_argument(
@@ -185,7 +243,7 @@ def main() -> int:
         "log": str(log.relative_to(REPOSITORY_ROOT)),
         "bitstream_generated": False,
         "hardware_ready": False,
-    }
+    } | measured_report_summary(report)
     summary_path = REPOSITORY_ROOT / "reference" / "results" / f"openxc7_{args.top}_summary.json"
     summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=2))

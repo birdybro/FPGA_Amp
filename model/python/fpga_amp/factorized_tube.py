@@ -24,6 +24,40 @@ def _round_shift(value: int, shift: int) -> int:
     return (value + (1 << (shift - 1))) >> shift
 
 
+def _signed_wrap(value: int, bits: int) -> int:
+    """Return the signed two's-complement interpretation of ``bits`` bits."""
+
+    mask = (1 << bits) - 1
+    wrapped = value & mask
+    sign = 1 << (bits - 1)
+    return wrapped - (1 << bits) if wrapped & sign else wrapped
+
+
+def hermite_q16_fixed(y0: int, y1: int, m0: int, m1: int, fraction: int) -> int:
+    """Bit-exact contract for the RTL Q0.16 cubic Hermite Horner kernel.
+
+    The 32-bit wraps and add-half rounding are intentional.  They match the
+    original combinational factorized-tube implementation even for synthetic
+    full-range test operands outside the physical tube-table domain.
+    """
+
+    if not 0 <= fraction <= 0xFFFF:
+        raise ValueError("fraction must be an unsigned 16-bit value")
+    y0 = _signed_wrap(y0, 32)
+    y1 = _signed_wrap(y1, 32)
+    m0 = _signed_wrap(m0, 32)
+    m1 = _signed_wrap(m1, 32)
+    delta = _signed_wrap(y1 - y0, 32)
+    coefficient_2 = _signed_wrap(3 * delta - 2 * m0 - m1, 32)
+    coefficient_3 = _signed_wrap(-2 * delta + m0 + m1, 32)
+    result = _signed_wrap(_round_shift(coefficient_3 * fraction, 16), 32)
+    result = _signed_wrap(result + coefficient_2, 32)
+    result = _signed_wrap(_round_shift(result * fraction, 16), 32)
+    result = _signed_wrap(result + m0, 32)
+    result = _signed_wrap(_round_shift(result * fraction, 16), 32)
+    return _signed_wrap(result + y0, 32)
+
+
 @dataclass
 class FactorizedKoren12AX7:
     """Evaluate the Koren plate law through three linearly interpolated tables.
@@ -278,18 +312,7 @@ class FixedFactorizedKoren12AX7:
         y1 = int(value[index + 1])
         m0 = int(slope[index])
         m1 = int(slope[index + 1])
-        delta = y1 - y0
-        coefficient_2 = 3 * delta - 2 * m0 - m1
-        coefficient_3 = -2 * delta + m0 + m1
-        result = _round_shift(
-            coefficient_3 * fraction, self.coordinate_fractional_bits
-        ) + coefficient_2
-        result = _round_shift(
-            result * fraction, self.coordinate_fractional_bits
-        ) + m0
-        return _round_shift(
-            result * fraction, self.coordinate_fractional_bits
-        ) + y0
+        return hermite_q16_fixed(y0, y1, m0, m1, fraction)
 
     def _linear(
         self, value: NDArray[np.int64], coordinate: int

@@ -21,6 +21,16 @@ All notable engineering changes are recorded here. The project is pre-release; d
   98.304 MHz. The result exposes the dependent cubic-Hermite multiplier chain
   as architecture debt; it is retained as a failing timing baseline rather
   than being concealed or called qualified speed-grade signoff.
+- Added a bit-exact iterative Q0.16 cubic-Hermite kernel that preserves the
+  established signed-32 wrap and add-half rounding contract while scheduling
+  one full-width 32x17 multiply per clock. It passes 4,096 deterministic
+  full-range vectors, in-flight reset, ignored-start, and all 4,110 existing
+  factorized-tube vectors at a three-clock kernel latency. Yosys measures 265
+  logic cells and two DSP48E1s out of context. Its three-pin harness routes on
+  `xc7a100tcsg324-1` at 132.54 MHz against 98.304 MHz using nextpnr's
+  experimental `DEFAULT` grade (886 packed LUT elements, 231 FFX, 49 CARRY4,
+  two DSPs). The kernel is not yet substituted into the tube/solver: its added
+  dependency latency must first be reconciled with the 127-clock deadline.
 
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,
