@@ -16,6 +16,8 @@ ROOT = Path(__file__).resolve().parents[1]
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
+    parser.add_argument("--pipelined-finish", action="store_true")
+    parser.add_argument("--pipelined-columns", action="store_true")
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
@@ -31,12 +33,24 @@ def main() -> int:
         "rtl/circuit/network_kcl_v1_wide.sv",
         "sim/unit/network_kcl_v1_wide_trapezoidal_tb.sv",
     ]
+    parameter_args = []
+    if args.pipelined_finish:
+        parameter_args.append("-GPIPELINED_FINISH=1")
+    if args.pipelined_columns:
+        parameter_args.append("-GPIPELINED_COLUMNS=1")
     subprocess.run(
-        [verilator, "--lint-only", "--timing", "-Wall", "-sv", *sources],
+        [
+            verilator, "--lint-only", "--timing", "-Wall", "-sv",
+            *parameter_args, *sources,
+        ],
         cwd=ROOT,
         check=True,
     )
-    build = ROOT / "build" / "verilator_network_kcl_wide_trapezoidal"
+    build = ROOT / "build" / (
+        "verilator_network_kcl_wide_trapezoidal"
+        + ("_pipelined_finish" if args.pipelined_finish else "")
+        + ("_pipelined_columns" if args.pipelined_columns else "")
+    )
     subprocess.run(
         [
             verilator,
@@ -48,6 +62,7 @@ def main() -> int:
             top,
             "--Mdir",
             str(build),
+            *parameter_args,
             *sources,
         ],
         cwd=ROOT,

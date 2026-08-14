@@ -1,7 +1,10 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-module network_kcl_v1_wide_tb;
+module network_kcl_v1_wide_tb #(
+    parameter bit PIPELINED_FINISH = 1'b0,
+    parameter bit PIPELINED_COLUMNS = 1'b0
+);
     logic clk;
     logic rst_n = 1'b0;
     logic start = 1'b0;
@@ -23,7 +26,10 @@ module network_kcl_v1_wide_tb;
     logic busy;
     logic valid;
 
-    network_kcl_v1_wide dut (
+    network_kcl_v1_wide #(
+        .PIPELINED_FINISH(PIPELINED_FINISH),
+        .PIPELINED_COLUMNS(PIPELINED_COLUMNS)
+    ) dut (
         .clk,
         .rst_n,
         .start,
@@ -125,13 +131,18 @@ module network_kcl_v1_wide_tb;
                 #1;
                 latency = latency + 1;
                 tube_current_valid = 1'b0;
-                if (latency > 22)
+                if (latency > 24)
                     $fatal(1, "timeout at vector %0d delay=%0d",
                            vector_count, tube_delay);
             end
             // An early tube current now leaves one explicit finish-staging
             // clock. Delayed currents use the pre-existing KCL wait window.
-            expected_latency = tube_delay <= 9 ? 11 : tube_delay + 1;
+            expected_latency = 11 + (PIPELINED_FINISH ? 2 : 0)
+                               + (PIPELINED_COLUMNS ? 2 : 0);
+            if (tube_delay + (PIPELINED_FINISH ? 3 : 1)
+                > expected_latency)
+                expected_latency = tube_delay
+                                   + (PIPELINED_FINISH ? 3 : 1);
             if (latency != expected_latency) begin
                 $error("latency got=%0d expected=%0d delay=%0d",
                        latency, expected_latency, tube_delay);
@@ -180,8 +191,9 @@ module network_kcl_v1_wide_tb;
         $fclose(file_handle);
         if (errors != 0)
             $fatal(1, "FAIL: %0d wide KCL errors", errors);
-        $display("PASS: %0d wide KCL vectors, early-current latency=11 clocks",
-                 vector_count);
+        $display("PASS: %0d wide KCL vectors, early-current latency=%0d clocks",
+                 vector_count, 11 + (PIPELINED_FINISH ? 2 : 0)
+                               + (PIPELINED_COLUMNS ? 2 : 0));
         $finish;
     end
 endmodule

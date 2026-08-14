@@ -22,7 +22,14 @@ module v1_solver_mono_wide #(
     // Scheduling architecture only: evaluate the two physical triodes at the
     // same time instead of reusing one engine sequentially.  This duplicates
     // the primitive but does not change its arithmetic or the circuit law.
-    parameter bit PARALLEL_TUBES = 1'b0
+    parameter bit PARALLEL_TUBES = 1'b0,
+    // Split KCL finish conversion, global selection, and saturation across
+    // registers. Intended to consume part of the parallel-tube cycle margin.
+    parameter bit PIPELINED_KCL_FINISH = 1'b0,
+    // Register and overlap KCL matrix/capacitor column issue and accumulation.
+    parameter bit PIPELINED_KCL_COLUMNS = 1'b0,
+    // Split chord scaling, node update, and saturation across registers.
+    parameter bit PIPELINED_CHORD_APPLY = 1'b0
 ) (
     input  logic                  clk,
     input  logic                  rst_n,
@@ -455,7 +462,9 @@ module v1_solver_mono_wide #(
 
     network_kcl_v1_wide #(
         .CAP_G_FILE(CAP_G_FILE),
-        .TRAPEZOIDAL(TRAPEZOIDAL)
+        .TRAPEZOIDAL(TRAPEZOIDAL),
+        .PIPELINED_FINISH(PIPELINED_KCL_FINISH),
+        .PIPELINED_COLUMNS(PIPELINED_KCL_COLUMNS)
     ) kcl_engine (
         .clk,
         .rst_n,
@@ -626,7 +635,8 @@ module v1_solver_mono_wide #(
 
     chord_corrector_v1_wide #(
         .COEFFICIENT_FILE(CHORD_COEFFICIENT_FILE),
-        .COEFFICIENT_SETS(CHORD_COEFFICIENT_SETS)
+        .COEFFICIENT_SETS(CHORD_COEFFICIENT_SETS),
+        .PIPELINED_APPLY(PIPELINED_CHORD_APPLY)
     ) chord_engine (
         .clk,
         .rst_n,

@@ -121,10 +121,11 @@ with an early tube result now takes 11 rather than 10 clocks. Serial procedural
 all-fit, maximum-residual, and saturation-count reductions were also replaced
 with explicit balanced trees. All 1,024 backward-Euler and 1,024 trapezoidal
 KCL vectors remain exact, including tube-result delays through 19 clocks. The
-revised isolated KCL placement estimate improves from 14.95 to 33.92 MHz;
-legal routing remains in progress. This is a measured improvement, not timing
-closure, and the remaining gap requires further staged finish selection and a
-solver schedule that can absorb it.
+revised isolated KCL placement estimate improves from 14.95 to 33.92 MHz. A
+router2 experiment reached 183 overused resources at iteration 57 before
+diverging to 499 by iteration 114 and was stopped without a legal route. This
+is a measured improvement, not timing closure, and the remaining gap requires
+further staged arithmetic and a solver schedule that can absorb it.
 
 ### Parallel dual-triode schedule
 
@@ -147,6 +148,42 @@ RAMB18-equivalents while remaining below the XC7A100T's 240-DSP limit. The
 parallel harness has a reproducible open-flow netlist but no placement or Fmax
 claim yet. It is an implementation option, not a modern or creative circuit
 mode.
+
+### Bit-exact KCL and chord timing schedules
+
+The recovered parallel-tube margin is now spent by three independent compile-
+time schedule controls. KCL column products, rounded currents, and prior-column
+accumulation overlap at one column per clock with two pipeline-fill clocks per
+call. Two further KCL clocks separate physical-residual capture, fixed-point
+format conversion, global fallback/diagnostic reduction, and saturation.
+Finally, two clocks per chord separate scaled correction, updated-node/
+diagnostic calculation, and saturation commit. All four nonlinear passes use
+the same unchanged equations and arithmetic boundaries.
+
+The pipelined chord is bit-exact across 1,024 vectors at 12 clocks rather than
+10. Its isolated Arty-A7-100 harness routes legally at 100.92 MHz against the
+98.304 MHz request, improving the original 46.40 MHz result. It uses nine
+DSP48E1s and packs to 9,501 `SLICE_LUTX`, 2,865 `SLICE_FFX`, and 530 CARRY4s.
+This is an experimental nextpnr `DEFAULT`-grade result, not qualified -1
+speed-grade signoff.
+
+The combined pipelined KCL remains bit-exact across 1,024 backward-Euler and
+1,024 trapezoidal vectors at 15 early-current clocks rather than 11. A finish-
+only candidate placed at 40.00 MHz, and a superseded one-stage column candidate
+placed at 36.76 MHz. The selected two-fill-clock column pipeline plus finish
+pipeline uses 72 DSP48E1s and packs to 32,006 `SLICE_LUTX`, 9,356 `SLICE_FFX`,
+and 1,958 CARRY4s, but placement reaches only 38.95 MHz. Router2 reduced
+overuse from 37,268 on iteration 1 to 7,969 on iteration 2; routing was stopped
+because the placement result already misses the target by 2.52x. Thus the
+current pipeline has not closed KCL timing and remains diagnostic evidence.
+
+With parallel triodes and all KCL/chord timing boundaries enabled, the complete
+trapezoidal/banked/terminal solver remains bit-exact across 512 stateful vectors
+at 119 clocks, leaving nine of the 128 clocks available per internal sample.
+Yosys 0.66 measures its harness at 16,348 estimated logic cells, 12,378 flip-
+flops, 209 DSP48E1s, 16 RAMB18E1s, and two RAMB36E1s. The structural check has
+zero problems. This is a schedulable, structurally fitting timing candidate;
+whole-solver placement and KCL timing closure remain open.
 
 ## Measured out-of-context result
 

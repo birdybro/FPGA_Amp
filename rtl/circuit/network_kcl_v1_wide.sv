@@ -10,7 +10,14 @@
 module network_kcl_v1_wide #(
     parameter MATRIX_FILE = "model/generated/v1_static_matrix_q0_47.mem",
     parameter CAP_G_FILE = "model/generated/v1_cap_conductance_q0_47.mem",
-    parameter bit TRAPEZOIDAL = 1'b0
+    parameter bit TRAPEZOIDAL = 1'b0,
+    // Optional timing schedule. Two finish registers split fixed-point format
+    // conversion, global fallback selection, and output saturation. Arithmetic
+    // is identical; the request/valid latency increases by two clocks.
+    parameter bit PIPELINED_FINISH = 1'b0,
+    // Register each issued product, round the previous product, and accumulate
+    // the prior current concurrently. This adds two fill clocks per request.
+    parameter bit PIPELINED_COLUMNS = 1'b0
 ) (
     input  logic                  clk,
     input  logic                  rst_n,
@@ -44,12 +51,24 @@ module network_kcl_v1_wide #(
     logic signed [47:0] capacitor_current_latched [0:9];
     logic signed [47:0] capacitor_current_result [0:8];
     logic signed [62:0] accumulator [0:8];
+    logic signed [80:0] matrix_product_staged [0:8];
+    logic signed [62:0] matrix_current_staged [0:8];
+    logic signed [91:0] capacitor_product_staged;
+    logic signed [91:0] cap9_product_staged;
+    logic signed [62:0] capacitor_current_staged;
     logic signed [62:0] final_residual_latched [0:8];
     logic signed [31:0] current_latched [0:3]; // ip1, ig1, ip2, ig2
     logic [5:0] requested_fraction_latched;
     logic [3:0] column;
+    logic [3:0] product_column_staged;
+    logic [3:0] column_staged;
+    logic product_stage_valid;
+    logic column_stage_valid;
+    logic columns_issued;
     logic finish_pending;
     logic finish_result_staged;
+    logic finish_conversion_staged;
+    logic finish_selection_staged;
     logic current_ready;
     logic [3:0] current_saturation_running;
 
@@ -260,17 +279,27 @@ module network_kcl_v1_wide #(
     logic signed [43:0] cap9_delta_q30;
     logic signed [91:0] cap9_product;
     logic signed [62:0] cap9_current_q44;
+    logic signed [62:0] cap9_current_from_product_q44;
     logic signed [62:0] cap9_current_latched_q44;
     logic signed [31:0] finish_current_by_lane [0:3];
+    logic signed [62:0] matrix_current_from_product_by_row [0:8];
+    logic signed [62:0] capacitor_current_from_product;
     logic signed [62:0] final_residual_input_by_row [0:8];
     logic signed [62:0] q30_by_row [0:8];
     logic signed [62:0] q34_by_row [0:8];
     logic signed [62:0] q40_by_row [0:8];
+    logic signed [62:0] q30_staged_by_row [0:8];
+    logic signed [62:0] q34_staged_by_row [0:8];
+    logic signed [62:0] q40_staged_by_row [0:8];
     logic signed [62:0] selected_by_row [0:8];
+    logic signed [62:0] selected_staged_by_row [0:8];
     logic [8:0] q34_fit_by_row;
     logic [8:0] q40_fit_by_row;
+    logic [8:0] q34_fit_staged_by_row;
+    logic [8:0] q40_fit_staged_by_row;
     logic [8:0] selected_overflow_by_row;
     logic [62:0] absolute_by_row [0:8];
+    logic [62:0] absolute_staged_by_row [0:8];
     logic [62:0] maximum_pair [0:3];
     logic [62:0] maximum_quad [0:1];
     logic q34_all_fit;
@@ -279,6 +308,10 @@ module network_kcl_v1_wide #(
     logic [62:0] max_abs_combined;
     logic saturation_combined;
     logic [3:0] saturation_count_combined;
+    logic [5:0] selected_fraction_staged;
+    logic [62:0] max_abs_staged;
+    logic saturation_staged;
+    logic [3:0] saturation_count_staged;
 
     function automatic logic [62:0] maximum_u63(
         input logic [62:0] left,
@@ -353,6 +386,32 @@ module network_kcl_v1_wide #(
                 capacitor_current_latched[9]
             });
 
+        for (int row = 0; row < 9; row = row + 1)
+            matrix_current_from_product_by_row[row] = rounded_matrix_q44(
+                matrix_product_staged[row],
+                voltage_fractional_bits(int'(product_column_staged)) + 3
+            );
+        capacitor_current_from_product = rounded_capacitor_q44(
+            capacitor_product_staged
+        );
+        if (TRAPEZOIDAL)
+            capacitor_current_from_product = capacitor_current_from_product
+                - $signed({
+                    {15{capacitor_current_latched[
+                        product_column_staged
+                    ][47]}},
+                    capacitor_current_latched[product_column_staged]
+                });
+        cap9_current_from_product_q44 = rounded_capacitor_q44(
+            cap9_product_staged
+        );
+        if (TRAPEZOIDAL)
+            cap9_current_from_product_q44 = cap9_current_from_product_q44
+                - $signed({
+                    {15{capacitor_current_latched[9][47]}},
+                    capacitor_current_latched[9]
+                });
+
         capacitor_current_next_q44 = '0;
         for (int capacitor_index = 0; capacitor_index < 9;
              capacitor_index = capacitor_index + 1)
@@ -394,8 +453,13 @@ module network_kcl_v1_wide #(
             q40_by_row[row] = convert_residual(
                 final_residual_latched[row], 6'd40
             );
-            q34_fit_by_row[row] = !correction_overflow(q34_by_row[row]);
-            q40_fit_by_row[row] = !correction_overflow(q40_by_row[row]);
+            if (PIPELINED_FINISH) begin
+                q34_fit_by_row[row] = q34_fit_staged_by_row[row];
+                q40_fit_by_row[row] = q40_fit_staged_by_row[row];
+            end else begin
+                q34_fit_by_row[row] = !correction_overflow(q34_by_row[row]);
+                q40_fit_by_row[row] = !correction_overflow(q40_by_row[row]);
+            end
         end
         q34_all_fit = &q34_fit_by_row;
         q40_all_fit = &q40_fit_by_row;
@@ -412,13 +476,16 @@ module network_kcl_v1_wide #(
 
         for (int row = 0; row < 9; row = row + 1) begin
             case (selected_fraction)
-                6'd40: selected_by_row[row] = q40_by_row[row];
-                6'd34: selected_by_row[row] = q34_by_row[row];
-                default: selected_by_row[row] = q30_by_row[row];
+                6'd40: selected_by_row[row] = PIPELINED_FINISH
+                    ? q40_staged_by_row[row] : q40_by_row[row];
+                6'd34: selected_by_row[row] = PIPELINED_FINISH
+                    ? q34_staged_by_row[row] : q34_by_row[row];
+                default: selected_by_row[row] = PIPELINED_FINISH
+                    ? q30_staged_by_row[row] : q30_by_row[row];
             endcase
-            absolute_by_row[row] = absolute_q44(
-                final_residual_latched[row]
-            );
+            absolute_by_row[row] = PIPELINED_FINISH
+                ? absolute_staged_by_row[row]
+                : absolute_q44(final_residual_latched[row]);
             selected_overflow_by_row[row] = correction_overflow(
                 selected_by_row[row]
             );
@@ -450,16 +517,39 @@ module network_kcl_v1_wide #(
             saturation_count <= '0;
             requested_fraction_latched <= 6'd30;
             column <= '0;
+            product_column_staged <= '0;
+            column_staged <= '0;
+            product_stage_valid <= 1'b0;
+            column_stage_valid <= 1'b0;
+            columns_issued <= 1'b0;
             finish_pending <= 1'b0;
             finish_result_staged <= 1'b0;
+            finish_conversion_staged <= 1'b0;
+            finish_selection_staged <= 1'b0;
             current_ready <= 1'b0;
             current_saturation_running <= '0;
             cap9_current_latched_q44 <= '0;
             for (lane = 0; lane < 9; lane = lane + 1) begin
                 voltage_latched[lane] <= '0;
                 accumulator[lane] <= '0;
+                matrix_product_staged[lane] <= '0;
+                matrix_current_staged[lane] <= '0;
                 final_residual_latched[lane] <= '0;
+                q30_staged_by_row[lane] <= '0;
+                q34_staged_by_row[lane] <= '0;
+                q40_staged_by_row[lane] <= '0;
+                selected_staged_by_row[lane] <= '0;
+                absolute_staged_by_row[lane] <= '0;
             end
+            q34_fit_staged_by_row <= '0;
+            q40_fit_staged_by_row <= '0;
+            selected_fraction_staged <= 6'd30;
+            max_abs_staged <= '0;
+            saturation_staged <= 1'b0;
+            saturation_count_staged <= '0;
+            capacitor_current_staged <= '0;
+            capacitor_product_staged <= '0;
+            cap9_product_staged <= '0;
             for (lane = 0; lane < 10; lane = lane + 1)
                 capacitor_latched[lane] <= '0;
             for (lane = 0; lane < 10; lane = lane + 1)
@@ -474,8 +564,15 @@ module network_kcl_v1_wide #(
                 if (start) begin
                     busy <= 1'b1;
                     column <= 4'd0;
+                    product_column_staged <= '0;
+                    column_staged <= '0;
+                    product_stage_valid <= 1'b0;
+                    column_stage_valid <= 1'b0;
+                    columns_issued <= 1'b0;
                     finish_pending <= 1'b0;
                     finish_result_staged <= 1'b0;
+                    finish_conversion_staged <= 1'b0;
+                    finish_selection_staged <= 1'b0;
                     current_ready <= tube_current_valid;
                     requested_fraction_latched <= requested_residual_fractional_bits;
                     correction_scale_fallback <= 1'b0;
@@ -515,27 +612,85 @@ module network_kcl_v1_wide #(
                     current_ready <= 1'b1;
                 end
                 if (!finish_pending) begin
-                    // Capacitor 9 is invariant throughout the nine matrix
-                    // columns. Capture it on the first column so the finish
-                    // path starts at a register instead of another wide
-                    // multiply.
-                    if (column == 4'd0)
-                        cap9_current_latched_q44 <= cap9_current_q44;
-                    capacitor_current_result[column] <=
-                        saturate_current_q44(cap_current_q44);
-                    if (TRAPEZOIDAL && current_overflow(cap_current_q44))
-                        current_saturation_running <=
-                            current_saturation_running + 1'b1;
-                    for (lane = 0; lane < 9; lane = lane + 1)
-                        accumulator[lane] <= accumulator[lane]
-                            + matrix_current_by_row[lane]
-                            + capacitor_stamp(
-                                int'(column), lane, cap_current_q44
-                            );
-                    if (column == 4'd8)
-                        finish_pending <= 1'b1;
-                    else
-                        column <= column + 1'b1;
+                    if (PIPELINED_COLUMNS) begin
+                        // Issue one product column every clock, round the
+                        // previous product column, and accumulate the prior
+                        // current column. Nine columns therefore cost two
+                        // fill clocks rather than tripling latency.
+                        if (!columns_issued) begin
+                            for (lane = 0; lane < 9; lane = lane + 1)
+                                matrix_product_staged[lane] <=
+                                    matrix_product_by_row[lane];
+                            capacitor_product_staged <= cap_product;
+                            product_column_staged <= column;
+                            product_stage_valid <= 1'b1;
+                            if (column == 4'd0)
+                                cap9_product_staged <= cap9_product;
+                            if (column == 4'd8)
+                                columns_issued <= 1'b1;
+                            else
+                                column <= column + 1'b1;
+                        end else begin
+                            product_stage_valid <= 1'b0;
+                        end
+                        if (product_stage_valid) begin
+                            for (lane = 0; lane < 9; lane = lane + 1)
+                                matrix_current_staged[lane] <=
+                                    matrix_current_from_product_by_row[lane];
+                            capacitor_current_staged <=
+                                capacitor_current_from_product;
+                            column_staged <= product_column_staged;
+                            column_stage_valid <= 1'b1;
+                            if (product_column_staged == 4'd0)
+                                cap9_current_latched_q44 <=
+                                    cap9_current_from_product_q44;
+                        end else begin
+                            column_stage_valid <= 1'b0;
+                        end
+                        if (column_stage_valid) begin
+                            capacitor_current_result[column_staged] <=
+                                saturate_current_q44(
+                                    capacitor_current_staged
+                                );
+                            if (TRAPEZOIDAL
+                                && current_overflow(
+                                    capacitor_current_staged
+                                ))
+                                current_saturation_running <=
+                                    current_saturation_running + 1'b1;
+                            for (lane = 0; lane < 9; lane = lane + 1)
+                                accumulator[lane] <= accumulator[lane]
+                                    + matrix_current_staged[lane]
+                                    + capacitor_stamp(
+                                        int'(column_staged), lane,
+                                        capacitor_current_staged
+                                    );
+                            if (column_staged == 4'd8)
+                                finish_pending <= 1'b1;
+                        end
+                    end else begin
+                        // Capacitor 9 is invariant throughout the nine matrix
+                        // columns. Capture it on the first column so the
+                        // finish path starts at a register instead of another
+                        // wide multiply.
+                        if (column == 4'd0)
+                            cap9_current_latched_q44 <= cap9_current_q44;
+                        capacitor_current_result[column] <=
+                            saturate_current_q44(cap_current_q44);
+                        if (TRAPEZOIDAL && current_overflow(cap_current_q44))
+                            current_saturation_running <=
+                                current_saturation_running + 1'b1;
+                        for (lane = 0; lane < 9; lane = lane + 1)
+                            accumulator[lane] <= accumulator[lane]
+                                + matrix_current_by_row[lane]
+                                + capacitor_stamp(
+                                    int'(column), lane, cap_current_q44
+                                );
+                        if (column == 4'd8)
+                            finish_pending <= 1'b1;
+                        else
+                            column <= column + 1'b1;
+                    end
                 end else if (!finish_result_staged
                              && (current_ready || tube_current_valid)) begin
                     // In the integrated solver the second tube result arrives
@@ -547,21 +702,60 @@ module network_kcl_v1_wide #(
                         final_residual_latched[lane] <=
                             final_residual_input_by_row[lane];
                     finish_result_staged <= 1'b1;
+                end else if (PIPELINED_FINISH && finish_result_staged
+                             && !finish_conversion_staged) begin
+                    // First timing boundary: the three exact correction
+                    // formats and physical residual magnitudes. The following
+                    // edge performs only global fallback selection/reduction.
+                    for (lane = 0; lane < 9; lane = lane + 1) begin
+                        q30_staged_by_row[lane] <= q30_by_row[lane];
+                        q34_staged_by_row[lane] <= q34_by_row[lane];
+                        q40_staged_by_row[lane] <= q40_by_row[lane];
+                        q34_fit_staged_by_row[lane] <=
+                            !correction_overflow(q34_by_row[lane]);
+                        q40_fit_staged_by_row[lane] <=
+                            !correction_overflow(q40_by_row[lane]);
+                        absolute_staged_by_row[lane] <= absolute_q44(
+                            final_residual_latched[lane]
+                        );
+                    end
+                    finish_conversion_staged <= 1'b1;
+                end else if (PIPELINED_FINISH && finish_result_staged
+                             && !finish_selection_staged) begin
+                    // Second timing boundary: isolate the nine output
+                    // saturators from global format choice and diagnostics.
+                    for (lane = 0; lane < 9; lane = lane + 1)
+                        selected_staged_by_row[lane] <= selected_by_row[lane];
+                    selected_fraction_staged <= selected_fraction;
+                    max_abs_staged <= max_abs_combined;
+                    saturation_staged <= saturation_combined;
+                    saturation_count_staged <= saturation_count_combined;
+                    finish_selection_staged <= 1'b1;
                 end else if (finish_result_staged) begin
                     for (lane = 0; lane < 9; lane = lane + 1)
                         residual[lane * 25 +: 25] <= saturate_correction(
-                            selected_by_row[lane]
+                            PIPELINED_FINISH
+                                ? selected_staged_by_row[lane]
+                                : selected_by_row[lane]
                         );
-                    residual_fractional_bits <= selected_fraction;
-                    max_abs_residual_q44 <= max_abs_combined;
+                    residual_fractional_bits <= PIPELINED_FINISH
+                        ? selected_fraction_staged : selected_fraction;
+                    max_abs_residual_q44 <= PIPELINED_FINISH
+                        ? max_abs_staged : max_abs_combined;
                     correction_scale_fallback <=
-                        selected_fraction != requested_fraction_latched;
-                    saturation_any <= saturation_combined;
-                    saturation_count <= saturation_count_combined;
+                        (PIPELINED_FINISH
+                            ? selected_fraction_staged : selected_fraction)
+                        != requested_fraction_latched;
+                    saturation_any <= PIPELINED_FINISH
+                        ? saturation_staged : saturation_combined;
+                    saturation_count <= PIPELINED_FINISH
+                        ? saturation_count_staged : saturation_count_combined;
                     busy <= 1'b0;
                     valid <= 1'b1;
                     finish_pending <= 1'b0;
                     finish_result_staged <= 1'b0;
+                    finish_conversion_staged <= 1'b0;
+                    finish_selection_staged <= 1'b0;
                     current_ready <= 1'b0;
                 end
             end

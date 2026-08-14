@@ -6,11 +6,18 @@ module v1_solver_mono_wide_tb #(
     parameter bit BANKED = 1'b0,
     parameter bit TERMINAL_CORRECTION = 1'b0,
     parameter bit LINEAR_TUBE = 1'b0,
-    parameter bit PARALLEL_TUBES = 1'b0
+    parameter bit PARALLEL_TUBES = 1'b0,
+    parameter bit PIPELINED_KCL_FINISH = 1'b0,
+    parameter bit PIPELINED_KCL_COLUMNS = 1'b0,
+    parameter bit PIPELINED_CHORD_APPLY = 1'b0
 );
-    localparam integer EXPECTED_LATENCY = PARALLEL_TUBES
+    localparam integer BASE_LATENCY = PARALLEL_TUBES
         ? (TERMINAL_CORRECTION ? 95 : 84)
         : (TERMINAL_CORRECTION ? 127 : 116);
+    localparam integer EXPECTED_LATENCY = BASE_LATENCY
+        + (PIPELINED_KCL_FINISH ? 8 : 0)
+        + (PIPELINED_KCL_COLUMNS ? 8 : 0)
+        + (PIPELINED_CHORD_APPLY ? (TERMINAL_CORRECTION ? 8 : 6) : 0);
     logic clk;
     logic rst_n = 1'b0;
     logic ce_sample = 1'b0;
@@ -60,7 +67,10 @@ module v1_solver_mono_wide_tb #(
         .TRAPEZOIDAL(TRAPEZOIDAL),
         .TERMINAL_CORRECTION(TERMINAL_CORRECTION),
         .USE_LINEAR_FACTORIZED_TUBE(LINEAR_TUBE),
-        .PARALLEL_TUBES(PARALLEL_TUBES)
+        .PARALLEL_TUBES(PARALLEL_TUBES),
+        .PIPELINED_KCL_FINISH(PIPELINED_KCL_FINISH),
+        .PIPELINED_KCL_COLUMNS(PIPELINED_KCL_COLUMNS),
+        .PIPELINED_CHORD_APPLY(PIPELINED_CHORD_APPLY)
     ) dut (.*);
     always #5 clk = ~clk;
 

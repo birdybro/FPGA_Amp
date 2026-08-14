@@ -25,6 +25,9 @@ def main() -> int:
     parser.add_argument("--terminal-correction", action="store_true")
     parser.add_argument("--linear-tube", action="store_true")
     parser.add_argument("--parallel-tubes", action="store_true")
+    parser.add_argument("--pipelined-kcl-finish", action="store_true")
+    parser.add_argument("--pipelined-kcl-columns", action="store_true")
+    parser.add_argument("--pipelined-chord-apply", action="store_true")
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
@@ -80,6 +83,12 @@ def main() -> int:
         parameter_args.append("-GLINEAR_TUBE=1")
     if args.parallel_tubes:
         parameter_args.append("-GPARALLEL_TUBES=1")
+    if args.pipelined_kcl_finish:
+        parameter_args.append("-GPIPELINED_KCL_FINISH=1")
+    if args.pipelined_kcl_columns:
+        parameter_args.append("-GPIPELINED_KCL_COLUMNS=1")
+    if args.pipelined_chord_apply:
+        parameter_args.append("-GPIPELINED_CHORD_APPLY=1")
     subprocess.run(
         [
             verilator,
@@ -105,6 +114,9 @@ def main() -> int:
         + ("_terminal" if args.terminal_correction else "")
         + ("_linear" if args.linear_tube else "")
         + ("_parallel_tubes" if args.parallel_tubes else "")
+        + ("_pipelined_kcl" if args.pipelined_kcl_finish else "")
+        + ("_pipelined_columns" if args.pipelined_kcl_columns else "")
+        + ("_pipelined_chord" if args.pipelined_chord_apply else "")
     )
     subprocess.run(
         [

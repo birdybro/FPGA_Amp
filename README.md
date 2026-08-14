@@ -551,11 +551,14 @@ balanced diagnostic popcount, but still misses the target. Isolated chord and
 KCL routes measure 46.40 and 16.64 MHz respectively, identifying KCL's final
 residual/fallback cone as the primary limiter. A bit-exact residual register
 plus balanced KCL reductions retains 127 integrated clocks and improves KCL
-placement to 33.92 MHz; post-route measurement is still running. A separately
-selectable parallel dual-triode schedule remains bit-exact while reducing the
-complete solver from 127 to 95 clocks; Yosys measures 15,887 logic cells and
-209/240 DSP48E1s, leaving 33 clocks per internal sample for further pipeline
-work. It has not yet been placed. None of these
+placement to 33.92 MHz, although its router2 attempt did not converge legally.
+A separately selectable parallel dual-triode schedule remains bit-exact while
+reducing the complete solver from 127 to 95 clocks. Optional KCL column/finish
+and chord-apply registers then produce an exact 119-clock complete solver. The
+pipelined chord routes at 100.92 MHz, but the pipelined KCL places at only 38.95
+MHz; this isolates the remaining timing failure. The complete candidate
+synthesizes to 16,348 logic cells and 209/240 DSP48E1s, leaving nine clocks per
+internal sample. None of these
 experiments is timing closure or a reference-mode change.
 All figures use the backend's unqualified `DEFAULT` timing grade. The implemented digital mute
 primitive is not independent analog speaker protection.
@@ -739,6 +742,9 @@ make openxc7-linear-solver-pnr     # route the value-only complete solver
 make openxc7-terminal-current-pnr  # isolate terminal companion-current timing
 make openxc7-kcl-pnr               # isolate wide KCL timing
 make openxc7-chord-pnr             # isolate banked chord-correction timing
+make openxc7-pipelined-kcl-pnr     # route bit-exact staged KCL candidate
+make openxc7-pipelined-chord-pnr   # route bit-exact staged chord candidate
+make openxc7-parallel-pipelined-solver-pnr # route 119-clock solver candidate
 ```
 
 Run a user-supplied 48 kHz integer-PCM WAV through an explicitly selected V1

@@ -1,7 +1,9 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-module chord_corrector_v1_wide_tb;
+module chord_corrector_v1_wide_tb #(
+    parameter bit PIPELINED_APPLY = 1'b0
+);
     logic clk;
     logic rst_n = 1'b0;
     logic start = 1'b0;
@@ -15,7 +17,9 @@ module chord_corrector_v1_wide_tb;
     logic busy;
     logic valid;
 
-    chord_corrector_v1_wide dut (.*);
+    chord_corrector_v1_wide #(
+        .PIPELINED_APPLY(PIPELINED_APPLY)
+    ) dut (.*);
     always #5 clk = ~clk;
 
     integer file_handle;
@@ -64,11 +68,12 @@ module chord_corrector_v1_wide_tb;
                 @(posedge clk);
                 #1;
                 latency = latency + 1;
-                if (latency > 12)
+                if (latency > 14)
                     $fatal(1, "timeout at vector %0d", vector_count);
             end
-            if (latency != 10) begin
-                $error("latency got=%0d expected=10 after acceptance edge", latency);
+            if (latency != (PIPELINED_APPLY ? 12 : 10)) begin
+                $error("latency got=%0d expected=%0d after acceptance edge",
+                       latency, PIPELINED_APPLY ? 12 : 10);
                 errors = errors + 1;
             end
             for (integer lane = 0; lane < 9; lane = lane + 1) begin
@@ -94,7 +99,8 @@ module chord_corrector_v1_wide_tb;
         $fclose(file_handle);
         if (errors != 0)
             $fatal(1, "FAIL: %0d wide chord errors", errors);
-        $display("PASS: %0d wide chord vectors, latency=10 clocks", vector_count);
+        $display("PASS: %0d wide chord vectors, latency=%0d clocks",
+                 vector_count, PIPELINED_APPLY ? 12 : 10);
         $finish;
     end
 endmodule

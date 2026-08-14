@@ -6,7 +6,11 @@
 // per request (the measured schedule requests Q30, Q34, then Q40).
 module chord_corrector_v1_wide #(
     parameter COEFFICIENT_FILE = "model/generated/v1_chord_inverse_q17_1.mem",
-    parameter integer COEFFICIENT_SETS = 1
+    parameter integer COEFFICIENT_SETS = 1,
+    // Optional timing schedule. Register scaled corrections and updated node
+    // values before saturation/commit, adding two clocks without changing any
+    // arithmetic result.
+    parameter bit PIPELINED_APPLY = 1'b0
 ) (
     input  logic                    clk,
     input  logic                    rst_n,
@@ -29,6 +33,8 @@ module chord_corrector_v1_wide #(
     logic [5:0] residual_fraction_latched;
     logic [2:0] coefficient_set_latched;
     logic [3:0] column;
+    logic correction_staged;
+    logic update_staged;
 
     initial $readmemh(COEFFICIENT_FILE, coefficient);
 
@@ -122,13 +128,33 @@ module chord_corrector_v1_wide #(
     logic apply_pending;
     logic signed [42:0] product_by_row [0:8];
     logic signed [48:0] correction_by_row [0:8];
+    logic signed [48:0] correction_staged_by_row [0:8];
     logic signed [49:0] updated_by_row [0:8];
+    logic signed [49:0] updated_staged_by_row [0:8];
+    logic [8:0] overflow_by_row;
     logic saturation_combined;
     logic [3:0] saturation_count_combined;
 
+    function automatic logic [3:0] popcount9(input logic [8:0] bits);
+        logic [1:0] pair_0;
+        logic [1:0] pair_1;
+        logic [1:0] pair_2;
+        logic [1:0] pair_3;
+        logic [2:0] group_0;
+        logic [2:0] group_1;
+        begin
+            pair_0 = {1'b0, bits[0]} + {1'b0, bits[1]};
+            pair_1 = {1'b0, bits[2]} + {1'b0, bits[3]};
+            pair_2 = {1'b0, bits[4]} + {1'b0, bits[5]};
+            pair_3 = {1'b0, bits[6]} + {1'b0, bits[7]};
+            group_0 = {1'b0, pair_0} + {1'b0, pair_1};
+            group_1 = {1'b0, pair_2} + {1'b0, pair_3};
+            popcount9 = {1'b0, group_0} + {1'b0, group_1}
+                        + {3'b000, bits[8]};
+        end
+    endfunction
+
     always_comb begin
-        saturation_combined = 1'b0;
-        saturation_count_combined = '0;
         for (int row = 0; row < 9; row = row + 1) begin
             product_by_row[row] = coefficient[
                                       coefficient_set_base(
@@ -142,12 +168,18 @@ module chord_corrector_v1_wide #(
             );
             updated_by_row[row] =
                 $signed({{10{voltage_latched[row][39]}}, voltage_latched[row]})
-                - $signed({correction_by_row[row][48], correction_by_row[row]});
-            saturation_combined = saturation_combined
-                                  || exceeds_40(updated_by_row[row]);
-            if (exceeds_40(updated_by_row[row]))
-                saturation_count_combined = saturation_count_combined + 1'b1;
+                - $signed({
+                    (PIPELINED_APPLY
+                        ? correction_staged_by_row[row][48]
+                        : correction_by_row[row][48]),
+                    (PIPELINED_APPLY
+                        ? correction_staged_by_row[row]
+                        : correction_by_row[row])
+                });
+            overflow_by_row[row] = exceeds_40(updated_by_row[row]);
         end
+        saturation_combined = |overflow_by_row;
+        saturation_count_combined = popcount9(overflow_by_row);
     end
 
     integer row;
@@ -161,11 +193,15 @@ module chord_corrector_v1_wide #(
             coefficient_set_latched <= '0;
             column <= '0;
             apply_pending <= 1'b0;
+            correction_staged <= 1'b0;
+            update_staged <= 1'b0;
             for (row = 0; row < 9; row = row + 1) begin
                 accumulator[row] <= '0;
                 corrected_voltage[row * 40 +: 40] <= '0;
                 residual_latched[row] <= '0;
                 voltage_latched[row] <= '0;
+                correction_staged_by_row[row] <= '0;
+                updated_staged_by_row[row] <= '0;
             end
         end else begin
             valid <= 1'b0;
@@ -174,6 +210,8 @@ module chord_corrector_v1_wide #(
                     busy <= 1'b1;
                     column <= 4'd0;
                     apply_pending <= 1'b0;
+                    correction_staged <= 1'b0;
+                    update_staged <= 1'b0;
                     saturation_any <= 1'b0;
                     saturation_count <= '0;
                     residual_fraction_latched <= residual_fractional_bits;
@@ -196,15 +234,33 @@ module chord_corrector_v1_wide #(
                     apply_pending <= 1'b1;
                 else
                     column <= column + 1'b1;
+            end else if (PIPELINED_APPLY && !correction_staged) begin
+                for (row = 0; row < 9; row = row + 1)
+                    correction_staged_by_row[row] <= correction_by_row[row];
+                correction_staged <= 1'b1;
+            end else if (PIPELINED_APPLY && !update_staged) begin
+                for (row = 0; row < 9; row = row + 1)
+                    updated_staged_by_row[row] <= updated_by_row[row];
+                saturation_any <= saturation_combined;
+                saturation_count <= saturation_count_combined;
+                update_staged <= 1'b1;
             end else begin
                 for (row = 0; row < 9; row = row + 1)
                     corrected_voltage[row * 40 +: 40] <=
-                        saturate_40(updated_by_row[row]);
-                saturation_any <= saturation_combined;
-                saturation_count <= saturation_count_combined;
+                        saturate_40(
+                            PIPELINED_APPLY
+                                ? updated_staged_by_row[row]
+                                : updated_by_row[row]
+                        );
+                if (!PIPELINED_APPLY) begin
+                    saturation_any <= saturation_combined;
+                    saturation_count <= saturation_count_combined;
+                end
                 busy <= 1'b0;
                 valid <= 1'b1;
                 apply_pending <= 1'b0;
+                correction_staged <= 1'b0;
+                update_staged <= 1'b0;
             end
         end
     end

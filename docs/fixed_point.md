@@ -414,10 +414,11 @@ residual evaluation: it applies one Q40 chord correction to the diagnostic
 residual already available after the third correction. The committed output and
 capacitor voltage state are bit-exact to a conventional four-pass trajectory,
 while `last_residual_q44` and `nonconvergence_count` deliberately describe the
-preterminal state. Integrated RTL measures 127 clocks, leaving one clock at
-98.304 MHz / 768 kHz. Trapezoidal terminal correction remains a Python-only
-candidate because committing its corrected Q4.44 capacitor-current histories
-requires hardware not present in the shared KCL path.
+preterminal state. Integrated backward-Euler RTL measures 127 clocks, leaving
+one clock at 98.304 MHz / 768 kHz. The later trapezoidal terminal path
+implements the corresponding corrected Q4.44 capacitor-current-history commit
+and is verified separately below; the statement that this path was Python-only
+was the initial candidate status, not the current implementation status.
 
 The two tube sections can instead be evaluated concurrently because each is a
 function of the same candidate node vector within a pass. A selectable RTL
@@ -427,6 +428,21 @@ trapezoidal/terminal regressions remain bit-exact while latency falls from
 116/127 to 84/95 clocks. This recovers 32 clocks for future KCL and chord
 pipeline registers; it changes resource scheduling only, not a Q format,
 physical equation, solver iteration, or reference-mode result.
+
+The recovered schedule now has independently selectable, bit-exact register
+boundaries in both circuit blocks. In each KCL call, `PIPELINED_COLUMNS`
+overlaps nine product issues, product rounding, and prior-column accumulation
+with two fill clocks, while `PIPELINED_FINISH` separates physical-residual
+capture, Q30/Q34/Q40 conversion, global fallback/diagnostic reduction, and
+output saturation with two more clocks. `PIPELINED_CHORD_APPLY` separates
+correction scaling, node subtraction/diagnostics, and saturation commit with
+two clocks per correction. With parallel tubes and all three schedules, the
+complete four-correction trapezoidal terminal solver is bit-exact across 512
+stateful vectors at 119 clocks, leaving nine of 128 clocks. The optional KCL
+unit is exact across 1,024 backward-Euler and 1,024 trapezoidal vectors at 15
+early-current clocks; the optional chord unit is exact across 1,024 vectors at
+12 clocks. These registers alter only scheduling, not formats, rounding,
+saturation, model coefficients, or the frozen physical circuit.
 
 The backward-Euler terminal contract is also integrated in the bit-accurate
 48→768→48 kHz composition. A 64-output regression covers 1,024 internal circuit

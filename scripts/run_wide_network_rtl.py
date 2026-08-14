@@ -16,6 +16,8 @@ ROOT = Path(__file__).resolve().parents[1]
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
+    parser.add_argument("--pipelined-finish", action="store_true")
+    parser.add_argument("--pipelined-columns", action="store_true")
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
@@ -45,6 +47,12 @@ def main() -> int:
         ),
     ]
     for top, build_relative, sources in tests:
+        parameter_args = []
+        if top == "network_kcl_v1_wide_tb":
+            if args.pipelined_finish:
+                parameter_args.append("-GPIPELINED_FINISH=1")
+            if args.pipelined_columns:
+                parameter_args.append("-GPIPELINED_COLUMNS=1")
         subprocess.run(
             [
                 verilator,
@@ -53,12 +61,17 @@ def main() -> int:
                 "-Wall",
                 "-Wno-fatal",
                 "-sv",
+                *parameter_args,
                 *sources,
             ],
             cwd=ROOT,
             check=True,
         )
-        build = ROOT / build_relative
+        build = ROOT / (
+            build_relative
+            + ("_pipelined_finish" if args.pipelined_finish else "")
+            + ("_pipelined_columns" if args.pipelined_columns else "")
+        )
         subprocess.run(
             [
                 verilator,
@@ -71,6 +84,7 @@ def main() -> int:
                 top,
                 "--Mdir",
                 str(build),
+                *parameter_args,
                 *sources,
             ],
             cwd=ROOT,

@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
+    parser.add_argument("--pipelined-apply", action="store_true")
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
@@ -26,12 +27,19 @@ def main() -> int:
         "rtl/circuit/chord_corrector_v1_wide.sv",
         "sim/unit/chord_corrector_v1_wide_tb.sv",
     ]
+    parameter_args = ["-GPIPELINED_APPLY=1"] if args.pipelined_apply else []
     subprocess.run(
-        [verilator, "--lint-only", "--timing", "-Wall", "-Wno-fatal", "-sv", *sources],
+        [
+            verilator, "--lint-only", "--timing", "-Wall", "-Wno-fatal",
+            "-sv", *parameter_args, *sources,
+        ],
         cwd=ROOT,
         check=True,
     )
-    build = ROOT / "build" / "verilator_chord_wide"
+    build = ROOT / "build" / (
+        "verilator_chord_wide"
+        + ("_pipelined_apply" if args.pipelined_apply else "")
+    )
     subprocess.run(
         [
             verilator,
@@ -44,6 +52,7 @@ def main() -> int:
             "chord_corrector_v1_wide_tb",
             "--Mdir",
             str(build),
+            *parameter_args,
             *sources,
         ],
         cwd=ROOT,

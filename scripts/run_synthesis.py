@@ -80,11 +80,14 @@ def main() -> int:
             "solver_pnr_harness",
             "linear_solver_pnr_harness",
             "parallel_solver_pnr_harness",
+            "parallel_pipelined_solver_pnr_harness",
             "hermite_pnr_harness",
             "linear_tube_pnr_harness",
             "terminal_current_pnr_harness",
             "kcl_pnr_harness",
+            "pipelined_kcl_pnr_harness",
             "chord_pnr_harness",
+            "pipelined_chord_pnr_harness",
         ),
         default="triode_12ax7",
     )
@@ -448,6 +451,16 @@ def main() -> int:
             "rtl/phono/v1_solver_mono_wide_trapezoidal_banked_terminal.sv",
             "rtl/diagnostics/solver_pnr_harness.sv",
         ],
+        "parallel_pipelined_solver_pnr_harness": [
+            "rtl/tube/triode_12ax7_factorized.sv",
+            "rtl/tube/triode_12ax7_factorized_linear.sv",
+            "rtl/circuit/network_rhs_v1_wide.sv",
+            "rtl/circuit/network_kcl_v1_wide.sv",
+            "rtl/circuit/chord_corrector_v1_wide.sv",
+            "rtl/phono/v1_solver_mono_wide.sv",
+            "rtl/phono/v1_solver_mono_wide_trapezoidal_banked_terminal.sv",
+            "rtl/diagnostics/solver_pnr_harness.sv",
+        ],
         "hermite_pnr_harness": [
             "rtl/math/hermite_q16_pipeline.sv",
             "rtl/diagnostics/hermite_pnr_harness.sv",
@@ -464,7 +477,15 @@ def main() -> int:
             "rtl/circuit/network_kcl_v1_wide.sv",
             "rtl/diagnostics/solver_block_pnr_harnesses.sv",
         ],
+        "pipelined_kcl_pnr_harness": [
+            "rtl/circuit/network_kcl_v1_wide.sv",
+            "rtl/diagnostics/solver_block_pnr_harnesses.sv",
+        ],
         "chord_pnr_harness": [
+            "rtl/circuit/chord_corrector_v1_wide.sv",
+            "rtl/diagnostics/solver_block_pnr_harnesses.sv",
+        ],
+        "pipelined_chord_pnr_harness": [
             "rtl/circuit/chord_corrector_v1_wide.sv",
             "rtl/diagnostics/solver_block_pnr_harnesses.sv",
         ],

@@ -6,7 +6,10 @@
 // wide internal buses as package pins.  This is not an audio or bitstream top.
 module solver_pnr_harness #(
     parameter bit USE_LINEAR_FACTORIZED_TUBE = 1'b0,
-    parameter bit PARALLEL_TUBES = 1'b0
+    parameter bit PARALLEL_TUBES = 1'b0,
+    parameter bit PIPELINED_KCL_FINISH = 1'b0,
+    parameter bit PIPELINED_KCL_COLUMNS = 1'b0,
+    parameter bit PIPELINED_CHORD_APPLY = 1'b0
 ) (
     input  logic fabric_clk,
     input  logic reset,
@@ -75,7 +78,10 @@ module solver_pnr_harness #(
 
     (* keep *) v1_solver_mono_wide_trapezoidal_banked_terminal #(
         .USE_LINEAR_FACTORIZED_TUBE(USE_LINEAR_FACTORIZED_TUBE),
-        .PARALLEL_TUBES(PARALLEL_TUBES)
+        .PARALLEL_TUBES(PARALLEL_TUBES),
+        .PIPELINED_KCL_FINISH(PIPELINED_KCL_FINISH),
+        .PIPELINED_KCL_COLUMNS(PIPELINED_KCL_COLUMNS),
+        .PIPELINED_CHORD_APPLY(PIPELINED_CHORD_APPLY)
     ) solver (
         .clk(fabric_clk),
         .rst_n,
@@ -123,6 +129,25 @@ module parallel_solver_pnr_harness (
 
     solver_pnr_harness #(
         .PARALLEL_TUBES(1'b1)
+    ) harness (.*);
+
+endmodule
+
+// Timing candidate that spends 24 recovered solver clocks on two KCL column
+// fill boundaries, two KCL finish boundaries, and two chord-apply boundaries
+// in each of the four nonlinear passes. The complete terminal solve is 119
+// clocks, leaving nine clocks before the 128-clock internal-sample deadline.
+module parallel_pipelined_solver_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+
+    solver_pnr_harness #(
+        .PARALLEL_TUBES(1'b1),
+        .PIPELINED_KCL_FINISH(1'b1),
+        .PIPELINED_KCL_COLUMNS(1'b1),
+        .PIPELINED_CHORD_APPLY(1'b1)
     ) harness (.*);
 
 endmodule

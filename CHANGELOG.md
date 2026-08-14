@@ -73,6 +73,16 @@ All notable engineering changes are recorded here. The project is pre-release; d
   15,887 estimated logic cells, 7,360 flip-flops, 209 DSP48E1s, 16 RAMB18E1s,
   and two RAMB36E1s. This fits the XC7A100T structurally and recovers 32 clocks
   for network pipelining; placement and Fmax are not yet claimed.
+- Added independently selectable, bit-exact pipeline schedules for KCL column
+  issue/round/accumulate, KCL residual conversion/fallback/saturation, and
+  chord scale/update/saturation. Default 11-clock KCL, 10-clock chord, and
+  127-clock terminal paths remain exact; the all-pipelined parallel solver is
+  exact across 512 stateful vectors at 119 clocks. Its Yosys harness measures
+  16,348 LC, 12,378 FF, 209 DSP48E1, and 20 RAMB18 equivalents. The isolated
+  chord now routes at 100.92 MHz versus 46.40 MHz originally, closing the
+  98.304 MHz request under the experimental `DEFAULT` grade. The 72-DSP KCL is
+  exact at 15 clocks but places at only 38.95 MHz; router2 was stopped after
+  the placement miss, so neither KCL nor full-solver timing closure is claimed.
 
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,

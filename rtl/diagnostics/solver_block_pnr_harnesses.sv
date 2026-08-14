@@ -57,7 +57,10 @@ module terminal_current_pnr_harness (
 
 endmodule
 
-module kcl_pnr_harness (
+module kcl_pnr_harness #(
+    parameter bit PIPELINED_FINISH = 1'b0,
+    parameter bit PIPELINED_COLUMNS = 1'b0
+) (
     input  logic fabric_clk,
     input  logic reset,
     output logic activity
@@ -128,7 +131,9 @@ module kcl_pnr_harness (
         .CAP_G_FILE(
             "model/generated/v1_cap_conductance_q0_47_trapezoidal.mem"
         ),
-        .TRAPEZOIDAL(1'b1)
+        .TRAPEZOIDAL(1'b1),
+        .PIPELINED_FINISH(PIPELINED_FINISH),
+        .PIPELINED_COLUMNS(PIPELINED_COLUMNS)
     ) engine (
         .clk(fabric_clk),
         .rst_n,
@@ -154,7 +159,22 @@ module kcl_pnr_harness (
 
 endmodule
 
-module chord_pnr_harness (
+module pipelined_kcl_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+
+    kcl_pnr_harness #(
+        .PIPELINED_FINISH(1'b1),
+        .PIPELINED_COLUMNS(1'b1)
+    ) harness (.*);
+
+endmodule
+
+module chord_pnr_harness #(
+    parameter bit PIPELINED_APPLY = 1'b0
+) (
     input  logic fabric_clk,
     input  logic reset,
     output logic activity
@@ -201,7 +221,8 @@ module chord_pnr_harness (
         .COEFFICIENT_FILE(
             "model/generated/v1_chord_inverse_banked_q17_1_trapezoidal.mem"
         ),
-        .COEFFICIENT_SETS(5)
+        .COEFFICIENT_SETS(5),
+        .PIPELINED_APPLY(PIPELINED_APPLY)
     ) engine (
         .clk(fabric_clk),
         .rst_n,
@@ -216,6 +237,18 @@ module chord_pnr_harness (
         .busy,
         .valid
     );
+
+endmodule
+
+module pipelined_chord_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+
+    chord_pnr_harness #(
+        .PIPELINED_APPLY(1'b1)
+    ) harness (.*);
 
 endmodule
 

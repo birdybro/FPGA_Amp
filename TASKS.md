@@ -48,11 +48,21 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   matching the whole-solver failure. A bit-exact residual staging register and
   balanced KCL reductions retain the 127-clock integrated contract and improve
   KCL placement to 33.92 MHz. Parallel evaluation of the two physical tube
-  sections is now bit-exact at 84/95 clocks and fits structurally at 209/240
-  DSPs. Finish the KCL legal route, then spend the recovered 32 clocks on
-  finish-selection and chord-output pipeline stages before any
+  sections is bit-exact at 84/95 clocks and fits structurally at 209/240 DSPs.
+  The recovered margin now funds two KCL column-fill clocks, two KCL finish
+  clocks, and two chord-apply clocks per pass: the complete solver is exact at
+  119 clocks and the chord route closes at 100.92 MHz. The isolated pipelined
+  KCL still places at only 38.95 MHz, so identify and split its remaining
+  registered-current/accumulator path within the nine-clock margin before any
   reference/default selection.
 ## Completed this milestone
+
+- [x] Add selectable bit-exact timing boundaries to the KCL column/finish and
+  chord apply paths. Preserve 1,024 vectors in each KCL integration mode, 1,024
+  chord vectors, the unchanged default latencies, and 512 complete stateful
+  terminal vectors. Measure the combined schedule at 119 clocks, the chord at
+  100.92 MHz post-route, and the KCL at only 38.95 MHz after placement. Record
+  the remaining KCL miss instead of claiming whole-solver closure.
 
 - [x] Add a selectable parallel dual-triode schedule without changing either
   physical operating point or arithmetic. Preserve 512-vector backward-Euler
