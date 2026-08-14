@@ -73,6 +73,13 @@ core request. This handles unknown phase only when BCLK and fabric are frequency
 locked. A converter with an independent master oscillator still requires an
 explicit rate-control/ASRC decision; finite FIFO depth is not rate matching.
 
+The pin-facing digital mono top now composes the bridge, scheduler, calibration,
+and selected nonlinear stream. Its regression uses the exact planned ratio,
+3.072 MHz BCLK to 98.304 MHz fabric, with independent phase. Bridge fabric reset
+is released first; after a received frame crosses and is held, fabric-synchronous
+audio reset is released. This proves one reset/rate contract in simulation, not
+that either the FPGA or an unselected converter is the hardware clock master.
+
 Jitter sensitivity must be checked at the highest analog input frequency. For a
 20 kHz full-scale sine, 1 ps RMS aperture jitter alone corresponds to roughly
 138 dB SNR; converter internal clocking, oscillator phase noise, and power noise
@@ -80,8 +87,10 @@ must be evaluated together rather than quoting one time-domain number.
 
 ## Latency accounting
 
-The tube LUT is eight 98.304 MHz clocks (0.0814 µs) per evaluation, but complete
-latency is unknown until interpolation, solver, decimation, converter filters,
-and mute ramps exist. Each block will publish integer/fractional sample delay.
-The end-to-end report will use an analog loopback impulse/correlation measurement,
-not the sum of optimistic data-sheet typical values.
+The tube LUT is eight 98.304 MHz clocks (0.0814 µs) per evaluation. Digital
+frame flow now exists through I²S, interpolation, solver, decimation, and output
+serialization, but its transport/group-delay report and the output mute are
+still incomplete. Converter digital-filter and analog latency remain unknown.
+Each block will publish integer/fractional sample delay. The final end-to-end
+report will use an analog loopback impulse/correlation measurement, not the sum
+of optimistic data-sheet typical values.

@@ -228,6 +228,23 @@ RAMB36E1 in every factorized-tube hierarchy; the corrected documents retain
 both eight RAMB18E1s and one RAMB36E1 (ten 18-Kib equivalents). No numerical RTL
 or memory implementation changed as a result of that reporting correction.
 
+Adding the two asynchronous stereo FIFOs and I²S protocol blocks around the
+adapter produces the pin-facing digital hierarchy:
+
+| Resource | Count |
+|---|---:|
+| estimated logic cells | 20,766 |
+| flip-flops | 16,650 |
+| DSP48E1 | 230 |
+| RAMB18E1 / RAMB36E1 | 8 / 1 |
+
+The flip-flop total is 15,771 FDRE, 476 FDSE, 263 FDCE, 3 FDPE, 131
+falling-edge FDCE, and 6 falling-edge FDPE. Structural check reports zero
+problems; the 77 unique warnings retain local-array/FIFO register expansion and
+primitive resize notices. The result has no clock constraints, synchronizer
+placement, BCLK opposite-edge timing, board I/O delays, or named-part Fmax. It
+therefore proves structural composition, not a deployable converter interface.
+
 On XC7A100T, this single table engine consumes about 6.7% of DSPs and 17.4% of
 18 Kib RAM blocks. The accuracy-first 128 × 256 plate table is memory-dominant.
 Time-multiplexing it across triodes/channels is therefore favored over blind

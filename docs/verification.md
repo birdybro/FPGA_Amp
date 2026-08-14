@@ -199,6 +199,8 @@ scripts/run_synthesis.py            XC7 structural resource report
 | fabric frame scheduler synthesis | Yosys 0.66 structural, 2,048-clock default | 41 LC / 43 FF / no DSP or RAM; no Fmax/ASRC claim |
 | calibrated fabric mono adapter RTL | 64 PCM frames / 1,024 nonlinear updates | every input calibration, raw model output, and duplicated PCM frame bit-exact; unrelated right input ignored; five-clock stall held; directed overrun retains old frame and clears; model/calibration diagnostics zero; warning-free |
 | calibrated fabric mono adapter synthesis | Yosys 0.66 flattened structural | 20,367 LC / 15,543 FF / 230 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; zero structural problems; no Fmax/CDC/stereo claim |
+| pin-facing I²S mono top RTL | 64 serial inputs; locked 3.072/98.304 MHz clocks with unrelated phase | 64 calibrated inputs and raw model outputs exact; 45 consecutive observable DAC frames exact mono duplicates; startup starvation retained; warning-free |
+| pin-facing I²S mono top synthesis | Yosys 0.66 flattened structural | 20,766 LC / 16,650 FF / 230 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; zero structural problems; no placed CDC/I/O/converter claim |
 | guarded wide stream RTL | startup plus one state-reset transaction | warning-free; mute precedes reset; phase clean; one ack; unity restored |
 | guarded wide stream synthesis | Yosys 0.66 structural | 17,562 LC, 170 DSP48E1, 8 RAMB18E1 + 1 RAMB36E1; no Fmax claim |
 | fixed vs analytical level sweep | 0.5 mV–5 V, 1 kHz, 20–30 ms | first ≥1 dB compression 1.1 V; residual-limit failure 1.0 V; LUT clip 1.1 V |

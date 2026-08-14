@@ -103,8 +103,8 @@ retained as FIFO overflow. The BCLK prefetch never requests an empty FIFO, and
 the transmitter substitutes a zero frame plus a sticky starvation flag when no
 frame reaches a left-slot boundary. All framing, overflow, underflow, and serial
 starvation flags remain observable in their owning domains. The bridge does not
-establish whether FPGA or converter is final clock master and remains separate
-from the fabric-domain modeled-audio adapter.
+establish whether FPGA or converter is final clock master. It remains a reusable
+block and is also composed with the adapter by the pin-facing mono top.
 
 The standalone calibration layer now provides the missing arithmetic on each
 side of that bridge: PCM24 to input-referred physical Q8.24 volts, and physical
@@ -141,6 +141,16 @@ launch registers input calibration while the core is still reset; the following
 phase-zero edge releases the core and consumes exactly that sample. This is
 numerical startup alignment, not output pop protection. A separate mute/ramp
 and atomic control update are still required around the physical output path.
+
+`rtl/top/phono_i2s_mono_top.sv` connects the bridge and adapter without adding
+sample-rate conversion or converter policy. It exposes separate BCLK-domain,
+fabric-domain, and audio-state resets. The bridge fabric reset is released
+first so a complete received frame can cross and be held; `audio_rst_n`, which
+must be synchronized to the fabric clock, is then released to begin scheduler
+phase acquisition. This avoids both an initial scheduled zero and the hidden
+pre-input state advance described above. The demonstrated clocks are exactly
+frequency locked at 3.072 and 98.304 MHz but have unrelated phase. Independent
+nominal-rate oscillators remain invalid because FIFO occupancy would drift.
 
 ## Stereo scheduling
 

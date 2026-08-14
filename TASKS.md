@@ -26,6 +26,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Compose the I²S/CDC bridge with the calibrated accuracy-first mono
+  adapter. Under exactly frequency-locked 3.072/98.304 MHz clocks with unrelated
+  phase, deliver all 64 serial stereo inputs to calibrated model state exactly,
+  match all raw model outputs, and recover 45 consecutive observable DAC frames
+  as exact mono duplicates. Retain expected startup starvation and zero all
+  other diagnostics; synthesize to 20,766 LC / 16,650 FF / 230 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1 with no placed CDC/I/O/converter claim.
 - [x] Compose the framed mono fabric datapath from scheduler through input
   calibration, exact trapezoidal/banked/terminal stream, output calibration,
   held ready/valid output, and explicit mono duplication. Match 64 calibrated
@@ -346,9 +353,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   the 47-RAMB18 primitive to be the dominant capacity constraint.
 - Measure Architecture A with a real JFET front end and at least two ADCs before
   freezing converter/gain/anti-alias parts.
-- Determine a credible stereo architecture; one solver uses 126/128 clocks and
-  cannot be time-multiplexed across two channels at the present throughput. The
-  best-accuracy mono stream now uses 222/240 A7-100T DSPs, preventing duplication.
+- Determine a credible stereo architecture; the selected solver uses 127/128
+  clocks and cannot be time-multiplexed across two channels at the present
+  throughput. The calibrated pin-facing mono hierarchy uses 230/240 A7-100T
+  DSPs, preventing duplication.
 - Select a first full integrated-amplifier topology only after V1 phono equivalence.
 
 ## Verification debt
@@ -361,8 +369,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   level recovery and licensed music remain absent. The I²S protocol and CDC
   FIFO primitives now form a bidirectional frame bridge, and standalone
   physical-unit calibration now composes with the accuracy-first mono core at
-  the fabric frame boundary, but the asynchronous bridge, startup mute, atomic
-  control updates, and CDC/I/O timing constraints remain outside that adapter;
+  the fabric frame boundary and a pin-facing top adds the asynchronous bridge.
+  Startup mute, atomic control updates, rate-error handling, and CDC/I/O timing
+  constraints remain absent;
   embedded assertions cannot be proven until a formal engine is available.
   The cubic and full-tube alias-family tests are captured from RTL; the latter
   is bounded below fixed rounding closure rather than inferred from the
@@ -382,6 +391,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [x] Bit-exact PCM24/input-volts/output-volts calibration primitives.
 - [x] Frequency-locked bridge-to-core fabric frame scheduler.
 - [x] Calibrated framed mono adapter around the accuracy-first V1 stream.
+- [x] Pin-facing digital I²S/CDC plus calibrated mono-model integration.
 - [x] PCM WAV processing and latency/gain/fractional-delay null comparison.
 - [x] Deterministic WAV distortion/IMD-product/overload regression library.
 - [ ] Standardized IMD, long recovery, impulse, and licensed-music WAV gates.
