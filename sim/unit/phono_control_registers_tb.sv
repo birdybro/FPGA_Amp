@@ -14,6 +14,10 @@ module phono_control_registers_tb;
     logic [31:0] response_read_data;
     logic response_error;
     logic [DIAGNOSTIC_WORD_COUNT*32-1:0] diagnostic_words_flat;
+    logic diagnostic_capture_available = 1'b1;
+    logic diagnostic_capture_request;
+    logic diagnostic_capture_valid;
+    logic capture_response_enable = 1'b1;
     logic [31:0] diagnostic_words [0:DIAGNOSTIC_WORD_COUNT-1];
     logic output_muted = 1'b1;
     logic output_ramping = 1'b0;
@@ -32,6 +36,7 @@ module phono_control_registers_tb;
     logic [31:0] calibration_accepted_sequence;
     logic bus_error_sticky;
     logic calibration_rejected_sticky;
+    logic snapshot_capture_timeout_sticky;
     integer clear_pulse_count;
     integer errors = 0;
     integer index;
@@ -72,8 +77,17 @@ module phono_control_registers_tb;
     );
 
     phono_control_registers #(
-        .DIAGNOSTIC_WORD_COUNT(DIAGNOSTIC_WORD_COUNT)
+        .DIAGNOSTIC_WORD_COUNT(DIAGNOSTIC_WORD_COUNT),
+        .SNAPSHOT_TIMEOUT_CLOCKS(8)
     ) dut (.*);
+
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            diagnostic_capture_valid <= 1'b0;
+        else
+            diagnostic_capture_valid <= diagnostic_capture_request
+                && capture_response_enable;
+    end
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n)
@@ -145,20 +159,42 @@ module phono_control_registers_tb;
         end
 
         bus_read(8'h00, 32'h4650_4741, 1'b0);
-        bus_read(8'h01, 32'h0001_0000, 1'b0);
+        bus_read(8'h01, 32'h0001_0001, 1'b0);
         bus_read(8'h02, 32'h0000_000f, 1'b0);
 
         // Take one coherent diagnostic image, then prove later live changes do
         // not tear reads until another explicit snapshot.
         bus_write(8'h04, 32'h0000_0003, 1'b0);
+        wait (snapshot_sequence == 1);
         for (index = 0; index < DIAGNOSTIC_WORD_COUNT; index = index + 1)
             diagnostic_words[index] = 32'h2000_0000 + index;
         bus_read(8'h20, 32'h1000_0000, 1'b0);
         bus_read(8'h23, 32'h1000_0003, 1'b0);
         bus_read(8'h05, 32'd1, 1'b0);
         bus_write(8'h04, 32'h0000_0003, 1'b0);
+        wait (snapshot_sequence == 2);
         bus_read(8'h20, 32'h2000_0000, 1'b0);
         bus_read(8'h05, 32'd2, 1'b0);
+
+        // A missing cross-domain completion times out explicitly. A second
+        // command while busy is rejected, and the retained image/sequence do
+        // not masquerade as a new coherent capture.
+        capture_response_enable = 1'b0;
+        bus_write(8'h04, 32'h0000_0003, 1'b0);
+        bus_write(8'h04, 32'h0000_0003, 1'b1);
+        wait (snapshot_capture_timeout_sticky);
+        #1;
+        if (snapshot_sequence != 2) begin
+            $error("timed-out snapshot advanced sequence");
+            errors = errors + 1;
+        end
+        bus_read(8'h03, 32'h0000_0053, 1'b0);
+        capture_response_enable = 1'b1;
+        bus_write(8'h04, 32'h0000_0009, 1'b0);
+        if (snapshot_capture_timeout_sticky || bus_error_sticky) begin
+            $error("snapshot timeout/local error did not clear");
+            errors = errors + 1;
+        end
 
         // Explicitly retain mute and commit a positive pair. The register bank
         // holds the pair coherent and records guard ack by transaction sequence

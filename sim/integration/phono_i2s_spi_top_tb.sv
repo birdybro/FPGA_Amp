@@ -28,6 +28,7 @@ module phono_i2s_spi_top_tb;
     logic [31:0] spi_completed_frame_count;
     logic control_bus_error_sticky;
     logic calibration_rejected_sticky;
+    logic snapshot_capture_timeout_sticky;
     logic [39:0] response_frame;
     integer i2s_clear_pulse_count;
     integer errors = 0;
@@ -184,6 +185,7 @@ module phono_i2s_spi_top_tb;
             || spi_response_underflow_sticky
             || control_bus_error_sticky
             || calibration_rejected_sticky
+            || snapshot_capture_timeout_sticky
             || output_ramping || audio_clock_rate_locked
             || audio_clock_rate_error_sticky
             || !rate_fault_mute_active

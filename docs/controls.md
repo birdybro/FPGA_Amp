@@ -23,16 +23,19 @@ a commit is pending. An invalid or live/unmuted attempt advances only the
 attempted sequence and latches explicit rejected status; it cannot change the
 active pair.
 
-The same block copies all configured diagnostic input words on one snapshot
-command. A saturating sequence identifies each completed image, and subsequent
-reads access only the retained image. The inputs to that port must already be
-in the fabric domain; this block does not pretend that unsynchronized I²S-domain
-levels form a coherent word. A single control write can also pulse the existing
-fabric diagnostic clear and independently clear register-local sticky evidence.
+The same block requests one domain-coherent diagnostic capture on a snapshot
+command and copies all configured words only when that capture returns valid. A
+saturating sequence identifies each completed image, and subsequent reads access
+only the retained image. Snapshot busy/available state is observable. The
+default 131,072-fabric-clock timeout latches explicit evidence without modifying
+the previous image or advancing its sequence. A single control write can also
+pulse the existing fabric diagnostic clear and independently clear register-
+local sticky evidence.
 Verilator proves snapshot retention across changing live inputs, reset-muted
 state, accepted/invalid/unsafe calibration transactions, pending-pair write
-rejection, clear pulses, and bad-address reporting. XC7 structural synthesis is
-323 estimated logic cells / 715 flip-flops / no DSP or block RAM; the one Yosys
+rejection, busy snapshot rejection, completion, timeout, retained-image
+behavior, clear pulses, and bad-address reporting. XC7 structural synthesis is
+354 estimated logic cells / 735 flip-flops / no DSP or block RAM; the one Yosys
 warning is the expected 16x32 snapshot array expansion to registers. No Fmax is
 claimed.
 
@@ -45,9 +48,9 @@ the audio solver.
 | Address | Name | Access | Meaning |
 |---:|---|---|---|
 | `0x00` | identity | R | `0x46504741` (`FPGA`) |
-| `0x01` | ABI version | R | major/minor `0x0001_0000` |
+| `0x01` | ABI version | R | major/minor `0x0001_0001` |
 | `0x02` | capabilities | R | snapshot, calibration, mute, diagnostic clear |
-| `0x03` | live status | R | mute, muted, ramping, commit busy, snapshot valid |
+| `0x03` | live status | R | mute, muted, ramping, commit busy, snapshot valid/busy, capture available |
 | `0x04` | control | R/W | bit 0 mute level; bits 1/2/3 snapshot, diagnostic clear, local-sticky clear commands |
 | `0x05` | snapshot sequence | R | saturating completed-image sequence |
 | `0x06` | calibration attempted | R | saturating commit-attempt sequence |
@@ -57,10 +60,10 @@ the audio solver.
 | `0x0a` | calibration command | W | bit 0 commits the complete shadow pair |
 | `0x0b` | ADC calibration active | R | guard-owned active coefficient |
 | `0x0c` | DAC calibration active | R | guard-owned active coefficient |
-| `0x0d` | sticky status | R | bus, rejected, invalid, and unsafe evidence |
+| `0x0d` | sticky status | R | bus, rejected, invalid, unsafe, and snapshot-timeout evidence |
 | `0x20...` | diagnostic snapshot | R | retained configured diagnostic words |
 
-`phono_i2s_control_top` connects 21 words to that aperture:
+`phono_i2s_control_top` connects 22 words to that aperture:
 
 | Address | Snapshot contents |
 |---:|---|
@@ -71,14 +74,15 @@ the audio solver.
 | `0x24...0x31` | scheduler underflow, input endpoint, output PCM saturation/overrun, resampler saturation/overrun, input phase, output conversion, and six solver counters |
 | `0x32...0x33` | 63-bit preterminal solver residual, low word first |
 | `0x34` | saturating completed SPI-frame count |
+| `0x35` | coherent I²S-domain RX level/high-water and TX level/high-water, four bits each |
 
 The four I²S-domain sticky bits are safe to synchronize because they remain
-asserted until an explicit clear. Their multibit FIFO level/high-water views are
-not copied across the domain; the snapshot deliberately includes only the two
-fabric-owned FIFO views. A toggle-based command crossing converts one fabric
-diagnostic-clear pulse into one I²S-clock pulse. Its unit test transfers two
-events exactly once across unrelated clocks; structural synthesis is 1 LC / 5
-FF. This crossing is for low-rate idempotent host commands, not event traffic.
+asserted until an explicit clear. Their multibit FIFO level/high-water views use
+the held-bus request/acknowledge capture and enter the retained image only after
+the CDC transaction completes. A toggle-based command crossing converts one
+fabric diagnostic-clear pulse into one I²S-clock pulse. Its unit test transfers
+two events exactly once across unrelated clocks; structural synthesis is 1 LC /
+5 FF. This crossing is for low-rate idempotent host commands, not event traffic.
 
 ## Initial register groups
 
@@ -118,14 +122,12 @@ high-water marks in all four owning-domain views (receive I²S/fabric and
 transmit fabric/I²S). These values are derived from the local binary pointer and
 the already synchronized remote Gray pointer. A write-side level may lag a read
 high; a read-side level may lag a write low. They are intentionally raw-domain
-diagnostics, not a coherent snapshot. Only fabric-owned views may connect
-directly to the implemented snapshot bank; I²S-owned values still require safe
-synchronization or a domain-local snapshot. `cdc_word_snapshot` now provides
-that primitive: a four-phase request/acknowledge handshake holds all source bits
-stable through two destination synchronizers and delays valid by a further
-clock. It is not yet connected to the register snapshot transaction. Existing
-domain-local diagnostic clear inputs also reset the corresponding watermark to
-the current projected occupancy.
+diagnostics at their source. The two fabric views connect directly to the
+snapshot image; `cdc_word_snapshot` captures the two I²S views coherently with a
+four-phase request/acknowledge handshake, holds all 16 bits stable through two
+synchronizer stages, and delays valid by a further clock. Existing domain-local
+diagnostic clear inputs also reset the corresponding watermark to the current
+projected occupancy.
 
 Clock status now includes a fabric-domain measurement-valid pulse, last BCLK
 edge count, consecutive-good-window count, live rate-lock flag, and sticky rate
@@ -175,8 +177,8 @@ commits and reads back the converter calibration pair, demonstrates that a
 retained snapshot cannot tear when `force_mute` changes, takes a second image,
 captures a deliberately aborted frame, reads the snapshotted transport-frame
 count, and transfers one diagnostic-clear event into the unrelated I²S clock
-domain. With the fail-closed BCLK guard, flattened XC7 structural synthesis
-is 21,507 estimated logic cells / 17,959 FF / 232 DSP48E1 /
+domain. With the fail-closed BCLK guard and coherent I²S snapshot, flattened XC7
+structural synthesis is 21,589 estimated logic cells / 18,094 FF / 232 DSP48E1 /
 8 RAMB18E1 + 1 RAMB36E1. There is still no named-part SCLK, CDC, I/O, or
 98.304 MHz timing claim, and no physical host backend. No protocol-specific
 state belongs in the audio solver.
@@ -188,7 +190,10 @@ It encodes the request and dummy response clocks in exact wire byte order,
 decodes status/data, rejects short transfers, reserved status bits, bus errors,
 identity/ABI/capability mismatches, and invalid register ranges. A typed client
 provides explicit-mute snapshot and clear commands plus guarded two-coefficient
-calibration commit/poll/sequence verification. Every CONTROL operation requires
+calibration commit/poll/sequence verification. Snapshot calls poll busy and
+require the saturating sequence to advance (or remain at its maximum value),
+reporting FPGA timeout evidence instead of returning a stale image as new.
+Every CONTROL operation requires
 the intended mute level as an argument, avoiding a stale host cache that could
 silently change bit 0.
 

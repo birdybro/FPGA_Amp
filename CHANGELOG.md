@@ -6,6 +6,18 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Integrated coherent I²S FIFO levels/high-water marks into the atomic control
+  snapshot. Snapshot commands now commit the retained image and saturating
+  sequence only after the held-bus CDC returns; live status reports busy and
+  capture availability. A default 131,072-clock timeout preserves the previous
+  image/sequence and latches explicit evidence. Unit/integration tests cover
+  busy rejection, stopped-BCLK timeout, later re-arm, captured timeout evidence,
+  and clear. The Python client polls completion and rejects stale results. The
+  22-word map adds packed I²S diagnostics at `0x35`, and the compatible ABI
+  minor is now 1.1. XC7 structural synthesis is 354 LC / 735 FF for the register
+  bank, 21,466 LC / 17,922 FF for the controlled hierarchy, and 21,589 LC /
+  18,094 FF with SPI; the complete variants retain 232 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1 and zero structural-check problems.
 - Added a reusable 16-bit held-bus CDC snapshot primitive. Its four-phase
   request/acknowledge handshake holds destination data stable through two
   source-clock synchronizer stages and one final settling clock. Three exact,

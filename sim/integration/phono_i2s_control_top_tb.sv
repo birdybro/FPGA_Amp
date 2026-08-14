@@ -34,6 +34,7 @@ module phono_i2s_control_top_tb;
     logic [31:0] calibration_accepted_sequence;
     logic control_bus_error_sticky;
     logic calibration_rejected_sticky;
+    logic snapshot_capture_timeout_sticky;
     logic [31:0] captured_read_data;
     integer i2s_clear_pulse_count;
     integer transport_clear_pulse_count;
@@ -59,7 +60,8 @@ module phono_i2s_control_top_tb;
         .CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS(320),
         .CLOCK_MONITOR_EXPECTED_BCLK_EDGES(10),
         .CLOCK_MONITOR_EDGE_TOLERANCE(0),
-        .CLOCK_MONITOR_LOCK_WINDOWS(3)
+        .CLOCK_MONITOR_LOCK_WINDOWS(3),
+        .DIAGNOSTIC_SNAPSHOT_TIMEOUT_CLOCKS(512)
     ) dut (.*);
 
     always_ff @(posedge i2s_bclk or negedge i2s_rst_n) begin
@@ -155,7 +157,9 @@ module phono_i2s_control_top_tb;
 
         // Snapshot the reset-muted state, then change a live input and prove
         // the retained word does not change until the second command.
+        wait (dut.diagnostic_capture_available);
         bus_write(8'h04, 32'h0000_0003);
+        wait (control_snapshot_sequence == 1);
         bus_read(8'h23);
         if (!captured_read_data[30]) begin
             $error("snapshot did not capture muted status");
@@ -172,7 +176,9 @@ module phono_i2s_control_top_tb;
             $error("live force mute tore retained snapshot");
             errors = errors + 1;
         end
+        wait (dut.diagnostic_capture_available);
         bus_write(8'h04, 32'h0000_0003);
+        wait (control_snapshot_sequence == 2);
         bus_read(8'h20);
         if (!captured_read_data[18] || control_snapshot_sequence != 2) begin
             $error("second snapshot did not capture force mute");
@@ -221,21 +227,33 @@ module phono_i2s_control_top_tb;
             $error("stopped BCLK did not assert retained force mute");
             errors = errors + 1;
         end
+        wait (dut.diagnostic_capture_available);
+        bus_write(8'h04, 32'h0000_0002);
+        wait (snapshot_capture_timeout_sticky);
+        #1;
+        if (control_snapshot_sequence != 2) begin
+            $error("stopped-BCLK snapshot advanced without a coherent image");
+            errors = errors + 1;
+        end
         bclk_running = 1'b1;
         wait (audio_clock_rate_locked);
+        wait (dut.diagnostic_capture_available);
         #1;
         if (!audio_clock_rate_error_sticky || !rate_fault_mute_active
             || !dut.effective_force_mute) begin
             $error("rate recovery improperly bypassed retained fault");
             errors = errors + 1;
         end
+        wait (dut.diagnostic_capture_available);
         bus_write(8'h04, 32'h0000_0002);
+        wait (control_snapshot_sequence == 3);
         bus_read(8'h20);
-        if (!captured_read_data[1] || !captured_read_data[9]) begin
+        if (!captured_read_data[1] || !captured_read_data[9]
+            || !captured_read_data[10]) begin
             $error("rate-fault snapshot evidence missing");
             errors = errors + 1;
         end
-        bus_write(8'h04, 32'h0000_0004);
+        bus_write(8'h04, 32'h0000_000c);
         repeat (8) @(posedge i2s_bclk);
         #1;
         if (audio_clock_rate_error_sticky || rate_fault_mute_active
@@ -243,6 +261,14 @@ module phono_i2s_control_top_tb;
             || i2s_clear_pulse_count != 2
             || transport_clear_pulse_count != 2) begin
             $error("qualified rate-fault clear did not release output");
+            errors = errors + 1;
+        end
+        bus_read(8'h35);
+        if (captured_read_data[15:0] != dut.i2s_diagnostic_snapshot
+            || snapshot_capture_timeout_sticky) begin
+            $error("I2S snapshot register=%04x CDC=%04x timeout=%0b",
+                   captured_read_data[15:0], dut.i2s_diagnostic_snapshot,
+                   snapshot_capture_timeout_sticky);
             errors = errors + 1;
         end
         if (errors != 0)

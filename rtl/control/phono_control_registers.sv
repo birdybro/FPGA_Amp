@@ -6,7 +6,8 @@
 // are copied together only on an explicit snapshot command; reads never sample
 // a moving counter directly.
 module phono_control_registers #(
-    parameter int unsigned DIAGNOSTIC_WORD_COUNT = 16
+    parameter int unsigned DIAGNOSTIC_WORD_COUNT = 16,
+    parameter int unsigned SNAPSHOT_TIMEOUT_CLOCKS = 131072
 ) (
     input  logic                 clk,
     input  logic                 rst_n,
@@ -20,6 +21,9 @@ module phono_control_registers #(
     output logic                 response_error,
 
     input  logic [DIAGNOSTIC_WORD_COUNT*32-1:0] diagnostic_words_flat,
+    input  logic                 diagnostic_capture_available,
+    output logic                 diagnostic_capture_request,
+    input  logic                 diagnostic_capture_valid,
     input  logic                 output_muted,
     input  logic                 output_ramping,
 
@@ -38,7 +42,8 @@ module phono_control_registers #(
     output logic [31:0]          calibration_commit_sequence,
     output logic [31:0]          calibration_accepted_sequence,
     output logic                 bus_error_sticky,
-    output logic                 calibration_rejected_sticky
+    output logic                 calibration_rejected_sticky,
+    output logic                 snapshot_capture_timeout_sticky
 );
 
     localparam logic [7:0] ADDRESS_IDENTITY = 8'h00;
@@ -60,6 +65,14 @@ module phono_control_registers #(
         (DIAGNOSTIC_WORD_COUNT <= 2) ? 1 : $clog2(DIAGNOSTIC_WORD_COUNT);
     localparam logic [5:0] DIAGNOSTIC_WORD_COUNT_6 =
         DIAGNOSTIC_WORD_COUNT[5:0];
+    localparam int unsigned SNAPSHOT_TIMEOUT_COUNTER_WIDTH =
+        (SNAPSHOT_TIMEOUT_CLOCKS <= 2)
+            ? 1 : $clog2(SNAPSHOT_TIMEOUT_CLOCKS);
+
+    initial begin
+        if (SNAPSHOT_TIMEOUT_CLOCKS < 2)
+            $error("SNAPSHOT_TIMEOUT_CLOCKS must be at least two");
+    end
 
     logic [31:0] diagnostic_snapshot [0:DIAGNOSTIC_WORD_COUNT-1];
     logic [DIAGNOSTIC_INDEX_WIDTH-1:0] diagnostic_read_index;
@@ -67,6 +80,8 @@ module phono_control_registers #(
     logic [31:0] pending_calibration_sequence;
     logic calibration_busy;
     logic snapshot_valid;
+    logic snapshot_busy;
+    logic [SNAPSHOT_TIMEOUT_COUNTER_WIDTH-1:0] snapshot_timeout_counter;
     integer diagnostic_index;
 
     always_comb begin
@@ -91,6 +106,8 @@ module phono_control_registers #(
             status_word[2] = output_ramping;
             status_word[3] = calibration_busy;
             status_word[4] = snapshot_valid;
+            status_word[5] = snapshot_busy;
+            status_word[6] = diagnostic_capture_available;
         end
     endfunction
 
@@ -101,6 +118,7 @@ module phono_control_registers #(
             sticky_status_word[1] = calibration_rejected_sticky;
             sticky_status_word[2] = calibration_invalid_update_sticky;
             sticky_status_word[3] = calibration_unsafe_update_sticky;
+            sticky_status_word[4] = snapshot_capture_timeout_sticky;
         end
     endfunction
 
@@ -111,6 +129,7 @@ module phono_control_registers #(
             response_error <= 1'b0;
             mute_request <= 1'b1;
             fabric_clear_diagnostics <= 1'b0;
+            diagnostic_capture_request <= 1'b0;
             calibration_candidate_input_peak_q24 <= '0;
             calibration_candidate_output_reciprocal_q24 <= '0;
             calibration_update_valid <= 1'b0;
@@ -121,8 +140,11 @@ module phono_control_registers #(
             calibration_result_delay <= '0;
             calibration_busy <= 1'b0;
             snapshot_valid <= 1'b0;
+            snapshot_busy <= 1'b0;
+            snapshot_timeout_counter <= '0;
             bus_error_sticky <= 1'b0;
             calibration_rejected_sticky <= 1'b0;
+            snapshot_capture_timeout_sticky <= 1'b0;
             for (diagnostic_index = 0;
                  diagnostic_index < DIAGNOSTIC_WORD_COUNT;
                  diagnostic_index = diagnostic_index + 1) begin
@@ -133,7 +155,32 @@ module phono_control_registers #(
             response_read_data <= '0;
             response_error <= 1'b0;
             fabric_clear_diagnostics <= 1'b0;
+            diagnostic_capture_request <= 1'b0;
             calibration_update_valid <= 1'b0;
+
+            if (diagnostic_capture_valid && snapshot_busy) begin
+                for (diagnostic_index = 0;
+                     diagnostic_index < DIAGNOSTIC_WORD_COUNT;
+                     diagnostic_index = diagnostic_index + 1) begin
+                    diagnostic_snapshot[diagnostic_index] <=
+                        diagnostic_words_flat[diagnostic_index*32 +: 32];
+                end
+                snapshot_sequence <= increment_saturating(snapshot_sequence);
+                snapshot_valid <= 1'b1;
+                snapshot_busy <= 1'b0;
+                snapshot_timeout_counter <= '0;
+            end else if (snapshot_busy) begin
+                if (snapshot_timeout_counter
+                    == SNAPSHOT_TIMEOUT_COUNTER_WIDTH'(
+                        SNAPSHOT_TIMEOUT_CLOCKS - 1
+                    )) begin
+                    snapshot_busy <= 1'b0;
+                    snapshot_timeout_counter <= '0;
+                    snapshot_capture_timeout_sticky <= 1'b1;
+                end else begin
+                    snapshot_timeout_counter <= snapshot_timeout_counter + 1'b1;
+                end
+            end
 
             // The guard samples update_valid on the first following edge and
             // produces update_ack on that edge. Waiting two control clocks lets
@@ -156,24 +203,22 @@ module phono_control_registers #(
                         ADDRESS_CONTROL: begin
                             mute_request <= request_write_data[0];
                             if (request_write_data[1]) begin
-                                for (diagnostic_index = 0;
-                                     diagnostic_index < DIAGNOSTIC_WORD_COUNT;
-                                     diagnostic_index = diagnostic_index + 1) begin
-                                    diagnostic_snapshot[diagnostic_index] <=
-                                        diagnostic_words_flat[
-                                            diagnostic_index*32 +: 32
-                                        ];
+                                if (snapshot_busy
+                                    || !diagnostic_capture_available) begin
+                                    response_error <= 1'b1;
+                                    bus_error_sticky <= 1'b1;
+                                end else begin
+                                    diagnostic_capture_request <= 1'b1;
+                                    snapshot_busy <= 1'b1;
+                                    snapshot_timeout_counter <= '0;
                                 end
-                                snapshot_sequence <= increment_saturating(
-                                    snapshot_sequence
-                                );
-                                snapshot_valid <= 1'b1;
                             end
                             if (request_write_data[2])
                                 fabric_clear_diagnostics <= 1'b1;
                             if (request_write_data[3]) begin
                                 bus_error_sticky <= 1'b0;
                                 calibration_rejected_sticky <= 1'b0;
+                                snapshot_capture_timeout_sticky <= 1'b0;
                             end
                         end
                         ADDRESS_CALIBRATION_SHADOW_INPUT: begin
@@ -229,7 +274,7 @@ module phono_control_registers #(
                         ADDRESS_IDENTITY:
                             response_read_data <= 32'h4650_4741;
                         ADDRESS_ABI_VERSION:
-                            response_read_data <= 32'h0001_0000;
+                            response_read_data <= 32'h0001_0001;
                         ADDRESS_CAPABILITIES:
                             response_read_data <= 32'h0000_000f;
                         ADDRESS_STATUS:

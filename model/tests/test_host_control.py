@@ -35,6 +35,7 @@ class FakeRegisterLink:
         self.requests: list[bytes] = []
         self.error_addresses: set[int] = set()
         self.reject_calibration = False
+        self.ignore_snapshot = False
 
     def __call__(self, transmitted: bytes) -> bytes:
         self.requests.append(transmitted)
@@ -46,7 +47,11 @@ class FakeRegisterLink:
         response_data = 0
         if status == 0 and write:
             self.registers[address] = data
-            if address == int(Register.CONTROL) and data & 0x2:
+            if (
+                address == int(Register.CONTROL)
+                and data & 0x2
+                and not self.ignore_snapshot
+            ):
                 self.registers[int(Register.SNAPSHOT_SEQUENCE)] += 1
             if address == int(Register.CALIBRATION_COMMAND):
                 attempted = self.registers[int(Register.CALIBRATION_ATTEMPTED)] + 1
@@ -90,11 +95,22 @@ class HostControlTests(unittest.TestCase):
         link = FakeRegisterLink()
         client = SpiControlClient(link)
         self.assertEqual(client.snapshot(muted=True), 1)
-        self.assertEqual(link.requests[-2][:5], bytes.fromhex("84 00 00 00 03"))
+        self.assertEqual(link.requests[-3][:5], bytes.fromhex("84 00 00 00 03"))
         client.clear_diagnostics(muted=False, clear_local_stickies=True)
         self.assertEqual(link.requests[-1][:5], bytes.fromhex("84 00 00 00 0c"))
         with self.assertRaises(ValueError):
-            client.read_diagnostic_word(21)
+            client.read_diagnostic_word(22)
+
+        link.ignore_snapshot = True
+        link.registers[int(Register.STICKY_STATUS)] = 1 << 4
+        with self.assertRaisesRegex(ControlProtocolError, "timed out"):
+            client.snapshot(muted=False)
+        link.registers[int(Register.STICKY_STATUS)] = 0
+        link.registers[int(Register.STATUS)] = 1 << 5
+        with self.assertRaisesRegex(ControlProtocolError, "remained busy"):
+            client.snapshot(muted=False, poll_limit=2)
+        with self.assertRaises(ValueError):
+            client.snapshot(muted=False, poll_limit=0)
 
     def test_calibration_commit_is_guarded_and_sequence_checked(self) -> None:
         link = FakeRegisterLink()

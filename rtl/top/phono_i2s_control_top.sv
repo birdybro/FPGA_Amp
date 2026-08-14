@@ -10,7 +10,8 @@ module phono_i2s_control_top #(
     parameter int unsigned CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS = 32768,
     parameter int unsigned CLOCK_MONITOR_EXPECTED_BCLK_EDGES = 1024,
     parameter int unsigned CLOCK_MONITOR_EDGE_TOLERANCE = 1,
-    parameter int unsigned CLOCK_MONITOR_LOCK_WINDOWS = 3
+    parameter int unsigned CLOCK_MONITOR_LOCK_WINDOWS = 3,
+    parameter int unsigned DIAGNOSTIC_SNAPSHOT_TIMEOUT_CLOCKS = 131072
 ) (
     input  logic                 i2s_bclk,
     input  logic                 i2s_rst_n,
@@ -45,10 +46,11 @@ module phono_i2s_control_top #(
     output logic [31:0]          calibration_commit_sequence,
     output logic [31:0]          calibration_accepted_sequence,
     output logic                 control_bus_error_sticky,
-    output logic                 calibration_rejected_sticky
+    output logic                 calibration_rejected_sticky,
+    output logic                 snapshot_capture_timeout_sticky
 );
 
-    localparam int unsigned DIAGNOSTIC_WORD_COUNT = 21;
+    localparam int unsigned DIAGNOSTIC_WORD_COUNT = 22;
 
     logic i2s_clear_diagnostics;
     logic fabric_clear_diagnostics;
@@ -62,6 +64,11 @@ module phono_i2s_control_top #(
     logic signed [31:0] calibration_active_input_peak_q24;
     logic signed [31:0] calibration_active_output_reciprocal_q24;
     logic [DIAGNOSTIC_WORD_COUNT*32-1:0] diagnostic_words_flat;
+    logic diagnostic_capture_available;
+    logic diagnostic_capture_request;
+    logic diagnostic_capture_valid;
+    logic [15:0] i2s_diagnostic_live;
+    logic [15:0] i2s_diagnostic_snapshot;
 
     logic [15:0] output_gain_q16;
     logic rx_frame_error_sticky;
@@ -146,6 +153,27 @@ module phono_i2s_control_top #(
         .destination_pulse(i2s_clear_diagnostics)
     );
 
+    assign i2s_diagnostic_live = {
+        tx_fifo_i2s_high_water,
+        tx_fifo_i2s_level,
+        rx_fifo_i2s_high_water,
+        rx_fifo_i2s_level
+    };
+
+    cdc_word_snapshot #(
+        .WIDTH(16)
+    ) i2s_diagnostic_capture (
+        .source_clk(fabric_clk),
+        .source_rst_n(fabric_rst_n),
+        .source_request(diagnostic_capture_request),
+        .source_available(diagnostic_capture_available),
+        .source_snapshot_valid(diagnostic_capture_valid),
+        .source_snapshot_data(i2s_diagnostic_snapshot),
+        .destination_clk(i2s_bclk),
+        .destination_rst_n(i2s_rst_n),
+        .destination_live_data(i2s_diagnostic_live)
+    );
+
     assign transport_clear_diagnostics = fabric_clear_diagnostics;
 
     always_comb begin
@@ -165,6 +193,8 @@ module phono_i2s_control_top #(
         diagnostic_words_flat[0*32 + 8] =
             output_configuration_error_sticky;
         diagnostic_words_flat[0*32 + 9] = rate_fault_mute_active;
+        diagnostic_words_flat[0*32 + 10] =
+            snapshot_capture_timeout_sticky;
         diagnostic_words_flat[0*32 + 12 +: 4] = i2s_sticky_sync;
         diagnostic_words_flat[0*32 + 16] = rx_fifo_underflow_sticky;
         diagnostic_words_flat[0*32 + 17] = tx_fifo_overflow_sticky;
@@ -223,10 +253,12 @@ module phono_i2s_control_top #(
             solver_last_residual_q44[62:32];
         diagnostic_words_flat[20*32 +: 32] =
             transport_completed_frame_count;
+        diagnostic_words_flat[21*32 +: 16] = i2s_diagnostic_snapshot;
     end
 
     phono_control_registers #(
-        .DIAGNOSTIC_WORD_COUNT(DIAGNOSTIC_WORD_COUNT)
+        .DIAGNOSTIC_WORD_COUNT(DIAGNOSTIC_WORD_COUNT),
+        .SNAPSHOT_TIMEOUT_CLOCKS(DIAGNOSTIC_SNAPSHOT_TIMEOUT_CLOCKS)
     ) control_registers (
         .clk(fabric_clk),
         .rst_n(fabric_rst_n),
@@ -238,6 +270,9 @@ module phono_i2s_control_top #(
         .response_read_data(control_response_read_data),
         .response_error(control_response_error),
         .diagnostic_words_flat,
+        .diagnostic_capture_available,
+        .diagnostic_capture_request,
+        .diagnostic_capture_valid,
         .output_muted,
         .output_ramping,
         .mute_request,
@@ -254,7 +289,8 @@ module phono_i2s_control_top #(
         .calibration_commit_sequence,
         .calibration_accepted_sequence,
         .bus_error_sticky(control_bus_error_sticky),
-        .calibration_rejected_sticky
+        .calibration_rejected_sticky,
+        .snapshot_capture_timeout_sticky
     );
 
     phono_i2s_mono_top #(

@@ -25,6 +25,9 @@ module spi_control_transport_tb;
     logic response_underflow_sticky;
     logic [31:0] completed_frame_count;
     logic [31:0] diagnostic_words_flat = '0;
+    logic diagnostic_capture_available = 1'b1;
+    logic diagnostic_capture_request;
+    logic diagnostic_capture_valid;
     logic output_muted = 1'b1;
     logic output_ramping = 1'b0;
     logic mute_request;
@@ -42,6 +45,7 @@ module spi_control_transport_tb;
     logic [31:0] calibration_accepted_sequence;
     logic bus_error_sticky;
     logic calibration_rejected_sticky;
+    logic snapshot_capture_timeout_sticky;
     logic hold_response = 1'b0;
     logic [39:0] response_frame;
     integer errors = 0;
@@ -72,6 +76,9 @@ module spi_control_transport_tb;
         .response_read_data(register_response_read_data),
         .response_error(register_response_error),
         .diagnostic_words_flat,
+        .diagnostic_capture_available,
+        .diagnostic_capture_request,
+        .diagnostic_capture_valid,
         .output_muted,
         .output_ramping,
         .mute_request,
@@ -88,8 +95,16 @@ module spi_control_transport_tb;
         .calibration_commit_sequence,
         .calibration_accepted_sequence,
         .bus_error_sticky,
-        .calibration_rejected_sticky
+        .calibration_rejected_sticky,
+        .snapshot_capture_timeout_sticky
     );
+
+    always_ff @(posedge fabric_clk or negedge fabric_rst_n) begin
+        if (!fabric_rst_n)
+            diagnostic_capture_valid <= 1'b0;
+        else
+            diagnostic_capture_valid <= diagnostic_capture_request;
+    end
 
     calibration_commit_guard calibration_guard (
         .clk(fabric_clk),
@@ -214,7 +229,8 @@ module spi_control_transport_tb;
             || snapshot_sequence != 0
             || calibration_commit_sequence != 1
             || calibration_accepted_sequence != 1
-            || !bus_error_sticky || calibration_rejected_sticky) begin
+            || !bus_error_sticky || calibration_rejected_sticky
+            || snapshot_capture_timeout_sticky) begin
             $error("transport diagnostics/count mismatch frames=%0d",
                    completed_frame_count);
             errors = errors + 1;

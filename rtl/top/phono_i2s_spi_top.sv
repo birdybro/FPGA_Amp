@@ -9,7 +9,8 @@ module phono_i2s_spi_top #(
     parameter int unsigned CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS = 32768,
     parameter int unsigned CLOCK_MONITOR_EXPECTED_BCLK_EDGES = 1024,
     parameter int unsigned CLOCK_MONITOR_EDGE_TOLERANCE = 1,
-    parameter int unsigned CLOCK_MONITOR_LOCK_WINDOWS = 3
+    parameter int unsigned CLOCK_MONITOR_LOCK_WINDOWS = 3,
+    parameter int unsigned DIAGNOSTIC_SNAPSHOT_TIMEOUT_CLOCKS = 131072
 ) (
     input  logic                 i2s_bclk,
     input  logic                 i2s_rst_n,
@@ -37,7 +38,8 @@ module phono_i2s_spi_top #(
     output logic                 spi_response_underflow_sticky,
     output logic [31:0]          spi_completed_frame_count,
     output logic                 control_bus_error_sticky,
-    output logic                 calibration_rejected_sticky
+    output logic                 calibration_rejected_sticky,
+    output logic                 snapshot_capture_timeout_sticky
 );
 
     logic control_request_valid;
@@ -84,7 +86,10 @@ module phono_i2s_spi_top #(
         .CLOCK_MONITOR_EDGE_TOLERANCE(
             CLOCK_MONITOR_EDGE_TOLERANCE
         ),
-        .CLOCK_MONITOR_LOCK_WINDOWS(CLOCK_MONITOR_LOCK_WINDOWS)
+        .CLOCK_MONITOR_LOCK_WINDOWS(CLOCK_MONITOR_LOCK_WINDOWS),
+        .DIAGNOSTIC_SNAPSHOT_TIMEOUT_CLOCKS(
+            DIAGNOSTIC_SNAPSHOT_TIMEOUT_CLOCKS
+        )
     ) controlled_audio (
         .i2s_bclk,
         .i2s_rst_n,
@@ -118,7 +123,8 @@ module phono_i2s_spi_top #(
         .calibration_commit_sequence(unused_register_sequences[63:32]),
         .calibration_accepted_sequence(unused_register_sequences[95:64]),
         .control_bus_error_sticky,
-        .calibration_rejected_sticky
+        .calibration_rejected_sticky,
+        .snapshot_capture_timeout_sticky
     );
 
 endmodule

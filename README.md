@@ -120,8 +120,9 @@ The mono reference and complete 768 kHz circuit solver are operating:
 - A reusable 16-bit held-bus CDC snapshot now uses a four-phase handshake, two
   data synchronizer stages, and a final settling clock. Three warning-free
   captures survive unrelated clocks and a destination reset during a request;
-  generic synthesis is 5 LC / 75 FF with no warnings. Register-bank integration
-  is the next step before raw I²S occupancy values can be claimed coherent.
+  generic synthesis is 5 LC / 75 FF with no warnings. The register bank now
+  waits for this capture before advancing its snapshot sequence and packs all
+  four I²S-domain FIFO level/high-water nibbles at `0x35`.
 - Standalone converter calibration now maps PCM24 to physical input Q8.24 volts
   and physical output volts back to saturating PCM24 with explicit positive
   Q8.24 coefficients, full-width products, symmetric rounding, endpoint/clip
@@ -263,17 +264,19 @@ The mono reference and complete 768 kHz circuit solver are operating:
 - A protocol-neutral fabric register bank now resets muted, atomically commits
   the two converter-calibration shadows, and freezes 16 diagnostic words behind
   a saturating snapshot sequence. Directed RTL covers accepted/invalid/unsafe
-  commits, busy writes, clears, and malformed addresses; structural synthesis is
-  323 LC / 715 FF / no DSP or block RAM. The wrapper below supplies pin
+  commits, busy writes, clears, and malformed addresses. With delayed coherent
+  capture and timeout, current structural synthesis is
+  354 LC / 735 FF / no DSP or block RAM. The wrapper below supplies pin
   integration; a host protocol is supplied by the SPI composition below.
-- A register-controlled pin wrapper now owns calibration and mute, freezes 21
+- A register-controlled pin wrapper now owns calibration and mute, freezes 22
   fabric-coherent status words, synchronizes sticky I²S faults, and transfers
   diagnostic clear once across the unrelated BCLK domain. Integration is
   warning-free. It also fails closed through BCLK qualification and after a
   retained rate error without changing reference-circuit state. Structural
-  synthesis is 21,375 LC / 17,787 FF / 232 DSP48E1 /
-  8 RAMB18E1 + 1 RAMB36E1. Raw multibit I²S levels and
-  named-part timing are not claimed.
+  synthesis is 21,466 LC / 17,922 FF / 232 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1. The current 22-word image adds a coherent held-bus
+  I²S occupancy capture; stopped BCLK times out explicitly without advancing
+  the retained-image sequence. Named-part timing is not claimed.
 - A mode-0 SPI bridge now oversamples CS/SCLK/MOSI in the fabric domain and
   executes fixed 80-bit request/response frames on that register bus. Eight
   warning-free 5 MHz transactions cover real calibration, readback, malformed
@@ -282,11 +285,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   passes 15 SPI frames through the pin-facing hierarchy, including untorn
   force-mute snapshots, snapshotted transport count, calibration ownership,
   a retained short-frame fault, and one I²S-domain clear event. Flattened
-  synthesis is 21,507 LC / 17,959 FF /
+  synthesis is 21,589 LC / 18,094 FF /
   232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; placed SCLK/CDC/I/O limits remain open.
 - A dependency-free Python host client defines the same ten-byte full-duplex
   wire frame, register/capability constants, status validation, explicit-mute
-  snapshot/clear commands, and guarded calibration commit sequencing. Six unit
+  snapshot/clear commands, snapshot completion polling, and guarded calibration
+  commit sequencing. Six unit
   tests cover exact bytes and failure behavior through a fake transport; a
   physical `spidev`/USB/embedded backend remains board-specific and unvalidated.
 - A captured complete-stream sweep at 100 Hz, 1 kHz, 10 kHz, and 20 kHz proves

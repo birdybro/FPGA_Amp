@@ -29,12 +29,23 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample margin require Vivado place-and-route before hardware selection.
 ## Completed this milestone
 
+- [x] Integrate coherent I²S-domain FIFO diagnostics into the atomic register
+  snapshot. Delay image/sequence commit until the held-bus CDC returns, expose
+  busy/available status, pack RX/TX level and high-water nibbles at `0x35`, and
+  make a 131,072-clock timeout retain the old image/sequence with sticky
+  evidence. Prove normal capture, busy rejection, stopped-BCLK timeout,
+  recovery/re-arm, timeout snapshot, and explicit clear; update the host client
+  to poll completion and reject stale sequence results. Bump the compatible ABI
+  minor to 1.1. Current structural synthesis is 354 LC / 735 FF for the register
+  bank, 21,466 LC / 17,922 FF for the controlled hierarchy, and 21,589 LC /
+  18,094 FF with SPI; the complete variants retain 232 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1 and zero structural-check problems.
 - [x] Implement the held-bus CDC primitive needed for coherent I²S-domain
   occupancy snapshots. Use a four-phase request/acknowledge protocol, hold all
   16 bits through two synchronizer stages plus a settling clock, re-arm safely,
   and survive destination reset during an active request. Prove three exact
-  captures warning-free and synthesize to 5 LC / 75 FF / no DSP or RAM. Register
-  transaction integration remains the next step.
+  captures warning-free and synthesize to 5 LC / 75 FF / no DSP or RAM. The
+  register transaction integration is recorded above.
 - [x] Define the host-side SPI/register ABI in dependency-free Python. Encode
   exact ten-byte full-duplex frames, validate identity/version/capabilities and
   response status, require explicit mute ownership for snapshot/clear commands,
@@ -48,8 +59,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   through clock reacquisition, snapshot the evidence, and release only after an
   explicit host clear reaches both fabric and I²S domains. Keep model scheduling
   active so startup qualification cannot overflow the receive FIFO. Updated
-  structural synthesis is 21,375 LC / 17,787 FF for the controlled hierarchy
-  and 21,507 LC / 17,959 FF with SPI, both retaining 232 DSP48E1 /
+  later structural synthesis is 21,466 LC / 17,922 FF for the controlled
+  hierarchy and 21,589 LC / 18,094 FF with SPI, both retaining 232 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1 and zero structural-check problems.
 - [x] Compose the SPI transport, fabric register bank, guarded calibration, and
   pin-facing I²S/model hierarchy. Prove 15 complete 5 MHz frames through the
@@ -476,9 +487,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   The modeled-output ramp and atomic converter-coefficient commit are now
   integrated, and the SPI-controlled pin wrapper supplies transport, shadow
   commit, and coherent fabric snapshots. A tested host codec/client now defines
-  framing and guarded operations; a physical adapter backend, CDC-safe multibit
-  I²S level snapshots, queued-frame/physical analog muting, and CDC/I/O timing
-  constraints remain absent;
+  framing and guarded operations; a physical adapter backend,
+  queued-frame/physical analog muting, and CDC/I/O timing constraints remain
+  absent;
   embedded assertions cannot be proven until a formal engine is available.
   The cubic and full-tube alias-family tests are captured from RTL; the latter
   is bounded below fixed rounding closure rather than inferred from the

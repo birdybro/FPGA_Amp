@@ -19,9 +19,9 @@ from typing import Protocol
 
 
 SPI_FRAME_BYTES = 10
-DIAGNOSTIC_WORD_COUNT = 21
+DIAGNOSTIC_WORD_COUNT = 22
 IDENTITY = 0x4650_4741
-ABI_VERSION = 0x0001_0000
+ABI_VERSION = 0x0001_0001
 
 
 class Register(IntEnum):
@@ -55,6 +55,16 @@ class LiveStatus(IntFlag):
     OUTPUT_RAMPING = 1 << 2
     CALIBRATION_BUSY = 1 << 3
     SNAPSHOT_VALID = 1 << 4
+    SNAPSHOT_BUSY = 1 << 5
+    SNAPSHOT_CAPTURE_AVAILABLE = 1 << 6
+
+
+class StickyStatus(IntFlag):
+    BUS_ERROR = 1 << 0
+    CALIBRATION_REJECTED = 1 << 1
+    CALIBRATION_INVALID = 1 << 2
+    CALIBRATION_UNSAFE = 1 << 3
+    SNAPSHOT_TIMEOUT = 1 << 4
 
 
 class ControlCommand(IntFlag):
@@ -170,18 +180,36 @@ class SpiControlClient:
             int(ControlCommand.MUTE_REQUEST) if muted else 0,
         )
 
-    def snapshot(self, muted: bool) -> int:
+    def snapshot(self, muted: bool, poll_limit: int = 8) -> int:
         """Capture and return a new diagnostic-snapshot sequence number.
 
         The mute level is explicit because every CONTROL write also owns bit 0;
         no host-side cached state can silently change it.
         """
 
+        if poll_limit < 1:
+            raise ValueError("poll_limit must be positive")
+        previous_sequence = self.read(Register.SNAPSHOT_SEQUENCE)
         command = ControlCommand.SNAPSHOT
         if muted:
             command |= ControlCommand.MUTE_REQUEST
         self.write(Register.CONTROL, int(command))
-        return self.read(Register.SNAPSHOT_SEQUENCE)
+        for _ in range(poll_limit):
+            status = LiveStatus(self.read(Register.STATUS))
+            if not status & LiveStatus.SNAPSHOT_BUSY:
+                break
+        else:
+            raise ControlProtocolError("diagnostic snapshot remained busy")
+        completed_sequence = self.read(Register.SNAPSHOT_SEQUENCE)
+        expected_sequence = min(previous_sequence + 1, 0xFFFF_FFFF)
+        if completed_sequence != expected_sequence:
+            sticky = StickyStatus(self.read(Register.STICKY_STATUS))
+            if sticky & StickyStatus.SNAPSHOT_TIMEOUT:
+                raise ControlProtocolError("diagnostic snapshot timed out")
+            raise ControlProtocolError(
+                "diagnostic snapshot completed without advancing its sequence"
+            )
+        return completed_sequence
 
     def clear_diagnostics(self, muted: bool, clear_local_stickies: bool = False) -> None:
         command = ControlCommand.CLEAR_DIAGNOSTICS
