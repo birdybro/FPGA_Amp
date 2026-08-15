@@ -685,6 +685,21 @@ router iteration 1, still had 45,484 overused wires, and was bounded during
 iteration 2. It is rejected as a physical implementation, not reported as a
 failed legal route.
 
+`stream_384khz_49mhz_late_select_serial_max_pnr_harness` avoids that replicated
+state. On the one KCL pass where the convergence diagnostic is enabled, it
+releases the exact correction on the original edge, initializes a running
+maximum from residual row 0, and scans rows 1--8 over the following eight
+clocks. The residual registers remain stable while KCL holds `busy`, and the
+scan completes inside the ten-clock terminal chord operation, so solver
+latency remains 127 clocks. Both 1,024-vector KCL regressions and the complete
+stream are exact. Yosys measures 15,208 LC / 8,657 FF / 207 DSP / 10 RAMB18
+equivalents and open packing measures 54,699 LUTX / 8,657 FFX / 4,044 CARRY4 /
+207 DSP. Seed 1 routes legally in 14 iterations at 47.567 MHz. The 21.02 ns
+critical path contains 6.10 ns logic and 14.92 ns routing from a registered
+chord-corrected node through stage-one pin conversion and the factorized-tube
+input logic. Serializing the diagnostic is therefore a valid area/schedule
+improvement, but does not close timing by itself.
+
 The placement analyzer now recognizes complete-stream resampler hierarchy
 instead of folding it into harness constants. In the 38.34 MHz static result,
 the decimator accounts for 8,397 LUTX / 4,791 FFX / 12 DSP and spans 244x143

@@ -6,6 +6,18 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Replaced the final-pass-only combinational KCL maximum with an optional
+  low-state serial diagnostic. The correction result remains valid at the
+  original 11-clock KCL latency while one unsigned comparator scans the nine
+  stable residual rows and emits the exact maximum eight clocks later during
+  terminal chord processing. All 1,024 backward-Euler and 1,024 384 kHz
+  trapezoidal KCL vectors plus the complete 64-output/512-update stream remain
+  exact at 127 solver clocks. Combined with late pin selection, Yosys measures
+  15,208 LC / 8,657 FF / 207 DSP / 10 RAMB18 equivalents; the A200T pack falls
+  to 54,699 LUTX / 8,657 FFX / 4,044 CARRY4 / 207 DSP. A legal 14-iteration
+  route reaches 47.567 MHz, exposing a 21.02 ns chord-node-to-tube path instead
+  of the removed maximum tree. It is retained for its exact low-area schedule,
+  not promoted as timing closure.
 - Added a zero-latency late tube-pin selector guided by the completed baseline
   route. Current and corrected stage-one tube pins are converted independently,
   then only the exact 32-bit `Vgk`/`Vpk` buses are selected; the numerical

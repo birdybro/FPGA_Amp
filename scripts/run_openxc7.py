@@ -50,6 +50,7 @@ SUPPORTED_TOPS = (
     "stream_384khz_49mhz_retimed_pnr_harness",
     "stream_384khz_49mhz_late_select_pnr_harness",
     "stream_384khz_49mhz_late_select_retimed_pnr_harness",
+    "stream_384khz_49mhz_late_select_serial_max_pnr_harness",
 )
 RUN_TAG_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 

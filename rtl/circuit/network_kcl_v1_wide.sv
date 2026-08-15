@@ -36,6 +36,10 @@ module network_kcl_v1_wide #(
     // then complete the final-only diagnostic through a separate max_valid
     // sideband. The engine remains busy until that sideband is committed.
     parameter bit DECOUPLED_MAXIMUM = 1'b0,
+    // Scan the nine registered residual rows with one unsigned comparator
+    // during chord processing. This preserves the original correction-valid
+    // edge, needs only one maximum register, and completes in eight clocks.
+    parameter bit SERIAL_MAXIMUM = 1'b0,
     // Reuse the wide capacitor multiplier for branch 9 and branches 0--8.
     // Branch 9 is prefetched directly from the request buses on acceptance.
     parameter bit SHARED_CAPACITOR_MULTIPLIER = 1'b0
@@ -112,6 +116,8 @@ module network_kcl_v1_wide #(
             $error("unpipelined finish requires DECOUPLED_MAXIMUM");
         if (DECOUPLED_MAXIMUM && !PIPELINED_MAXIMUM)
             $error("DECOUPLED_MAXIMUM requires PIPELINED_MAXIMUM");
+        if (SERIAL_MAXIMUM && (PIPELINED_MAXIMUM || DECOUPLED_MAXIMUM))
+            $error("SERIAL_MAXIMUM is exclusive with pipelined maximum modes");
         $readmemh(MATRIX_FILE, matrix);
         $readmemh(CAP_G_FILE, capacitor_g);
     end
@@ -372,6 +378,9 @@ module network_kcl_v1_wide #(
     logic [62:0] maximum_final_staged;
     logic [62:0] maximum_row8_staged;
     logic [2:0] maximum_pipeline_stage;
+    logic serial_maximum_running;
+    logic [3:0] serial_maximum_row;
+    logic [62:0] serial_maximum_value;
 
     function automatic logic [62:0] maximum_u63(
         input logic [62:0] left,
@@ -687,6 +696,9 @@ module network_kcl_v1_wide #(
             maximum_final_staged <= '0;
             maximum_row8_staged <= '0;
             maximum_pipeline_stage <= '0;
+            serial_maximum_running <= 1'b0;
+            serial_maximum_row <= '0;
+            serial_maximum_value <= '0;
             for (lane = 0; lane < 4; lane = lane + 1)
                 maximum_pair_staged[lane] <= '0;
             for (lane = 0; lane < 2; lane = lane + 1)
@@ -734,6 +746,9 @@ module network_kcl_v1_wide #(
                     if (SHARED_CAPACITOR_MULTIPLIER)
                         cap9_product_staged <= cap_product;
                     maximum_pipeline_stage <= '0;
+                    serial_maximum_running <= 1'b0;
+                    serial_maximum_row <= '0;
+                    serial_maximum_value <= '0;
                     for (lane = 0; lane < 9; lane = lane + 1) begin
                         voltage_latched[lane] <= $signed(
                             voltage[lane * 40 +: 40]
@@ -913,6 +928,33 @@ module network_kcl_v1_wide #(
                         final_residual_latched[lane] <=
                             final_residual_input_by_row[lane];
                     finish_result_staged <= 1'b1;
+                end else if (SERIAL_MAXIMUM && serial_maximum_running) begin
+                    // final_residual_latched is stable until this diagnostic
+                    // releases busy. One row per clock avoids the nine-wide
+                    // absolute/comparator tree on the correction-valid path.
+                    if (absolute_q44(
+                        final_residual_latched[serial_maximum_row]
+                    ) > serial_maximum_value)
+                        serial_maximum_value <= absolute_q44(
+                            final_residual_latched[serial_maximum_row]
+                        );
+                    if (serial_maximum_row == 4'd8) begin
+                        max_abs_residual_q44 <= maximum_u63(
+                            serial_maximum_value,
+                            absolute_q44(final_residual_latched[8])
+                        );
+                        max_valid <= 1'b1;
+                        busy <= 1'b0;
+                        finish_pending <= 1'b0;
+                        finish_result_staged <= 1'b0;
+                        finish_conversion_staged <= 1'b0;
+                        finish_selection_staged <= 1'b0;
+                        current_ready <= 1'b0;
+                        serial_maximum_running <= 1'b0;
+                        serial_maximum_row <= '0;
+                    end else begin
+                        serial_maximum_row <= serial_maximum_row + 1'b1;
+                    end
                 end else if (PIPELINED_FINISH && finish_result_staged
                              && !finish_conversion_staged) begin
                     // First timing boundary: the three exact correction
@@ -1042,8 +1084,16 @@ module network_kcl_v1_wide #(
                             );
                         maximum_pipeline_stage <= 3'd4;
                         finish_selection_staged <= 1'b1;
+                    end else if (SERIAL_MAXIMUM
+                                 && diagnostic_max_latched) begin
+                        serial_maximum_value <= absolute_q44(
+                            final_residual_latched[0]
+                        );
+                        serial_maximum_row <= 4'd1;
+                        serial_maximum_running <= 1'b1;
                     end else if (!(PIPELINED_MAXIMUM && DECOUPLED_MAXIMUM
-                                   && !PIPELINED_FINISH)) begin
+                                   && !PIPELINED_FINISH)
+                                 && !SERIAL_MAXIMUM) begin
                         // The maximum output is don't-care when diagnostics are
                         // disabled. Avoid retaining the complete combinational
                         // tree in the sideband-only profile merely to update a
@@ -1063,7 +1113,8 @@ module network_kcl_v1_wide #(
                     valid <= 1'b1;
                     if (!(PIPELINED_MAXIMUM && DECOUPLED_MAXIMUM
                           && diagnostic_max_latched
-                          && !PIPELINED_FINISH)) begin
+                          && !PIPELINED_FINISH)
+                        && !(SERIAL_MAXIMUM && diagnostic_max_latched)) begin
                         busy <= 1'b0;
                         finish_pending <= 1'b0;
                         finish_result_staged <= 1'b0;

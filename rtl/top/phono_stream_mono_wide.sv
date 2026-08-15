@@ -28,7 +28,8 @@ module phono_stream_mono_wide #(
     parameter bit LATE_TUBE_INPUT_SELECT = 1'b0,
     // Keep correction latency unchanged while the final-only physical
     // residual maximum completes on its exact sideband during chord work.
-    parameter bit DECOUPLED_KCL_MAXIMUM_ONLY = 1'b0
+    parameter bit DECOUPLED_KCL_MAXIMUM_ONLY = 1'b0,
+    parameter bit SERIAL_KCL_MAXIMUM_ONLY = 1'b0
 ) (
     input  logic                 clk,
     input  logic                 rst_n,
@@ -118,6 +119,7 @@ module phono_stream_mono_wide #(
         .DECOUPLED_KCL_MAXIMUM(
             PIPELINED_SOLVER_PROFILE || DECOUPLED_KCL_MAXIMUM_ONLY
         ),
+        .SERIAL_KCL_MAXIMUM(SERIAL_KCL_MAXIMUM_ONLY),
         .PIPELINED_CHORD_APPLY(PIPELINED_SOLVER_PROFILE)
     ) solver (
         .clk,

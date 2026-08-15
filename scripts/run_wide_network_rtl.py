@@ -22,6 +22,7 @@ def main() -> int:
     parser.add_argument("--pipelined-capacitor-current", action="store_true")
     parser.add_argument("--pipelined-maximum", action="store_true")
     parser.add_argument("--decoupled-maximum", action="store_true")
+    parser.add_argument("--serial-maximum", action="store_true")
     parser.add_argument("--shared-capacitor-multiplier", action="store_true")
     args = parser.parse_args()
     if args.pipelined_accumulator and not args.pipelined_columns:
@@ -36,6 +37,10 @@ def main() -> int:
         )
     if args.decoupled_maximum and not args.pipelined_maximum:
         parser.error("--decoupled-maximum requires --pipelined-maximum")
+    if args.serial_maximum and (
+        args.pipelined_maximum or args.decoupled_maximum
+    ):
+        parser.error("--serial-maximum is exclusive with pipelined maximum modes")
     if args.shared_capacitor_multiplier and not args.pipelined_columns:
         parser.error(
             "--shared-capacitor-multiplier requires --pipelined-columns"
@@ -82,6 +87,8 @@ def main() -> int:
                 parameter_args.append("-GPIPELINED_MAXIMUM=1")
             if args.decoupled_maximum:
                 parameter_args.append("-GDECOUPLED_MAXIMUM=1")
+            if args.serial_maximum:
+                parameter_args.append("-GSERIAL_MAXIMUM=1")
             if args.shared_capacitor_multiplier:
                 parameter_args.append("-GSHARED_CAPACITOR_MULTIPLIER=1")
         subprocess.run(
@@ -110,6 +117,7 @@ def main() -> int:
             )
             + ("_pipelined_maximum" if args.pipelined_maximum else "")
             + ("_decoupled_maximum" if args.decoupled_maximum else "")
+            + ("_serial_maximum" if args.serial_maximum else "")
             + (
                 "_shared_capacitor_multiplier"
                 if args.shared_capacitor_multiplier

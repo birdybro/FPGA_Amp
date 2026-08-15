@@ -44,6 +44,11 @@ def main() -> int:
         help="pipeline only the final KCL maximum on its exact sideband",
     )
     parser.add_argument(
+        "--serial-kcl-maximum-only",
+        action="store_true",
+        help="scan the final KCL residual maximum during terminal chord work",
+    )
+    parser.add_argument(
         "--sample-rate-hz", type=int, choices=(384_000, 768_000), default=768_000
     )
     parser.add_argument(
@@ -72,6 +77,11 @@ def main() -> int:
     if args.prefetch_tube_inputs and args.late_tube_input_select:
         parser.error(
             "--prefetch-tube-inputs and --late-tube-input-select are mutually exclusive"
+        )
+    if args.serial_kcl_maximum_only and args.decoupled_kcl_maximum_only:
+        parser.error(
+            "--serial-kcl-maximum-only and --decoupled-kcl-maximum-only "
+            "are mutually exclusive"
         )
     if args.pipelined_solver_profile and not (
         args.sample_rate_hz == 384_000
@@ -183,6 +193,8 @@ def main() -> int:
         parameter_args.append("-GLATE_TUBE_INPUT_SELECT=1")
     if args.decoupled_kcl_maximum_only:
         parameter_args.append("-GDECOUPLED_KCL_MAXIMUM_ONLY=1")
+    if args.serial_kcl_maximum_only:
+        parameter_args.append("-GSERIAL_KCL_MAXIMUM_ONLY=1")
     build = ROOT / "build" / (
         "verilator_phono_stream_wide"
         + ("_trapezoidal" if args.trapezoidal else "")
@@ -198,6 +210,7 @@ def main() -> int:
             if args.decoupled_kcl_maximum_only
             else ""
         )
+        + ("_serial_kcl_maximum_only" if args.serial_kcl_maximum_only else "")
     )
     if not args.run_only:
         subprocess.run(

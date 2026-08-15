@@ -8,7 +8,8 @@ module stream_384khz_pnr_harness #(
     parameter bit PIPELINED_SOLVER_PROFILE = 1'b0,
     parameter bit PREFETCH_TUBE_INPUTS = 1'b0,
     parameter bit LATE_TUBE_INPUT_SELECT = 1'b0,
-    parameter bit DECOUPLED_KCL_MAXIMUM_ONLY = 1'b0
+    parameter bit DECOUPLED_KCL_MAXIMUM_ONLY = 1'b0,
+    parameter bit SERIAL_KCL_MAXIMUM_ONLY = 1'b0
 ) (
     input  logic fabric_clk,
     input  logic reset,
@@ -83,7 +84,8 @@ module stream_384khz_pnr_harness #(
         .PIPELINED_SOLVER_PROFILE(PIPELINED_SOLVER_PROFILE),
         .PREFETCH_TUBE_INPUTS(PREFETCH_TUBE_INPUTS),
         .LATE_TUBE_INPUT_SELECT(LATE_TUBE_INPUT_SELECT),
-        .DECOUPLED_KCL_MAXIMUM_ONLY(DECOUPLED_KCL_MAXIMUM_ONLY)
+        .DECOUPLED_KCL_MAXIMUM_ONLY(DECOUPLED_KCL_MAXIMUM_ONLY),
+        .SERIAL_KCL_MAXIMUM_ONLY(SERIAL_KCL_MAXIMUM_ONLY)
     ) stream (
             .clk(fabric_clk),
             .rst_n,
@@ -186,6 +188,20 @@ module stream_384khz_49mhz_late_select_retimed_pnr_harness (
         .FABRIC_CLOCKS_PER_48K_INPUT(1024),
         .LATE_TUBE_INPUT_SELECT(1'b1),
         .DECOUPLED_KCL_MAXIMUM_ONLY(1'b1)
+    ) candidate (.*);
+endmodule
+
+// Preferred low-state sideband candidate: one comparator scans the nine
+// final residual rows while the terminal chord correction is running.
+module stream_384khz_49mhz_late_select_serial_max_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+    stream_384khz_pnr_harness #(
+        .FABRIC_CLOCKS_PER_48K_INPUT(1024),
+        .LATE_TUBE_INPUT_SELECT(1'b1),
+        .SERIAL_KCL_MAXIMUM_ONLY(1'b1)
     ) candidate (.*);
 endmodule
 

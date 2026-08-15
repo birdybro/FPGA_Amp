@@ -49,6 +49,8 @@ module v1_solver_mono_wide #(
     // Launch the final correction before its pipelined maximum diagnostic;
     // the exact maximum completes through a separate sideband during chord.
     parameter bit DECOUPLED_KCL_MAXIMUM = 1'b0,
+    // Scan the final-pass residual diagnostic serially during chord work.
+    parameter bit SERIAL_KCL_MAXIMUM = 1'b0,
     // Prefetch branch 9 so all ten capacitor products share one multiplier.
     parameter bit SHARED_KCL_CAPACITOR_MULTIPLIER = 1'b0,
     // Split chord scaling, node update, and saturation across registers.
@@ -562,6 +564,7 @@ module v1_solver_mono_wide #(
         .PIPELINED_CAPACITOR_CURRENT(PIPELINED_KCL_CAPACITOR_CURRENT),
         .PIPELINED_MAXIMUM(PIPELINED_KCL_MAXIMUM),
         .DECOUPLED_MAXIMUM(DECOUPLED_KCL_MAXIMUM),
+        .SERIAL_MAXIMUM(SERIAL_KCL_MAXIMUM),
         .SHARED_CAPACITOR_MULTIPLIER(
             SHARED_KCL_CAPACITOR_MULTIPLIER
         )

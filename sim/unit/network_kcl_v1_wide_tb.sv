@@ -8,6 +8,7 @@ module network_kcl_v1_wide_tb #(
     parameter bit PIPELINED_CAPACITOR_CURRENT = 1'b0,
     parameter bit PIPELINED_MAXIMUM = 1'b0,
     parameter bit DECOUPLED_MAXIMUM = 1'b0,
+    parameter bit SERIAL_MAXIMUM = 1'b0,
     parameter bit SHARED_CAPACITOR_MULTIPLIER = 1'b0
 );
     logic clk;
@@ -39,6 +40,7 @@ module network_kcl_v1_wide_tb #(
         .PIPELINED_CAPACITOR_CURRENT(PIPELINED_CAPACITOR_CURRENT),
         .PIPELINED_MAXIMUM(PIPELINED_MAXIMUM),
         .DECOUPLED_MAXIMUM(DECOUPLED_MAXIMUM),
+        .SERIAL_MAXIMUM(SERIAL_MAXIMUM),
         .SHARED_CAPACITOR_MULTIPLIER(SHARED_CAPACITOR_MULTIPLIER)
     ) dut (
         .clk,
@@ -190,15 +192,16 @@ module network_kcl_v1_wide_tb #(
                        expected_saturation_count);
                 errors = errors + 1;
             end
-            if (DECOUPLED_MAXIMUM) begin
+            if (DECOUPLED_MAXIMUM || SERIAL_MAXIMUM) begin
                 for (integer max_wait = 0;
-                     max_wait < (PIPELINED_FINISH ? 2 : 4);
+                     max_wait < (SERIAL_MAXIMUM
+                                 ? 8 : (PIPELINED_FINISH ? 2 : 4));
                      max_wait = max_wait + 1) begin
                     @(posedge clk);
                     #1;
                 end
                 if (!max_valid || busy) begin
-                    $error("vector=%0d decoupled max valid/busy got=%0b/%0b",
+                    $error("vector=%0d sideband max valid/busy got=%0b/%0b",
                            vector_count, max_valid, busy);
                     errors = errors + 1;
                 end

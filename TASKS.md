@@ -28,11 +28,16 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   64-output/512-update stream exactly at 127 clocks and improves the best legal
   seed-1 route to 48.700 MHz, a remaining 0.92% miss; seed 2 routes at 45.051
   MHz and seed-3 routing was bounded after two unusually expensive iterations.
-  Its critical path is now the exact KCL residual-maximum diagnostic. Replace
-  that combinational nine-row maximum with a low-state, fixed-cycle sideband
-  that finishes inside terminal chord latency; do not replicate the prior
-  four-boundary implementation, whose 1,076 added registers made routing
-  pathological. A broad 123-clock parallel/pipelined profile remains exact but
+  Its critical path is now the exact KCL residual-maximum diagnostic. A new
+  low-state sideband scans the nine stable rows with one comparator in eight
+  clocks, matches 1,024 BE + 1,024 trapezoidal KCL vectors and the complete
+  stream, and cuts the pack to 54,699 LUTX / 8,657 FFX / 4,044 CARRY4 / 207
+  DSP. Its legal 14-iteration route reaches only 47.567 MHz because the
+  corrected-node-to-tube path becomes critical again. Next register the exact
+  one-cycle-early chord nodes, leaving pin conversion in the existing
+  preview-to-launch interval; do not replicate the prior four-boundary
+  implementation, whose 1,076 added registers made routing pathological. A
+  broad 123-clock parallel/pipelined profile remains exact but
   grows to 242 DSP / 66,658 packed LUTX and places at only 39.62 MHz, so do not
   promote it. Lower resource occupancy or nominal cycle margin alone is not
   timing closure.

@@ -103,8 +103,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   That is the best measured route but still misses 49.152 MHz by 0.92%; seed 2
   reaches only 45.051 MHz. Combining it with the register-heavy four-boundary
   maximum sideband was stopped after a pathological first routing iteration
-  and is not promoted. The timing result remains diagnostic, and 8× remains
-  unpromoted.
+  and is not promoted. A lower-state serial maximum instead scans the nine
+  stable residual rows during terminal chord work. It matches 2,048 KCL
+  vectors and the complete stream exactly, reduces the pack to 54,699 LUTX /
+  8,657 FFX / 4,044 CARRY4 / 207 DSP, and routes legally in 14 iterations, but
+  reaches only 47.567 MHz through the now-exposed chord-to-tube path. The
+  timing result remains diagnostic, and 8× remains unpromoted.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both

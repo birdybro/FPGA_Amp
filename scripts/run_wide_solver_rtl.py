@@ -33,6 +33,7 @@ def main() -> int:
     parser.add_argument("--pipelined-kcl-capacitor-current", action="store_true")
     parser.add_argument("--pipelined-kcl-maximum", action="store_true")
     parser.add_argument("--decoupled-kcl-maximum", action="store_true")
+    parser.add_argument("--serial-kcl-maximum", action="store_true")
     parser.add_argument("--shared-kcl-capacitor-multiplier", action="store_true")
     parser.add_argument("--pipelined-chord-apply", action="store_true")
     parser.add_argument("--half-parallel-terminal-current", action="store_true")
@@ -64,6 +65,12 @@ def main() -> int:
     if args.decoupled_kcl_maximum and not args.pipelined_kcl_maximum:
         parser.error(
             "--decoupled-kcl-maximum requires --pipelined-kcl-maximum"
+        )
+    if args.serial_kcl_maximum and (
+        args.pipelined_kcl_maximum or args.decoupled_kcl_maximum
+    ):
+        parser.error(
+            "--serial-kcl-maximum is exclusive with pipelined maximum modes"
         )
     if args.shared_kcl_capacitor_multiplier and not args.pipelined_kcl_columns:
         parser.error(
@@ -160,6 +167,8 @@ def main() -> int:
         parameter_args.append("-GPIPELINED_KCL_MAXIMUM=1")
     if args.decoupled_kcl_maximum:
         parameter_args.append("-GDECOUPLED_KCL_MAXIMUM=1")
+    if args.serial_kcl_maximum:
+        parameter_args.append("-GSERIAL_KCL_MAXIMUM=1")
     if args.shared_kcl_capacitor_multiplier:
         parameter_args.append("-GSHARED_KCL_CAPACITOR_MULTIPLIER=1")
     if args.pipelined_chord_apply:
@@ -208,6 +217,7 @@ def main() -> int:
         )
         + ("_pipelined_maximum" if args.pipelined_kcl_maximum else "")
         + ("_decoupled_maximum" if args.decoupled_kcl_maximum else "")
+        + ("_serial_maximum" if args.serial_kcl_maximum else "")
         + (
             "_shared_kcl_capacitor_multiplier"
             if args.shared_kcl_capacitor_multiplier
