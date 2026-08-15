@@ -15,6 +15,16 @@ access and finished-device compliance.
 
 ## Active, highest value first
 
+- [x] Implement the board-facing relay/XSMT sequence for the routed DAC PCB.
+  Normal release asserts `LINE_RELAY_EN_CTL`, waits 491,520 fabric clocks
+  (5 ms at 98.304 MHz), then asserts `DAC_SOFT_UNMUTE_CTL`; orderly mute drops
+  XSMT first, waits the same conservative interval, and then opens the relays.
+  Emergency mute drops both controller permissions on the next fabric edge,
+  while the PCB's independent `HARD_MUTE_N` remains the asynchronous veto.
+  Directed RTL covers release, orderly mute, release cancellation, and
+  emergency drop. Yosys reports 28 estimated XC7 logic cells / 22 flip-flops /
+  no DSP or BRAM / zero warnings. Physical relay/ramp/transient timing remains
+  a bench release gate.
 - [x] Integrate PCM5242 initialization, verification, and runtime health into
   one fail-low controller. The verifier cannot start before all 20 writes are
   ACKed; the first four-register runtime poll cannot start before all 24

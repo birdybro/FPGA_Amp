@@ -38,6 +38,16 @@ and an output-short indication after unmute. This permission should drive the
 controller side of both board interlocks. The external supervisor input retains
 independent veto authority and supplies the faster asynchronous safety path.
 
+The controller permission is then split by `dac_line_output_sequencer` into the
+two PCB inputs. Normal release asserts `LINE_RELAY_EN_CTL`, waits 491,520 clocks
+(5 ms at the 98.304 MHz fabric rate), and only then asserts
+`DAC_SOFT_UNMUTE_CTL`. Normal mute deasserts XSMT first, holds the relays closed
+for the same conservative ramp interval, and opens them last. An explicit
+emergency input deasserts both registered permissions on the next fabric edge;
+the PCB supervisor's direct `HARD_MUTE_N` path remains faster and independent.
+These digital intervals are starting values for bench measurement, not claims
+about acoustic transient performance or relay contact settling.
+
 The low-level pin top reports live BCLK/fabric rate lock after three good
 measurement windows and latches any bad window. The register-controlled wrapper
 now converts that evidence into a fail-closed digital output policy: it asserts

@@ -83,21 +83,24 @@ unconnected items. `verify.py` also locks the PCM5242 and interlock pad maps,
 mode straps, normally-open relay contacts, filter values, DNP chassis options,
 calculation consistency, board stack/outline, and minimum routing geometry.
 
-`rtl/io/pcm5242_dac_init.sv` now supplies the first write-only configuration
-bootstrap. Its bus-level regression checks all twenty `{0x98, register, data}`
-transactions and a fail-closed injected NACK. It explicitly selects external
-SCK, 24-bit I2S, unity/VREF operation, ROM interpolation program 1, and disables
-de-emphasis and zero-detect auto mute. Yosys reports 83 estimated XC7 logic
-cells, 86 flip-flops, no DSP/BRAM, and no warnings. The status is deliberately
-named `configuration_written`: readback and clock/power validation are still
-required before the separate XSMT/relay permissions may be raised.
+The matching open RTL now includes the 20-write configuration bootstrap,
+24-operation page-aware readback verifier, and periodic clock/error/short/power
+monitor. The integrated controller requires a 48-transaction success path
+before `unmute_permitted` and revokes it on a later fault. A separate
+`dac_line_output_sequencer` maps that permission to the actual board pins:
+`LINE_RELAY_EN_CTL` rises first, `DAC_SOFT_UNMUTE_CTL` follows after a default
+5 ms, and orderly mute reverses the order. Emergency mute drops both registered
+permissions on the next fabric edge; `HARD_MUTE_N` remains the independent
+asynchronous hardware veto. All bus/sequence tests and Yosys structural checks
+pass, but no populated-board timing or audio behavior is claimed.
 
 ## Release gates
 
 Do not order this as a production board until all of the following are closed:
 
-- PCM5242 critical-register readback and every mute transition are verified with
-  the external supervisor able to dominate a stuck controller;
+- PCM5242 control is integrated onto the selected FPGA pins and every physical
+  mute transition is verified with the external supervisor able to dominate a
+  stuck controller;
 - loaded THD+N, dynamic range, frequency response, channel balance, crosstalk,
   output impedance, DC, and clipping are measured on populated hardware;
 - power-up, shutdown, brownout, missing-clock, hot-plug, and harness-unplug

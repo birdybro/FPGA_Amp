@@ -187,9 +187,10 @@ digital post-regulators, normally-open signal relays, and two fail-low hardware
 AND interlocks. The controller and external supervisor must both release the
 relay path and PCM5242 XSMT independently. The routed 112 x 72 mm four-layer
 board passes KiCad 10.0.5 with zero ERC, DRC, and unconnected items. It remains
-an unbuilt EVT artifact: converter configuration/readback, audio performance,
-all mute/fault transitions, ESD/RF, connector/chassis mechanics, stackup, and
-DFM remain release gates.
+an unbuilt EVT artifact. The open RTL now provides exact configuration/readback,
+continuous status polling, and relay-first/XSMT-first controller sequencing;
+pin integration, audio performance, physical mute/fault transitions, ESD/RF,
+connector/chassis mechanics, stackup, and DFM remain release gates.
 
 ### 2.4 FP — front-panel board
 

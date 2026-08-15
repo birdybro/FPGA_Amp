@@ -6,6 +6,15 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added the board-facing DAC relay/XSMT sequencer. Normal release asserts the
+  relay permission, waits a default 491,520 clocks (5 ms at 98.304 MHz), then
+  asserts PCM5242 XSMT permission; orderly mute drops XSMT first and opens the
+  relays after the same conservative interval. Release cancellation avoids an
+  unnecessary mute delay before XSMT ever rises, while emergency mute drops
+  both registered permissions on the next fabric edge. The PCB's independent
+  `HARD_MUTE_N` remains the asynchronous veto. Directed simulation covers every
+  transition; Yosys reports 28 XC7 logic cells / 22 flip-flops / no DSP/BRAM or
+  warnings. Physical contact/ramp/transient timing is still unmeasured.
 - Added a periodic PCM5242 runtime monitor and integrated it after the 20-write
   initializer and 24-operation startup verifier. A first four-register sweep is
   now required before the fail-low `unmute_permitted` can rise; nominal 100 ms

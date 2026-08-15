@@ -101,6 +101,7 @@ def main() -> int:
             "pcm5242_dac_verify",
             "pcm5242_dac_runtime_monitor",
             "pcm5242_dac_startup_controller",
+            "dac_line_output_sequencer",
             "codec_shared_i2s_guard",
             "phono_audio_top_xc7",
             "solver_pnr_harness",
@@ -594,6 +595,9 @@ def main() -> int:
             "rtl/io/pcm5242_dac_verify.sv",
             "rtl/io/pcm5242_dac_runtime_monitor.sv",
             "rtl/io/pcm5242_dac_startup_controller.sv",
+        ],
+        "dac_line_output_sequencer": [
+            "rtl/io/dac_line_output_sequencer.sv",
         ],
         "codec_shared_i2s_guard": ["rtl/io/codec_shared_i2s_guard.sv"],
         "i2s_receiver": ["rtl/io/i2s_receiver.sv"],

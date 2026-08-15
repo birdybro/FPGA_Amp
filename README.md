@@ -945,6 +945,8 @@ make pcm5242-dac-runtime-rtl       # verify periodic clock/short/power monitor
 make synth-pcm5242-dac-runtime     # measure runtime monitor XC7 resources
 make pcm5242-dac-startup-rtl       # verify integrated startup/runtime gate
 make synth-pcm5242-dac-startup     # measure integrated startup XC7 resources
+make dac-line-sequencer-rtl        # verify relay-first/XSMT-first board order
+make synth-dac-line-sequencer      # measure output sequencer XC7 resources
 make codec-shared-i2s-guard-rtl    # verify shared LRCLK and startup zero gate
 make synth-nexys-phono-audio-xc7   # synthesize complete board wrapper
 make hermite-rtl                   # bit-exact iterative Hermite regression
@@ -1099,7 +1101,7 @@ PCM5242 external-clock slave, balanced and RCA reconstruction networks,
 separate low-noise analog/digital post-regulators, normally-open output relays,
 and dual hardware AND interlocks so an external supervisor dominates both DAC
 XSMT and relay permission. It remains an unbuilt EVT design; converter
-readback/status control, loaded audio measurements, fault/mute sequencing,
+control integration, loaded audio measurements, physical fault/mute sequencing,
 ESD/RF, production connector/chassis mechanics, stackup, and DFM are explicit
 release gates.
 
@@ -1133,6 +1135,15 @@ both startup failure phases, and a post-unmute short cannot leave permission
 asserted. The runtime monitor alone is 122 logic cells / 178 flip-flops; the
 integrated controller is 340 / 439, with no DSP/BRAM or warnings. Physical
 FPGA/PCB integration and measured fault/mute timing remain release gates.
+
+The final controller-side split matches the PCB rather than driving both gates
+at once. `dac_line_output_sequencer` closes the normally-open relays, waits a
+default 491,520 clocks (5 ms at 98.304 MHz), then releases XSMT. Orderly mute
+drops XSMT, waits for the soft ramp, and opens the relays; emergency mute drops
+both registered controller permissions on the next fabric edge. The independent
+`HARD_MUTE_N` path remains asynchronous hardware veto. Directed simulation
+covers all paths, and Yosys reports 28 logic cells / 22 flip-flops with no
+DSP/BRAM or warnings.
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
 path is further reducing terminal-solver approximation error without breaking
