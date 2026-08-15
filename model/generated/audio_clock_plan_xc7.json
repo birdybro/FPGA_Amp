@@ -1,7 +1,9 @@
 {
   "schema_version": 1,
   "source": "fpga/nexys_video/audio_clock_synth_xc7.sv",
-  "source_sha256": "669ca9d6a3ff5d008af41eca46bcf148e7189dd8c1aaaab645d869a6dd3b7788",
+  "source_sha256": "33e97b6d386a13fc598318e6e11d1f942615d06e5f191a9c92e75d6c54a43064",
+  "constraints": "fpga/nexys_video/audio_clock_synth_xc7.xdc",
+  "constraints_sha256": "ad37945ba3bfa665ba79653a12cf816738271197d0d2477eb92fa8ac891a061a",
   "family": "48-kHz audio",
   "codec_mclk_hz": 12288000,
   "fabric_clock_hz": 49152000,
@@ -30,6 +32,7 @@
     "rtl_parameters_match": true,
     "ratios_are_exact": true,
     "fractional_output_divide_step": "1/8",
+    "active_low_board_reset_checked": true,
     "scope": "Arithmetic and RTL-parameter validation only; open P&R and physical frequency measurement are separate gates."
   }
 }

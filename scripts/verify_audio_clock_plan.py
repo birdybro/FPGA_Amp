@@ -13,6 +13,7 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RTL = ROOT / "fpga/nexys_video/audio_clock_synth_xc7.sv"
+DEFAULT_XDC = ROOT / "fpga/nexys_video/audio_clock_synth_xc7.xdc"
 DEFAULT_OUTPUT = ROOT / "model/generated/audio_clock_plan_xc7.json"
 
 EXPECTED = {
@@ -63,8 +64,22 @@ def _fraction_text(value: Fraction) -> str:
     return str(value.numerator) if value.denominator == 1 else str(value)
 
 
-def verify_plan(rtl_path: Path = DEFAULT_RTL) -> dict[str, object]:
+def verify_plan(
+    rtl_path: Path = DEFAULT_RTL,
+    xdc_path: Path = DEFAULT_XDC,
+) -> dict[str, object]:
     source = rtl_path.read_text(encoding="utf-8")
+    constraints = xdc_path.read_text(encoding="utf-8")
+    if re.search(r"input\s+logic\s+cpu_resetn", source) is None:
+        raise ValueError("clock harness must expose active-low cpu_resetn")
+    if re.search(r"board_reset\s*=\s*!cpu_resetn\s*;", source) is None:
+        raise ValueError("clock harness must invert active-low cpu_resetn")
+    if re.search(r"\.reset\s*\(\s*board_reset\s*\)", source) is None:
+        raise ValueError("clock MMCM leaf must receive active-high board_reset")
+    if re.search(
+        r"LOC\s+G4\s+\[get_ports\s+cpu_resetn\]", constraints
+    ) is None:
+        raise ValueError("G4 must be constrained as cpu_resetn")
     stages: list[dict[str, object]] = []
     preceding_output: int | None = None
 
@@ -121,6 +136,10 @@ def verify_plan(rtl_path: Path = DEFAULT_RTL) -> dict[str, object]:
         "schema_version": 1,
         "source": str(rtl_path.relative_to(ROOT)),
         "source_sha256": hashlib.sha256(source.encode("utf-8")).hexdigest(),
+        "constraints": str(xdc_path.relative_to(ROOT)),
+        "constraints_sha256": hashlib.sha256(
+            constraints.encode("utf-8")
+        ).hexdigest(),
         "family": "48-kHz audio",
         "codec_mclk_hz": stages[0]["output_hz"],
         "fabric_clock_hz": stages[1]["output_hz"],
@@ -132,6 +151,7 @@ def verify_plan(rtl_path: Path = DEFAULT_RTL) -> dict[str, object]:
             "rtl_parameters_match": True,
             "ratios_are_exact": True,
             "fractional_output_divide_step": "1/8",
+            "active_low_board_reset_checked": True,
             "scope": (
                 "Arithmetic and RTL-parameter validation only; open P&R and "
                 "physical frequency measurement are separate gates."
@@ -143,11 +163,12 @@ def verify_plan(rtl_path: Path = DEFAULT_RTL) -> dict[str, object]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--rtl", type=Path, default=DEFAULT_RTL)
+    parser.add_argument("--xdc", type=Path, default=DEFAULT_XDC)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--check-only", action="store_true")
     args = parser.parse_args()
 
-    report = verify_plan(args.rtl.resolve())
+    report = verify_plan(args.rtl.resolve(), args.xdc.resolve())
     if not args.check_only:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

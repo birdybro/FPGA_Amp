@@ -6,8 +6,8 @@ set_property LOC R4 [get_ports clk_100mhz]
 set_property IOSTANDARD LVCMOS33 [get_ports clk_100mhz]
 create_clock -period 10.000 [get_ports clk_100mhz]
 
-set_property LOC G4 [get_ports reset]
-set_property IOSTANDARD LVCMOS15 [get_ports reset]
+set_property LOC G4 [get_ports cpu_resetn]
+set_property IOSTANDARD LVCMOS15 [get_ports cpu_resetn]
 
 set_property LOC U6 [get_ports codec_mclk_12m288]
 set_property IOSTANDARD LVCMOS33 [get_ports codec_mclk_12m288]

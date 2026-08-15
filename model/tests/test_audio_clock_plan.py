@@ -25,6 +25,7 @@ class AudioClockPlanTests(unittest.TestCase):
             [960_000_000, 614_400_000],
         )
         self.assertTrue(report["validation"]["ratios_are_exact"])
+        self.assertTrue(report["validation"]["active_low_board_reset_checked"])
 
     def test_rtl_parameter_drift_is_rejected(self) -> None:
         source = CLOCK_PLAN.DEFAULT_RTL.read_text(encoding="utf-8")
@@ -34,6 +35,19 @@ class AudioClockPlanTests(unittest.TestCase):
             rtl = Path(directory) / "changed.sv"
             rtl.write_text(changed, encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "mclk_mmcm parameter mismatch"):
+                CLOCK_PLAN.verify_plan(rtl)
+
+    def test_active_low_board_reset_drift_is_rejected(self) -> None:
+        source = CLOCK_PLAN.DEFAULT_RTL.read_text(encoding="utf-8")
+        changed = source.replace(
+            "always_comb board_reset = !cpu_resetn;",
+            "always_comb board_reset = cpu_resetn;",
+        )
+        self.assertNotEqual(changed, source)
+        with tempfile.TemporaryDirectory() as directory:
+            rtl = Path(directory) / "changed.sv"
+            rtl.write_text(changed, encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "invert active-low"):
                 CLOCK_PLAN.verify_plan(rtl)
 
 

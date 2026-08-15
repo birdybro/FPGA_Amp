@@ -759,21 +759,29 @@ the physical circuit or sample-processing RTL.
 The R4 constraint now includes an explicit 10 ns `create_clock`. The pinned
 nextpnr backend consequently derives 12.3 MHz and 49.2 MHz domains through the
 two MMCMs instead of assigning the command-line 100 MHz target to the generated
-activity logic. The clock-only A200T harness packs 74 LUTX, 24 FFX, six
+activity logic. The clock-only A200T harness packs 99 LUTX, 24 FFX, six
 CARRY4s, two BUFGs, two MMCMs, and five pads. Router2 reaches a legal route in
-five iterations; the 24-bit activity counter is estimated at 305.06 MHz against
+three iterations; the 24-bit activity counter is estimated at 291.55 MHz against
 its correct 49.152 MHz constraint. This large counter margin only validates
 the clock harness's synchronous load. It says nothing about complete phono-core
 timing and remains an experimental `DEFAULT`-grade estimate rather than
 qualified `-1` signoff.
 
-The 50,091-byte routed FASM hashes to
-`0152506daf8ae0609ec16772e42fb883b4bf5f11729c23eab241f1ef7fa48219`.
+The 69,137-byte routed FASM hashes to
+`96140ea05f9e8334cacd0a72e9588161ee1d45b953cf1f2117715f3ccab7f3eb`.
 Project X-Ray converts it into 20,230 frame records and a reproducible
 9,730,853-byte bitstream with SHA-256
-`941a8c07ed55a651e3b861e74bc09bee311c410519c09daddf5615069e0ff656`;
+`1d7d934fb1241213962d6d2a0ca29f1c57d8620573622ecca0b6c0b27234b248`;
 `bitread -C` accepts 24,060 configuration frames / 2,432,650 words. No board
 has been programmed and neither output clock has been physically measured.
+
+This result supersedes the earlier `941a8c07...e0ff656` artifact. Inspection
+against Digilent's master constraints found that G4 is active-low
+`CPU_RESETN`, whereas the first harness had exposed it as active-high `reset`.
+That image would hold its MMCMs reset during normal button release. The harness
+now names `cpu_resetn`, inverts it explicitly before every active-high reset,
+and the generated clock-plan test rejects RTL or XDC polarity drift. No board
+was programmed with the invalid image.
 
 The serial-clock leaf now divides the exact 49.152 MHz fabric clock by 16 and
 promotes the 3.072 MHz output through one BUFG. This derived domain exists only

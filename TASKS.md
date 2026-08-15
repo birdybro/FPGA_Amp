@@ -68,11 +68,14 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   codec MCLK and 49.152 MHz fabric clocks, with exact 960/614.4 MHz VCOs.
   Check the ratios and 128 fabric clocks per 384 kHz sample from RTL in Python.
   With an explicit 10 ns input constraint, nextpnr derives both generated
-  domains and completes routing in five iterations; the 24-bit activity
-  counter reaches 305.06 MHz against its correct 49.152 MHz constraint under
-  the experimental `DEFAULT` grade. Pack use is 74 LUTX / 24 FFX / 6 CARRY4 /
+  domains and completes routing in three iterations; the 24-bit activity
+  counter reaches 291.55 MHz against its correct 49.152 MHz constraint under
+  the experimental `DEFAULT` grade. Pack use is 99 LUTX / 24 FFX / 6 CARRY4 /
   2 BUFG / 2 MMCM. The open Project-X-Ray stage emits a CRC-readable
-  9,730,853-byte bitstream at SHA-256 `941a8c07...e0ff656`. This is a
+  9,730,853-byte bitstream at SHA-256 `1d7d934f...234b248`. The arithmetic
+  contract also checks that physical G4 `CPU_RESETN` is inverted before the
+  active-high MMCM reset; this fixes and supersedes the prior
+  `941a8c07...e0ff656` artifact, whose reset polarity was wrong. This is a
   clock-only harness, not hardware frequency measurement or codec operation.
 - [x] Implement the board serial-clock and reset-release leaf. Divide the exact
   49.152 MHz fabric clock by 16 to 3.072 MHz BCLK, promote only this external

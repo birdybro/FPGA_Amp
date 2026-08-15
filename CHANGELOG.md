@@ -35,12 +35,13 @@ All notable engineering changes are recorded here. The project is pre-release; d
   only checked XC7 primitives and the open toolchain. Two cascaded MMCMs produce
   exact 12.288 MHz codec MCLK and 49.152 MHz fabric clocks from the board's
   100 MHz oscillator; a generated arithmetic contract rejects RTL parameter
-  drift. An explicit XDC input constraint lets nextpnr derive the correct
-  12.288/49.152 MHz domains. The five-iteration A200T route packs 74 LUTX,
-  24 FFX, six CARRY4s, two BUFGs, and two MMCMs; its activity counter passes
-  the 49.152 MHz `DEFAULT`-grade constraint at 305.06 MHz. Project X-Ray emits
+  drift and now also rejects incorrect active-low G4 reset handling. An
+  explicit XDC input constraint lets nextpnr derive the correct 12.288/49.152
+  MHz domains. The three-iteration A200T route packs 99 LUTX, 24 FFX, six
+  CARRY4s, two BUFGs, and two MMCMs; its activity counter passes the 49.152 MHz
+  `DEFAULT`-grade constraint at 291.55 MHz. Project X-Ray emits
   a 9,730,853-byte bitstream with SHA-256
-  `941a8c07ed55a651e3b861e74bc09bee311c410519c09daddf5615069e0ff656`,
+  `1d7d934fb1241213962d6d2a0ca29f1c57d8620573622ecca0b6c0b27234b248`,
   and `bitread -C` accepts 24,060 frames / 2,432,650 words. Codec
   configuration, shared I²S-clock wiring, programming, and frequency
   measurement remain unvalidated.
@@ -902,6 +903,15 @@ All notable engineering changes are recorded here. The project is pre-release; d
 - Added architecture, model, phono, fixed-point, gain, noise, analog front-end, converter/clock, hardware, controls, safety, verification, and annotated-reference documentation.
 
 ### Fixed
+
+- Corrected the clock-only Nexys Video harness reset polarity. Physical G4 is
+  active-low `CPU_RESETN`; the prior harness passed it directly to active-high
+  MMCM and counter resets, so its generated `941a8c07...e0ff656` bitstream
+  would remain reset while the button was released. The renamed port is now
+  inverted explicitly, the clock-plan regression checks both RTL polarity and
+  the G4 XDC binding, and a new three-iteration legal route plus CRC-readable
+  bitstream supersedes that artifact at SHA-256 `1d7d934f...234b248`. No board
+  was programmed with either image.
 
 - Corrected the pin-level integration bench's absolute clocks. Its former
   5 ns/160 ns half-periods exercised the correct 32:1 ratio but were actually

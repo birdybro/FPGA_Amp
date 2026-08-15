@@ -31,7 +31,8 @@ general authority on tube physics. Links were checked 2026-08-14.
   complete placed hierarchy.
 - Digilent,
   [Nexys Video master XDC](https://github.com/Digilent/digilent-xdc/blob/master/Nexys-Video-Master.xdc).
-  Primary board-source provenance for the R4 oscillator, G4 CPU-reset input,
+  Primary board-source provenance for the R4 oscillator, active-low G4
+  `CPU_RESETN` input,
   and T14 LED used by the XC7A200T timing-only harness. This pin subset is not a
   production-board constraint set or an audio-clock implementation.
 - AMD, [*7 Series FPGAs Clocking Resources User Guide

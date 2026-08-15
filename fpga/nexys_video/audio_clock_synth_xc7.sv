@@ -102,7 +102,7 @@ endmodule
 // divided from the generated fabric clock so neither MMCM can optimize away.
 module audio_clock_synth_xc7_pnr_harness (
     input  logic clk_100mhz,
-    input  logic reset,
+    input  logic cpu_resetn,
     output logic codec_mclk_12m288,
     output logic activity,
     output logic locked
@@ -110,11 +110,21 @@ module audio_clock_synth_xc7_pnr_harness (
 
     logic fabric_clk_49m152;
     logic [23:0] activity_counter;
+    logic board_reset;
 
-    audio_clock_synth_xc7 clocks (.*);
+    // G4 is CPU_RESETN on the Nexys Video: released high, asserted low.
+    always_comb board_reset = !cpu_resetn;
 
-    always_ff @(posedge fabric_clk_49m152 or posedge reset) begin
-        if (reset)
+    audio_clock_synth_xc7 clocks (
+        .clk_100mhz,
+        .reset(board_reset),
+        .codec_mclk_12m288,
+        .fabric_clk_49m152,
+        .locked
+    );
+
+    always_ff @(posedge fabric_clk_49m152 or posedge board_reset) begin
+        if (board_reset)
             activity_counter <= '0;
         else if (!locked)
             activity_counter <= '0;
