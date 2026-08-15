@@ -6,6 +6,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a warning-free serial-clock/reset leaf for the board implementation.
+  A device-neutral power-of-two divider produces exact BCLK=/16, while the
+  XC7 wrapper promotes it through a BUFG. Independent three-stage reset
+  pipelines assert asynchronously and release only on their local 49.152 MHz
+  fabric or 3.072 MHz BCLK edge. The RTL test checks every BCLK period, both
+  three-edge releases, and asynchronous reassertion. Yosys reports 10 FDCEs,
+  one CARRY4, one BUFG, zero structural problems, and no warnings; named-board
+  timing remains part of the forthcoming complete wrapper.
 - Added the first physical audio-clock implementation for the Nexys Video using
   only checked XC7 primitives and the open toolchain. Two cascaded MMCMs produce
   exact 12.288 MHz codec MCLK and 49.152 MHz fabric clocks from the board's

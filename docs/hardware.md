@@ -775,12 +775,20 @@ Project X-Ray converts it into 20,230 frame records and a reproducible
 `bitread -C` accepts 24,060 configuration frames / 2,432,650 words. No board
 has been programmed and neither output clock has been physically measured.
 
-A concrete audio board wrapper still needs an explicit FPGA-clock-master BCLK
-divider, the codec's single shared LRCLK wired to both serial directions,
-clock-domain reset release, and ADAU1761 I2C initialization. The Nexys Video's
-shared codec LRCLK must not be silently represented as independent ADC-input
-and DAC-output pins. Until those items and physical measurement are complete,
-the clock harness is not a functional audio image.
+The serial-clock leaf now divides the exact 49.152 MHz fabric clock by 16 and
+promotes the 3.072 MHz output through one BUFG. This derived domain exists only
+for the codec serial interface; all physical-circuit processing stays on the
+fabric clock with enables. Separate three-stage reset pipelines assert
+asynchronously and release synchronously in the fabric and BCLK domains. A
+warning-free directed test checks every 16-clock BCLK period, both three-edge
+release latencies, and asynchronous reassertion. Yosys reports ten FDCEs, one
+CARRY4, one BUFG, zero structural problems, and no warnings.
+
+A concrete audio board wrapper still needs the codec's single shared LRCLK
+wired to both serial directions and ADAU1761 I2C initialization. The Nexys
+Video's shared codec LRCLK must not be silently represented as independent
+ADC-input and DAC-output pins. Until those items and physical measurement are
+complete, the clock harness is not a functional audio image.
 
 The following configuration stage is also fully open. The pinned bootstrap now
 installs the Project X-Ray Python assembler dependencies, and

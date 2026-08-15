@@ -74,6 +74,14 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   2 BUFG / 2 MMCM. The open Project-X-Ray stage emits a CRC-readable
   9,730,853-byte bitstream at SHA-256 `941a8c07...e0ff656`. This is a
   clock-only harness, not hardware frequency measurement or codec operation.
+- [x] Implement the board serial-clock and reset-release leaf. Divide the exact
+  49.152 MHz fabric clock by 16 to 3.072 MHz BCLK, promote only this external
+  interface clock through an XC7 BUFG, and keep sample processing on the fabric
+  clock plus enables. Assert fabric/I2S resets asynchronously but release them
+  through separate three-edge owning-domain synchronizers. A warning-free RTL
+  test checks exact 16-clock periods, release latency, and asynchronous
+  reassertion. Yosys reports 10 FDCE / 1 CARRY4 / 1 BUFG, zero problems, and no
+  warnings. Full named-board timing awaits composition with the pin top.
 - [x] Carry the timing-closed 384 kHz / 49.152 MHz profile into the actual
   fabric adapter and complete SPI-controlled I²S hierarchy. Preserve 768 kHz
   as the default, add explicit rate-selectable vector/test runners, and pass

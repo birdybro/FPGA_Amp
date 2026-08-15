@@ -65,8 +65,10 @@ tree above. The implemented XC7-only clock leaf is:
 
 The exact MMCM ratios are generated and checked by `make audio-clock-plan`;
 the clock-only harness is openly synthesized, routed, and converted to a
-CRC-readable bitstream. The BCLK/LRCLK divider, shared physical LRCLK wrapper,
-reset release, and ADAU1761 I2C configuration are not part of that harness yet.
+CRC-readable bitstream. An exact /16 BCLK divider and separate fabric/BCLK
+three-edge reset-release synchronizers are now warning-free in RTL simulation
+and synthesis. The shared physical LRCLK wrapper and ADAU1761 I2C
+configuration are not part of that harness yet.
 This is an implementation architecture for the explicit 8x candidate, not a
 silent change to 16x reference-mode numerical behavior.
 

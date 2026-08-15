@@ -91,6 +91,7 @@ def main() -> int:
             "phono_i2s_control_top",
             "phono_i2s_spi_top",
             "audio_clock_synth_xc7_pnr_harness",
+            "audio_serial_clock_master_xc7",
             "solver_pnr_harness",
             "linear_solver_pnr_harness",
             "parallel_solver_pnr_harness",
@@ -680,6 +681,11 @@ def main() -> int:
         ],
         "audio_clock_synth_xc7_pnr_harness": [
             "fpga/nexys_video/audio_clock_synth_xc7.sv",
+        ],
+        "audio_serial_clock_master_xc7": [
+            "rtl/io/reset_release_sync.sv",
+            "rtl/io/audio_i2s_clock_divider.sv",
+            "fpga/nexys_video/audio_serial_clock_master_xc7.sv",
         ],
         "solver_pnr_harness": [
             "rtl/tube/triode_12ax7_factorized.sv",

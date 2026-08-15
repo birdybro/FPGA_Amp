@@ -132,9 +132,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   both use 217 DSPs / 10 RAMB18 equivalents with zero structural problems.
   The Nexys Video clock leaf now cascades two checked XC7 MMCMs from its real
   100 MHz oscillator to exact 12.288 MHz codec MCLK and 49.152 MHz fabric
-  clocks. Its clock-only open route and CRC-readable bitstream pass; codec
-  I2C setup, shared BCLK/LRCLK wiring, reset release, programming, and physical
-  frequency measurement remain open.
+  clocks. Its clock-only open route and CRC-readable bitstream pass. A tested
+  /16 divider now produces 3.072 MHz BCLK with owning-domain reset release;
+  codec I2C setup, shared LRCLK wiring, programming, and physical frequency
+  measurement remain open.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both
@@ -900,6 +901,8 @@ make synth-mono-adapter-384        # 384 kHz adapter XC7 resource measurement
 make synth-i2s-spi-top-384         # complete 384 kHz pin-top measurement
 make audio-clock-plan              # verify exact MMCM ratios from board RTL
 make synth-audio-clock-xc7         # clock-only XC7 structural measurement
+make audio-serial-clock-rtl        # verify /16 BCLK and domain reset release
+make synth-audio-serial-clock-xc7  # XC7 BCLK/reset leaf measurement
 make hermite-rtl                   # bit-exact iterative Hermite regression
 make synth-hermite                 # isolated Hermite resource measurement
 make factorized-linear-rtl         # value-only tube exact-vector regression

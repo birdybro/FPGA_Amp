@@ -14,7 +14,7 @@ NEXTPNR ?= nextpnr-himbaechel
 .PHONY: synth-stream-trapezoidal-384-terminal-banked
 .PHONY: openxc7-stream-384-pack openxc7-stream-384-place openxc7-a200t-stream-384-static-place openxc7-a200t-stream-384-half-clock-static-place openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-pnr openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-bit
 .PHONY: mono-adapter-384-rtl i2s-mono-top-384-rtl i2s-control-top-384-rtl i2s-spi-top-384-rtl synth-mono-adapter-384 synth-i2s-spi-top-384
-.PHONY: audio-clock-plan synth-audio-clock-xc7 openxc7-a200t-audio-clock-pnr openxc7-a200t-audio-clock-bit
+.PHONY: audio-clock-plan audio-serial-clock-rtl synth-audio-clock-xc7 synth-audio-serial-clock-xc7 openxc7-a200t-audio-clock-pnr openxc7-a200t-audio-clock-bit
 
 all: reference test
 
@@ -414,6 +414,9 @@ formal-spi-control:
 audio-clock-rtl:
 	$(PYTHON) scripts/run_audio_clock_monitor_rtl.py --verilator $(VERILATOR)
 
+audio-serial-clock-rtl:
+	$(PYTHON) scripts/run_audio_serial_clock_rtl.py --verilator $(VERILATOR)
+
 async-fifo-rtl:
 	$(PYTHON) scripts/run_async_fifo_rtl.py --verilator $(VERILATOR)
 
@@ -708,6 +711,9 @@ synth-i2s-spi-top-384: synth-mono-adapter-384
 
 synth-audio-clock-xc7:
 	$(PYTHON) scripts/run_synthesis.py --top audio_clock_synth_xc7_pnr_harness
+
+synth-audio-serial-clock-xc7:
+	$(PYTHON) scripts/run_synthesis.py --top audio_serial_clock_master_xc7
 
 audio-clock-plan:
 	$(PYTHON) scripts/verify_audio_clock_plan.py
