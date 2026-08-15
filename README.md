@@ -1030,6 +1030,8 @@ under `model/generated/` as part of the numerical contract.
 - `firmware/front_panel/`: host-tested motor-volume safety/control core
 - `hardware/kicad/front_panel_controller_rev_a/`: generated/routed six-layer
   touchscreen, UI MCU, memory, control, and backlight EVT controller
+- `hardware/kicad/phono_adc_eval_rev_a/`: generated/routed four-layer MM input,
+  flat-gain, differential-driver, and PCM4202 ADC EVT board
 - `hardware/kicad/front_panel_motor_eval_rev_a/`: generated and routed KiCad
   motor/position EVT daughterboard, source generator, BOM, and invariants
 - `docs/`: engineering decisions, budgets, known limitations, and hardware path
@@ -1065,6 +1067,16 @@ mute/standby, and the motor/digital board links. Exact project-local Molex
 The board is visibly marked and documented as not fabrication-released until
 physical connector fit/first-article inspection, stackup/SI, switching-power
 layout, and mechanical interfaces are signed off.
+
+The first audio-input PCB is at
+[`hardware/kicad/phono_adc_eval_rev_a/`](hardware/kicad/phono_adc_eval_rev_a/README.md).
+Its checked 130 x 90 mm four-layer route has 0 ERC violations, 0 DRC
+violations, and 0 unconnected items under KiCad 10.0.5. It implements physical
+47.5 kilohm/selectable-capacitance MM loading, OPA1656 20/26/32 dB flat gain,
+OPA1632 differential drive, PCM4202 conversion, and local low-noise
+post-regulation. It remains an unbuilt EVT design; measured input capacitance,
+noise/hum/overload/RF/ESD, production connector mechanics, muted relay changes,
+and a 6.144 MHz/128-fS FPGA receiver are explicit release gates.
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
 path is further reducing terminal-solver approximation error without breaking

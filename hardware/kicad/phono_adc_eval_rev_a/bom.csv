@@ -1,0 +1,136 @@
+Reference,Value,Footprint,Description
+J1,ISOLATED_PANEL_RCA_HARNESS,Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical,Short shielded harness to enclosure-qualified isolated RCA jacks; connector is EVT only
+J2,TURNTABLE_GROUND_POST,TerminalBlock_MetzConnect:TerminalBlock_MetzConnect_360425_1x01_Horizontal_ScrewM4.0_Boxed,EVT screw terminal; production binding post is chassis-mounted
+J3,ADC_AUDIO,Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical,Clock/data harness to digital board; PCM4202 is the 48 kHz I2S master
+J4,POWER_INPUT,Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical,Separately supplied analog; digital; and relay rails from product power board
+J5,ADC_CONTROL,Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical,Low-speed controls; all selection controls default low
+U1,TPS7A39DSCR,Package_SON:Texas_DSC0010J_ThermalVias,Dual low-noise post-regulator; ±12 V nominal from separately supplied ±15.5 V
+U2,TPS7A2050PDBVR,Package_TO_SOT_SMD:SOT-23-5,Low-noise +5 V ADC analog post-regulator
+U3,TPS7A2033PDBVR,Package_TO_SOT_SMD:SOT-23-5,Low-noise +3.3 V ADC digital post-regulator
+U4,OPA1656IDR,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,Dual JFET-input flat gain stage; 2.9 nV/rtHz at 10 kHz; 6 fA/rtHz at 1 kHz
+U5,OPA1632DR,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,Left fully differential PCM4202 driver; enabled by grounding EN with bipolar supplies
+U6,OPA1632DR,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,Right fully differential PCM4202 driver; enabled by grounding EN with bipolar supplies
+U7,PCM4202DBR,Package_SO:SSOP-28_5.3x10.2mm_P0.65mm,Stereo 24-bit ADC; 48 kHz master/I2S; 512fS SCKI; internal HPF disabled
+U8,OPA1656IDR,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,Dual voltage follower required because PCM4202 VCOM cannot drive OPA1632 VOCM directly
+R1,100R_0.1%,Resistor_SMD:R_0805_2012Metric,
+R2,100R_0.1%,Resistor_SMD:R_0805_2012Metric,
+R3,47.5k_0.1%_25ppm,Resistor_SMD:R_0805_2012Metric,
+R4,47.5k_0.1%_25ppm,Resistor_SMD:R_0805_2012Metric,
+D1,PESD5V0X1BCL_EVT,Diode_SMD:D_SOD-882,0.49 pF nominal bidirectional ESD candidate; fit only after leakage/noise review
+D2,PESD5V0X1BCL_EVT,Diode_SMD:D_SOD-882,0.49 pF nominal bidirectional ESD candidate; fit only after leakage/noise review
+C1,47pF_C0G_1%,Capacitor_SMD:C_0603_1608Metric,
+C2,47pF_C0G_1%,Capacitor_SMD:C_0603_1608Metric,
+C3,100pF_C0G_1%,Capacitor_SMD:C_0603_1608Metric,
+C4,100pF_C0G_1%,Capacitor_SMD:C_0603_1608Metric,
+C5,DNP_22pF_C0G_RF,Capacitor_SMD:C_0603_1608Metric,DNP; populate only from RF injection data and include in measured cartridge load
+C6,DNP_22pF_C0G_RF,Capacitor_SMD:C_0603_1608Metric,DNP; populate only from RF injection data and include in measured cartridge load
+K1,G6K-2F-Y-5V_GAIN_BANK,Relay_SMD:Relay_DPDT_Omron_G6K-2F-Y,Default NC is 26 dB; energized delegates both channels to K2
+K2,G6K-2F-Y-5V_GAIN_RANGE,Relay_SMD:Relay_DPDT_Omron_G6K-2F-Y,NC selects 20 dB and NO selects 32 dB only while K1 is energized
+K3,G6K-2F-Y-5V_CAP47,Relay_SMD:Relay_DPDT_Omron_G6K-2F-Y,Normally open 47 pF C0G load increment for both channels
+K4,G6K-2F-Y-5V_CAP100,Relay_SMD:Relay_DPDT_Omron_G6K-2F-Y,Normally open 100 pF C0G load increment for both channels
+R5,19.1k_0.1%,Resistor_SMD:R_0805_2012Metric,
+R6,19.1k_0.1%,Resistor_SMD:R_0805_2012Metric,
+R7,1.00k_0.1%,Resistor_SMD:R_0805_2012Metric,
+R8,1.00k_0.1%,Resistor_SMD:R_0805_2012Metric,
+R9,2.12k_0.1%,Resistor_SMD:R_0805_2012Metric,
+R10,2.12k_0.1%,Resistor_SMD:R_0805_2012Metric,
+R11,492R_0.1%,Resistor_SMD:R_0805_2012Metric,
+R12,492R_0.1%,Resistor_SMD:R_0805_2012Metric,
+R20,316R_0.1%,Resistor_SMD:R_0603_1608Metric,
+R21,316R_0.1%,Resistor_SMD:R_0603_1608Metric,
+R22,316R_0.1%,Resistor_SMD:R_0603_1608Metric,
+R23,316R_0.1%,Resistor_SMD:R_0603_1608Metric,
+C20,1nF_C0G,Capacitor_SMD:C_0603_1608Metric,
+C21,1nF_C0G,Capacitor_SMD:C_0603_1608Metric,
+R24,40.2R_0.1%,Resistor_SMD:R_0603_1608Metric,
+R25,40.2R_0.1%,Resistor_SMD:R_0603_1608Metric,
+C22,2.7nF_C0G,Capacitor_SMD:C_0603_1608Metric,
+C23,100pF_C0G,Capacitor_SMD:C_0603_1608Metric,
+C24,100pF_C0G,Capacitor_SMD:C_0603_1608Metric,
+R30,316R_0.1%,Resistor_SMD:R_0603_1608Metric,
+R31,316R_0.1%,Resistor_SMD:R_0603_1608Metric,
+R32,316R_0.1%,Resistor_SMD:R_0603_1608Metric,
+R33,316R_0.1%,Resistor_SMD:R_0603_1608Metric,
+C30,1nF_C0G,Capacitor_SMD:C_0603_1608Metric,
+C31,1nF_C0G,Capacitor_SMD:C_0603_1608Metric,
+R34,40.2R_0.1%,Resistor_SMD:R_0603_1608Metric,
+R35,40.2R_0.1%,Resistor_SMD:R_0603_1608Metric,
+C32,2.7nF_C0G,Capacitor_SMD:C_0603_1608Metric,
+C33,100pF_C0G,Capacitor_SMD:C_0603_1608Metric,
+C34,100pF_C0G,Capacitor_SMD:C_0603_1608Metric,
+C40,33uF_LOW_ESR,Capacitor_SMD:C_Elec_4x5.8,
+C41,100nF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C42,33uF_LOW_ESR,Capacitor_SMD:C_Elec_4x5.8,
+C43,100nF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C44,100nF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C45,100nF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C46,33uF_LOW_ESR,Capacitor_SMD:C_Elec_4x5.8,
+C47,100nF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C48,33uF_LOW_ESR,Capacitor_SMD:C_Elec_4x5.8,
+C49,100nF_X7R,Capacitor_SMD:C_0603_1608Metric,
+R40,22R,Resistor_SMD:R_0402_1005Metric,
+R41,33R,Resistor_SMD:R_0402_1005Metric,
+R42,33R,Resistor_SMD:R_0402_1005Metric,
+R43,33R,Resistor_SMD:R_0402_1005Metric,
+R44,100k,Resistor_SMD:R_0603_1608Metric,External control must actively release reset; PCM4202 internal POR remains upstream
+R45,10k,Resistor_SMD:R_0603_1608Metric,
+Q1,MMBT3904,Package_TO_SOT_SMD:SOT-23,Relay low-side driver
+R51,2.2k,Resistor_SMD:R_0603_1608Metric,
+R55,100k,Resistor_SMD:R_0603_1608Metric,
+D3,1N4148W,Diode_SMD:D_SOD-123,
+Q2,MMBT3904,Package_TO_SOT_SMD:SOT-23,Relay low-side driver
+R52,2.2k,Resistor_SMD:R_0603_1608Metric,
+R56,100k,Resistor_SMD:R_0603_1608Metric,
+D4,1N4148W,Diode_SMD:D_SOD-123,
+Q3,MMBT3904,Package_TO_SOT_SMD:SOT-23,Relay low-side driver
+R53,2.2k,Resistor_SMD:R_0603_1608Metric,
+R57,100k,Resistor_SMD:R_0603_1608Metric,
+D5,1N4148W,Diode_SMD:D_SOD-123,
+Q4,MMBT3904,Package_TO_SOT_SMD:SOT-23,Relay low-side driver
+R54,2.2k,Resistor_SMD:R_0603_1608Metric,
+R58,100k,Resistor_SMD:R_0603_1608Metric,
+D6,1N4148W,Diode_SMD:D_SOD-123,
+R60,90.9k_0.1%,Resistor_SMD:R_0603_1608Metric,
+R61,10.0k_0.1%,Resistor_SMD:R_0603_1608Metric,
+R62,100k_0.1%,Resistor_SMD:R_0603_1608Metric,
+R63,10.0k_0.1%,Resistor_SMD:R_0603_1608Metric,
+C60,10nF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C61,10nF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C62,10nF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C63,10uF_25V_X7R,Capacitor_SMD:C_1206_3216Metric,
+C64,10uF_25V_X7R,Capacitor_SMD:C_1206_3216Metric,
+C65,10uF_25V_X7R,Capacitor_SMD:C_1206_3216Metric,
+C66,10uF_25V_X7R,Capacitor_SMD:C_1206_3216Metric,
+C67,1uF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C68,1uF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C69,1uF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C70,1uF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C71,100nF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C72,100nF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C73,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,
+C74,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,
+C75,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,
+C76,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,
+C77,100nF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C78,100nF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C79,10uF_25V_X7R,Capacitor_SMD:C_1206_3216Metric,
+C80,10uF_25V_X7R,Capacitor_SMD:C_1206_3216Metric,
+R70,0R_CHASSIS_BOND,Resistor_SMD:R_1206_3216Metric,Reference build bonds signal return to chassis at the cartridge entry
+R71,DNP_10R_CHASSIS,Resistor_SMD:R_1206_3216Metric,Alternative only; remove R70 before fitting
+C81,DNP_100nF_CHASSIS,Capacitor_SMD:C_1206_3216Metric,Alternative RF bond used only with documented ground strategy
+TP1,L_INPUT,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point; do not extend sensitive-node routing
+TP2,R_INPUT,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point; do not extend sensitive-node routing
+TP3,L_GAIN_OUT,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point; do not extend sensitive-node routing
+TP4,R_GAIN_OUT,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point; do not extend sensitive-node routing
+TP5,ADC_L_IN_P,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point; do not extend sensitive-node routing
+TP6,ADC_L_IN_N,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point; do not extend sensitive-node routing
+TP7,ADC_R_IN_P,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point; do not extend sensitive-node routing
+TP8,ADC_R_IN_N,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point; do not extend sensitive-node routing
+TP9,+12VA,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point; do not extend sensitive-node routing
+TP10,-12VA,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point; do not extend sensitive-node routing
+TP11,+5VA,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point; do not extend sensitive-node routing
+TP12,+3V3D,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point; do not extend sensitive-node routing
+TP13,SCKI_24M576,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point; do not extend sensitive-node routing
+TP14,ADC_BCK_OUT,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point; do not extend sensitive-node routing
+TP15,ADC_LRCK_OUT,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point; do not extend sensitive-node routing
+TP16,GND,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point; do not extend sensitive-node routing

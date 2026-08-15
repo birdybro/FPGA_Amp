@@ -15,6 +15,19 @@ access and finished-device compliance.
 
 ## Active, highest value first
 
+- [x] Generate and openly route the four-layer phono/ADC Rev-A EVT board. The
+  130 x 90 mm design implements 47.5 kilohm MM loading, relay-selected
+  0/47/100/147 pF capacitance, OPA1656 flat 20.008/26.064/32.002 dB gain,
+  OPA1632 fully differential drive/filtering, a 48 kHz master PCM4202 with its
+  reference-mode HPF disabled, local +/-12 V/+5 V/+3.3 V post-regulation,
+  fail-low relay controls, separated relay power, and a chassis-bond population
+  choice. The open Freerouting route has 926 segments and 141 vias; KiCad 10.0.5
+  reports zero ERC, zero DRC, and zero unconnected items. A source-aware verifier
+  locks pad maps, relay defaults, straps, headroom calculations, stack,
+  dimensions, DNP states, and routing minima. This is not fabrication-released:
+  production RCA/ground mechanics, measured capacitance/noise/hum/overload/
+  crosstalk/RF/ESD, stackup review, muted switching, and the 128-fS FPGA receive
+  path remain gates.
 - [x] Generate and openly route the six-layer front-panel controller Rev-A EVT
   board. Its STM32H753ZIT6 allocation machine-checks 106 unique LQFP-144 I/Os
   for RGB565 LTDC, 32 MiB x16 SDRAM, 32 MiB Quad-SPI, capacitive touch, three
@@ -86,6 +99,10 @@ access and finished-device compliance.
   converters; freeze encoder/display/enclosure geometry; select keyed production
   harnesses; then close sourcing, EMC, touch-safety, motor torque/noise/stall,
   and 100,000-cycle mechanism qualification.
+- [ ] Extend and verify the I2S receiver for the phono board's PCM4202 master
+  mode: 24-bit data in 64-BCK half-frames, 128-fS/6.144 MHz BCK, 48 kHz LRCK,
+  and externally supplied 24.576 MHz SCKI. Preserve the existing 64-fS path as
+  a separately tested configuration.
 - [ ] Implement and openly route the actual stereo product hierarchy before
   freezing the production FPGA/package. The present 217-DSP mono Nexys build is
   evidence for an XC7A200T resource-class baseline, not proof that stereo plus
@@ -1077,8 +1094,9 @@ access and finished-device compliance.
 - Obtain better positive-grid 12AX7 data and quantify grid-current/overload error.
 - Evaluate piecewise/hybrid tube approximation if full circuit synthesis proves
   the 47-RAMB18 primitive to be the dominant capacity constraint.
-- Measure Architecture A with a real JFET front end and at least two ADCs before
-  freezing converter/gain/anti-alias parts.
+- Fabricate and measure the routed OPA1656/PCM4202 Architecture A EVT board,
+  then compare at least one alternate ADC/front end before freezing production
+  converter, gain, or anti-alias parts.
 - Determine a credible stereo architecture; the selected solver uses 127/128
   clocks and cannot be time-multiplexed across two channels at the present
   throughput. The calibrated, muted pin-facing mono hierarchy uses 232/240 A7-100T

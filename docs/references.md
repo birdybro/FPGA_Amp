@@ -248,11 +248,25 @@ for those types is claimed from modern reissue marketing data.
   [OPA210](https://www.ti.com/lit/ds/symlink/opa210.pdf) data sheets. These supply
   the voltage/current-noise assumptions in `analyze_frontend.py`. The JFET parts
   win the present MM calculation because cartridge impedance rises with
-  frequency; this is a requirements study, not a released schematic.
+  frequency. OPA1656 is the Rev-A dual-channel JFET-input prototype choice; its
+  electrical table's 4.3 nV/√Hz at 1 kHz and 6 fA/√Hz typical values define the
+  conservative white-noise calculation, while 2.9 nV/√Hz at 10 kHz explains the
+  different headline value. This is not a measured board result.
+- Texas Instruments, [OPA1632 data sheet](https://www.ti.com/lit/ds/symlink/opa1632.pdf).
+  Supplies the fully differential amplifier pin map, common-mode interface, and
+  the PCM4202 drive/filter topology adapted by the Rev-A EVT board.
+- Texas Instruments, [TPS7A39 data sheet](https://www.ti.com/lit/ds/symlink/tps7a39.pdf)
+  and [TPS7A20 data sheet](https://www.ti.com/lit/ds/symlink/tps7a20.pdf).
+  Supply the package pin maps, feedback equations, stability capacitors, and
+  operating limits for the local bipolar and ADC post-regulators.
 - AKM, [AK5572EN](https://www.akm.com/global/en/products/audio/audio-adc/ak5572en/);
-  TI, [PCM4202](https://www.ti.com/product/PCM4202/part-details/PCM4202DBR) and
+  TI, [PCM4202 data sheet](https://www.ti.com/lit/ds/symlink/pcm4202.pdf) and
   [TAA5242](https://www.ti.com/product/TAA5242). Current official product pages
-  supply ADC dynamic-range, interface, and availability candidates.
+  and data sheets supply ADC dynamic-range, interface, and availability
+  candidates. PCM4202 is the Rev-A EVT choice; its exact DBR pin map, 6 Vpp
+  differential full scale, 116 dB unweighted 48 kHz dynamic range, master-mode
+  strap table, 512-fS SCKI, 128-fS BCK, reference bypass, VCOM restriction, and
+  high-pass-disable polarity define the board and its verifier.
 - TI, [PCM5242](https://www.ti.com/product/PCM5242) and
   [PCM1792A](https://www.ti.com/product/PCM1792A/part-details/PCM1792ADB);
   AKM, [AK4493S announcement/specification](https://www.akm.com/global/en/about-us/news/2022/20220207-ak4493sak4490r/).

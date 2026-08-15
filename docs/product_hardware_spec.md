@@ -149,6 +149,15 @@ The physical input loading is required even though the reference tube circuit
 is digital. Cartridge inductance, cable capacitance, front-end capacitance, and
 47.5 kilohm resistance form a real electrical network before the ADC.
 
+The concrete Rev-A EVT artifact is
+`hardware/kicad/phono_adc_eval_rev_a/`. It implements OPA1656 flat gain,
+OPA1632 differential drive, PCM4202 conversion, relay-selected gain/loading,
+and local post-regulation on a routed 130 x 90 mm four-layer board. KiCad 10.0.5
+reports zero ERC, DRC, and unconnected items. It is intentionally marked not
+fabrication-released: the panel RCA/ground mechanics, total input capacitance,
+noise/hum/overload, RF/ESD behavior, stackup, muted relay operation, and the
+PCM4202 128-fS FPGA receive path are still release gates.
+
 ### 2.3 OB — DAC and line-output board
 
 Responsibilities:

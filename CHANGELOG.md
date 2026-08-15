@@ -6,6 +6,21 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added the routed four-layer shielded MM phono/PCM4202 ADC Rev-A EVT KiCad
+  project. It implements 47.5 kilohm 0.1% termination, relay-selected
+  0/47/100/147 pF C0G loading, OPA1656 flat 20.008/26.064/32.002 dB gain,
+  OPA1632 differential conversion and ADC reservoir filtering, PCM4202 48 kHz
+  master I2S with reference-mode HPF disabled, local TPS7A39/TPS7A20
+  post-regulation, fail-low relay drivers, and separate relay power. One source
+  model generates 135 schematic parts, 139 board footprints, 77 nets, BOM, and
+  exact headroom/clock/strap calculations. The open Freerouting 2.2.4 route has
+  926 segments / 141 vias; KiCad 10.0.5 reports zero ERC, zero DRC, and zero
+  unconnected items. A source-aware verifier audits critical pin maps, relay
+  defaults, DNP population, layers, dimensions, geometry, route statistics,
+  and calculation consistency. The board is unbuilt and visibly marked not
+  fabrication-released pending production RCA/ground mechanics, measured input
+  capacitance/noise/hum/overload/crosstalk/RF/ESD, stackup review, muted relay
+  testing, and 128-fS PCM4202 receiver validation.
 - Replaced both provisional display connector footprints with project-local,
   manufacturer-drawing implementations for the Molex 54104-4031 40-pin
   top-contact TFT FFC and 52271-0679 6-pin bottom-contact touch FFC. A dimension

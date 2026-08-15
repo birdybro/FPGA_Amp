@@ -1,15 +1,16 @@
 # ADC, DAC, and audio clocks
 
-No converter is selected for a production PCB. The following current, official
-candidate specifications narrow prototype work; they are not claims about a
-complete implementation.
+No converter is selected for a production PCB. PCM4202 is selected for the
+unbuilt Rev-A phono/ADC EVT board so that its clock, driver, headroom, and
+layout assumptions can be tested. The following official specifications narrow
+prototype work; they are not claims about measured performance.
 
 ## ADC candidates
 
 | Candidate | Relevant published capability | Engineering position |
 |---|---|---|
 | AKM AK5572EN | 2-channel differential, up to 768 kHz, 121 dB dynamic range, 112 dB S/(N+D), 124 dB mono mode, TDM | Leading high-performance prototype candidate; confirm exact full scale, group delay, supply/reference, and current availability in data sheet |
-| TI PCM4202 | 2-channel, 24-bit, 216 kHz, 118 dB A-weighted dynamic range, -105 dB THD+N, I²S | Mature audio-analysis baseline; lower integration rate but credible measured-performance target |
+| TI PCM4202 | 2-channel, 24-bit, 216 kHz, 118 dB A-weighted / 116 dB unweighted typical dynamic range at 48 kHz, -105 dB THD+N, I²S | Selected for the unbuilt Rev-A EVT board; validate performance, availability, and 128-fS serial timing before production selection |
 | TI TAA5242 | 2-channel, 192 kHz, 119 dB dynamic range, 2 V RMS differential full scale, I²S/TDM | Convenient match to the quantitative 2 V/119 dB front-end study; -98 dB THD+N may limit high-level transparency |
 
 The initial board should expose converter clipping before any digital scaling.
@@ -92,6 +93,18 @@ integrates the protocol blocks with independent depth-8 stereo-frame FIFOs and
 held ready/valid fabric interfaces. It deliberately performs no volts/code
 calibration, channel scheduling, rate matching between independent nominal
 sample clocks, or converter register setup.
+
+### Rev-A phono/ADC clock contract
+
+The routed Rev-A board uses the PCM4202 as the 48 kHz I²S master while the
+digital board supplies 24.576 MHz SCKI. Its fixed straps select 512-fS SCKI and
+128-fS BCK, producing 6.144 MHz BCK rather than the existing 3.072 MHz/64-fS
+RTL baseline. Each half-frame therefore contains 64 BCK periods; the receiver
+must capture the 24-bit I²S word after the conventional one-bit delay and ignore
+the unused remainder. This is an explicit open compatibility gate, not an
+assumption that the existing interface will work unchanged. The internal ADC
+high-pass filter is disabled so reference mode can retain the modeled circuit's
+subsonic response.
 
 Separate fabric-domain calibration primitives now implement the exact PCM24 to
 physical-Q8.24 boundary. ADC direction uses input-referred peak volts at PCM

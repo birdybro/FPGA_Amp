@@ -1,0 +1,127 @@
+{
+  "adc": {
+    "bck_hz": 6144000.0,
+    "bck_ratio_fs": 128,
+    "differential_full_scale_rms_v": 2.12,
+    "mode": "48 kHz single-rate master, 512 fS system clock, 24-bit I2S, HPF disabled",
+    "part": "PCM4202DBR",
+    "sample_rate_hz": 48000.0,
+    "straps": {
+      "FMT0": 1,
+      "FMT1": 0,
+      "FS0": 1,
+      "FS1": 0,
+      "FS2": 0,
+      "HPFD": 1,
+      "S/M": 0
+    },
+    "system_clock_hz": 24576000.0,
+    "system_clock_ratio_fs": 512.0
+  },
+  "gain": {
+    "driver_differential_gain": 1.0,
+    "driver_feedback_ohm": 316.0,
+    "driver_input_ohm": 316.0,
+    "settings": {
+      "20_db": {
+        "gain_db": 20.00819037273141,
+        "ground_resistor_ohm": 2120.0,
+        "input_for_adc_full_scale_mv_rms": 211.80018850141377,
+        "stress": {
+          "100_mv_rms": {
+            "adc_input_v_rms": 1.0009433962264151,
+            "adc_level_dbfs": -6.5185268458436205
+          },
+          "20_mv_rms": {
+            "adc_input_v_rms": 0.20018867924528302,
+            "adc_level_dbfs": -20.497926932563995
+          },
+          "4_mv_rms": {
+            "adc_input_v_rms": 0.0400377358490566,
+            "adc_level_dbfs": -34.477327019284374
+          }
+        },
+        "voltage_gain": 10.00943396226415
+      },
+      "26_db_default": {
+        "gain_db": 26.063921148409776,
+        "ground_resistor_ohm": 1000.0,
+        "input_for_adc_full_scale_mv_rms": 105.4726368159204,
+        "stress": {
+          "100_mv_rms": {
+            "adc_input_v_rms": 2.0100000000000002,
+            "adc_level_dbfs": -0.46279607016525065
+          },
+          "20_mv_rms": {
+            "adc_input_v_rms": 0.402,
+            "adc_level_dbfs": -14.442196156885627
+          },
+          "4_mv_rms": {
+            "adc_input_v_rms": 0.0804,
+            "adc_level_dbfs": -28.421596243606004
+          }
+        },
+        "voltage_gain": 20.1
+      },
+      "32_db": {
+        "gain_db": 32.00227338698595,
+        "ground_resistor_ohm": 492.0,
+        "input_for_adc_full_scale_mv_rms": 53.238056349530424,
+        "stress": {
+          "100_mv_rms": {
+            "adc_input_v_rms": 3.982113821138211,
+            "adc_level_dbfs": 5.475556168410918
+          },
+          "20_mv_rms": {
+            "adc_input_v_rms": 0.7964227642276422,
+            "adc_level_dbfs": -8.503843918309459
+          },
+          "4_mv_rms": {
+            "adc_input_v_rms": 0.15928455284552845,
+            "adc_level_dbfs": -22.483244005029835
+          }
+        },
+        "voltage_gain": 39.82113821138211
+      }
+    },
+    "stage_feedback_ohm": 19100.0
+  },
+  "input_load": {
+    "installed_selectable_capacitance_pf": [
+      0.0,
+      47.0,
+      100.0,
+      147.0
+    ],
+    "resistance_ohm": 47500.0,
+    "warning": "total cartridge load also includes cable, connector, ESD, relay, op-amp, and PCB parasitics and must be measured"
+  },
+  "regulated_rails": {
+    "+12VA": {
+      "input_nominal_v": 15.5,
+      "output_v": 12.0,
+      "regulator": "TPS7A39"
+    },
+    "+3V3D": {
+      "input_nominal_v": 3.7,
+      "output_v": 3.3,
+      "regulator": "TPS7A2033PDBVR"
+    },
+    "+5VA": {
+      "input_nominal_v": 5.7,
+      "output_v": 5.0,
+      "regulator": "TPS7A2050PDBVR"
+    },
+    "+5V_RELAY": {
+      "input_nominal_v": 5.0,
+      "output_v": 5.0,
+      "regulator": "external PB rail"
+    },
+    "-12VA": {
+      "input_nominal_v": -15.5,
+      "output_v": -11.9,
+      "regulator": "TPS7A39"
+    }
+  },
+  "status": "EVT calculations; not measured hardware performance"
+}

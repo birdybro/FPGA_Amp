@@ -99,21 +99,28 @@ def main() -> int:
         }
         analog_riaa_weighted[name] = rms_density(total_density * riaa, frequency)
 
-    adc_full_scale_v_rms = 2.0
-    adc_dynamic_range_db = 119.0
+    # Rev-A EVT board values.  PCM4202 specifies a 6 Vpp differential input
+    # (2.12 Vrms) and 116 dB typical unweighted dynamic range at 48 kHz.  The
+    # separate 118 dB figure is A-weighted and is not substituted into this
+    # unweighted 20 Hz--20 kHz integration.
+    adc_full_scale_v_rms = 2.12
+    adc_dynamic_range_db = 116.0
     adc_integrated_noise_v = adc_full_scale_v_rms / 10.0 ** (
         adc_dynamic_range_db / 20.0
     )
     adc_density = adc_integrated_noise_v / np.sqrt(20_000.0 - 20.0)
     architecture = {
         "assumptions": {
+            "analog_baseline": "OPA1656",
+            "adc": "PCM4202 at 48 kHz; typical unweighted data-sheet dynamic range",
             "adc_full_scale_differential_v_rms": adc_full_scale_v_rms,
             "adc_dynamic_range_db": adc_dynamic_range_db,
             "transient_levels_v_rms_equivalent": [0.004, 0.020, 0.100],
             "architecture_b_partition": "analog 3180/318 us shelf; digital 75 us pole",
         },
         "A_flat_26db": {
-            "analog_gain_db_at_1khz": 26.0,
+            # Exact 1 + 19.1k/1.00k Rev-A default population.
+            "analog_gain_db_at_1khz": 20.0 * np.log10(20.1),
             "analog_gain_peak_20hz_to_20khz_db_relative_1khz": 0.0,
         },
         "B_partial_20db": {
@@ -154,17 +161,17 @@ def main() -> int:
         entry["adc_noise_referred_to_cartridge_after_riaa_rms_v"] = rms_density(
             adc_density * digital_response / gain, frequency
         )
-        best_analog = analog_riaa_weighted["ADA4625-1"]
+        best_analog = analog_riaa_weighted["OPA1656"]
         adc_referred = entry[
             "adc_noise_referred_to_cartridge_after_riaa_rms_v"
         ]
-        entry["combined_ada4625_and_adc_after_riaa_rms_v"] = float(
+        entry["combined_opa1656_and_adc_after_riaa_rms_v"] = float(
             np.hypot(best_analog, adc_referred)
         )
         entry["snr_for_4mv_after_riaa_db"] = float(
             20.0
             * np.log10(
-                4.0e-3 / entry["combined_ada4625_and_adc_after_riaa_rms_v"]
+                4.0e-3 / entry["combined_opa1656_and_adc_after_riaa_rms_v"]
             )
         )
 

@@ -22,6 +22,7 @@ NEXYS_AUDIO_BIT ?= build/openxc7/xc7a200tsbg484-1/phono_audio_top_xc7/routed/pho
 .PHONY: audio-clock-plan nexys-audio-top-contract audio-serial-clock-rtl i2c-write-rtl adau1761-codec-init-rtl codec-shared-i2s-guard-rtl synth-audio-clock-xc7 synth-audio-serial-clock-xc7 synth-i2c-write synth-adau1761-codec-init synth-codec-shared-i2s-guard synth-nexys-phono-audio-xc7 openxc7-a200t-audio-clock-pnr openxc7-a200t-audio-clock-bit openxc7-a200t-phono-audio-pnr openxc7-a200t-phono-audio-bit nexys-audio-hardware-preflight nexys-audio-program-sram
 .PHONY: product-hardware-spec kicad-motor-generate kicad-motor-route kicad-motor-check kicad-motor-fab
 .PHONY: kicad-controller-generate kicad-controller-route kicad-controller-check kicad-controller-render
+.PHONY: kicad-phono-adc-generate kicad-phono-adc-route kicad-phono-adc-check kicad-phono-adc-render
 .PHONY: volume-servo-test
 .PHONY: master-volume-rtl synth-master-volume
 
@@ -820,6 +821,32 @@ kicad-controller-render:
 	$(KICAD_CLI) pcb render --quality high --width 2000 --height 1200 \
 		-o build/kicad/front_panel_controller/front_panel_controller.png \
 		hardware/kicad/front_panel_controller_rev_a/front_panel_controller.kicad_pcb
+
+kicad-phono-adc-generate:
+	$(PYTHON) hardware/kicad/phono_adc_eval_rev_a/generate.py
+
+kicad-phono-adc-route: kicad-phono-adc-generate
+	@test -n "$(FREEROUTING_JAR)" || (echo "set FREEROUTING_JAR=/path/to/freerouting.jar" >&2; exit 2)
+	$(PYTHON) hardware/kicad/phono_adc_eval_rev_a/route_open.py --jar "$(FREEROUTING_JAR)" --passes 20
+
+kicad-phono-adc-check:
+	mkdir -p build/kicad/phono_adc_eval
+	$(KICAD_CLI) sch erc --severity-all --exit-code-violations --format json \
+		-o build/kicad/phono_adc_eval/erc.json \
+		hardware/kicad/phono_adc_eval_rev_a/phono_adc_eval.kicad_sch
+	$(KICAD_CLI) pcb drc --refill-zones --save-board --severity-all --exit-code-violations --format json \
+		-o build/kicad/phono_adc_eval/drc.json \
+		hardware/kicad/phono_adc_eval_rev_a/phono_adc_eval.kicad_pcb
+	$(PYTHON) hardware/kicad/phono_adc_eval_rev_a/verify.py \
+		--erc build/kicad/phono_adc_eval/erc.json \
+		--drc build/kicad/phono_adc_eval/drc.json \
+		--output build/kicad/phono_adc_eval/stats.json
+
+kicad-phono-adc-render:
+	mkdir -p build/kicad/phono_adc_eval
+	$(KICAD_CLI) pcb render --quality high --width 2000 --height 1300 \
+		-o build/kicad/phono_adc_eval/phono_adc_eval.png \
+		hardware/kicad/phono_adc_eval_rev_a/phono_adc_eval.kicad_pcb
 
 volume-servo-test:
 	mkdir -p build/firmware_front_panel
