@@ -869,6 +869,8 @@ make formal-cdc-pulse              # bounded low-rate toggle CDC safety
 make formal-audio-clock            # bounded BCLK monitor safety/lock witness
 make formal-audio-calibration      # exhaustive converter rounding/saturation
 make formal-spi-control            # bounded arbitrary-pin SPI state safety
+make master-volume-rtl             # stereo click-free Q0.31 volume endpoint
+make volume-servo-test             # host C11 motor-position/fault controller
 make audio-clock-rtl               # BCLK/fabric ratio lock and error monitor
 make async-fifo-rtl                # unrelated-clock CDC ordering/fault gate
 make cdc-pulse-rtl                # one-shot host command CDC
@@ -913,6 +915,7 @@ make synth-audio-clock             # audio clock ratio monitor estimate
 make synth-async-fifo              # depth-8 dual-clock FIFO estimate
 make synth-cdc-pulse               # one-shot command crossing estimate
 make synth-spi-control             # oversampled SPI transport estimate
+make synth-master-volume           # out-of-context stereo volume estimate
 make synth-i2s                     # receiver/transmitter structural estimates
 make synth-i2s-bridge              # bidirectional protocol/CDC bridge estimate
 make synth-calibration             # dynamic converter-scaling estimates

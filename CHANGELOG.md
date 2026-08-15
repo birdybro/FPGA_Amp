@@ -6,6 +6,18 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a synthesizable stereo master-volume endpoint corresponding to the
+  motorized front-panel control. The modern, post-model primitive accepts
+  unsigned Q0.31 linear targets, reserves zero and `0x7fffffff` for exact
+  silence/unity bypass, rejects out-of-range targets with retained diagnostics,
+  and reaches a new target within a configurable power-of-two sample count
+  without hardware division. Full 64-bit stereo products use symmetric
+  round-to-nearest. Warning-free directed/randomized RTL exercises mid-ramp
+  retargeting, signed rounding, stereo independence, silence, unity, and target
+  rejection. Yosys out-of-context XC7 synthesis reports 312 estimated logic
+  cells / 151 flip-flops / eight DSP48E1 / no BRAM / zero structural problems.
+  It is not yet integrated into the mono Nexys hierarchy; no placed timing,
+  physical audio, or stereo-product fit is claimed.
 - Added a portable C11 motor-volume servo core for the future front-panel MCU.
   It keeps the motor position transducer outside audio, clamps commands to
   calibrated soft endpoints, reduces duty on approach, coasts in deadband,

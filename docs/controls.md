@@ -102,6 +102,17 @@ This crossing is not a reset-independent or arbitrary-rate event channel.
 Write access to reference values is not a backdoor “tone control.” Arbitrary
 experiments are creative mode and the active mode is included in captures.
 
+The standalone stereo master-volume endpoint uses unsigned Q0.31 gain. Zero is
+silence and `0x7fffffff` is deliberately treated as exact unity so reference
+samples bypass multiplication bit-for-bit. Values with bit 31 set are rejected
+with a sticky diagnostic. Each accepted target computes
+`ceil(abs(target-current)/2^SLEW_SHIFT)` and moves by that fixed step only at
+valid 48 kHz sample boundaries; the default shift of 10 reaches the target in
+at most 1,024 samples (21.33 ms) without hardware division. The UI maps dB to
+this linear target and serializes physical/touch/CEC/network requests. This
+modern control belongs after the selected model and before the independent
+safety-mute ramp.
+
 The implemented calibration primitives consume positive signed-Q8.24
 coefficients. ADC calibration is input-referred peak volts at PCM full scale;
 DAC calibration is reciprocal peak volts. `calibration_commit_guard` now owns

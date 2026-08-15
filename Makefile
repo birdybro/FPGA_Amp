@@ -20,6 +20,7 @@ NEXYS_AUDIO_BIT ?= build/openxc7/xc7a200tsbg484-1/phono_audio_top_xc7/routed/pho
 .PHONY: audio-clock-plan nexys-audio-top-contract audio-serial-clock-rtl i2c-write-rtl adau1761-codec-init-rtl codec-shared-i2s-guard-rtl synth-audio-clock-xc7 synth-audio-serial-clock-xc7 synth-i2c-write synth-adau1761-codec-init synth-codec-shared-i2s-guard synth-nexys-phono-audio-xc7 openxc7-a200t-audio-clock-pnr openxc7-a200t-audio-clock-bit openxc7-a200t-phono-audio-pnr openxc7-a200t-phono-audio-bit nexys-audio-hardware-preflight nexys-audio-program-sram
 .PHONY: product-hardware-spec
 .PHONY: volume-servo-test
+.PHONY: master-volume-rtl synth-master-volume
 
 all: reference test
 
@@ -387,6 +388,9 @@ guarded-stream-rtl:
 mute-rtl:
 	$(PYTHON) scripts/run_mute_rtl.py --verilator $(VERILATOR)
 
+master-volume-rtl:
+	$(PYTHON) scripts/run_master_volume_rtl.py --verilator $(VERILATOR)
+
 formal: formal-mute formal-async-fifo formal-calibration-control formal-frame-scheduler formal-cdc-snapshot formal-cdc-pulse formal-audio-clock formal-audio-calibration formal-spi-control
 
 formal-mute:
@@ -662,6 +666,9 @@ synth-stream-guarded:
 synth-mute:
 	$(PYTHON) scripts/run_synthesis.py --top output_mute_ramp
 
+synth-master-volume:
+	$(PYTHON) scripts/run_synthesis.py --top master_volume_ramp
+
 synth-audio-clock:
 	$(PYTHON) scripts/run_synthesis.py --top audio_clock_rate_monitor
 
@@ -762,6 +769,7 @@ python-test:
 
 test: python-test arithmetic-bounds rtl hermite-rtl factorized-rtl factorized-linear-rtl chord-rtl wide-chord-rtl wide-chord-pipelined-rtl wide-chord-early-preview-rtl trapezoidal-banked-chord-rtl trapezoidal-384-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl trapezoidal-384-network-rtl decoupled-diagnostic-kcl-rtl decoupled-maximum-only-kcl-rtl serial-maximum-kcl-rtl shared-capacitor-decoupled-diagnostic-kcl-rtl solver-rtl solver-factorized-rtl wide-solver-rtl wide-linear-solver-rtl parallel-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-banked-solver-rtl trapezoidal-terminal-banked-solver-rtl trapezoidal-384-terminal-banked-solver-rtl trapezoidal-parallel-terminal-banked-solver-rtl trapezoidal-parallel-pipelined-terminal-banked-solver-rtl trapezoidal-parallel-decoupled-diagnostic-pipelined-terminal-banked-solver-rtl trapezoidal-parallel-shared-capacitor-decoupled-diagnostic-pipelined-terminal-banked-solver-rtl trapezoidal-parallel-shared-capacitor-terminal-decoupled-diagnostic-pipelined-terminal-banked-solver-rtl terminal-current-half-parallel-rtl trapezoidal-parallel-shared-terminal-diagnostic-pipelined-terminal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl stream-trapezoidal-terminal-banked-rtl stream-trapezoidal-384-terminal-banked-rtl stream-trapezoidal-384-terminal-banked-half-clock-rtl stream-trapezoidal-384-terminal-banked-half-clock-pipelined-rtl stream-trapezoidal-384-terminal-banked-half-clock-retimed-rtl stream-trapezoidal-384-terminal-banked-half-clock-late-select-rtl stream-trapezoidal-384-terminal-banked-half-clock-late-select-retimed-rtl stream-trapezoidal-384-terminal-banked-half-clock-late-select-serial-max-rtl stream-trapezoidal-384-terminal-banked-half-clock-node-prefetch-serial-max-rtl guarded-stream-rtl mute-rtl audio-clock-rtl async-fifo-rtl cdc-pulse-rtl cdc-snapshot-rtl spi-control-rtl i2s-rtl i2s-bridge-rtl calibration-rtl calibration-control-rtl control-registers-rtl frame-scheduler-rtl mono-adapter-rtl i2s-mono-top-rtl i2s-control-top-rtl i2s-spi-top-rtl
 test: volume-servo-test
+test: master-volume-rtl
 
 openxc7-probe:
 	$(PYTHON) scripts/run_openxc7.py --probe --nextpnr $(NEXTPNR)

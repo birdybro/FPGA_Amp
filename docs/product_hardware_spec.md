@@ -455,6 +455,22 @@ User steps may be 0.5 dB while internal gain and remote ramps use finer
 resolution. The exact law is frozen after listening and level-resolution tests,
 but it remains a modern output control and cannot modify tube operating points.
 
+The FPGA endpoint is now implemented as `rtl/audio/master_volume_ramp.sv`.
+It accepts unsigned Q0.31 linear gain, reserves `0x7fffffff` as an exact-unity
+sentinel, rejects values with bit 31 set, and slews a new target in at most
+2^10 accepted 48 kHz samples (21.33 ms by default) using a shift/round-up
+operation rather than hardware division. Stereo samples use full 64-bit
+products and symmetric round-to-nearest, ties away from zero. Silence and unity
+bypass the multiplier exactly. The primitive is outside the historical model
+and is not yet integrated into the mono Nexys board top.
+
+Warning-free directed/randomized RTL simulation covers mid-ramp retargeting,
+positive/negative rounding, independent stereo samples, silence, exact unity,
+and invalid-target retention. Yosys out-of-context XC7 synthesis reports 312
+estimated logic cells, 151 flip-flops, eight DSP48E1 blocks, no BRAM, and zero
+structural problems or warnings. This is not placed timing or stereo product-
+hierarchy evidence.
+
 ### 9.2 Position sensor and prototype mechanism
 
 For the PRM16 prototype, one resistive section is excited from the filtered MCU
@@ -667,6 +683,9 @@ There are three mute layers:
 1. FPGA sample-domain ramp for click-free normal operations;
 2. DAC mute/configuration state; and
 3. independent OB/PB analog mute, asserted by hardware default.
+
+Master volume precedes the safety mute ramp. A unity master setting is
+bit-transparent; safety mute retains authority regardless of the user target.
 
 The dedicated front mute button requests both normal digital mute and a direct
 hardware-safe path. Normal user action may ramp before opening the analog path;

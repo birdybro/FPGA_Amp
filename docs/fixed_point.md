@@ -16,6 +16,32 @@ The primitive is single-issue, uses one synchronous read port per ROM, and asser
 
 The table itself contributes physical-model approximation error. Q-format, coordinate, and interpolation error are measured together against the analytical model; that number must not be presented as error against a real tube.
 
+## Modern stereo master volume
+
+The post-model master-volume target and active gain use unsigned Q0.31. Zero is
+silence. `0x7fffffff` is an exact-unity sentinel and bypasses multiplication so
+reference samples are bit-identical; it is intentionally treated as 1.0 even
+though the ordinary Q0.31 interpretation is one LSB below unity. Bit 31 is
+invalid and produces a sticky control diagnostic.
+
+Each stereo Q8.24 sample multiplies the 32-bit zero-extended gain as a signed
+32 x 32 operation. The complete signed 64-bit product is retained, then shifted
+31 bits with symmetric round-to-nearest, ties away from zero. Since accepted
+gain never exceeds unity, the result cannot exceed the input magnitude and no
+wrap/saturation case is created. Zero and unity bypass the multiplier exactly.
+
+On target commit, the step is
+
+```text
+ceil(abs(target - active_gain) / 2^SLEW_SHIFT)
+```
+
+using add-and-shift arithmetic. The active gain moves by that fixed step only at
+valid sample boundaries and clamps to the target, so it reaches the target
+within `2^SLEW_SHIFT` accepted samples. Default `SLEW_SHIFT=10` is at most 1,024
+samples or 21.33 ms at 48 kHz. This is a modern output control, not part of the
+physical tube circuit.
+
 ## Converter calibration boundary
 
 I²S PCM24 codes are dimensionless; the V1 circuit boundary is physical volts in

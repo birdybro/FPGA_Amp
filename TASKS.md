@@ -35,6 +35,15 @@ access and finished-device compliance.
   failing reversal sequence is retained. The warning-as-error regression now
   passes. This does not validate PWM/ADC peripherals, motor EMI/torque/noise,
   touchscreen interaction, or mechanism lifetime.
+- [x] Implement the matching stereo FPGA master-volume endpoint outside the
+  historical model. Unsigned Q0.31 targets slew in at most 1,024 valid samples
+  by default without division; zero and the exact-unity sentinel bypass
+  multiplication, while signed stereo products retain all 64 bits and use
+  symmetric round-to-nearest. Warning-free directed/randomized RTL covers
+  retargeting, rounding, stereo independence, silence, unity, and invalid-target
+  retention. Yosys reports 312 estimated logic cells / 151 flip-flops / eight
+  DSP48E1 / no BRAM / zero problems. The primitive is not yet wired into the
+  mono Nexys top, and this is no placed timing or stereo product-fit claim.
 - [ ] Close eARC EVT-0 gates before a mainboard schematic: confirm the current
   supported audio-device receiver/successor and supply path; obtain HDMI adopter
   and vendor reference/API access; compare SRC4392 and AD1896 with asynchronous
