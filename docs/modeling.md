@@ -93,8 +93,13 @@ full-solver vectors exactly, with zero full-solver diagnostics and 127-clock lat
 requires signed 19-bit rather than 18-bit Q17.1 coefficients. The complete
 48→384→48 kHz fixed/RTL candidate subsequently matches 64 external outputs /
 512 internal updates exactly with zero converter, solver, or deadline events.
-Clicks, post-burst recovery, and broader alias vectors remain unverified, so
-reference mode stays 16x/768 kHz.
+The subsequent paired fixed-stream campaign covers 772,608 nonlinear updates
+with zero diagnostics. A 0.5 V burst recovers at 147.771 ms versus 147.583 ms
+for 768 kHz and has a -56.25 dB aligned waveform residual. The record-pop
+response is materially less similar: -15.18 dB aligned waveform residual,
+85.6 mV maximum error, and -16.76 dB audio-band spectral residual. This total
+rate delta includes integration, fixed-point, and resampler effects and is not
+mislabeled as alias alone. Reference mode therefore stays 16x/768 kHz.
 
 The first trapezoidal large-signal gate applies 5 ms, 1 kHz bursts inside a
 100 ms trajectory. Both floating methods remain finite and Newton-convergent at
@@ -460,7 +465,8 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | 768 kHz trapezoidal float candidate | 10/20 kHz SPICE transients | <=0.00846 dB gain / <=0.0582 degree phase; downstream proof open |
 | 384 kHz trapezoidal architecture study | 10/20 kHz SPICE plus 20 kHz nonlinear rate stress | <=0.06653 dB / <=0.02234 degree vs SPICE; nominal/hot complete-circuit selected products within 0.52 dB of 768 kHz; static-tube stress 11.33 dB worse but -118.65 dBc; not promoted |
 | 384 kHz fixed/RTL circuit core | 1,024 all-bank chord + 1,024 KCL + 512 persistent solver vectors | bit-exact at 10/11/127 clocks; zero solver diagnostics; 19-bit chord coefficient required |
-| 384 kHz fixed/RTL complete stream | 64 outputs / 512 nonlinear updates | exact Q8.24 output and diagnostics; 17,629 LC / 219 DSP / 10 RAMB18 equivalents versus 18,302 / 222 / 10 at 768 kHz; transient alias/recovery and Fmax open |
+| 384 kHz fixed/RTL complete stream | 64 outputs / 512 nonlinear updates | exact Q8.24 output and diagnostics; 17,629 LC / 219 DSP / 10 RAMB18 equivalents versus 18,302 / 222 / 10 at 768 kHz; long-vector RTL and Fmax open |
+| 384/768 kHz fixed transient A/B | pop/control and 0.5 V burst/control; 772,608 nonlinear updates | zero diagnostics; pop -15.18 dB aligned / 85.6 mV peak delta, so 8x not promoted; recovery +0.1875 ms / -56.25 dB aligned; long RTL capture open |
 | trapezoidal float overload stability | 20 mV--1.5 V, 100 ms records | finite/convergent; clean recovery matches BE; shared long memory above 0.5 V |
 | long floating overload tail | 0.5--1.5 V, 250 ms records / 235 ms post-burst | 0.5 V 10% recovery 146.552 ms; severe fitted crossings explicitly projected |
 | severe floating overload tail | 1.0/1.5 V, 850 ms records / 835 ms post-burst | early exponential projection falsified; 1.0 V 10% at 270.112 ms; 1.5 V not recovered |

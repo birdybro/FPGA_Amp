@@ -81,8 +81,11 @@ matches 1,024 interpolation and 128 decimation outputs with zero saturation,
 overrun, or phase errors. This establishes the converter arithmetic and clock-
 enable schedule. The converter also composes bit-exactly with the 384 kHz
 nonlinear core for 64 external outputs / 512 internal updates, with zero
-converter, solver, or deadline diagnostics. This still does not promote 8× to
-reference mode because transient alias and recovery evidence remain open.
+converter, solver, or deadline diagnostics. A longer paired fixed-stream study
+then finds the overload-recovery trajectory close but a -15.18 dB aligned
+record-pop residual and 85.6 mV peak difference. This aggregate includes the
+rate-specific integrator and fixed circuit as well as the converters. It blocks
+8× promotion rather than silently accepting the smaller converter.
 
 Stage-1 unit tests match 256 input pairs exactly in each direction. Complete
 chain tests match 2,048 interpolation outputs and 128 decimation outputs exactly,

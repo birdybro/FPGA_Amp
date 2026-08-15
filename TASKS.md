@@ -101,9 +101,19 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   costs nine more DSPs than the controlled 768 kHz core synthesis. The complete
   48→384→48 kHz candidate is now exact for 64 external outputs / 512
   nonlinear updates with zero diagnostics. Full-stream synthesis is 17,629 LC /
-  219 DSP / 10 RAMB18 equivalents, versus 18,302 / 222 / 10 at 768 kHz. Add
-  transient/pop and post-burst alias comparisons before promotion.
+  219 DSP / 10 RAMB18 equivalents, versus 18,302 / 222 / 10 at 768 kHz. The
+  772,608-update fixed transient comparison is diagnostic-clean and finds only
+  +0.1875 ms recovery delta / -56.25 dB aligned recovery error, but the pop
+  response differs by -15.18 dB aligned / 85.6 mV peak. Keep 8x unpromoted;
+  diagnose that transient difference and capture the long vectors in RTL.
 ## Completed this milestone
+
+- [x] Compare complete 384/768 kHz fixed streams on matched record-pop and
+  accepted-range 0.5 V overload/control trajectories. Process 772,608 nonlinear
+  updates with zero diagnostics; measure 147.771/147.583 ms recovery and a
+  -56.25 dB aligned recovery null. Preserve the failing pop evidence (-15.18 dB
+  aligned, 85.6 mV peak, -16.76 dB audio-band spectral residual) and withhold
+  8x promotion rather than weakening the comparison.
 
 - [x] Compose the exact three-stage converters with the rate-specific 384 kHz
   banked-terminal core. Generalize the bit-accurate stream model and vector/

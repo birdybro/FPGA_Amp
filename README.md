@@ -53,8 +53,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   updates exactly, with zero converter, solver, or deadline diagnostics.
   Controlled full-stream synthesis measures 17,629 LC / 219 DSP / 10 RAMB18
   equivalents at 384 kHz versus 18,302 / 222 / 10 at 768 kHz. Reference mode
-  remains 16×/768 kHz until transient alias and overload-recovery comparisons
-  are complete; the lower-rate result is not a timing-closure claim.
+  remains 16×/768 kHz. A 772,608-update paired fixed-stream campaign finds
+  8× recovery only 0.1875 ms later, with a -56.25 dB aligned residual, but
+  exposes a material synthetic-pop difference: -15.18 dB aligned residual,
+  85.6 mV peak error, and -16.76 dB audio-band spectral residual. The 8× path
+  is therefore not promoted; neither structural result is a timing-closure
+  claim.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both

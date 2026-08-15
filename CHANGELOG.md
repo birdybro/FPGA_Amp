@@ -211,6 +211,15 @@ All notable engineering changes are recorded here. The project is pre-release; d
   stream. The 8x path remains an explicit non-reference candidate pending
   transient alias, overload recovery, and named-part timing evidence.
 
+- Extended the internal-rate study through complete fixed-stream synthetic-pop
+  and accepted-range 0.5 V overload/control pairs. Across 772,608 nonlinear
+  updates both rates remain diagnostic-clean. The 8x recovery crossing is only
+  0.1875 ms later and its latency-aligned waveform residual is -56.25 dB, but
+  the pop differs by -15.18 dB RMS after fractional-delay alignment, 85.6 mV
+  peak, and -16.76 dB over the audio-band spectrum. Absolute spectral RSS is
+  recorded alongside ratios. The material pop discrepancy explicitly blocks
+  8x promotion pending diagnosis and long-vector RTL capture.
+
 - Added a reproducible 384 kHz/8x architecture study while retaining
   768 kHz/16x as reference mode. The SPICE comparison now measures the lower-
   rate trapezoidal model at 10 and 20 kHz: maximum error is 0.06653 dB and

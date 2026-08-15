@@ -46,8 +46,12 @@ solver, or deadline diagnostics. Its stage-3 enable occurs every 256 fabric
 clocks and interpolation scheduling delay is eight 384 kHz samples. Controlled
 Yosys synthesis measures 17,629 LC / 219 DSP / 10 RAMB18 equivalents versus
 18,302 / 222 / 10 for the selected 768 kHz stream. This is structural evidence,
-not Fmax closure. Transient alias and recovery comparisons remain required
-before the lower-rate candidate can be selected.
+not Fmax closure. The subsequent complete fixed-stream transient gate processes
+772,608 nonlinear updates with zero diagnostics. Its accepted-range overload
+recovery is close (8× is 0.1875 ms later and -56.25 dB aligned), but the
+synthetic-pop response differs by -15.18 dB RMS after fractional-delay alignment
+and by 85.6 mV peak. That discrepancy blocks lower-rate selection pending
+diagnosis and direct long-vector RTL capture.
 
 `phono_stream_mono.sv` now implements this digital reference boundary from
 48 kHz Q8.24 physical input volts through 16× interpolation, the complete V1

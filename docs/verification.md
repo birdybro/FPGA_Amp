@@ -199,6 +199,7 @@ scripts/run_frame_scheduler_formal.py  phase/zero-fill/counter induction
 | 8x interpolator/decimator RTL | 128 external inputs; 1,024/128 compared outputs | bit-exact Q8.24; zero saturation/overrun/phase errors; 8-sample 384 kHz interpolation schedule delay |
 | 8x interpolator/decimator synthesis | Yosys 0.66 XC7 out-of-context | interpolation 1,549 LC / 12 DSP; decimation 2,355 LC / 24 DSP; no Fmax claim |
 | 384 kHz banked-terminal complete stream | 64 outputs / 512 circuit samples plus controlled synthesis | bit-exact Q8.24; zero converter/solver/deadline diagnostics; 127-clock solver; 17,629 LC / 219 DSP / 10 RAMB18 equivalents versus 18,302 / 222 / 10 at 768 kHz; no Fmax or promotion claim |
+| 384/768 kHz fixed transient rate A/B | 4,096-frame pop/control plus 12,000-frame 0.5 V burst/control | 772,608 updates, zero diagnostics; pop -15.178 dB aligned, 85.605 mV max delta, -16.755 dB audio-band spectral residual; 8x recovery 147.771 ms vs 147.583 ms, -56.251 dB aligned; not promoted, long RTL proof open |
 | trapezoidal overload stability | 20 mV/0.5/1.0/1.5 V, 85 ms post-burst | finite/convergent; 20 mV recovery within 2.6 us of BE |
 | long trapezoidal overload recovery | 0.5/1.0/1.5 V, 235 ms post-burst | 0.5 V 10% recovery 146.552 ms; 98.2--118.1 ms fitted modes; severe crossings remain labeled projections |
 | severe trapezoidal overload recovery | 1.0/1.5 V, 835 ms post-burst | 1.0 V sustained 10% 270.112 ms; 1.5 V not 10%; 413--451x cancellation rebound falsifies early fit |
