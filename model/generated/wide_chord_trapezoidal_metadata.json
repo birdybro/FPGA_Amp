@@ -1,6 +1,8 @@
 {
   "algorithm": "9x9 Q17.1 inverse by adaptive signed 25-bit residual",
   "integration_method": "trapezoidal",
+  "sample_rate_hz": 768000,
+  "coefficient_width_bits": 18,
   "vectors": 1024,
   "seed": 4243678,
   "node_fractional_bits": [
@@ -19,6 +21,9 @@
     30,
     34,
     40
+  ],
+  "coefficient_set_vector_counts": [
+    1024
   ],
   "saturation_vectors": 78,
   "latency_clocks": 10,

@@ -1,8 +1,10 @@
 {
   "algorithm": "Vgk2-selected bank of 9x9 Q17.1 chord inverses",
   "integration_method": "backward_euler",
+  "sample_rate_hz": 768000,
   "coefficient_sets": 4,
   "coefficients_per_set": 81,
+  "coefficient_width_bits": 18,
   "coefficient_min": -23414,
   "coefficient_max": 130068,
   "cutoff_regimes": [
@@ -28,5 +30,36 @@
     "reuses_existing_cutoff_set": false
   },
   "nominal_set_index": 3,
-  "output": "model/generated/v1_chord_inverse_banked_q17_1.mem"
+  "output": "model/generated/v1_chord_inverse_banked_q17_1.mem",
+  "vectors": 1024,
+  "seed": 4243678,
+  "node_fractional_bits": [
+    32,
+    28,
+    32,
+    28,
+    32,
+    32,
+    28,
+    32,
+    32
+  ],
+  "node_width_bits": 40,
+  "residual_fractional_bits": [
+    30,
+    34,
+    40
+  ],
+  "coefficient_set_vector_counts": [
+    256,
+    256,
+    256,
+    256
+  ],
+  "saturation_vectors": 107,
+  "latency_clocks": 10,
+  "outputs": [
+    "model/generated/v1_chord_inverse_banked_q17_1.mem",
+    "sim/vectors/generated/wide_chord_banked.txt"
+  ]
 }

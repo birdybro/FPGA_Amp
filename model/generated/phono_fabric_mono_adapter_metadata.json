@@ -4,6 +4,7 @@
   "integration_method": "trapezoidal",
   "banked_chord": true,
   "terminal_correction": true,
+  "internal_sample_rate_hz": 768000,
   "vectors": 64,
   "input_full_scale_peak_volts_q24": 335544,
   "input_full_scale_peak_volts": 0.019999980926513672,

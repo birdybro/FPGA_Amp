@@ -938,6 +938,12 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Fixed
 
+- Refreshed seven tracked fixed-model metadata assets that had lagged their
+  deterministic generators. The files now record the exact
+  `factorized_hermite` implementation, explicit 384/768 kHz rate fields, chord
+  coefficient widths, per-bank vector counts, and full vector provenance.
+  Re-running each owning generator produces byte-identical metadata, restoring
+  the CI `git diff --exit-code -- model/generated` contract after `make test`.
 - Corrected the clock-only Nexys Video harness reset polarity. Physical G4 is
   active-low `CPU_RESETN`; the prior harness passed it directly to active-high
   MMCM and counter resets, so its generated `941a8c07...e0ff656` bitstream
