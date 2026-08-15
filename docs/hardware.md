@@ -659,6 +659,32 @@ early preview and tube-pin conversion to a tube input register. Because this
 is slower than the 48.482 MHz baseline and another preview register would add
 a clock to each correction pass, neither prefetch profile is promoted.
 
+The zero-latency `stream_384khz_49mhz_late_select_pnr_harness` attacks the
+baseline path without a preview register. It performs the existing exact node
+subtractions and Q-format conversions independently on the current and
+corrected stage-one values, then selects the already converted 32-bit `Vgk`
+and `Vpk` buses. The complete 64-output/512-update regression remains bit-exact
+with zero diagnostics at 127 clocks. Yosys measures 15,645 LC / 8,589 FF / 207
+DSP / 10 RAMB18 equivalents; open packing measures 56,549 LUTX / 8,589 FFX /
+4,181 CARRY4 / 207 DSP. Seed 1 routes legally in 28 router2 iterations at
+48.700 MHz versus 49.152 MHz, a 0.92% shortfall. Its 20.53 ns path contains
+8.84 ns logic and 11.70 ns routing and now lies entirely in the KCL residual
+absolute-value/maximum diagnostic. Seed 2 routes legally in 25 iterations at
+45.051 MHz. Seed 3 places at 41.55 MHz, but its router took several minutes per
+iteration and was bounded after iteration 2; no routed seed-3 Fmax is claimed.
+
+For context, the unchanged baseline seed sweep reaches 48.482, 46.326, and
+46.970 MHz for seeds 1--3; seeds 2 and 3 legalize in 15 and 17 router2
+iterations. Thus the seed-1 late-selector result is the best complete route,
+but neither a single favorable seed nor the experimental backend's `DEFAULT`
+grade constitutes closure. A combined late-selector/four-boundary-maximum
+profile remains numerically exact and synthesizes to 16,120 LC / 9,665 FF /
+207 DSP / 10 RAMB18 equivalents. Its 1,076 extra registers increase control
+sets and routing pressure: the local run needed roughly twelve minutes for
+router iteration 1, still had 45,484 overused wires, and was bounded during
+iteration 2. It is rejected as a physical implementation, not reported as a
+failed legal route.
+
 The placement analyzer now recognizes complete-stream resampler hierarchy
 instead of folding it into harness constants. In the 38.34 MHz static result,
 the decimator accounts for 8,397 LUTX / 4,791 FFX / 12 DSP and spans 244x143

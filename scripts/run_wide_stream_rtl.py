@@ -34,6 +34,11 @@ def main() -> int:
         help="capture exact tube pin pairs before each residual launch",
     )
     parser.add_argument(
+        "--late-tube-input-select",
+        action="store_true",
+        help="select between independently converted current/corrected tube pins",
+    )
+    parser.add_argument(
         "--decoupled-kcl-maximum-only",
         action="store_true",
         help="pipeline only the final KCL maximum on its exact sideband",
@@ -64,6 +69,10 @@ def main() -> int:
         )
     if args.fabric_clock_hz == 49_152_000 and args.sample_rate_hz != 384_000:
         parser.error("49.152 MHz fabric operation requires the 384 kHz stream")
+    if args.prefetch_tube_inputs and args.late_tube_input_select:
+        parser.error(
+            "--prefetch-tube-inputs and --late-tube-input-select are mutually exclusive"
+        )
     if args.pipelined_solver_profile and not (
         args.sample_rate_hz == 384_000
         and args.trapezoidal
@@ -170,6 +179,8 @@ def main() -> int:
         parameter_args.append("-GPIPELINED_SOLVER_PROFILE=1")
     if args.prefetch_tube_inputs:
         parameter_args.append("-GPREFETCH_TUBE_INPUTS=1")
+    if args.late_tube_input_select:
+        parameter_args.append("-GLATE_TUBE_INPUT_SELECT=1")
     if args.decoupled_kcl_maximum_only:
         parameter_args.append("-GDECOUPLED_KCL_MAXIMUM_ONLY=1")
     build = ROOT / "build" / (
@@ -181,6 +192,7 @@ def main() -> int:
         + ("_terminal" if args.terminal_correction else "")
         + ("_pipelined_solver" if args.pipelined_solver_profile else "")
         + ("_prefetched_tube_inputs" if args.prefetch_tube_inputs else "")
+        + ("_late_tube_input_select" if args.late_tube_input_select else "")
         + (
             "_decoupled_kcl_maximum_only"
             if args.decoupled_kcl_maximum_only

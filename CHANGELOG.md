@@ -6,6 +6,19 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a zero-latency late tube-pin selector guided by the completed baseline
+  route. Current and corrected stage-one tube pins are converted independently,
+  then only the exact 32-bit `Vgk`/`Vpk` buses are selected; the numerical
+  operations, output order, and 127-clock schedule are unchanged. The complete
+  64-output/512-update stream is bit-exact with zero diagnostics. Yosys measures
+  15,645 LC / 8,589 FF / 207 DSP / 10 RAMB18 equivalents and the A200T pack is
+  56,549 LUTX / 8,589 FFX / 4,181 CARRY4 / 207 DSP. Seed 1 routes legally in
+  28 iterations at 48.700 MHz against 49.152 MHz, moving the 20.53 ns critical
+  path to the exact KCL maximum tree; seed 2 routes at 45.051 MHz. A seed-3
+  route and a 16,120-LC/9,665-FF late-select-plus-deep-maximum profile were
+  bounded after exceptionally slow router iterations and are retained only as
+  incomplete congestion evidence. Timing closure and a bitstream are not
+  claimed.
 - Added route-guided tube-pin prefetch and diagnostic-only KCL maximum
   retiming experiments for the complete 49.152 MHz stream. The exact chord
   preview, backward-Euler/384 kHz KCL sideband, 512-sample solver, and

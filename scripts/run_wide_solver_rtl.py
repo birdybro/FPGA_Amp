@@ -26,6 +26,7 @@ def main() -> int:
     parser.add_argument("--linear-tube", action="store_true")
     parser.add_argument("--parallel-tubes", action="store_true")
     parser.add_argument("--prefetch-tube-inputs", action="store_true")
+    parser.add_argument("--late-tube-input-select", action="store_true")
     parser.add_argument("--pipelined-kcl-finish", action="store_true")
     parser.add_argument("--pipelined-kcl-columns", action="store_true")
     parser.add_argument("--pipelined-kcl-accumulator", action="store_true")
@@ -41,6 +42,10 @@ def main() -> int:
     args = parser.parse_args()
     if args.sample_rate_hz == 384_000 and not args.trapezoidal:
         parser.error("384 kHz study currently requires --trapezoidal")
+    if args.prefetch_tube_inputs and args.late_tube_input_select:
+        parser.error(
+            "--prefetch-tube-inputs and --late-tube-input-select are mutually exclusive"
+        )
     if args.pipelined_kcl_accumulator and not args.pipelined_kcl_columns:
         parser.error(
             "--pipelined-kcl-accumulator requires --pipelined-kcl-columns"
@@ -141,6 +146,8 @@ def main() -> int:
         parameter_args.append("-GPARALLEL_TUBES=1")
     if args.prefetch_tube_inputs:
         parameter_args.append("-GPREFETCH_TUBE_INPUTS=1")
+    if args.late_tube_input_select:
+        parameter_args.append("-GLATE_TUBE_INPUT_SELECT=1")
     if args.pipelined_kcl_finish:
         parameter_args.append("-GPIPELINED_KCL_FINISH=1")
     if args.pipelined_kcl_columns:
@@ -186,6 +193,7 @@ def main() -> int:
         + ("_linear" if args.linear_tube else "")
         + ("_parallel_tubes" if args.parallel_tubes else "")
         + ("_prefetched_tube_inputs" if args.prefetch_tube_inputs else "")
+        + ("_late_tube_input_select" if args.late_tube_input_select else "")
         + ("_pipelined_kcl" if args.pipelined_kcl_finish else "")
         + ("_pipelined_columns" if args.pipelined_kcl_columns else "")
         + (

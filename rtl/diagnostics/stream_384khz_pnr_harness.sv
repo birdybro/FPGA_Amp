@@ -7,6 +7,7 @@ module stream_384khz_pnr_harness #(
     parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048,
     parameter bit PIPELINED_SOLVER_PROFILE = 1'b0,
     parameter bit PREFETCH_TUBE_INPUTS = 1'b0,
+    parameter bit LATE_TUBE_INPUT_SELECT = 1'b0,
     parameter bit DECOUPLED_KCL_MAXIMUM_ONLY = 1'b0
 ) (
     input  logic fabric_clk,
@@ -81,6 +82,7 @@ module stream_384khz_pnr_harness #(
         .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT),
         .PIPELINED_SOLVER_PROFILE(PIPELINED_SOLVER_PROFILE),
         .PREFETCH_TUBE_INPUTS(PREFETCH_TUBE_INPUTS),
+        .LATE_TUBE_INPUT_SELECT(LATE_TUBE_INPUT_SELECT),
         .DECOUPLED_KCL_MAXIMUM_ONLY(DECOUPLED_KCL_MAXIMUM_ONLY)
     ) stream (
             .clk(fabric_clk),
@@ -155,6 +157,34 @@ module stream_384khz_49mhz_retimed_pnr_harness (
     stream_384khz_pnr_harness #(
         .FABRIC_CLOCKS_PER_48K_INPUT(1024),
         .PREFETCH_TUBE_INPUTS(1'b1),
+        .DECOUPLED_KCL_MAXIMUM_ONLY(1'b1)
+    ) candidate (.*);
+endmodule
+
+// Route-informed zero-latency candidate: convert current and corrected tube
+// pins in parallel, then select the narrow pin buses instead of selecting a
+// complete node vector before conversion.
+module stream_384khz_49mhz_late_select_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+    stream_384khz_pnr_harness #(
+        .FABRIC_CLOCKS_PER_48K_INPUT(1024),
+        .LATE_TUBE_INPUT_SELECT(1'b1)
+    ) candidate (.*);
+endmodule
+
+// Combine the narrow late tube-pin selector with the exact diagnostic-only
+// KCL maximum sideband so the two known critical path families are separated.
+module stream_384khz_49mhz_late_select_retimed_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+    stream_384khz_pnr_harness #(
+        .FABRIC_CLOCKS_PER_48K_INPUT(1024),
+        .LATE_TUBE_INPUT_SELECT(1'b1),
         .DECOUPLED_KCL_MAXIMUM_ONLY(1'b1)
     ) candidate (.*);
 endmodule

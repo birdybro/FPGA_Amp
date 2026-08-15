@@ -95,8 +95,16 @@ The mono reference and complete 768 kHz circuit solver are operating:
   updates and the 127-clock latency. After removing an invalid-only dead
   maximum load it routes legally at 47.07 MHz, but its 21.24 ns chord-preview
   path is slower than the baseline and is likewise not promoted. The route
-  remains diagnostic rather than timing closure or a bitstream claim, and 8×
-  remains unpromoted.
+  remains diagnostic rather than timing closure or a bitstream claim. A
+  zero-latency late-selector candidate instead converts current and corrected
+  stage-one tube pins independently and selects only the two 32-bit pin buses.
+  It remains bit-exact at 127 clocks, synthesizes to 15,645 LC / 8,589 FF /
+  207 DSP / 10 RAMB18 equivalents, and routes legally at 48.700 MHz in seed 1.
+  That is the best measured route but still misses 49.152 MHz by 0.92%; seed 2
+  reaches only 45.051 MHz. Combining it with the register-heavy four-boundary
+  maximum sideband was stopped after a pathological first routing iteration
+  and is not promoted. The timing result remains diagnostic, and 8× remains
+  unpromoted.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both

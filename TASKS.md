@@ -22,9 +22,17 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   maximum pipeline preserves all KCL/solver/stream vectors at 127 clocks, but
   the clean legal route reaches only 47.07 MHz through chord preview and tube
   conversion. Reject this prefetch family: another register costs a clock per
-  correction pass and cannot fit the 127-of-128-clock contract. Try controlled
-  baseline seed/timing-weight routes or a tube primitive input-boundary change
-  that does not add solver clocks. A broad 123-clock parallel/pipelined profile remains exact but
+  correction pass and cannot fit the 127-of-128-clock contract. A zero-latency
+  late selector now converts the current/corrected stage-one pin pairs in
+  parallel and moves the mux onto the two 32-bit tube buses. It preserves the
+  64-output/512-update stream exactly at 127 clocks and improves the best legal
+  seed-1 route to 48.700 MHz, a remaining 0.92% miss; seed 2 routes at 45.051
+  MHz and seed-3 routing was bounded after two unusually expensive iterations.
+  Its critical path is now the exact KCL residual-maximum diagnostic. Replace
+  that combinational nine-row maximum with a low-state, fixed-cycle sideband
+  that finishes inside terminal chord latency; do not replicate the prior
+  four-boundary implementation, whose 1,076 added registers made routing
+  pathological. A broad 123-clock parallel/pipelined profile remains exact but
   grows to 242 DSP / 66,658 packed LUTX and places at only 39.62 MHz, so do not
   promote it. Lower resource occupancy or nominal cycle margin alone is not
   timing closure.

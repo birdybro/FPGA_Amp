@@ -31,6 +31,10 @@ module v1_solver_mono_wide #(
     // state and node-format logic from the tube request path without adding a
     // solver clock or changing the numerical operations.
     parameter bit PREFETCH_TUBE_INPUTS = 1'b0,
+    // Compute current/corrected tube pins independently, then select the
+    // already converted 32-bit values. This moves the state-dependent mux
+    // after node conversion without changing arithmetic or latency.
+    parameter bit LATE_TUBE_INPUT_SELECT = 1'b0,
     // Split KCL finish conversion, global selection, and saturation across
     // registers. Intended to consume part of the parallel-tube cycle margin.
     parameter bit PIPELINED_KCL_FINISH = 1'b0,
@@ -103,6 +107,8 @@ module v1_solver_mono_wide #(
     logic signed [47:0] capacitor_current_state [0:9];
 
     initial begin
+        if (PREFETCH_TUBE_INPUTS && LATE_TUBE_INPUT_SELECT)
+            $error("tube-input prefetch and late select are mutually exclusive");
         $readmemh(NODE_INITIAL_FILE, node_initial);
         $readmemh(CAP_INITIAL_FILE, capacitor_initial);
         if (TRAPEZOIDAL)
@@ -602,6 +608,29 @@ module v1_solver_mono_wide #(
     logic signed [31:0] prefetched_tube1_v_pk;
     logic signed [31:0] prefetched_tube2_v_gk;
     logic signed [31:0] prefetched_tube2_v_pk;
+    logic signed [31:0] current_tube1_v_gk;
+    logic signed [31:0] current_tube1_v_pk;
+    logic signed [31:0] corrected_tube1_v_gk;
+    logic signed [31:0] corrected_tube1_v_pk;
+
+    always_comb begin
+        current_tube1_v_gk = node_difference_q24(
+            $signed(voltage_flat[0 * 40 +: 40]), 0,
+            $signed(voltage_flat[2 * 40 +: 40]), 2
+        );
+        current_tube1_v_pk = node_difference_q20(
+            $signed(voltage_flat[1 * 40 +: 40]), 1,
+            $signed(voltage_flat[2 * 40 +: 40]), 2
+        );
+        corrected_tube1_v_gk = node_difference_q24(
+            $signed(corrected_voltage[0 * 40 +: 40]), 0,
+            $signed(corrected_voltage[2 * 40 +: 40]), 2
+        );
+        corrected_tube1_v_pk = node_difference_q20(
+            $signed(corrected_voltage[1 * 40 +: 40]), 1,
+            $signed(corrected_voltage[2 * 40 +: 40]), 2
+        );
+    end
 
     // These registers intentionally need no reset. Every sample captures the
     // current state before the first launch, and every subsequent launch is
@@ -649,6 +678,11 @@ module v1_solver_mono_wide #(
         if (PREFETCH_TUBE_INPUTS) begin
             triode_v_gk = prefetched_tube1_v_gk;
             triode_v_pk = prefetched_tube1_v_pk;
+        end else if (LATE_TUBE_INPUT_SELECT) begin
+            triode_v_gk = (state == WAIT_CHORD)
+                ? corrected_tube1_v_gk : current_tube1_v_gk;
+            triode_v_pk = (state == WAIT_CHORD)
+                ? corrected_tube1_v_pk : current_tube1_v_pk;
         end else begin
             triode_v_gk = node_difference_q24(
                 $signed(residual_voltage_flat[0 * 40 +: 40]), 0,
@@ -728,6 +762,23 @@ module v1_solver_mono_wide #(
                 if (PREFETCH_TUBE_INPUTS) begin
                     v_gk = prefetched_tube2_v_gk;
                     v_pk = prefetched_tube2_v_pk;
+                end else if (LATE_TUBE_INPUT_SELECT) begin
+                    v_gk = (state == WAIT_CHORD)
+                        ? node_difference_q24(
+                            $signed(corrected_voltage[4 * 40 +: 40]), 4,
+                            $signed(corrected_voltage[7 * 40 +: 40]), 7
+                        ) : node_difference_q24(
+                            $signed(voltage_flat[4 * 40 +: 40]), 4,
+                            $signed(voltage_flat[7 * 40 +: 40]), 7
+                        );
+                    v_pk = (state == WAIT_CHORD)
+                        ? node_difference_q20(
+                            $signed(corrected_voltage[6 * 40 +: 40]), 6,
+                            $signed(corrected_voltage[7 * 40 +: 40]), 7
+                        ) : node_difference_q20(
+                            $signed(voltage_flat[6 * 40 +: 40]), 6,
+                            $signed(voltage_flat[7 * 40 +: 40]), 7
+                        );
                 end else begin
                     v_gk = node_difference_q24(
                         $signed(residual_voltage_flat[4 * 40 +: 40]), 4,
