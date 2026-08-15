@@ -138,8 +138,22 @@ The mono reference and complete 768 kHz circuit solver are operating:
   sequence pass exact-byte and fail-stop NACK simulation. The codec layer is
   warning-free in XC7 synthesis at 88 estimated logic cells / 94 flip-flops /
   no DSP or BRAM. The codec remains subordinate to FPGA-provided BCLK/LRCLK,
-  and line unmute occurs last. Shared-LRCLK board composition, programming,
-  physical ACKs, analog audio, and clock measurements remain open.
+  and line unmute occurs last. The actual Nexys Video wrapper now composes that
+  clock/reset/bootstrap path with one shared codec LRCLK, the 384 kHz
+  timing-closed phono profile, SPI control, open-drain I2C, and fail-closed DAC
+  data. A mutation-tested contract checks all 18 LOC/IOSTANDARD pairs, active-
+  low reset, internal 3.072 MHz BCLK constraint, model rate, and startup mute;
+  a separate guard regression proves that serial DAC data stays zero through
+  two BCLK synchronizer edges after configuration. Complete synthesis reports
+  16,688 estimated logic cells / 11,687 flip-flops / 217 DSPs / ten RAMB18
+  equivalents and zero structural problems. Programming, physical ACKs,
+  analog audio, and clock measurements remain open. The full open A200T route
+  converges legally in 30 iterations and estimates 58.008 MHz against the
+  49.152 MHz fabric constraint and 116.809 MHz against 3.072 MHz BCLK. The
+  pinned Project-X-Ray stage twice emits the same CRC-readable 9,730,825-byte
+  bitstream at SHA-256 `3ea5cea8...c286f23`. This closes the experimental open
+  implementation gate only; the `DEFAULT` timing grade is not qualified -1
+  signoff and the image has not been programmed.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both
@@ -642,8 +656,9 @@ The mono reference and complete 768 kHz circuit solver are operating:
   the raw -74.59 dBc bin is no longer left ambiguous or mislabeled as aliasing.
 
 There is no physical host-adapter backend, fabricated analog front end,
-converter board, timing-clean full-hierarchy named-part route, qualified speed-grade timing, or
-physical measurement yet. An experimental open XC7 placement now measures the
+converter board, qualified speed-grade timing, or physical measurement yet.
+The complete board top has a timing-clean experimental open route, but an older
+98.304 MHz accuracy-first architecture remains instructive: its XC7 placement measures the
 solver timing harness at only 13.90 MHz against 98.304 MHz; this is a diagnosed
 architecture failure, not a timing-closure claim. A bit-exact three-clock
 Hermite kernel independently routes at 132.54 MHz with two DSP48E1s, but a
@@ -904,9 +919,14 @@ make synth-i2s-spi-top             # SPI transport plus complete pin hierarchy
 make synth-mono-adapter-384        # 384 kHz adapter XC7 resource measurement
 make synth-i2s-spi-top-384         # complete 384 kHz pin-top measurement
 make audio-clock-plan              # verify exact MMCM ratios from board RTL
+make nexys-audio-top-contract      # verify pins/reset/clocks/profile composition
 make synth-audio-clock-xc7         # clock-only XC7 structural measurement
 make audio-serial-clock-rtl        # verify /16 BCLK and domain reset release
 make synth-audio-serial-clock-xc7  # XC7 BCLK/reset leaf measurement
+make i2c-write-rtl                 # verify open-drain register transactions
+make adau1761-codec-init-rtl       # verify fixed bootstrap and fail-stop NACK
+make codec-shared-i2s-guard-rtl    # verify shared LRCLK and startup zero gate
+make synth-nexys-phono-audio-xc7   # synthesize complete board wrapper
 make hermite-rtl                   # bit-exact iterative Hermite regression
 make synth-hermite                 # isolated Hermite resource measurement
 make factorized-linear-rtl         # value-only tube exact-vector regression
@@ -923,6 +943,8 @@ make openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-pnr # route se
 make openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-bit # Project X-Ray .bit + bitread CRC gate
 make openxc7-a200t-audio-clock-pnr # route exact Nexys Video audio clocks
 make openxc7-a200t-audio-clock-bit # assemble/CRC-check clock-only bitstream
+make openxc7-a200t-phono-audio-pnr # route complete codec/phono/SPI board top
+make openxc7-a200t-phono-audio-bit # assemble/CRC-check complete board image
 make openxc7-pnr                   # route the solver timing harness on A7-100T
 make openxc7-hermite-pnr           # route the Hermite timing harness on A7-100T
 make openxc7-linear-tube-pnr       # route the value-only tube harness

@@ -103,11 +103,31 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   writes. Warning-free Yosys XC7 synthesis reports 88 estimated logic cells,
   94 flip-flops, ten CARRY4s, and no DSP/BRAM. Physical ACKs and analog output
   behavior remain unmeasured.
-- [ ] Compose the actual Nexys Video pin top: the exact clock leaf, reset/BCLK
-  leaf, codec initializer, single shared LRCLK, bidirectional serial audio,
-  calibrated 384 kHz phono hierarchy, SPI control, forced-zero startup data,
-  and status indicators. Then openly synthesize/place/route it before making
-  any hardware-ready claim.
+- [x] Compose and structurally verify the actual Nexys Video pin top: the exact
+  clock leaf, reset/BCLK leaf, codec initializer, single shared LRCLK,
+  bidirectional serial audio, calibrated 384 kHz phono hierarchy, SPI control,
+  forced-zero startup data, and status indicators. A mutation-tested contract
+  checks 18 physical pin/IO-standard pairs, active-low reset, open-drain I2C,
+  the internal 3.072 MHz BCLK constraint, the selected 384 kHz schedule, and
+  fail-closed release. The shared-I2S guard regression proves zero DAC data
+  until two synchronized ready edges. Complete Yosys synthesis reports 16,688
+  LC / 11,687 FF / 217 DSP / ten RAMB18 equivalents with zero structural
+  problems; open packing uses 59,709 LUTX / 11,687 FFX / 4,192 CARRY4. This is
+  composition/fit evidence, not a hardware-ready claim.
+- [x] Complete and retain the full board route, then generate and CRC-check its
+  Project-X-Ray bitstream. Both generated domains and the otherwise-uninferrable
+  fabric-divided BCLK carry explicit constraints. Static placement estimates
+  only 42.24 MHz, but router2 reaches zero overuse in 30 iterations and passes
+  at 58.008 MHz against 49.152 MHz fabric plus 116.809 MHz against 3.072 MHz
+  BCLK under the experimental `DEFAULT` grade. The 56,733,386-byte routed FASM
+  converts to 20,230 frame records and a 9,730,825-byte `.bit`; two conversions
+  are identical at SHA-256 `3ea5cea8...c286f23`, and `bitread -C` accepts
+  24,060 frames / 2,432,650 words. The result is neither qualified -1 timing
+  nor a hardware validation claim; the image remains unprogrammed.
+- [ ] Program the complete image on a matching Nexys Video and validate reset,
+  12.288 MHz MCLK, 3.072 MHz BCLK, 48 kHz LRCLK, all codec I2C ACKs, startup
+  silence, line-output audio, and SPI diagnostics with external instruments.
+  Do not infer any of these physical results from the CRC-readable artifact.
 - [x] Carry the timing-closed 384 kHz / 49.152 MHz profile into the actual
   fabric adapter and complete SPI-controlled I²S hierarchy. Preserve 768 kHz
   as the default, add explicit rate-selectable vector/test runners, and pass
@@ -119,9 +139,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   adapter and 16,614 LC / 11,586 FF for the full SPI/I²S top, both with
   217 DSP / 10 RAMB18 equivalents and zero structural-check problems. A board
   top now has a real, openly routed 49.152 MHz/12.288 MHz clock source. It
-  remains blocked on the codec's shared BCLK/LRCLK wiring, deterministic reset
-  release, and ADAU1761 I²C initialization; do not label the clock-only image
-  or independent ADC/DAC LRCLK ports as hardware-ready.
+  is now composed with the codec's physical shared LRCLK, deterministic reset
+  release, and byte-tested ADAU1761 initialization in the board wrapper. Full
+  board routing and all physical codec/audio behavior remain unvalidated; do
+  not label the clock-only image or structural board top as hardware-ready.
 - [ ] Isolate and reduce the remaining fixed circuit/state/chord error. With
   the implemented 1,024-point grid branch, raw final-window error is now
   0.372/0.291 mV at 1.0 V and 0.631/0.321 mV at 1.5 V for backward Euler/

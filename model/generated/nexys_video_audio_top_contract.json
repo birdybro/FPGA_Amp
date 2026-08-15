@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "rtl": "fpga/nexys_video/phono_audio_top_xc7.sv",
+  "rtl_sha256": "a8449b28d37b9aeb986142ee2e0894ecf72886d01dba19b771423e82ce0a1874",
+  "constraints": "fpga/nexys_video/phono_audio_top_xc7.xdc",
+  "constraints_sha256": "071c70675651e80739c4055cb93817b592006afbd41979c889eb44c5ef29d22d",
+  "board": "Digilent Nexys Video Rev. A",
+  "part": "xc7a200tsbg484-1",
+  "pin_count": 18,
+  "pins": {
+    "clk_100mhz": {
+      "loc": "R4",
+      "iostandard": "LVCMOS33"
+    },
+    "cpu_resetn": {
+      "loc": "G4",
+      "iostandard": "LVCMOS15"
+    },
+    "force_mute_switch": {
+      "loc": "E22",
+      "iostandard": "LVCMOS12"
+    },
+    "codec_mclk": {
+      "loc": "U6",
+      "iostandard": "LVCMOS33"
+    },
+    "codec_bclk": {
+      "loc": "T5",
+      "iostandard": "LVCMOS33"
+    },
+    "codec_lrclk": {
+      "loc": "U5",
+      "iostandard": "LVCMOS33"
+    },
+    "codec_adc_serial_data": {
+      "loc": "T4",
+      "iostandard": "LVCMOS33"
+    },
+    "codec_dac_serial_data": {
+      "loc": "W6",
+      "iostandard": "LVCMOS33"
+    },
+    "codec_i2c_scl": {
+      "loc": "W5",
+      "iostandard": "LVCMOS33"
+    },
+    "codec_i2c_sda": {
+      "loc": "V5",
+      "iostandard": "LVCMOS33"
+    },
+    "spi_cs_n": {
+      "loc": "AB22",
+      "iostandard": "LVCMOS33"
+    },
+    "spi_sclk": {
+      "loc": "AB21",
+      "iostandard": "LVCMOS33"
+    },
+    "spi_mosi": {
+      "loc": "AB20",
+      "iostandard": "LVCMOS33"
+    },
+    "spi_miso": {
+      "loc": "AB18",
+      "iostandard": "LVCMOS33"
+    },
+    "led_clocks_locked": {
+      "loc": "T14",
+      "iostandard": "LVCMOS25"
+    },
+    "led_codec_configured": {
+      "loc": "T15",
+      "iostandard": "LVCMOS25"
+    },
+    "led_codec_error": {
+      "loc": "T16",
+      "iostandard": "LVCMOS25"
+    },
+    "led_output_muted": {
+      "loc": "U16",
+      "iostandard": "LVCMOS25"
+    }
+  },
+  "clock_constraints": {
+    "input_hz": 100000000,
+    "bclk_hz": 3072000,
+    "bclk_period_ns": 325.520833
+  },
+  "audio_profile": {
+    "external_sample_rate_hz": 48000,
+    "model_sample_rate_hz": 384000,
+    "fabric_clocks_per_input": 1024
+  },
+  "validation": {
+    "active_low_reset_checked": true,
+    "fail_closed_audio_release_checked": true,
+    "single_shared_lrclk_guard_checked": true,
+    "open_drain_i2c_checked": true,
+    "scope": "Static RTL/XDC composition contract only; simulation, open place/route, bitstream generation, and hardware are separate gates."
+  }
+}

@@ -53,6 +53,7 @@ SUPPORTED_TOPS = (
     "stream_384khz_49mhz_late_select_serial_max_pnr_harness",
     "stream_384khz_49mhz_node_prefetch_serial_max_pnr_harness",
     "audio_clock_synth_xc7_pnr_harness",
+    "phono_audio_top_xc7",
 )
 RUN_TAG_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 

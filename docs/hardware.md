@@ -792,11 +792,54 @@ warning-free directed test checks every 16-clock BCLK period, both three-edge
 release latencies, and asynchronous reassertion. Yosys reports ten FDCEs, one
 CARRY4, one BUFG, zero structural problems, and no warnings.
 
-A concrete audio board wrapper still needs the codec's single shared LRCLK
-wired to both serial directions and ADAU1761 I2C initialization. The Nexys
-Video's shared codec LRCLK must not be silently represented as independent
-ADC-input and DAC-output pins. Until those items and physical measurement are
-complete, the clock harness is not a functional audio image.
+The concrete `phono_audio_top_xc7` wrapper now performs that composition. It
+uses the physical active-low G4 reset, both exact MMCM clocks, the /16 BCLK and
+owning-domain reset leaf, fixed ADAU1761 initialization, the 384 kHz
+node-prefetch/serial-maximum phono profile, asynchronous I2S transport, and the
+SPI control plane. The codec's single U5 LRCLK is driven from the digital DAC
+frame clock and also fed to the ADC receiver; there are no fictional separate
+ADC/DAC LRCLK pins. The ADC serial input passes inward while DAC serial output
+is held at zero until `configured` has crossed a two-flop BCLK synchronizer.
+The circuit datapath remains in reset and the modern output mute remains forced
+until every codec write has ACKed.
+
+The wrapper XDC binds all 18 oscillator/reset/switch/codec/Pmod/LED signals to
+the Digilent Rev. A pin map. It constrains R4 at 100 MHz and explicitly
+constrains the internal BUFG BCLK net at 3.072 MHz. The latter is necessary
+because nextpnr cannot infer a generated-clock divide through arbitrary fabric
+logic; constraining only the output port was tested and found ineffective. A
+mutation-tested static contract rejects pin/IO-standard drift, the wrong G4
+polarity, a missing internal BCLK constraint, a changed 384 kHz model rate,
+non-open-drain I2C, or removal of the fail-closed audio release.
+
+The shared-LRCLK/zero-data guard passes warning-free directed simulation and
+uses one LUT plus two asynchronous-reset synchronizer flip-flops in Yosys. The
+complete wrapper passes structural synthesis with zero check problems at
+16,688 estimated logic cells, 11,687 flip-flops, 217 DSP48E1s, eight RAMB18E1s,
+and one RAMB36E1 (ten RAMB18 equivalents). Open packing on the XC7A200T uses
+59,709 LUTX, 11,687 FFX, 4,192 CARRY4s, 217 DSPs, the same BRAM, three BUFGs,
+two MMCMs, and 18 pads. These are digital composition/fit results; physical
+codec ACKs, converter clocks, audio, and analog mute behavior remain unmeasured.
+
+Static placement estimates 42.24 MHz for the 49.152 MHz fabric domain, but the
+complete router2 result converges to zero overuse in 30 iterations. Post-route
+timing is 58.008 MHz against the 49.152 MHz fabric constraint and 116.809 MHz
+against the explicit 3.072 MHz BCLK constraint. The 17.24 ns fabric critical
+path is inside chord-correction saturation accounting (5.76 ns logic and
+11.48 ns routing); the BCLK critical path is an 8.56 ns transmit-FIFO control
+path. The fabric-to-BCLK configured synchronizer path is 4.37 ns and the
+BCLK-to-fabric path is 2.04 ns. These crossings are functionally protected by
+the synchronizer/FIFO contracts; the numbers are retained as routing evidence,
+not substituted for CDC analysis.
+
+The routed 56,733,386-byte FASM hashes to
+`cd74d9c5fc8bcf600f8a853f78617928b557910f30920d6547b9885dd8e74e33`.
+Pinned Project X-Ray converts it to 20,230 frame records and a reproducible
+9,730,825-byte bitstream; two conversions are byte-identical at SHA-256
+`3ea5cea88fdbc8ab03c5f8a159d438a010f036d767e7e9168836f5be4c286f23`.
+`bitread -C` accepts 24,060 frames / 2,432,650 words. The open backend still
+reports only its experimental `DEFAULT` timing grade, not qualified
+XC7A200T-1 timing. The bitstream has not been loaded onto a board.
 
 The codec-control foundation is now implemented as a device-neutral open-drain
 I2C register writer. Each command emits the seven-bit target address plus write

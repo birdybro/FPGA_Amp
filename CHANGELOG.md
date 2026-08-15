@@ -6,6 +6,25 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added the complete Nexys Video audio board wrapper. It composes the exact
+  dual-MMCM clock leaf, /16 serial clock and reset release, ADAU1761 bootstrap,
+  one physically shared LRCLK, bidirectional I2S data, the selected 384 kHz
+  phono profile, SPI control, open-drain I2C, and four status LEDs on the real
+  Rev. A pins. Audio remains reset/muted and DAC serial data remains zero until
+  all codec writes ACK and the ready bit crosses two BCLK synchronizer stages.
+  A mutation-tested static contract checks every LOC/IOSTANDARD, active-low G4
+  reset, the explicit internal 3.072 MHz BCLK constraint, model schedule, I2C,
+  and fail-closed release. The shared-I2S guard is warning-free at one logic
+  cell / two flip-flops. Complete Yosys synthesis reports 16,688 estimated
+  logic cells / 11,687 flip-flops / 217 DSPs / ten RAMB18 equivalents and zero
+  structural problems; open A200T packing uses 59,709 LUTX / 11,687 FFX /
+  4,192 CARRY4 / 217 DSP / three BUFG / two MMCM. Router2 reaches zero overuse
+  in 30 iterations and passes the experimental constraints at 58.008 MHz for
+  the 49.152 MHz fabric domain and 116.809 MHz for 3.072 MHz BCLK. Pinned
+  Project X-Ray twice produces the same CRC-readable 9,730,825-byte bitstream,
+  SHA-256 `3ea5cea88fdbc8ab03c5f8a159d438a010f036d767e7e9168836f5be4c286f23`.
+  This does not claim qualified -1 timing, physical codec ACK, programmed
+  hardware, measured clocks, or analog audio.
 - Added the fixed ADAU1761 startup sequencer above the generic I2C writer. Its
   27-entry table uses direct 12.288 MHz MCLK, leaves the codec subordinate to
   FPGA-provided 3.072 MHz BCLK/48 kHz LRCLK, configures stereo ADC/DAC routes,
@@ -29,8 +48,8 @@ All notable engineering changes are recorded here. The project is pre-release; d
   pipelines assert asynchronously and release only on their local 49.152 MHz
   fabric or 3.072 MHz BCLK edge. The RTL test checks every BCLK period, both
   three-edge releases, and asynchronous reassertion. Yosys reports 10 FDCEs,
-  one CARRY4, one BUFG, zero structural problems, and no warnings; named-board
-  timing remains part of the forthcoming complete wrapper.
+  one CARRY4, one BUFG, zero structural problems, and no warnings; its named-
+  board timing is now included in the complete-wrapper route above.
 - Added the first physical audio-clock implementation for the Nexys Video using
   only checked XC7 primitives and the open toolchain. Two cascaded MMCMs produce
   exact 12.288 MHz codec MCLK and 49.152 MHz fabric clocks from the board's
