@@ -16,7 +16,7 @@ import pcbnew
 
 ROOT = Path(__file__).resolve().parent
 BOARD_PATH = ROOT / "front_panel_motor_eval.kicad_pcb"
-BUILD = ROOT.parents[3] / "build" / "kicad" / "front_panel_motor_eval"
+BUILD = ROOT.parents[2] / "build" / "kicad" / "front_panel_motor_eval"
 
 
 def main() -> None:

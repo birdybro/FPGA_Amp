@@ -21,6 +21,7 @@ NEXYS_AUDIO_BIT ?= build/openxc7/xc7a200tsbg484-1/phono_audio_top_xc7/routed/pho
 .PHONY: mono-adapter-384-rtl i2s-mono-top-384-rtl i2s-control-top-384-rtl i2s-spi-top-384-rtl synth-mono-adapter-384 synth-i2s-spi-top-384
 .PHONY: audio-clock-plan nexys-audio-top-contract audio-serial-clock-rtl i2c-write-rtl adau1761-codec-init-rtl codec-shared-i2s-guard-rtl synth-audio-clock-xc7 synth-audio-serial-clock-xc7 synth-i2c-write synth-adau1761-codec-init synth-codec-shared-i2s-guard synth-nexys-phono-audio-xc7 openxc7-a200t-audio-clock-pnr openxc7-a200t-audio-clock-bit openxc7-a200t-phono-audio-pnr openxc7-a200t-phono-audio-bit nexys-audio-hardware-preflight nexys-audio-program-sram
 .PHONY: product-hardware-spec kicad-motor-generate kicad-motor-route kicad-motor-check kicad-motor-fab
+.PHONY: kicad-controller-generate kicad-controller-route kicad-controller-check kicad-controller-render
 .PHONY: volume-servo-test
 .PHONY: master-volume-rtl synth-master-volume
 
@@ -793,6 +794,32 @@ kicad-motor-fab: kicad-motor-check
 	$(KICAD_CLI) pcb export pos --side both --format csv --units mm --exclude-dnp \
 		-o build/kicad/front_panel_motor_eval/fab/positions.csv \
 		hardware/kicad/front_panel_motor_eval_rev_a/front_panel_motor_eval.kicad_pcb
+
+kicad-controller-generate:
+	$(PYTHON) hardware/kicad/front_panel_controller_rev_a/generate.py
+
+kicad-controller-route: kicad-controller-generate
+	@test -n "$(FREEROUTING_JAR)" || (echo "set FREEROUTING_JAR=/path/to/freerouting.jar" >&2; exit 2)
+	$(PYTHON) hardware/kicad/front_panel_controller_rev_a/route_open.py --jar "$(FREEROUTING_JAR)" --passes 80
+
+kicad-controller-check:
+	mkdir -p build/kicad/front_panel_controller
+	$(KICAD_CLI) sch erc --severity-all --exit-code-violations --format json \
+		-o build/kicad/front_panel_controller/erc.json \
+		hardware/kicad/front_panel_controller_rev_a/front_panel_controller.kicad_sch
+	$(KICAD_CLI) pcb drc --refill-zones --save-board --severity-all --exit-code-violations --format json \
+		-o build/kicad/front_panel_controller/drc.json \
+		hardware/kicad/front_panel_controller_rev_a/front_panel_controller.kicad_pcb
+	$(PYTHON) hardware/kicad/front_panel_controller_rev_a/verify.py \
+		--erc build/kicad/front_panel_controller/erc.json \
+		--drc build/kicad/front_panel_controller/drc.json \
+		--output build/kicad/front_panel_controller/stats.json
+
+kicad-controller-render:
+	mkdir -p build/kicad/front_panel_controller
+	$(KICAD_CLI) pcb render --quality high --width 2000 --height 1200 \
+		-o build/kicad/front_panel_controller/front_panel_controller.png \
+		hardware/kicad/front_panel_controller_rev_a/front_panel_controller.kicad_pcb
 
 volume-servo-test:
 	mkdir -p build/firmware_front_panel

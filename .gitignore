@@ -19,3 +19,6 @@ obj_dir/
 *.fst
 abc.history
 *.kicad_prl
+~*.kicad_pro.lck
+~*.kicad_sch.lck
+~*.kicad_pcb.lck

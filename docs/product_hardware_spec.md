@@ -44,7 +44,7 @@ provided by the FPGA or by the V1 line-output boards.
 | full HDMI contingency | Analog Devices ADV7671A | Current 48 Gbit/s transceiver with eARC receiver support, but its video/HDCP complexity, 108-LFCSP package, licensed high-level API, and adopter requirements make it an expensive fallback rather than the audio-only baseline. |
 | asynchronous SRC | TI SRC4392 | Active two-channel converter, host control/diagnostics, 24-bit words, and rates through 216 kHz. ADI AD1896 is the no-programming alternate. Bench comparison must measure lock behavior, group delay, spur floor, and recovery. |
 | FPGA | XC7A200T resource class, SBG484 prototype baseline | Existing mono hierarchy openly routes on this device. The exact production package and speed grade remain provisional until stereo/full-path synthesis, power analysis, SI, and sourcing close. |
-| front-panel MCU | STM32H753ZIT6-class Cortex-M7 | LTDC, external-memory interface, Ethernet MAC, timers/ADCs, 2 MiB flash, and hardware cryptography in a serviceable LQFP-class package. Firmware shall use an open GCC/Clang build even if manufacturer configuration tools assist bring-up. |
+| front-panel MCU | STM32H753ZIT6 Cortex-M7 | LTDC, FMC, timers/ADCs, 2 MiB flash, and hardware cryptography in a serviceable LQFP-144 package. The completed Rev-A allocation uses 106 unique I/O positions and cannot expose the on-chip Ethernet MAC because RMII conflicts with LTDC/FMC; Ethernet therefore requires an external bridge/module or an architecture revision. Firmware shall use an open GCC/Clang build even if manufacturer configuration tools assist bring-up. |
 | LCD/touch | Newhaven NHD-5.0-800480AF-ASXP-CTP | 5-inch, 800 x 480, 24-bit RGB, IPS, capacitive FT5426G touch over I2C, cover glass, EMI-shielded FPC, and high-brightness backlight. Lifecycle and backlight thermal tests remain gates. |
 | motorized rotary prototype | Bourns PRM16 dual-track motorized control | Available rotary prototype part with manual/motor operation. Its 15,000-cycle rating is not acceptable as the unqualified production life claim. |
 | production volume mechanism | supported metal shaft + position sensor + back-drivable gearmotor, or qualified motor-pot | Must pass the mechanical feel, acoustic, stall, manual override, and at least 100,000 full-range-cycle qualification in `VOL-006`. A front bearing/coupler carries the large knob load. |
@@ -179,14 +179,25 @@ Responsibilities:
 - volume position sensing, H-bridge control, current/stall detection, manual
   takeover, and motor fault reporting;
 - protocol-neutral FPGA register access over SPI plus interrupt and heartbeat;
-- optional Ethernet and a socketed/certified Wi-Fi/BLE module, with local-only
-  operation always available (`UI-006`); and
+- local-only operation always available (`UI-006`). The Rev-A LQFP-144 pin
+  allocation omits direct Ethernet because RMII conflicts with the selected
+  LTDC/FMC signals; any network option must use an isolated external SPI
+  bridge/module or trigger a package/architecture review rather than silently
+  stealing display or memory pins; and
 - direct physical mute/standby paths that do not depend on the GUI task.
 
 The MCU owns the GUI and user intent, not audio samples. If it resets, the FPGA
 continues with the last valid settings only under the selected safe policy; an
 invalid heartbeat, malformed transaction, or explicit safety event mutes
 output (`UI-005`, `SAFE-002`).
+
+The routed Rev-A controller source is in
+`hardware/kicad/front_panel_controller_rev_a/`. It implements the MCU, SDRAM,
+QSPI, RGB565/touch display, backlight supply, panel-control harnesses, and
+motor-board/control-board interfaces. It passes KiCad connectivity checks but
+remains an EVT artifact: exact display-connector land patterns, stackup/SI,
+switching-power layout, and enclosure geometry are explicit fabrication stop
+conditions.
 
 ### 2.5 PB — power and protection board
 
@@ -274,8 +285,8 @@ presenting all failures as silence.
 
 CEC or receiver-supported control messages may request volume, mute, standby,
 or active source (`EARC-007`). They enter the same event queue as the physical
-dial, touchscreen, Ethernet, and radio remote. No source writes FPGA gain
-registers directly.
+dial, touchscreen, and any future network/radio transport. No source writes
+FPGA gain registers directly.
 
 ### 4.3 Clock boundary and ASRC
 
@@ -444,7 +455,7 @@ and serviceable connector (`MECH-002`).
 ### 9.1 Signal ownership
 
 There is one authoritative `volume_target` in signed decibels. Physical,
-touchscreen, CEC/TV, Ethernet, Wi-Fi/BLE, and restore-on-boot events are
+touchscreen, CEC/TV, optional network/radio, and restore-on-boot events are
 serialized by the front-panel MCU. The MCU commits target plus monotonic
 sequence number to the FPGA. The FPGA applies click-free gain outside the
 reference model and returns the accepted sequence/effective gain. Only the
@@ -545,9 +556,11 @@ claim that the current candidate passes it.
 Remote operation is additive:
 
 - CEC/TV control through the selected eARC receiver when supported;
-- wired 10/100 Ethernet through the front-panel MCU MAC/PHY;
-- optional certified Wi-Fi/BLE module on FP, isolated from the phono zone and
-  able to be depopulated or disabled; and
+- optional wired Ethernet through a separately allocated SPI bridge/module or
+  a future MCU/package revision; the Rev-A LTDC/FMC allocation cannot route
+  the STM32H753 RMII pins;
+- optional certified Wi-Fi/BLE module, isolated from the phono zone and able
+  to be depopulated or disabled; and
 - USB-C service/configuration with no requirement for a cloud account.
 
 All transports call the same settings API. Authentication is mandatory on IP
@@ -627,8 +640,9 @@ Backlight and motor PWM run above the audio band, but frequency placement alone
 does not prove absence of intermodulation (`EMC-003`).
 
 Worst-case phono tests exercise full-white/display-pattern changes, maximum
-backlight PWM, Ethernet traffic, radio transmit, FPGA stress activity, repeated
-motor moves, and eARC link changes individually and together (`TEST-003`).
+backlight PWM, optional network traffic, radio transmit, FPGA stress activity,
+repeated motor moves, and eARC link changes individually and together
+(`TEST-003`).
 
 ### 12.3 ESD/RF
 
@@ -832,8 +846,9 @@ masking with digital noise or reference-model changes.
 - Production ADC/DAC parts remain deliberately unfrozen in `adc_dac.md`.
 - PRM16 is a prototype mechanism; production volume feel/life is a mechanical
   development project, not a BOM assumption (`VOL-006`).
-- Exact remote radio, antenna, and cybersecurity maintenance policy remain to
-  be selected; Ethernet and offline local operation are the baseline.
+- Exact remote transport, antenna, and cybersecurity maintenance policy remain
+  to be selected; offline local operation is the baseline, while Rev-A direct
+  MCU Ethernet has been rejected by the frozen pin-conflict audit.
 - Enclosure dimensions, display viewing angle, knob spacing, and thermal path
   require industrial-design mockups.
 - Numeric EMC, environmental, motor-coupling, and mute-transient limits must be

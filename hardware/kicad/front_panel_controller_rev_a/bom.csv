@@ -1,0 +1,112 @@
+Reference,Value,Footprint,Description
+U1,STM32H753ZIT6,Package_QFP:LQFP-144_20x20mm_P0.5mm,480 MHz UI controller; exact Rev-A pin map in pin_assignment.csv
+U2,IS42S16160J-6TLI_32MiB,Package_SO:TSOP-II-54_22.2x10.16mm_P0.8mm,166 MHz x16 SDR SDRAM; 32 MiB framebuffer/work RAM
+U3,W25Q256JVSIQ_32MiB,Package_SO:SOIC-8_5.3x5.3mm_P1.27mm,Quad-SPI UI assets and firmware storage
+U4,TPS62132RGTR_3V3_3A,Package_DFN_QFN:VQFN-16-1EP_3x3mm_P0.5mm_EP1.6x1.6mm_ThermalVias,Fixed 3.3 V 3 A synchronous buck; TPS62132; not TPS62133
+U5,TPS61165DRVR,Package_SON:WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm_ThermalVias,38 V boost LED driver; 60 mA nominal current
+J1,UI_12V_INPUT,Connector_JST:JST_VH_B2P-VH-B_1x02_P3.96mm_Vertical,Protected 12 V input from product power board
+J2,NHD-5.0-800480AF-ASXP-CTP_TFT,Connector_FFC-FPC:Hirose_FH12-40S-0.5SH_1x40-1MP_P0.50mm_Horizontal,40-pin 0.5 mm TFT FFC; EVT footprint pending Molex 54104-4031 drawing signoff
+J3,NHD_CTP_6P,Connector_FFC-FPC:Molex_200528-0060_1x06-1MP_P1.00mm_Horizontal,6-pin 1.0 mm capacitive touch FFC; EVT footprint verification gate
+J4,MOTOR_VOLUME_BOARD,Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical,Harness to isolated motor-volume evaluation board
+J5,DIGITAL_BOARD_CONTROL,Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical,Low-speed control link to FPGA/digital board; no audio samples
+J6,PANEL_CONTROLS,Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical,Panel-mounted optical encoders/buttons and ambient sensor
+J7,CORTEX_SWD,Connector_PinHeader_1.27mm:PinHeader_2x05_P1.27mm_Vertical,1.27 mm Cortex debug connector
+F1,1.5A_PTC,Fuse:Fuse_1206_3216Metric,Select final hold/trip after measured UI load
+D1,SMBJ15A,Diode_SMD:D_SMB,
+C1,10uF_25V_X7R,Capacitor_SMD:C_1210_3225Metric,
+C2,100nF_25V_X7R,Capacitor_SMD:C_0603_1608Metric,
+L1,2.2uH_4A,Inductor_SMD:L_Bourns_SRN6045TA,
+C3,22uF_6V3_X7R,Capacitor_SMD:C_1210_3225Metric,
+C4,22uF_6V3_X7R,Capacitor_SMD:C_1210_3225Metric,
+C5,3.3nF_X7R,Capacitor_SMD:C_0603_1608Metric,
+R1,100k,Resistor_SMD:R_0603_1608Metric,
+R2,100k,Resistor_SMD:R_0603_1608Metric,
+L2,10uH_1A,Inductor_SMD:L_Bourns-SRN4018,
+D2,MBR0540T1G,Diode_SMD:D_SOD-123,
+C6,1uF_50V_X7R,Capacitor_SMD:C_1206_3216Metric,
+R3,3.32R_1%,Resistor_SMD:R_0805_2012Metric,
+C7,220nF_X7R,Capacitor_SMD:C_0603_1608Metric,
+R4,100k,Resistor_SMD:R_0603_1608Metric,
+R10,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R11,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R12,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R13,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R14,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R15,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R16,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R17,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R18,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R19,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R20,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R21,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R22,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R23,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R24,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R25,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R26,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R27,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R28,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R29,33R,Resistor_SMD:R_0402_1005Metric,LTDC source damping; verify by scope/SI
+R30,22R,Resistor_SMD:R_0402_1005Metric,SDRAM clock source termination
+R31,22R,Resistor_SMD:R_0402_1005Metric,QSPI clock source termination
+C10,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,One per STM32 VDD/VDD33_USB pin; place at assigned power pin
+C11,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,One per STM32 VDD/VDD33_USB pin; place at assigned power pin
+C12,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,One per STM32 VDD/VDD33_USB pin; place at assigned power pin
+C13,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,One per STM32 VDD/VDD33_USB pin; place at assigned power pin
+C14,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,One per STM32 VDD/VDD33_USB pin; place at assigned power pin
+C15,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,One per STM32 VDD/VDD33_USB pin; place at assigned power pin
+C16,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,One per STM32 VDD/VDD33_USB pin; place at assigned power pin
+C17,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,One per STM32 VDD/VDD33_USB pin; place at assigned power pin
+C18,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,One per STM32 VDD/VDD33_USB pin; place at assigned power pin
+C19,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,One per STM32 VDD/VDD33_USB pin; place at assigned power pin
+C20,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,One per STM32 VDD/VDD33_USB pin; place at assigned power pin
+C21,4.7uF_X7R,Capacitor_SMD:C_0805_2012Metric,
+C22,2.2uF_LOW_ESR,Capacitor_SMD:C_0805_2012Metric,VCAP; two capacitors total; VCAP pins connected per ST AN4938
+C23,2.2uF_LOW_ESR,Capacitor_SMD:C_0805_2012Metric,
+FB1,600R@100MHz,Inductor_SMD:L_0603_1608Metric_Pad1.05x0.95mm_HandSolder,
+C24,1uF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C25,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,
+R40,0R,Resistor_SMD:R_0402_1005Metric,
+C26,1uF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C27,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,
+Y1,25MHz_10pF,Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm,
+Y2,32.768kHz_7pF,Crystal:Crystal_SMD_3215-2Pin_3.2x1.5mm,
+C28,12pF_C0G,Capacitor_SMD:C_0402_1005Metric,
+C29,12pF_C0G,Capacitor_SMD:C_0402_1005Metric,
+C30,10pF_C0G_DNP,Capacitor_SMD:C_0402_1005Metric,DNP pending crystal CL calculation
+C31,10pF_C0G_DNP,Capacitor_SMD:C_0402_1005Metric,DNP pending crystal CL calculation
+R41,10k,Resistor_SMD:R_0603_1608Metric,
+C32,100nF,Capacitor_SMD:C_0603_1608Metric,
+SW1,RESET,Button_Switch_SMD:Panasonic_EVQPUJ_EVQPUA,
+R42,100k,Resistor_SMD:R_0603_1608Metric,
+JP1,BOOT0,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,
+FB2,600R@100MHz,Inductor_SMD:L_0603_1608Metric_Pad1.05x0.95mm_HandSolder,
+C33,1uF_X7R,Capacitor_SMD:C_0603_1608Metric,
+C34,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,
+R43,2.2k,Resistor_SMD:R_0603_1608Metric,
+R44,2.2k,Resistor_SMD:R_0603_1608Metric,
+R45,10k,Resistor_SMD:R_0603_1608Metric,
+R46,10k,Resistor_SMD:R_0603_1608Metric,
+C40,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,SDRAM VDD/VDDQ bypass
+C41,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,SDRAM VDD/VDDQ bypass
+C42,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,SDRAM VDD/VDDQ bypass
+C43,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,SDRAM VDD/VDDQ bypass
+C44,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,SDRAM VDD/VDDQ bypass
+C45,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,SDRAM VDD/VDDQ bypass
+C46,10uF_X7R,Capacitor_SMD:C_0805_2012Metric,
+C47,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,
+C48,1uF_X7R,Capacitor_SMD:C_0603_1608Metric,
+R47,10k,Resistor_SMD:R_0603_1608Metric,
+R48,10k,Resistor_SMD:R_0603_1608Metric,Default asserted; firmware must release mute intentionally
+R49,10k,Resistor_SMD:R_0603_1608Metric,
+R50,10k,Resistor_SMD:R_0603_1608Metric,
+R51,1k,Resistor_SMD:R_0603_1608Metric,
+D3,GREEN_STATUS,LED_SMD:LED_0603_1608Metric,
+TP1,+12V_UI,TestPoint:TestPoint_Plated_Hole_D2.0mm,EVT bring-up test point
+TP2,+3V3,TestPoint:TestPoint_Plated_Hole_D2.0mm,EVT bring-up test point
+TP3,GND,TestPoint:TestPoint_Plated_Hole_D2.0mm,EVT bring-up test point
+TP4,VCAP_CORE,TestPoint:TestPoint_Plated_Hole_D2.0mm,EVT bring-up test point
+TP5,VDDA,TestPoint:TestPoint_Plated_Hole_D2.0mm,EVT bring-up test point
+TP6,LCD_LED_A,TestPoint:TestPoint_Plated_Hole_D2.0mm,EVT bring-up test point
+TP7,BL_FB,TestPoint:TestPoint_Plated_Hole_D2.0mm,EVT bring-up test point
+TP8,NRST,TestPoint:TestPoint_Plated_Hole_D2.0mm,EVT bring-up test point

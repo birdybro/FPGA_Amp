@@ -1028,6 +1028,8 @@ under `model/generated/` as part of the numerical contract.
 - `sim/unit/`, `sim/integration/`: self-checking RTL testbenches
 - `scripts/`: all reproduction, comparison, analysis, and synthesis entry points
 - `firmware/front_panel/`: host-tested motor-volume safety/control core
+- `hardware/kicad/front_panel_controller_rev_a/`: generated/routed six-layer
+  touchscreen, UI MCU, memory, control, and backlight EVT controller
 - `hardware/kicad/front_panel_motor_eval_rev_a/`: generated and routed KiCad
   motor/position EVT daughterboard, source generator, BOM, and invariants
 - `docs/`: engineering decisions, budgets, known limitations, and hardware path
@@ -1052,6 +1054,15 @@ has 0 schematic ERC violations, 0 PCB DRC violations, and 0 unconnected items
 under KiCad 10.0.5; `make kicad-motor-fab` regenerates its reports and
 fabrication package. It remains an unbuilt EVT design, not a production PCB or
 a motor-noise/lifetime result.
+
+The matching front-panel controller is at
+[`hardware/kicad/front_panel_controller_rev_a/`](hardware/kicad/front_panel_controller_rev_a/README.md).
+Its checked 150 x 90 mm six-layer route has 0 ERC violations, 0 DRC
+violations, and 0 unconnected items under KiCad 10.0.5. It concretely maps an
+STM32H753ZIT6 to LTDC RGB565, 32 MiB SDRAM, Quad-SPI, touch, physical encoders,
+mute/standby, and the motor/digital board links. It is visibly marked and
+documented as not fabrication-released until the exact Molex FFC land patterns,
+stackup/SI, switching-power layout, and mechanical interfaces are signed off.
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
 path is further reducing terminal-solver approximation error without breaking

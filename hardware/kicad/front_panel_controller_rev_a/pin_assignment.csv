@@ -1,0 +1,107 @@
+group,signal,mcu_pin,pad,alternate_function,direction,notes
+clock,HSE_IN,PH0,23,RCC_OSC_IN,input,25 MHz crystal
+clock,HSE_OUT,PH1,24,RCC_OSC_OUT,output,25 MHz crystal
+clock,LSE_IN,PC14,8,RCC_OSC32_IN,input,32.768 kHz crystal
+clock,LSE_OUT,PC15,9,RCC_OSC32_OUT,output,32.768 kHz crystal
+debug,SWDIO,PA13,105,SYS_JTMS-SWDIO,bidirectional,SWD header
+debug,SWCLK,PA14,109,SYS_JTCK-SWCLK,input,SWD header
+debug,SWO,PB3,133,SYS_JTDO-SWO,output,SWD trace
+display,LCD_R3,PB0,46,LTDC_R3,output,RGB565 upper bits
+display,LCD_R4,PA11,103,LTDC_R4,output,RGB565 upper bits
+display,LCD_R5,PA9,101,LTDC_R5,output,RGB565 upper bits
+display,LCD_R6,PB1,47,LTDC_R6,output,RGB565 upper bits
+display,LCD_R7,PG6,91,LTDC_R7,output,RGB565 upper bits
+display,LCD_G2,PA6,42,LTDC_G2,output,RGB565 upper bits
+display,LCD_G3,PG10,125,LTDC_G3,output,RGB565 upper bits
+display,LCD_G4,PB10,69,LTDC_G4,output,RGB565 upper bits
+display,LCD_G5,PB11,70,LTDC_G5,output,RGB565 upper bits
+display,LCD_G6,PC7,97,LTDC_G6,output,RGB565 upper bits
+display,LCD_G7,PD3,117,LTDC_G7,output,RGB565 upper bits
+display,LCD_B3,PG11,126,LTDC_B3,output,RGB565 upper bits
+display,LCD_B4,PG12,127,LTDC_B4,output,RGB565 upper bits
+display,LCD_B5,PA3,37,LTDC_B5,output,RGB565 upper bits
+display,LCD_B6,PB8,139,LTDC_B6,output,RGB565 upper bits
+display,LCD_B7,PB9,140,LTDC_B7,output,RGB565 upper bits
+display,LCD_CLK,PG7,92,LTDC_CLK,output,25 MHz nominal
+display,LCD_DE,PF10,22,LTDC_DE,output,Data enable
+display,LCD_HSYNC,PC6,96,LTDC_HSYNC,output,Horizontal sync
+display,LCD_VSYNC,PA4,40,LTDC_VSYNC,output,Vertical sync
+display,LCD_STBY_N,PE2,1,GPIO,output,Panel standby control
+display,BACKLIGHT_PWM,PC8,98,TIM8_CH3,output,32 kHz PWM target
+touch,TOUCH_SCL,PA8,100,I2C3_SCL,output,3.3 V open drain
+touch,TOUCH_SDA,PC9,99,I2C3_SDA,bidirectional,3.3 V open drain
+touch,TOUCH_INT_N,PG9,124,EXTI9,input,Active low
+touch,TOUCH_RESET_N,PD7,123,GPIO,output,Do not tie to VCC
+sdram,SDRAM_A0,PF0,10,FMC_A0,output,IS42S16160J
+sdram,SDRAM_A1,PF1,11,FMC_A1,output,IS42S16160J
+sdram,SDRAM_A2,PF2,12,FMC_A2,output,IS42S16160J
+sdram,SDRAM_A3,PF3,13,FMC_A3,output,IS42S16160J
+sdram,SDRAM_A4,PF4,14,FMC_A4,output,IS42S16160J
+sdram,SDRAM_A5,PF5,15,FMC_A5,output,IS42S16160J
+sdram,SDRAM_A6,PF12,50,FMC_A6,output,IS42S16160J
+sdram,SDRAM_A7,PF13,53,FMC_A7,output,IS42S16160J
+sdram,SDRAM_A8,PF14,54,FMC_A8,output,IS42S16160J
+sdram,SDRAM_A9,PF15,55,FMC_A9,output,IS42S16160J
+sdram,SDRAM_A10,PG0,56,FMC_A10,output,IS42S16160J
+sdram,SDRAM_A11,PG1,57,FMC_A11,output,IS42S16160J
+sdram,SDRAM_A12,PG2,87,FMC_A12,output,IS42S16160J
+sdram,SDRAM_D0,PD14,85,FMC_D0,bidirectional,IS42S16160J
+sdram,SDRAM_D1,PD15,86,FMC_D1,bidirectional,IS42S16160J
+sdram,SDRAM_D2,PD0,114,FMC_D2,bidirectional,IS42S16160J
+sdram,SDRAM_D3,PD1,115,FMC_D3,bidirectional,IS42S16160J
+sdram,SDRAM_D4,PE7,58,FMC_D4,bidirectional,IS42S16160J
+sdram,SDRAM_D5,PE8,59,FMC_D5,bidirectional,IS42S16160J
+sdram,SDRAM_D6,PE9,60,FMC_D6,bidirectional,IS42S16160J
+sdram,SDRAM_D7,PE10,63,FMC_D7,bidirectional,IS42S16160J
+sdram,SDRAM_D8,PE11,64,FMC_D8,bidirectional,IS42S16160J
+sdram,SDRAM_D9,PE12,65,FMC_D9,bidirectional,IS42S16160J
+sdram,SDRAM_D10,PE13,66,FMC_D10,bidirectional,IS42S16160J
+sdram,SDRAM_D11,PE14,67,FMC_D11,bidirectional,IS42S16160J
+sdram,SDRAM_D12,PE15,68,FMC_D12,bidirectional,IS42S16160J
+sdram,SDRAM_D13,PD8,77,FMC_D13,bidirectional,IS42S16160J
+sdram,SDRAM_D14,PD9,78,FMC_D14,bidirectional,IS42S16160J
+sdram,SDRAM_D15,PD10,79,FMC_D15,bidirectional,IS42S16160J
+sdram,SDRAM_BA0,PG4,89,FMC_BA0,output,IS42S16160J
+sdram,SDRAM_BA1,PG5,90,FMC_BA1,output,IS42S16160J
+sdram,SDRAM_CLK,PG8,93,FMC_SDCLK,output,Source series termination
+sdram,SDRAM_CKE,PC5,45,FMC_SDCKE0,output,IS42S16160J
+sdram,SDRAM_CS_N,PC4,44,FMC_SDNE0,output,IS42S16160J
+sdram,SDRAM_RAS_N,PF11,49,FMC_SDNRAS,output,IS42S16160J
+sdram,SDRAM_CAS_N,PG15,132,FMC_SDNCAS,output,IS42S16160J
+sdram,SDRAM_WE_N,PC0,26,FMC_SDNWE,output,IS42S16160J
+sdram,SDRAM_LDQM,PE0,141,FMC_NBL0,output,IS42S16160J
+sdram,SDRAM_UDQM,PE1,142,FMC_NBL1,output,IS42S16160J
+flash,QSPI_CLK,PB2,48,QUADSPI_CLK,output,W25Q256JV
+flash,QSPI_CS_N,PB6,136,QUADSPI_BK1_NCS,output,W25Q256JV
+flash,QSPI_IO0,PF8,20,QUADSPI_BK1_IO0,bidirectional,W25Q256JV
+flash,QSPI_IO1,PF9,21,QUADSPI_BK1_IO1,bidirectional,W25Q256JV
+flash,QSPI_IO2,PF7,19,QUADSPI_BK1_IO2,bidirectional,W25Q256JV
+flash,QSPI_IO3,PF6,18,QUADSPI_BK1_IO3,bidirectional,W25Q256JV
+control,DB_SPI_SCK,PB13,74,SPI2_SCK,output,Digital board control link
+control,DB_SPI_CS_N,PB12,73,SPI2_NSS,output,Digital board control link
+control,DB_SPI_MISO,PB14,75,SPI2_MISO,input,Digital board control link
+control,DB_SPI_MOSI,PB15,76,SPI2_MOSI,output,Digital board control link
+control,DB_IRQ_N,PD11,80,EXTI11,input,Digital board interrupt
+control,UI_ALIVE,PD2,116,GPIO,output,Hardware watchdog heartbeat
+control,FORCE_MUTE_N,PC12,113,GPIO,output,Open drain fail-safe command
+motor,MOTOR_PWM,PA7,43,TIM1_CH1N,output,Motor board J2
+motor,MOTOR_DIR,PD4,118,GPIO,output,Motor board J2
+motor,MOTOR_SLEEP,PD5,119,GPIO,output,Motor board J2
+motor,MOTOR_FAULT_N,PD6,122,EXTI6,input,Motor board J2
+motor,MOTOR_CURRENT_ADC,PC2_C,28,ADC3_INP0,input,Motor board J2
+motor,POT_A_ADC,PC3_C,29,ADC3_INP1,input,Motor board J2
+motor,POT_B_ADC,PA2,36,ADC1_INP14,input,Motor board J2
+motor,MOTOR_BOARD_ID,PC1,27,ADC1_INP11,input,Motor board J2
+controls,SOURCE_ENC_A,PA0,34,TIM2_CH1,input,Panel connector
+controls,SOURCE_ENC_B,PA1,35,TIM2_CH2,input,Panel connector
+controls,SOURCE_PUSH,PG3,88,GPIO,input,Panel connector
+controls,MODEL_ENC_A,PB4,134,TIM3_CH1,input,Panel connector
+controls,MODEL_ENC_B,PB5,135,TIM3_CH2,input,Panel connector
+controls,MODEL_PUSH,PG13,128,GPIO,input,Panel connector
+controls,PARAM_ENC_A,PD12,81,TIM4_CH1,input,Panel connector
+controls,PARAM_ENC_B,PD13,82,TIM4_CH2,input,Panel connector
+controls,PARAM_PUSH,PG14,129,GPIO,input,Panel connector
+controls,MUTE_BUTTON,PC10,111,GPIO,input,Panel connector
+controls,STANDBY_BUTTON,PC11,112,GPIO,input,Panel connector
+controls,AMBIENT_ADC,PA5,41,ADC1_INP19,input,Ambient light sensor
+misc,STATUS_LED,PE3,2,GPIO,output,EVT status LED

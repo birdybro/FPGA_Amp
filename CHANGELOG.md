@@ -6,6 +6,25 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added the routed six-layer front-panel controller Rev-A EVT KiCad project.
+  One source model generates 111 schematic elements, a 150 x 90 mm placement,
+  native symbols, BOM, and the exact 106-I/O STM32H753ZIT6 allocation. The
+  circuit includes x16 32 MiB SDRAM, 32 MiB Quad-SPI, RGB565 LTDC with twenty
+  source dampers, the exact display electrical pin map, I2C capacitive touch,
+  TPS62132 3.3 V conversion, TPS61165 nominal 60.2 mA backlight boost, MCU
+  core/analog power support, crystals, reset/BOOT0/SWD, three encoder/control
+  harnesses, motor-volume telemetry/control, and fail-asserted mute. The open
+  Freerouting v2.2.4 route finishes in five passes plus one reviewed 1.6 mm
+  U2-ground dogleg; after zone refill KiCad 10.0.5 reports zero ERC, zero DRC,
+  and zero unconnected items on 1,895 track segments / 314 vias. A source-aware
+  verifier audits package and display pin maps, layers, dimensions, damping,
+  regulator identity, route geometry, and records SDRAM/display route lengths.
+  Exact Molex FFC footprints,
+  stackup/SI, regulator layout, mechanics, sourcing, EMC, and physical tests
+  remain fabrication stop conditions. The allocation also documents that
+  direct RMII Ethernet cannot coexist with the selected LTDC/FMC mapping.
+  A pre-commit TI data-sheet audit corrected the TPS61165 WSON order to
+  `FB/COMP/GND/SW/CTRL/VIN`; the incorrect initial route was discarded.
 - Added the first KiCad PCB artifact: an 80 x 48 mm, four-layer motor-volume
   EVT daughterboard around the DRV8874. It includes protected 5 V input,
   current-limit/reference networks, IPROPI and nFAULT telemetry, fail-off motor

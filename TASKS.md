@@ -15,6 +15,19 @@ access and finished-device compliance.
 
 ## Active, highest value first
 
+- [x] Generate and openly route the six-layer front-panel controller Rev-A EVT
+  board. Its STM32H753ZIT6 allocation machine-checks 106 unique LQFP-144 I/Os
+  for RGB565 LTDC, 32 MiB x16 SDRAM, 32 MiB Quad-SPI, capacitive touch, three
+  panel encoders, mute/standby, digital-board control, and the motor-volume
+  daughterboard. The board also implements the TPS62132 3.3 V rail, TPS61165
+  nominal 60.2 mA backlight boost, MCU analog/core power, oscillators, reset,
+  SWD, source damping, fail-asserted mute, and separate panel/control/motor
+  harnesses. KiCad 10.0.5 reports 0 ERC, 0 DRC, and 0 unconnected items on the
+  150 x 90 mm route with 1,895 segments and 314 vias. This is not a fabrication
+  release: exact Molex TFT/touch footprints, six-layer stackup/SI and SDRAM
+  timing, switching-supply layout, enclosure mechanics, sourcing, EMC, and
+  physical validation remain gates. The pin audit also proves direct RMII
+  Ethernet is unavailable in this Rev-A LQFP allocation.
 - [x] Create and openly route the first KiCad EVT PCB for the motorized-volume
   subsystem. The 80 x 48 mm four-layer daughterboard implements the protected
   5 V rail, DRV8874 PH/EN bridge, hardware current regulation, IPROPI and fault
@@ -64,14 +77,13 @@ access and finished-device compliance.
   PCM; verify stereo LPCM capability exchange, ARC fallback, CEC volume, mute,
   relock, and latency on analyzer/EVM hardware. Do not advertise compressed or
   multichannel formats in V1.
-- [ ] Extend the front-panel PCB stack beyond the completed motor-volume EVT
-  daughterboard with the STM32H753-class MCU, 5-inch
-  800x480 IPS capacitive display, premium optical encoders, current-sensed
-  H-bridge, and a motorized rotary mechanism. Implement one authoritative
-  volume target shared by local/touch/CEC/network inputs, position-only motor
-  sensing, manual takeover, soft stops, deadband, stall timeout, and fault
-  telemetry. PRM16-class 15,000-cycle mechanisms are prototypes only; production
-  requires at least a 100,000 full-range-cycle qualification.
+- [ ] Turn the completed front-panel controller and motor-volume EVT boards
+  into a fabrication candidate: generate exact Molex 54104-4031/52271-0679
+  footprints from manufacturer drawings and inspect them independently;
+  obtain a fabricator stackup and run SDRAM/LTDC/clock SI; manually review and
+  refine both switching converters; freeze encoder/display/enclosure geometry;
+  select keyed production harnesses; then close sourcing, EMC, touch-safety,
+  motor torque/noise/stall, and 100,000-cycle mechanism qualification.
 - [ ] Implement and openly route the actual stereo product hierarchy before
   freezing the production FPGA/package. The present 217-DSP mono Nexys build is
   evidence for an XC7A200T resource-class baseline, not proof that stereo plus
