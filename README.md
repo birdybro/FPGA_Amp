@@ -1076,7 +1076,8 @@ violations, and 0 unconnected items under KiCad 10.0.5. It implements physical
 OPA1632 differential drive, PCM4202 conversion, and local low-noise
 post-regulation. It remains an unbuilt EVT design; measured input capacitance,
 noise/hum/overload/RF/ESD, production connector mechanics, muted relay changes,
-and a 6.144 MHz/128-fS FPGA receiver are explicit release gates.
+and physical validation of the simulated 6.144 MHz/128-fS FPGA receiver are
+explicit release gates.
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
 path is further reducing terminal-solver approximation error without breaking

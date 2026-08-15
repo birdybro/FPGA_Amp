@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lint and verify 24-bit I2S with 32- and 64-BCK channel slots."""
+"""Lint and verify the 48 kHz/128-fS PCM4202 receive boundary."""
 
 from __future__ import annotations
 
@@ -22,36 +22,36 @@ def main() -> int:
         print("ERROR: verilator unavailable", file=sys.stderr)
         return 2
     sources = [
+        "rtl/io/async_fifo.sv",
         "rtl/io/i2s_receiver.sv",
         "rtl/io/i2s_transmitter.sv",
-        "sim/unit/i2s_loopback_tb.sv",
+        "rtl/io/pcm4202_i2s_capture.sv",
+        "sim/integration/pcm4202_i2s_capture_tb.sv",
     ]
     subprocess.run(
         [verilator, "--lint-only", "--timing", "-Wall", "-Wno-fatal", "-sv", *sources],
         cwd=ROOT,
         check=True,
     )
-    for slot_width in (32, 64):
-        build = ROOT / "build" / f"verilator_i2s_slot{slot_width}"
-        subprocess.run(
-            [
-                verilator,
-                "--binary",
-                "--timing",
-                "-Wall",
-                "-Wno-fatal",
-                "-sv",
-                "--top-module",
-                "i2s_loopback_tb",
-                f"-GSLOT_WIDTH={slot_width}",
-                "--Mdir",
-                str(build),
-                *sources,
-            ],
-            cwd=ROOT,
-            check=True,
-        )
-        subprocess.run([str(build / "Vi2s_loopback_tb")], cwd=ROOT, check=True)
+    build = ROOT / "build" / "verilator_pcm4202_i2s_capture"
+    subprocess.run(
+        [
+            verilator,
+            "--binary",
+            "--timing",
+            "-Wall",
+            "-Wno-fatal",
+            "-sv",
+            "--top-module",
+            "pcm4202_i2s_capture_tb",
+            "--Mdir",
+            str(build),
+            *sources,
+        ],
+        cwd=ROOT,
+        check=True,
+    )
+    subprocess.run([str(build / "Vpcm4202_i2s_capture_tb")], cwd=ROOT, check=True)
     return 0
 
 

@@ -82,6 +82,7 @@ def main() -> int:
             "i2s_receiver",
             "i2s_transmitter",
             "i2s_async_bridge",
+            "pcm4202_i2s_capture",
             "pcm24_to_q8_24",
             "q8_24_to_pcm24",
             "audio_frame_scheduler",
@@ -578,6 +579,11 @@ def main() -> int:
             "rtl/io/i2s_receiver.sv",
             "rtl/io/i2s_transmitter.sv",
             "rtl/io/i2s_async_bridge.sv",
+        ],
+        "pcm4202_i2s_capture": [
+            "rtl/io/async_fifo.sv",
+            "rtl/io/i2s_receiver.sv",
+            "rtl/io/pcm4202_i2s_capture.sv",
         ],
         "pcm24_to_q8_24": ["rtl/io/pcm24_to_q8_24.sv"],
         "q8_24_to_pcm24": ["rtl/io/q8_24_to_pcm24.sv"],
@@ -1092,7 +1098,7 @@ def main() -> int:
     warning_count = int(warning_match.group(1)) if warning_match else 0
     if warning_count == 0:
         warning_note = "No synthesis warnings."
-    elif args.top in {"async_fifo", "i2s_async_bridge"}:
+    elif args.top in {"async_fifo", "i2s_async_bridge", "pcm4202_i2s_capture"}:
         warning_note = (
             "Yosys implemented the small dual-clock memory as registers; "
             "see the full log. This is not a structural-check failure."

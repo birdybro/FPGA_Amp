@@ -99,12 +99,18 @@ sample clocks, or converter register setup.
 The routed Rev-A board uses the PCM4202 as the 48 kHz I²S master while the
 digital board supplies 24.576 MHz SCKI. Its fixed straps select 512-fS SCKI and
 128-fS BCK, producing 6.144 MHz BCK rather than the existing 3.072 MHz/64-fS
-RTL baseline. Each half-frame therefore contains 64 BCK periods; the receiver
-must capture the 24-bit I²S word after the conventional one-bit delay and ignore
-the unused remainder. This is an explicit open compatibility gate, not an
-assumption that the existing interface will work unchanged. The internal ADC
-high-pass filter is disabled so reference mode can retain the modeled circuit's
-subsonic response.
+RTL baseline. Each half-frame therefore contains 64 BCK periods. The new
+receive-only `pcm4202_i2s_capture` captures the 24-bit I²S word after the
+conventional one-bit delay, ignores the unused remainder, and crosses complete
+stereo frames through a depth-8 asynchronous FIFO into fabric. A 16-frame
+6.144/49.152 MHz test with unrelated phase, backpressure, signed endpoints,
+held-valid checking, and injected LRCK fault passes. The original 32-BCK mode
+also remains regression-tested. Yosys reports 252 estimated XC7 logic cells,
+791 flip-flops, no DSP or block RAM, and zero structural problems; its one
+warning records register implementation of the small dual-clock memory. This
+closes the RTL-format gate, not FPGA-pin timing or physical board validation.
+The internal ADC high-pass filter is disabled so reference mode can retain the
+modeled circuit's subsonic response.
 
 Separate fabric-domain calibration primitives now implement the exact PCM24 to
 physical-Q8.24 boundary. ADC direction uses input-referred peak volts at PCM

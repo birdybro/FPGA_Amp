@@ -1,7 +1,9 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-module i2s_loopback_tb;
+module i2s_loopback_tb #(
+    parameter int unsigned SLOT_WIDTH = 32
+);
     localparam int FRAME_COUNT = 16;
 
     logic bclk;
@@ -32,7 +34,9 @@ module i2s_loopback_tb;
     logic monitor_enable;
     integer stable_edges_since_lrclk;
 
-    i2s_transmitter tx (
+    i2s_transmitter #(
+        .SLOT_WIDTH(SLOT_WIDTH)
+    ) tx (
         .bclk(bclk),
         .rst_n(rst_n),
         .frame_data(tx_frame_data),
@@ -44,7 +48,9 @@ module i2s_loopback_tb;
         .underflow_sticky(tx_underflow_sticky)
     );
 
-    i2s_receiver rx (
+    i2s_receiver #(
+        .SLOT_WIDTH(SLOT_WIDTH)
+    ) rx (
         .bclk(bclk),
         .rst_n(rst_n),
         .lrclk(tx_lrclk ^ inject_lrclk_fault),
@@ -87,9 +93,9 @@ module i2s_loopback_tb;
         end
     end
 
-    // Independent protocol monitor: adjacent LRCLK transitions must have 31
-    // stable sampled edges between them (32 BCLK periods), and the sampled bit
-    // on the transition edge is the I2S one-bit delay/padding value.
+    // Independent protocol monitor: adjacent LRCLK transitions must have
+    // SLOT_WIDTH-1 stable sampled edges between them, and the sampled bit on
+    // the transition edge is the I2S one-bit delay/padding value.
     always @(posedge bclk) begin
         #1;
         if (!monitor_enable) begin
@@ -97,9 +103,10 @@ module i2s_loopback_tb;
             monitor_locked <= 1'b0;
             stable_edges_since_lrclk <= 0;
         end else if (tx_lrclk != monitor_lrclk_previous) begin
-            if (monitor_locked && stable_edges_since_lrclk != 31) begin
-                $error("I2S slot had %0d stable edges, expected 31",
-                       stable_edges_since_lrclk);
+            if (monitor_locked
+                && stable_edges_since_lrclk != SLOT_WIDTH - 1) begin
+                $error("I2S slot had %0d stable edges, expected %0d",
+                       stable_edges_since_lrclk, SLOT_WIDTH - 1);
                 protocol_errors <= protocol_errors + 1;
             end
             if (tx_serial_data !== 1'b0) begin
@@ -157,7 +164,7 @@ module i2s_loopback_tb;
 
         // With no next frame, the following left boundary must insert zeros
         // and retain a transmitter underflow diagnostic.
-        repeat (130) @(posedge bclk);
+        repeat (4 * SLOT_WIDTH + 2) @(posedge bclk);
         if (!tx_underflow_sticky) begin
             $error("missing transmitter underflow diagnostic");
             errors = errors + 1;
@@ -193,7 +200,8 @@ module i2s_loopback_tb;
         errors = errors + scoreboard_errors + protocol_errors;
         if (errors != 0)
             $fatal(1, "FAIL: %0d I2S loopback errors", errors);
-        $display("PASS: 16 I2S frames, signed endpoints, framing, and underflow");
+        $display("PASS: 16 I2S frames at %0d BCK/channel, signed endpoints, framing, and underflow",
+                 SLOT_WIDTH);
         $finish;
     end
 endmodule

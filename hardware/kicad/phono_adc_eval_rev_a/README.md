@@ -22,8 +22,9 @@ parts remain enclosure decisions.
 - ADC: PCM4202DBR, 48 kHz single-rate master, 24-bit I2S.
 - SCKI: 24.576 MHz from the digital board (`512 fS`).
 - ADC outputs: 6.144 MHz BCK (`128 fS`), 48 kHz LRCK, serial data, and L/R
-  clip indicators. The current 64-fS FPGA interface must be extended and
-  verified before this board is treated as digitally compatible.
+  clip indicators. `pcm4202_i2s_capture` now receives this exact 64-BCK
+  half-frame format and crosses it into fabric in RTL simulation; pin timing
+  and populated-board operation remain unverified.
 - PCM4202 straps: `S/M=0`, `FMT1:FMT0=01`, `FS2:FS0=001`, `HPFD=1`.
   `HPFD=1` disables the converter high-pass filter so reference mode retains
   the external circuit's low-frequency behavior.
@@ -88,7 +89,8 @@ Do not order this as a production board until all of the following are closed:
   injection, and ESD tests on populated hardware;
 - stackup/return-current and safety review with the intended enclosure/power
   board;
-- 128-fS PCM4202 receive timing verified in RTL and at the pins; and
+- 128-fS PCM4202 receive timing verified at physical FPGA pins (RTL simulation
+  is complete); and
 - muted relay switching and all power-up/down fault cases verified.
 
 ## Primary component sources

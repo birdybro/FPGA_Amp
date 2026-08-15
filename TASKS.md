@@ -99,10 +99,15 @@ access and finished-device compliance.
   converters; freeze encoder/display/enclosure geometry; select keyed production
   harnesses; then close sourcing, EMC, touch-safety, motor torque/noise/stall,
   and 100,000-cycle mechanism qualification.
-- [ ] Extend and verify the I2S receiver for the phono board's PCM4202 master
-  mode: 24-bit data in 64-BCK half-frames, 128-fS/6.144 MHz BCK, 48 kHz LRCK,
-  and externally supplied 24.576 MHz SCKI. Preserve the existing 64-fS path as
-  a separately tested configuration.
+- [x] Extend and verify the I2S receive boundary for the phono board's PCM4202
+  master mode: 24-bit data in 64-BCK half-frames at 128-fS/6.144 MHz BCK and
+  48 kHz LRCK. The receive-only block crosses complete stereo frames into
+  49.152 MHz fabric through a depth-8 asynchronous FIFO so it does not force a
+  future 32-BCK DAC onto the ADC clock. Both 32- and 64-BCK protocol regressions
+  pass; the exact PCM4202 test passes 16 frames with unrelated phase,
+  backpressure, held-valid checks, signed endpoints, and injected LRCK fault.
+  Yosys reports 252 LC / 791 FF / no DSP or BRAM / zero structural problems.
+  Physical FPGA-pin timing and populated-board validation remain open.
 - [ ] Implement and openly route the actual stereo product hierarchy before
   freezing the production FPGA/package. The present 217-DSP mono Nexys build is
   evidence for an XC7A200T resource-class baseline, not proof that stereo plus

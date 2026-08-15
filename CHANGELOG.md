@@ -6,6 +6,19 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a receive-only PCM4202 I2S/fabric boundary for the phono/ADC EVT board.
+  It captures 24-bit I2S in the converter's fixed 64-BCK half-frames at
+  6.144 MHz, crosses complete stereo frames through a depth-8 asynchronous FIFO,
+  holds fabric data under backpressure, and exposes framing, overflow,
+  underflow, occupancy, and high-water diagnostics. Keeping this receive-only
+  avoids incorrectly clocking a future 32-BCK DAC at 96 kHz. The generic I2S
+  loopback now passes both 32- and 64-BCK slot configurations. A separate exact
+  6.144 MHz ADC / 49.152 MHz fabric test passes 16 signed frames with unrelated
+  phase, initial and periodic backpressure, held-data checks, and an injected/
+  cleared LRCK fault. Yosys reports 252 estimated XC7 logic cells / 791
+  flip-flops / no DSP or block RAM / zero structural problems; the sole warning
+  records register mapping of the small dual-clock FIFO. No FPGA-pin or
+  populated-board timing is claimed.
 - Added the routed four-layer shielded MM phono/PCM4202 ADC Rev-A EVT KiCad
   project. It implements 47.5 kilohm 0.1% termination, relay-selected
   0/47/100/147 pF C0G loading, OPA1656 flat 20.008/26.064/32.002 dB gain,
