@@ -130,7 +130,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   frames, control transitions, and 15 SPI frames. Yosys measures 15,699 LC /
   9,085 FF for the adapter and 16,614 LC / 11,586 FF for the full SPI/I²S top;
   both use 217 DSPs / 10 RAMB18 equivalents with zero structural problems.
-  Board clock generation and converter pin/clock-master wiring remain open.
+  The Nexys Video clock leaf now cascades two checked XC7 MMCMs from its real
+  100 MHz oscillator to exact 12.288 MHz codec MCLK and 49.152 MHz fabric
+  clocks. Its clock-only open route and CRC-readable bitstream pass; codec
+  I2C setup, shared BCLK/LRCLK wiring, reset release, programming, and physical
+  frequency measurement remain open.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both
@@ -894,6 +898,8 @@ make synth-i2s-control-top         # register-controlled complete pin hierarchy
 make synth-i2s-spi-top             # SPI transport plus complete pin hierarchy
 make synth-mono-adapter-384        # 384 kHz adapter XC7 resource measurement
 make synth-i2s-spi-top-384         # complete 384 kHz pin-top measurement
+make audio-clock-plan              # verify exact MMCM ratios from board RTL
+make synth-audio-clock-xc7         # clock-only XC7 structural measurement
 make hermite-rtl                   # bit-exact iterative Hermite regression
 make synth-hermite                 # isolated Hermite resource measurement
 make factorized-linear-rtl         # value-only tube exact-vector regression
@@ -908,6 +914,8 @@ make openxc7-a200t-stream-384-static-place # static-place stream on A7-200T
 make openxc7-a200t-stream-384-half-clock-static-place # test 49.152 MHz schedule
 make openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-pnr # route selected 49.152 MHz profile
 make openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-bit # Project X-Ray .bit + bitread CRC gate
+make openxc7-a200t-audio-clock-pnr # route exact Nexys Video audio clocks
+make openxc7-a200t-audio-clock-bit # assemble/CRC-check clock-only bitstream
 make openxc7-pnr                   # route the solver timing harness on A7-100T
 make openxc7-hermite-pnr           # route the Hermite timing harness on A7-100T
 make openxc7-linear-tube-pnr       # route the value-only tube harness

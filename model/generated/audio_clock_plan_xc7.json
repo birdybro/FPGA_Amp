@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "source": "fpga/nexys_video/audio_clock_synth_xc7.sv",
+  "source_sha256": "669ca9d6a3ff5d008af41eca46bcf148e7189dd8c1aaaab645d869a6dd3b7788",
+  "family": "48-kHz audio",
+  "codec_mclk_hz": 12288000,
+  "fabric_clock_hz": 49152000,
+  "fabric_clocks_per_384khz_sample": 128,
+  "stages": [
+    {
+      "instance": "mclk_mmcm",
+      "input_hz": 100000000,
+      "divclk_divide": "5",
+      "feedback_multiply": "48",
+      "output_divide": "625/8",
+      "vco_hz": 960000000,
+      "output_hz": 12288000
+    },
+    {
+      "instance": "fabric_mmcm",
+      "input_hz": 12288000,
+      "divclk_divide": "1",
+      "feedback_multiply": "50",
+      "output_divide": "25/2",
+      "vco_hz": 614400000,
+      "output_hz": 49152000
+    }
+  ],
+  "validation": {
+    "rtl_parameters_match": true,
+    "ratios_are_exact": true,
+    "fractional_output_divide_step": "1/8",
+    "scope": "Arithmetic and RTL-parameter validation only; open P&R and physical frequency measurement are separate gates."
+  }
+}

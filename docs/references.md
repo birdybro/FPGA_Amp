@@ -34,6 +34,25 @@ general authority on tube physics. Links were checked 2026-08-14.
   Primary board-source provenance for the R4 oscillator, G4 CPU-reset input,
   and T14 LED used by the XC7A200T timing-only harness. This pin subset is not a
   production-board constraint set or an audio-clock implementation.
+- AMD, [*7 Series FPGAs Clocking Resources User Guide
+  (UG472)*](https://www.amd.com/content/dam/xilinx/support/documents/user_guides/ug472_7Series_Clocking.pdf).
+  Primary primitive documentation for `MMCME2_BASE`, the legal MMCM
+  multiplier/divider controls, and `CLKOUT0_DIVIDE_F` eighth-step fractional
+  output division. It supports the two-stage exact 100 MHz -> 12.288 MHz ->
+  49.152 MHz board-clock implementation; the checked open route and FASM are
+  separate evidence that the backend encoded those settings.
+- Digilent, [*Nexys Video Reference
+  Manual*](https://digilent.com/reference/_media/reference/programmable-logic/nexys-video/nexys-video_rm.pdf).
+  Primary board documentation for the 100 MHz oscillator and ADAU1761 wiring:
+  U6 MCLK, T5 BCLK, U5 shared LRCLK, T4 ADC data, W6 DAC data, and V5/W5 I2C.
+  This prevents the board wrapper from inventing separate ADC and DAC LRCLK
+  pins and establishes that codec register configuration is mandatory.
+- Analog Devices, [*ADAU1761 Data Sheet, Rev.
+  F*](https://www.analog.com/media/en/technical-documentation/data-sheets/ADAU1761.pdf).
+  Primary codec source for 12.288 MHz operation in the 48 kHz family, shared
+  BCLK/LRCLK serial-port constraints, I2S timing, and control-port setup. The
+  FPGA will be serial-clock master for initial bring-up; an I2C initialization
+  sequencer remains a required gate before codec operation is claimed.
 
 ## Frozen V1 circuit and equalization
 

@@ -49,6 +49,27 @@ must become clock master, its serial port crosses through an explicit dual-clock
 FIFO and a rate-control policy; two “nominally 48 kHz” oscillators are not
 silently connected.
 
+The first timing-closed board candidate uses the Nexys Video's fixed 100 MHz
+source and the 384 kHz internal-rate profile instead of the nominal 98.304 MHz
+tree above. The implemented XC7-only clock leaf is:
+
+```text
+100 MHz board oscillator
+  -> MMCM: 12.288 MHz ADAU1761 MCLK
+       -> MMCM: 49.152 MHz fabric
+            -> ce_sim /128 = 384 kHz
+            -> framed scheduler /1024 = 48 kHz
+            -> planned BCLK /16 = 3.072 MHz
+                 -> shared LRCLK /64 = 48 kHz
+```
+
+The exact MMCM ratios are generated and checked by `make audio-clock-plan`;
+the clock-only harness is openly synthesized, routed, and converted to a
+CRC-readable bitstream. The BCLK/LRCLK divider, shared physical LRCLK wrapper,
+reset release, and ADAU1761 I2C configuration are not part of that harness yet.
+This is an implementation architecture for the explicit 8x candidate, not a
+silent change to 16x reference-mode numerical behavior.
+
 The implemented protocol baseline is 24-bit signed I²S in 32-BCLK stereo slots,
 so 48 kHz produces the planned 3.072 MHz BCLK. Receiver and transmitter are
 separate BCLK-domain primitives with conventional one-bit-delay timing and no

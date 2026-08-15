@@ -740,12 +740,47 @@ BRAM equivalents for the adapter. The complete `phono_i2s_spi_top` measures
 16,614 logic cells, 11,586 flip-flops, the same 217 DSPs and ten BRAM
 equivalents. Both checks report zero structural problems.
 
-These are hierarchy-integration and structural results, not a board image. A
-concrete board wrapper still needs a physically realizable 49.152 MHz source,
-an explicit ADC/DAC clock-master policy, and verified package pins. The Nexys
-Video's fixed 100 MHz oscillator must not simply be constrained as though it
-were 49.152 MHz, and its shared codec LRCLK cannot be silently treated as the
-current top's independent ADC-input and DAC-output LRCLK pins.
+These are hierarchy-integration and structural results, not a board image. The
+clock-source part of that gap is now closed by `audio_clock_synth_xc7`. It
+cascades two `MMCME2_BASE` instances from the real R4 100 MHz oscillator:
+
+```text
+100 MHz * 48 / 5 / 78.125 = 12.288 MHz codec MCLK
+12.288 MHz * 50 / 1 / 12.5 = 49.152 MHz model fabric clock
+```
+
+The VCO frequencies are exactly 960 and 614.4 MHz. Both output dividers are on
+the 7-series `CLKOUT0_DIVIDE_F` one-eighth grid. The generated
+`audio_clock_plan_xc7.json` is computed with rational arithmetic and parsed
+from the actual RTL, so a changed multiplier or divider fails the unit test.
+This module is intentionally board/device specific; no XC7 primitive enters
+the physical circuit or sample-processing RTL.
+
+The R4 constraint now includes an explicit 10 ns `create_clock`. The pinned
+nextpnr backend consequently derives 12.3 MHz and 49.2 MHz domains through the
+two MMCMs instead of assigning the command-line 100 MHz target to the generated
+activity logic. The clock-only A200T harness packs 74 LUTX, 24 FFX, six
+CARRY4s, two BUFGs, two MMCMs, and five pads. Router2 reaches a legal route in
+five iterations; the 24-bit activity counter is estimated at 305.06 MHz against
+its correct 49.152 MHz constraint. This large counter margin only validates
+the clock harness's synchronous load. It says nothing about complete phono-core
+timing and remains an experimental `DEFAULT`-grade estimate rather than
+qualified `-1` signoff.
+
+The 50,091-byte routed FASM hashes to
+`0152506daf8ae0609ec16772e42fb883b4bf5f11729c23eab241f1ef7fa48219`.
+Project X-Ray converts it into 20,230 frame records and a reproducible
+9,730,853-byte bitstream with SHA-256
+`941a8c07ed55a651e3b861e74bc09bee311c410519c09daddf5615069e0ff656`;
+`bitread -C` accepts 24,060 configuration frames / 2,432,650 words. No board
+has been programmed and neither output clock has been physically measured.
+
+A concrete audio board wrapper still needs an explicit FPGA-clock-master BCLK
+divider, the codec's single shared LRCLK wired to both serial directions,
+clock-domain reset release, and ADAU1761 I2C initialization. The Nexys Video's
+shared codec LRCLK must not be silently represented as independent ADC-input
+and DAC-output pins. Until those items and physical measurement are complete,
+the clock harness is not a functional audio image.
 
 The following configuration stage is also fully open. The pinned bootstrap now
 installs the Project X-Ray Python assembler dependencies, and

@@ -63,6 +63,17 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   smoke test when matching hardware is available. Keep the experimental
   `DEFAULT` timing estimate distinct from qualified speed-grade and board
   measurements.
+- [x] Implement and openly route the exact Nexys Video audio-clock source.
+  Cascade two XC7 MMCMs from the real R4 100 MHz oscillator to 12.288 MHz
+  codec MCLK and 49.152 MHz fabric clocks, with exact 960/614.4 MHz VCOs.
+  Check the ratios and 128 fabric clocks per 384 kHz sample from RTL in Python.
+  With an explicit 10 ns input constraint, nextpnr derives both generated
+  domains and completes routing in five iterations; the 24-bit activity
+  counter reaches 305.06 MHz against its correct 49.152 MHz constraint under
+  the experimental `DEFAULT` grade. Pack use is 74 LUTX / 24 FFX / 6 CARRY4 /
+  2 BUFG / 2 MMCM. The open Project-X-Ray stage emits a CRC-readable
+  9,730,853-byte bitstream at SHA-256 `941a8c07...e0ff656`. This is a
+  clock-only harness, not hardware frequency measurement or codec operation.
 - [x] Carry the timing-closed 384 kHz / 49.152 MHz profile into the actual
   fabric adapter and complete SPI-controlled I²S hierarchy. Preserve 768 kHz
   as the default, add explicit rate-selectable vector/test runners, and pass
@@ -73,9 +84,10 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   sample frame-boundary latency. Yosys reports 15,699 LC / 9,085 FF for the
   adapter and 16,614 LC / 11,586 FF for the full SPI/I²S top, both with
   217 DSP / 10 RAMB18 equivalents and zero structural-check problems. A board
-  top remains blocked on selecting a real 49.152 MHz source and concrete
-  converter pin/clock-master wiring; do not route arbitrary pins and label
-  them hardware-ready.
+  top now has a real, openly routed 49.152 MHz/12.288 MHz clock source. It
+  remains blocked on the codec's shared BCLK/LRCLK wiring, deterministic reset
+  release, and ADAU1761 I²C initialization; do not label the clock-only image
+  or independent ADC/DAC LRCLK ports as hardware-ready.
 - [ ] Isolate and reduce the remaining fixed circuit/state/chord error. With
   the implemented 1,024-point grid branch, raw final-window error is now
   0.372/0.291 mV at 1.0 V and 0.631/0.321 mV at 1.5 V for backward Euler/

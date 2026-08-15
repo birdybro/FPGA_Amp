@@ -6,6 +6,19 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added the first physical audio-clock implementation for the Nexys Video using
+  only checked XC7 primitives and the open toolchain. Two cascaded MMCMs produce
+  exact 12.288 MHz codec MCLK and 49.152 MHz fabric clocks from the board's
+  100 MHz oscillator; a generated arithmetic contract rejects RTL parameter
+  drift. An explicit XDC input constraint lets nextpnr derive the correct
+  12.288/49.152 MHz domains. The five-iteration A200T route packs 74 LUTX,
+  24 FFX, six CARRY4s, two BUFGs, and two MMCMs; its activity counter passes
+  the 49.152 MHz `DEFAULT`-grade constraint at 305.06 MHz. Project X-Ray emits
+  a 9,730,853-byte bitstream with SHA-256
+  `941a8c07ed55a651e3b861e74bc09bee311c410519c09daddf5615069e0ff656`,
+  and `bitread -C` accepts 24,060 frames / 2,432,650 words. Codec
+  configuration, shared I²S-clock wiring, programming, and frequency
+  measurement remain unvalidated.
 - Extended the selected 384 kHz / 49.152 MHz implementation from the
   three-pin timing harness through the real framed-audio hierarchy. The fabric
   adapter, asynchronous I²S bridge, register-owned controls, and mode-0 SPI

@@ -14,6 +14,7 @@ NEXTPNR ?= nextpnr-himbaechel
 .PHONY: synth-stream-trapezoidal-384-terminal-banked
 .PHONY: openxc7-stream-384-pack openxc7-stream-384-place openxc7-a200t-stream-384-static-place openxc7-a200t-stream-384-half-clock-static-place openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-pnr openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-bit
 .PHONY: mono-adapter-384-rtl i2s-mono-top-384-rtl i2s-control-top-384-rtl i2s-spi-top-384-rtl synth-mono-adapter-384 synth-i2s-spi-top-384
+.PHONY: audio-clock-plan synth-audio-clock-xc7 openxc7-a200t-audio-clock-pnr openxc7-a200t-audio-clock-bit
 
 all: reference test
 
@@ -705,6 +706,12 @@ synth-mono-adapter-384: fixed-384-assets
 synth-i2s-spi-top-384: synth-mono-adapter-384
 	$(PYTHON) scripts/run_synthesis.py --top phono_i2s_spi_top --sample-rate-hz 384000
 
+synth-audio-clock-xc7:
+	$(PYTHON) scripts/run_synthesis.py --top audio_clock_synth_xc7_pnr_harness
+
+audio-clock-plan:
+	$(PYTHON) scripts/verify_audio_clock_plan.py
+
 python-test:
 	$(PYTHON) -m unittest discover -s model/tests -v
 
@@ -736,6 +743,12 @@ openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-pnr: fixed-384-asse
 
 openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-bit:
 	$(PYTHON) scripts/generate_openxc7_bitstream.py --part xc7a200tsbg484-1 --fasm build/openxc7/xc7a200tsbg484-1/stream_384khz_49mhz_node_prefetch_serial_max_pnr_harness/routed/stream_384khz_49mhz_node_prefetch_serial_max_pnr_harness.fasm
+
+openxc7-a200t-audio-clock-pnr:
+	$(PYTHON) scripts/run_openxc7.py --top audio_clock_synth_xc7_pnr_harness --device xc7a200tsbg484-1 --frequency-mhz 100 --xdc fpga/nexys_video/audio_clock_synth_xc7.xdc --nextpnr $(NEXTPNR) --run-tag routed
+
+openxc7-a200t-audio-clock-bit:
+	$(PYTHON) scripts/generate_openxc7_bitstream.py --part xc7a200tsbg484-1 --fasm build/openxc7/xc7a200tsbg484-1/audio_clock_synth_xc7_pnr_harness/routed/audio_clock_synth_xc7_pnr_harness.fasm
 
 openxc7-hermite-pnr:
 	$(PYTHON) scripts/run_openxc7.py --top hermite_pnr_harness --nextpnr $(NEXTPNR)
