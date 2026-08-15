@@ -51,7 +51,9 @@ not Fmax closure. The subsequent complete fixed-stream transient gate processes
 recovery is close (8× is 0.1875 ms later and -56.25 dB aligned), but the
 synthetic-pop response differs by -15.18 dB RMS after fractional-delay alignment
 and by 85.6 mV peak. That discrepancy blocks lower-rate selection pending
-diagnosis and direct long-vector RTL capture.
+diagnosis. Direct 384/768 kHz RTL captures subsequently match all 24,576 fixed
+pop/recovery outputs across 294,912 nonlinear updates with zero diagnostics, so
+the discrepancy is not attributable to RTL transcription.
 
 `phono_stream_mono.sv` now implements this digital reference boundary from
 48 kHz Q8.24 physical input volts through 16× interpolation, the complete V1

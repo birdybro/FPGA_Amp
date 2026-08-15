@@ -86,6 +86,10 @@ then finds the overload-recovery trajectory close but a -15.18 dB aligned
 record-pop residual and 85.6 mV peak difference. This aggregate includes the
 rate-specific integrator and fixed circuit as well as the converters. It blocks
 8× promotion rather than silently accepting the smaller converter.
+Direct long-vector RTL matches each rate's corresponding fixed trajectory for
+4,096 pop and 8,192 overload/recovery outputs, totaling 24,576 outputs and
+294,912 nonlinear updates. This rules out a converter/solver RTL mismatch; it
+does not reduce the measured rate-to-rate transient error.
 
 Stage-1 unit tests match 256 input pairs exactly in each direction. Complete
 chain tests match 2,048 interpolation outputs and 128 decimation outputs exactly,

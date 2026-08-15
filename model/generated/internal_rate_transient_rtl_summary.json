@@ -1,0 +1,92 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "implementation": "captured complete SystemVerilog streams",
+  "category": "FPGA approximation verification; no rate promotion",
+  "external_sample_rate_hz": 48000,
+  "total_external_outputs": 24576,
+  "total_nonlinear_updates": 294912,
+  "all_rtl_fixed_bit_exact": true,
+  "measurements": [
+    {
+      "name": "synthetic_record_pop",
+      "internal_sample_rate_hz": 384000,
+      "external_output_count": 4096,
+      "nonlinear_update_count": 32768,
+      "rtl_fixed_bit_exact": true,
+      "solver_latency_clocks": 127,
+      "maximum_solver_residual_q44": 92100,
+      "maximum_solver_residual_a": 5.235278877080418e-09,
+      "diagnostics": {
+        "interpolation_saturation_count": 0,
+        "output_conversion_saturation_count": 0,
+        "decimation_saturation_count": 0,
+        "solver_saturation_count": 0,
+        "solver_range_clip_count": 0,
+        "solver_residual_limit_exceedance_count": 0,
+        "solver_correction_scale_fallback_count": 0
+      },
+      "maximum_absolute_output_v": 0.9609825015068054
+    },
+    {
+      "name": "accepted_range_overload_recovery",
+      "internal_sample_rate_hz": 384000,
+      "external_output_count": 8192,
+      "nonlinear_update_count": 65536,
+      "rtl_fixed_bit_exact": true,
+      "solver_latency_clocks": 127,
+      "maximum_solver_residual_q44": 11829431,
+      "maximum_solver_residual_a": 6.72425301218027e-07,
+      "diagnostics": {
+        "interpolation_saturation_count": 0,
+        "output_conversion_saturation_count": 0,
+        "decimation_saturation_count": 0,
+        "solver_saturation_count": 0,
+        "solver_range_clip_count": 0,
+        "solver_residual_limit_exceedance_count": 0,
+        "solver_correction_scale_fallback_count": 0
+      },
+      "maximum_absolute_output_v": 71.15654200315475
+    },
+    {
+      "name": "synthetic_record_pop",
+      "internal_sample_rate_hz": 768000,
+      "external_output_count": 4096,
+      "nonlinear_update_count": 65536,
+      "rtl_fixed_bit_exact": true,
+      "solver_latency_clocks": 127,
+      "maximum_solver_residual_q44": 101988,
+      "maximum_solver_residual_a": 5.797346602776088e-09,
+      "diagnostics": {
+        "interpolation_saturation_count": 0,
+        "output_conversion_saturation_count": 0,
+        "decimation_saturation_count": 0,
+        "solver_saturation_count": 0,
+        "solver_range_clip_count": 0,
+        "solver_residual_limit_exceedance_count": 0,
+        "solver_correction_scale_fallback_count": 0
+      },
+      "maximum_absolute_output_v": 0.9335556030273438
+    },
+    {
+      "name": "accepted_range_overload_recovery",
+      "internal_sample_rate_hz": 768000,
+      "external_output_count": 8192,
+      "nonlinear_update_count": 131072,
+      "rtl_fixed_bit_exact": true,
+      "solver_latency_clocks": 127,
+      "maximum_solver_residual_q44": 5663018,
+      "maximum_solver_residual_a": 3.219053041902953e-07,
+      "diagnostics": {
+        "interpolation_saturation_count": 0,
+        "output_conversion_saturation_count": 0,
+        "decimation_saturation_count": 0,
+        "solver_saturation_count": 0,
+        "solver_range_clip_count": 0,
+        "solver_residual_limit_exceedance_count": 0,
+        "solver_correction_scale_fallback_count": 0
+      },
+      "maximum_absolute_output_v": 71.13423812389374
+    }
+  ],
+  "interpretation": "This proves implementation equivalence for both rate-specific trajectories. The separate fixed A/B pop discrepancy remains and continues to block 8x promotion."
+}

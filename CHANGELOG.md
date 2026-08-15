@@ -220,6 +220,13 @@ All notable engineering changes are recorded here. The project is pre-release; d
   recorded alongside ratios. The material pop discrepancy explicitly blocks
   8x promotion pending diagnosis and long-vector RTL capture.
 
+- Added direct long-vector RTL proof for the rate-study transients. Both
+  complete streams match 4,096 synthetic-pop and 8,192 overload/recovery fixed
+  outputs exactly, totaling 24,576 external outputs / 294,912 nonlinear
+  updates with zero diagnostics and 127-clock latency. Maximum solver residual
+  is 0.672 uA at 384 kHz and 0.322 uA at 768 kHz. This closes RTL transcription
+  as an explanation for the pop discrepancy; it does not promote 8x.
+
 - Added a reproducible 384 kHz/8x architecture study while retaining
   768 kHz/16x as reference mode. The SPICE comparison now measures the lower-
   rate trapezoidal model at 10 and 20 kHz: maximum error is 0.06653 dB and

@@ -105,8 +105,16 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   772,608-update fixed transient comparison is diagnostic-clean and finds only
   +0.1875 ms recovery delta / -56.25 dB aligned recovery error, but the pop
   response differs by -15.18 dB aligned / 85.6 mV peak. Keep 8x unpromoted;
-  diagnose that transient difference and capture the long vectors in RTL.
+  diagnose that transient difference. Long-vector RTL now proves both
+  rate-specific implementations exact for 24,576 outputs / 294,912 nonlinear
+  updates, so do not attribute the A/B difference to RTL transcription.
 ## Completed this milestone
+
+- [x] Capture the rate-study transients directly from both complete RTL paths.
+  Match 4,096 pop plus 8,192 overload/recovery outputs at each rate: 24,576
+  Q8.24 outputs / 294,912 nonlinear updates are fixed-exact with zero
+  diagnostics at 127 clocks. Bound maximum solver residual to 0.672 uA at
+  384 kHz and 0.322 uA at 768 kHz; retain the separate failing rate A/B.
 
 - [x] Compare complete 384/768 kHz fixed streams on matched record-pop and
   accepted-range 0.5 V overload/control trajectories. Process 772,608 nonlinear

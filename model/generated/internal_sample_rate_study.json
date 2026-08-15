@@ -556,7 +556,7 @@
   "limitations": [
     "selected products are an alias stress metric, not a complete perceptual error metric",
     "the aligned transient residual includes integration, fixed-point, and resampler-rate differences; it is not labeled as alias alone",
-    "fixed transient outputs are bit-accurate model results; only the short deterministic stream has direct RTL equivalence so far",
+    "fixed transient outputs have a separate 24,576-output long-vector RTL equivalence report; that proof does not make the two rates equivalent to each other",
     "named-part timing remains open and reference mode remains 16x"
   ]
 }
