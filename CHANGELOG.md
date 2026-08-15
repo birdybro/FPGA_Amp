@@ -6,6 +6,16 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a reproducible, Vivado-free FASM-to-bitstream stage for the pinned XC7
+  toolchain. `generate_openxc7_bitstream.py` invokes Project X-Ray's
+  `fasm2frames` and `xc7frames2bit`, normalizes only variable `.bit` header
+  timestamp metadata to a configurable epoch, uses a repository-relative
+  source name, hashes every artifact, records both source/database revisions,
+  and validates the result with `bitread -C`. The selected seed-1 route produces
+  20,230 frame records and a 9,730,907-byte bitstream; two complete conversions
+  are byte-identical at SHA-256 `98a53adf504a9a36669c34da59e6d1f185a4a67c8ba7de3aa4fab3c83a2b9dcb`.
+  `bitread` accepts 24,060 configuration frames / 2,432,650 words. This is an
+  artifact-generation result, not board programming or hardware validation.
 - Closed the complete 48->384->48 kHz stream's 49.152 MHz open-flow timing
   target on XC7A200T without changing arithmetic or the 127-clock solver
   schedule. A selectable node-prefetch boundary captures the six raw tube nodes

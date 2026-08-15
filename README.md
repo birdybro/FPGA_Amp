@@ -117,8 +117,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   under nextpnr's experimental `DEFAULT` grade. Seed 2 independently routes at
   51.080 MHz with 0.77 ns positive estimated slack and a different 19.58 ns
   registered-node-to-tube critical path. Neither result is qualified -1
-  signoff or physical validation. The 8× architecture remains an explicit
-  candidate and reference mode remains 16×.
+  signoff or physical validation. The selected seed-1 FASM now also passes a
+  wholly open Project-X-Ray bitstream stage: 20,230 frame records become a
+  reproducible 9,730,907-byte `.bit`, and `bitread -C` validates 24,060
+  configuration frames / 2,432,650 words. Two conversions have identical
+  SHA-256 `98a53adf...2b9dcb`; the script fixes only header timestamp metadata
+  and records that hardware remains unprogrammed/unvalidated. The 8×
+  architecture remains an explicit candidate and reference mode remains 16×.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both
@@ -889,6 +894,7 @@ make openxc7-stream-384-place      # attempt A7-100T heap placement
 make openxc7-a200t-stream-384-static-place # static-place stream on A7-200T
 make openxc7-a200t-stream-384-half-clock-static-place # test 49.152 MHz schedule
 make openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-pnr # route selected 49.152 MHz profile
+make openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-bit # Project X-Ray .bit + bitread CRC gate
 make openxc7-pnr                   # route the solver timing harness on A7-100T
 make openxc7-hermite-pnr           # route the Hermite timing harness on A7-100T
 make openxc7-linear-tube-pnr       # route the value-only tube harness

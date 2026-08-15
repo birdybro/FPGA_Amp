@@ -85,10 +85,16 @@ cmake --build "$prjxray_build_root" --target install -j "$build_jobs"
 
 python3 -m venv "$python_environment"
 "$python_environment/bin/python" -m pip install --disable-pip-version-check \
+    'setuptools==80.10.2' \
+    'Cython==3.1.3' \
     'textX==4.4.0' \
     'intervaltree==3.2.1' \
+    'pyjson5==2.0.0' \
     'simplejson==4.1.1' \
     'PyYAML==6.0.3'
+"$python_environment/bin/python" -m pip install \
+    --disable-pip-version-check --no-build-isolation \
+    "$source_root/prjxray/third_party/fasm"
 
 echo "Open XC7 implementation tools installed under $tool_root/usr"
 echo "Run: make openxc7-probe"

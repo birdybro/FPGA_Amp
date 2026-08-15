@@ -45,19 +45,24 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   Seed 2 also closes in 14 iterations at 51.080 MHz with a 19.58 ns
   registered-node-to-tube path and 0.77 ns positive estimated slack.
   This is timing closure under nextpnr's experimental `DEFAULT` grade, not
-  qualified XC7A200T-1 signoff, a generated bitstream, or hardware validation.
+  qualified XC7A200T-1 signoff or hardware validation; bitstream generation is
+  verified separately below.
   Do not replicate the prior four-boundary implementation, whose 1,076 added
   registers made routing pathological. A
   broad 123-clock parallel/pipelined profile remains exact but
   grows to 242 DSP / 66,658 packed LUTX and places at only 39.62 MHz, so do not
   promote it. Lower resource occupancy or nominal cycle margin alone is not
   timing closure.
-- [ ] Complete open-flow implementation evidence for the selected A200T timing
-  profile: retain the now-completed seed-1/seed-2 routes, convert the emitted
-  FASM through the Project X-Ray frame/bitstream tools, record every artifact
-  and tool revision, and run a physical oscillator/signature smoke test when
-  matching hardware is available. Keep the experimental `DEFAULT` timing
-  estimate distinct from qualified speed-grade and board measurements.
+- [ ] Complete physical implementation evidence for the selected A200T timing
+  profile. The seed-1/seed-2 routes are retained, and a new fully open
+  Project-X-Ray conversion now reproducibly turns the selected 44,258,864-byte
+  FASM into 20,230 frame records and a 9,730,907-byte `.bit`. Two conversions
+  produce the same SHA-256 (`98a53adf...2b9dcb`) after repository-relative
+  source metadata and a fixed epoch timestamp; `bitread -C` validates 24,060
+  configuration frames / 2,432,650 words. Run the physical oscillator/signature
+  smoke test when matching hardware is available. Keep the experimental
+  `DEFAULT` timing estimate distinct from qualified speed-grade and board
+  measurements.
 - [ ] Isolate and reduce the remaining fixed circuit/state/chord error. With
   the implemented 1,024-point grid branch, raw final-window error is now
   0.372/0.291 mV at 1.0 V and 0.631/0.321 mV at 1.5 V for backward Euler/

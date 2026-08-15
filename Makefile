@@ -12,7 +12,7 @@ NEXTPNR ?= nextpnr-himbaechel
 .PHONY: synth-trapezoidal-384-terminal-banked-solver
 .PHONY: stream-trapezoidal-384-terminal-banked-rtl stream-trapezoidal-384-terminal-banked-half-clock-rtl stream-trapezoidal-384-terminal-banked-half-clock-pipelined-rtl stream-trapezoidal-384-terminal-banked-half-clock-prefetched-rtl stream-trapezoidal-384-terminal-banked-half-clock-retimed-rtl stream-trapezoidal-384-terminal-banked-half-clock-late-select-rtl stream-trapezoidal-384-terminal-banked-half-clock-late-select-retimed-rtl stream-trapezoidal-384-terminal-banked-half-clock-late-select-serial-max-rtl stream-trapezoidal-384-terminal-banked-half-clock-node-prefetch-serial-max-rtl
 .PHONY: synth-stream-trapezoidal-384-terminal-banked
-.PHONY: openxc7-stream-384-pack openxc7-stream-384-place openxc7-a200t-stream-384-static-place openxc7-a200t-stream-384-half-clock-static-place openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-pnr
+.PHONY: openxc7-stream-384-pack openxc7-stream-384-place openxc7-a200t-stream-384-static-place openxc7-a200t-stream-384-half-clock-static-place openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-pnr openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-bit
 
 all: reference test
 
@@ -712,6 +712,9 @@ openxc7-a200t-stream-384-half-clock-static-place: fixed-384-assets
 
 openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-pnr: fixed-384-assets
 	$(PYTHON) scripts/run_openxc7.py --top stream_384khz_49mhz_node_prefetch_serial_max_pnr_harness --device xc7a200tsbg484-1 --frequency-mhz 49.152 --xdc fpga/nexys_video/solver_pnr_harness.xdc --nextpnr $(NEXTPNR) --placer static --run-tag routed
+
+openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-bit:
+	$(PYTHON) scripts/generate_openxc7_bitstream.py --part xc7a200tsbg484-1 --fasm build/openxc7/xc7a200tsbg484-1/stream_384khz_49mhz_node_prefetch_serial_max_pnr_harness/routed/stream_384khz_49mhz_node_prefetch_serial_max_pnr_harness.fasm
 
 openxc7-hermite-pnr:
 	$(PYTHON) scripts/run_openxc7.py --top hermite_pnr_harness --nextpnr $(NEXTPNR)

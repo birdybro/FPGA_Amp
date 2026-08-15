@@ -22,6 +22,14 @@ assert SYNTHESIS_SPEC is not None and SYNTHESIS_SPEC.loader is not None
 RUN_SYNTHESIS = importlib.util.module_from_spec(SYNTHESIS_SPEC)
 SYNTHESIS_SPEC.loader.exec_module(RUN_SYNTHESIS)
 
+BITSTREAM_MODULE_PATH = REPOSITORY_ROOT / "scripts" / "generate_openxc7_bitstream.py"
+BITSTREAM_SPEC = importlib.util.spec_from_file_location(
+    "generate_openxc7_bitstream", BITSTREAM_MODULE_PATH
+)
+assert BITSTREAM_SPEC is not None and BITSTREAM_SPEC.loader is not None
+GENERATE_BITSTREAM = importlib.util.module_from_spec(BITSTREAM_SPEC)
+BITSTREAM_SPEC.loader.exec_module(GENERATE_BITSTREAM)
+
 
 class OpenXc7ToolTests(unittest.TestCase):
     def test_chipdb_density_is_derived_from_supported_part_names(self) -> None:
@@ -86,6 +94,70 @@ class OpenXc7ToolTests(unittest.TestCase):
         self.assertFalse(summary["route_completed"])
         self.assertIsNone(summary["timing_pass"])
         self.assertEqual(summary["utilization"]["SLICE_LUTX"], {"used": 7})
+
+    def test_bitstream_artifact_names_stay_beside_fasm(self) -> None:
+        fasm = Path("build/openxc7/candidate.fasm")
+        self.assertEqual(
+            GENERATE_BITSTREAM.default_output_paths(fasm),
+            (
+                Path("build/openxc7/candidate.frm"),
+                Path("build/openxc7/candidate.bit"),
+                Path("build/openxc7/candidate.bit.json"),
+            ),
+        )
+
+    def test_bitstream_digest_is_streamed_exactly(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = Path(directory) / "artifact.bin"
+            artifact.write_bytes(b"open-xc7\x00bitstream")
+            digest = GENERATE_BITSTREAM.file_sha256(artifact)
+        self.assertEqual(
+            digest,
+            "1924c7d5416caf8881eeffbb7324379775ec29d7548004735fc6baf6e9ccede5",
+        )
+
+    def test_bitstream_timestamp_normalization_preserves_payload(self) -> None:
+        prefix = bytes(
+            (0x00, 0x09, 0x0F, 0xF0, 0x0F, 0xF0, 0x0F, 0xF0, 0x0F, 0xF0, 0, 0, 1)
+        )
+
+        def field(tag: str, value: bytes) -> bytes:
+            encoded = value + b"\0"
+            return tag.encode("ascii") + len(encoded).to_bytes(2, "big") + encoded
+
+        payload = b"\xaa\x99\x55\x66configuration"
+        original = (
+            prefix
+            + field("a", b"candidate.frm;Generator=xc7frames2bit")
+            + field("b", b"xc7a200tsbg484-1")
+            + field("c", b"2026/08/15")
+            + field("d", b"06:24:01")
+            + b"e"
+            + len(payload).to_bytes(4, "big")
+            + payload
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            bitstream = Path(directory) / "candidate.bit"
+            bitstream.write_bytes(original)
+            timestamp = GENERATE_BITSTREAM.normalize_bitstream_timestamp(bitstream, 0)
+            normalized = bitstream.read_bytes()
+
+        self.assertEqual(timestamp, "1970-01-01T00:00:00Z")
+        self.assertIn(b"1970/01/01\0", normalized)
+        self.assertIn(b"00:00:00\0", normalized)
+        self.assertTrue(normalized.endswith(payload))
+        self.assertEqual(len(normalized), len(original))
+
+    def test_bitread_measurements_are_parsed_exactly(self) -> None:
+        output = """Bitstream size: 9730907 bytes
+Config size: 2432650 words
+Number of configuration frames: 24060
+DONE
+"""
+        self.assertEqual(
+            GENERATE_BITSTREAM.parse_bitread_measurements(output),
+            (9_730_907, 2_432_650, 24_060),
+        )
 
 
 if __name__ == "__main__":

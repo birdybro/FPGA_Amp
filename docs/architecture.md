@@ -82,8 +82,9 @@ existing preview-to-launch interval, so all arithmetic and the 127-clock
 contract are unchanged. The resulting 54,280-LUTX / 8,855-FFX / 207-DSP A200T
 design routes legally at 61.072 MHz against 49.152 MHz. This closes the
 experimental nextpnr `DEFAULT`-grade estimate; an independent seed-2 route
-also passes at 51.080 MHz. Qualified -1 timing, bitstream
-generation, and physical board validation remain separate gates. The candidate
+also passes at 51.080 MHz. The seed-1 FASM is independently converted to a
+reproducible Project-X-Ray bitstream and parsed by `bitread -C`. Qualified -1
+timing and physical board validation remain separate gates. The candidate
 remains unpromoted as the reference rate because numerical-rate selection and
 implementation timing are different engineering decisions.
 

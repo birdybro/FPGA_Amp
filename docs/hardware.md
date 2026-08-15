@@ -725,9 +725,26 @@ critical paths.
 
 This is the first complete-stream timing closure under the pinned open
 nextpnr-Himbaechel backend's experimental `DEFAULT` grade. It is not qualified
-XC7A200T-1 timing signoff, a generated configuration bitstream, or a board
-measurement. Those claims remain gated on the open frame/bitstream flow,
-additional route seeds, and physical validation.
+XC7A200T-1 timing signoff or a board measurement. Those claims remain gated on
+qualified timing and physical validation.
+
+The following configuration stage is also fully open. The pinned bootstrap now
+installs the Project X-Ray Python assembler dependencies, and
+`generate_openxc7_bitstream.py` converts a chosen routed FASM through
+`fasm2frames` and `xc7frames2bit`. It replaces only variable header date/time
+metadata with a caller-controlled epoch (zero by default) and passes a
+repository-relative frame name, making the artifact reproducible across runs
+and clone paths. The script records input/frame/bitstream SHA-256 values and
+both pinned Git revisions, then invokes `bitread -C`; successful parsing is a
+required gate. It does not program a cable or set `hardware_validated`.
+
+For the seed-1 timing-closed route, the 44,258,864-byte FASM hashes to
+`af98f3fb...b51e9e32`. It assembles to 20,230 frame records / 22,698,060 bytes
+and emits a 9,730,907-byte bitstream. Two end-to-end conversions produce the
+same SHA-256, `98a53adf504a9a36669c34da59e6d1f185a4a67c8ba7de3aa4fab3c83a2b9dcb`.
+Project X-Ray `bitread -C` accepts the result as 24,060 configuration frames and
+2,432,650 configuration words. This proves reproducible artifact generation,
+not successful configuration or functional hardware behavior.
 
 The placement analyzer now recognizes complete-stream resampler hierarchy
 instead of folding it into harness constants. In the 38.34 MHz static result,
