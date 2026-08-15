@@ -5,7 +5,9 @@
 // candidate stream. This is not a board top or a bitstream-ready clock design.
 module stream_384khz_pnr_harness #(
     parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048,
-    parameter bit PIPELINED_SOLVER_PROFILE = 1'b0
+    parameter bit PIPELINED_SOLVER_PROFILE = 1'b0,
+    parameter bit PREFETCH_TUBE_INPUTS = 1'b0,
+    parameter bit DECOUPLED_KCL_MAXIMUM_ONLY = 1'b0
 ) (
     input  logic fabric_clk,
     input  logic reset,
@@ -77,7 +79,9 @@ module stream_384khz_pnr_harness #(
 
     (* keep *) phono_stream_mono_wide_trapezoidal_384khz_banked_terminal #(
         .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT),
-        .PIPELINED_SOLVER_PROFILE(PIPELINED_SOLVER_PROFILE)
+        .PIPELINED_SOLVER_PROFILE(PIPELINED_SOLVER_PROFILE),
+        .PREFETCH_TUBE_INPUTS(PREFETCH_TUBE_INPUTS),
+        .DECOUPLED_KCL_MAXIMUM_ONLY(DECOUPLED_KCL_MAXIMUM_ONLY)
     ) stream (
             .clk(fabric_clk),
             .rst_n,
@@ -125,6 +129,33 @@ module stream_384khz_49mhz_pipelined_pnr_harness (
     stream_384khz_pnr_harness #(
         .FABRIC_CLOCKS_PER_48K_INPUT(1024),
         .PIPELINED_SOLVER_PROFILE(1'b1)
+    ) candidate (.*);
+endmodule
+
+// Route-informed candidate: preserve the selected serial 127-clock solver but
+// capture exact triode pin values one cycle before each residual launch.
+module stream_384khz_49mhz_prefetched_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+    stream_384khz_pnr_harness #(
+        .FABRIC_CLOCKS_PER_48K_INPUT(1024),
+        .PREFETCH_TUBE_INPUTS(1'b1)
+    ) candidate (.*);
+endmodule
+
+// Combine route-informed tube-pin prefetch with a final-only KCL maximum
+// sideband. Both changes preserve the selected 127-clock correction schedule.
+module stream_384khz_49mhz_retimed_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+    stream_384khz_pnr_harness #(
+        .FABRIC_CLOCKS_PER_48K_INPUT(1024),
+        .PREFETCH_TUBE_INPUTS(1'b1),
+        .DECOUPLED_KCL_MAXIMUM_ONLY(1'b1)
     ) candidate (.*);
 endmodule
 

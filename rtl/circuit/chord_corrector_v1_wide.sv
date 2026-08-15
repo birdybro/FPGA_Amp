@@ -11,7 +11,11 @@ module chord_corrector_v1_wide #(
     // Optional timing schedule. Register scaled corrections and updated node
     // values before saturation/commit, adding two clocks without changing any
     // arithmetic result.
-    parameter bit PIPELINED_APPLY = 1'b0
+    parameter bit PIPELINED_APPLY = 1'b0,
+    // Expose the exact non-pipelined update during its final combinational
+    // apply cycle. This adds no arithmetic or latency and lets a downstream
+    // block capture values before `valid` commits them on the next edge.
+    parameter bit EARLY_PREVIEW = 1'b0
 ) (
     input  logic                    clk,
     input  logic                    rst_n,
@@ -21,10 +25,9 @@ module chord_corrector_v1_wide #(
     input  logic [5:0]              residual_fractional_bits,
     input  logic [2:0]              coefficient_set,
     output logic [359:0]            corrected_voltage,
-    // During the final pipelined apply cycle this exposes the already
-    // registered, saturated node update one clock before `valid`. It permits
-    // independent terminal-state work to overlap without bypassing a timing
-    // boundary or changing the corrected-voltage result.
+    // During the final apply cycle this exposes the exact saturated node
+    // update one clock before `valid`. In the pipelined profile its source is
+    // registered; in EARLY_PREVIEW mode it is the non-pipelined apply result.
     output logic [359:0]            preview_voltage,
     output logic                    preview_valid,
     output logic                    saturation_any,
@@ -169,8 +172,10 @@ module chord_corrector_v1_wide #(
     endfunction
 
     always_comb begin
-        preview_valid = PIPELINED_APPLY && busy && apply_pending
-                        && correction_staged && update_staged;
+        preview_valid = busy && apply_pending
+                        && ((PIPELINED_APPLY
+                             && correction_staged && update_staged)
+                            || (!PIPELINED_APPLY && EARLY_PREVIEW));
         for (int row = 0; row < 9; row = row + 1) begin
             product_by_row[row] = coefficient[
                                       coefficient_set_base(
@@ -194,7 +199,9 @@ module chord_corrector_v1_wide #(
                 });
             overflow_by_row[row] = exceeds_40(updated_by_row[row]);
             preview_voltage[row * 40 +: 40] = saturate_40(
-                updated_staged_by_row[row]
+                PIPELINED_APPLY
+                    ? updated_staged_by_row[row]
+                    : updated_by_row[row]
             );
         end
         saturation_combined = |overflow_by_row;

@@ -17,6 +17,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
     parser.add_argument("--pipelined-apply", action="store_true")
+    parser.add_argument("--early-preview", action="store_true")
     parser.add_argument("--trapezoidal", action="store_true")
     parser.add_argument("--banked", action="store_true")
     parser.add_argument(
@@ -42,6 +43,8 @@ def main() -> int:
         "sim/unit/chord_corrector_v1_wide_tb.sv",
     ]
     parameter_args = ["-GPIPELINED_APPLY=1"] if args.pipelined_apply else []
+    if args.early_preview:
+        parameter_args.append("-GEARLY_PREVIEW=1")
     if args.trapezoidal:
         parameter_args.append("-GTRAPEZOIDAL=1")
     if args.banked:
@@ -62,6 +65,7 @@ def main() -> int:
         + ("_384khz" if args.sample_rate_hz == 384_000 else "")
         + ("_banked" if args.banked else "")
         + ("_pipelined_apply" if args.pipelined_apply else "")
+        + ("_early_preview" if args.early_preview else "")
     )
     subprocess.run(
         [

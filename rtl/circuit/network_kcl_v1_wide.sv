@@ -26,9 +26,11 @@ module network_kcl_v1_wide #(
     // trapezoidal history subtraction and delay matrix currents to match. This
     // adds one fill clock per request.
     parameter bit PIPELINED_CAPACITOR_CURRENT = 1'b0,
-    // Pipeline the exact nine-row maximum diagnostic into four comparator
-    // levels when diagnostic_max_enable is asserted. Non-final solver passes
-    // bypass the three extra clocks because their maximum is not consumed.
+    // Pipeline the exact nine-row maximum diagnostic when
+    // diagnostic_max_enable is asserted. With PIPELINED_FINISH, all four
+    // comparator levels are registered. Without it, DECOUPLED_MAXIMUM may
+    // launch the correction on time while registered absolute, pair, quad,
+    // and final stages finish through the following chord operation.
     parameter bit PIPELINED_MAXIMUM = 1'b0,
     // Emit the correction result after the first maximum-pipeline boundary,
     // then complete the final-only diagnostic through a separate max_valid
@@ -105,6 +107,11 @@ module network_kcl_v1_wide #(
     initial begin
         if (SHARED_CAPACITOR_MULTIPLIER && !PIPELINED_COLUMNS)
             $error("SHARED_CAPACITOR_MULTIPLIER requires PIPELINED_COLUMNS");
+        if (PIPELINED_MAXIMUM && !PIPELINED_FINISH
+            && !DECOUPLED_MAXIMUM)
+            $error("unpipelined finish requires DECOUPLED_MAXIMUM");
+        if (DECOUPLED_MAXIMUM && !PIPELINED_MAXIMUM)
+            $error("DECOUPLED_MAXIMUM requires PIPELINED_MAXIMUM");
         $readmemh(MATRIX_FILE, matrix);
         $readmemh(CAP_G_FILE, capacitor_g);
     end
@@ -944,6 +951,23 @@ module network_kcl_v1_wide #(
                     saturation_count_staged <= saturation_count_combined;
                     finish_selection_staged <= 1'b1;
                 end else if (PIPELINED_MAXIMUM && diagnostic_max_latched
+                             && !PIPELINED_FINISH
+                             && finish_selection_staged
+                             && maximum_pipeline_stage == 3'd4) begin
+                    // In the zero-schedule-cost profile the correction was
+                    // already released while the chord engine is busy.  Keep
+                    // the exact absolute-value negation and every maximum-tree
+                    // level on separate registered boundaries; otherwise the
+                    // first sideband edge recreates the residual-to-global-max
+                    // carry-chain path that this profile is intended to remove.
+                    for (lane = 0; lane < 4; lane = lane + 1)
+                        maximum_pair_staged[lane] <= maximum_u63(
+                            absolute_staged_by_row[lane * 2],
+                            absolute_staged_by_row[lane * 2 + 1]
+                        );
+                    maximum_row8_staged <= absolute_staged_by_row[8];
+                    maximum_pipeline_stage <= 3'd1;
+                end else if (PIPELINED_MAXIMUM && diagnostic_max_latched
                              && finish_selection_staged
                              && maximum_pipeline_stage == 3'd1) begin
                     maximum_quad_staged[0] <= maximum_u63(
@@ -953,7 +977,7 @@ module network_kcl_v1_wide #(
                         maximum_pair_staged[2], maximum_pair_staged[3]
                     );
                     maximum_pipeline_stage <= 3'd2;
-                    if (DECOUPLED_MAXIMUM) begin
+                    if (DECOUPLED_MAXIMUM && PIPELINED_FINISH) begin
                         for (lane = 0; lane < 9; lane = lane + 1)
                             residual[lane * 25 +: 25] <=
                                 saturate_correction(
@@ -1004,9 +1028,30 @@ module network_kcl_v1_wide #(
                         );
                     residual_fractional_bits <= PIPELINED_FINISH
                         ? selected_fraction_staged : selected_fraction;
-                    max_abs_residual_q44 <= PIPELINED_FINISH
-                        ? max_abs_staged : max_abs_combined;
-                    max_valid <= diagnostic_max_latched;
+                    if (PIPELINED_MAXIMUM && DECOUPLED_MAXIMUM
+                        && diagnostic_max_latched && !PIPELINED_FINISH) begin
+                        // The correction result is independent of this
+                        // diagnostic. Launch it at the original latency while
+                        // registering only the exact absolute values. Four
+                        // following sideband edges register pair, quad, final,
+                        // and row-eight comparisons while the chord corrector
+                        // is busy, so no solver clock is added.
+                        for (lane = 0; lane < 9; lane = lane + 1)
+                            absolute_staged_by_row[lane] <= absolute_q44(
+                                final_residual_latched[lane]
+                            );
+                        maximum_pipeline_stage <= 3'd4;
+                        finish_selection_staged <= 1'b1;
+                    end else if (!(PIPELINED_MAXIMUM && DECOUPLED_MAXIMUM
+                                   && !PIPELINED_FINISH)) begin
+                        // The maximum output is don't-care when diagnostics are
+                        // disabled. Avoid retaining the complete combinational
+                        // tree in the sideband-only profile merely to update a
+                        // register whose valid flag remains low.
+                        max_abs_residual_q44 <= PIPELINED_FINISH
+                            ? max_abs_staged : max_abs_combined;
+                        max_valid <= diagnostic_max_latched;
+                    end
                     correction_scale_fallback <=
                         (PIPELINED_FINISH
                             ? selected_fraction_staged : selected_fraction)
@@ -1015,13 +1060,17 @@ module network_kcl_v1_wide #(
                         ? saturation_staged : saturation_combined;
                     saturation_count <= PIPELINED_FINISH
                         ? saturation_count_staged : saturation_count_combined;
-                    busy <= 1'b0;
                     valid <= 1'b1;
-                    finish_pending <= 1'b0;
-                    finish_result_staged <= 1'b0;
-                    finish_conversion_staged <= 1'b0;
-                    finish_selection_staged <= 1'b0;
-                    current_ready <= 1'b0;
+                    if (!(PIPELINED_MAXIMUM && DECOUPLED_MAXIMUM
+                          && diagnostic_max_latched
+                          && !PIPELINED_FINISH)) begin
+                        busy <= 1'b0;
+                        finish_pending <= 1'b0;
+                        finish_result_staged <= 1'b0;
+                        finish_conversion_staged <= 1'b0;
+                        finish_selection_staged <= 1'b0;
+                        current_ready <= 1'b0;
+                    end
                 end
             end
         end

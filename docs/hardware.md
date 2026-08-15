@@ -635,6 +635,30 @@ equivalents, which exceeds the A100T DSP count, and the A200T pack is 66,658
 LUTX / 15,046 FFX / 4,633 CARRY4 / 242 DSP. Static placement reaches only
 39.62 MHz. Routing is therefore skipped and the profile is not promoted.
 
+The route-guided `stream_384khz_49mhz_prefetched_pnr_harness` captures both
+triode pin pairs from stable sample state and from the exact one-cycle-early
+non-pipelined chord result. It leaves every numerical operation and the
+127-clock schedule unchanged, but its first route reaches only 46.942 MHz. It
+successfully removes the baseline state/voltage/tube path; the critical cone
+moves to the exact KCL maximum diagnostic instead.
+
+`stream_384khz_49mhz_retimed_pnr_harness` additionally releases the final KCL
+correction at its original edge and computes the independent residual maximum
+during the following chord interval. Backward-Euler and rate-specific
+trapezoidal KCL tests each match 1,024 vectors exactly, and the persistent
+solver and complete stream remain exact at 127 clocks. Routing showed why each
+boundary matters: a shallow tree still reaches only 45.806 MHz through the
+maximum cone; staging the tree while retaining an invalid-only combinational
+output load reaches 44.524 MHz through that dead load. Suppressing the dead
+load and registering absolute value, pair, quad, and final comparisons yields
+15,852 LC / 9,793 FF / 207 DSP / 10 RAMB18 equivalents and packs at 58,322
+LUTX / 9,793 FFX / 4,258 CARRY4 / 207 DSP. The final route is legal after 24
+router2 iterations but reaches 47.07 MHz. Its 21.24 ns path contains 8.34 ns
+logic and 12.90 ns routing from chord residual-format/update logic through the
+early preview and tube-pin conversion to a tube input register. Because this
+is slower than the 48.482 MHz baseline and another preview register would add
+a clock to each correction pass, neither prefetch profile is promoted.
+
 The placement analyzer now recognizes complete-stream resampler hierarchy
 instead of folding it into harness constants. In the 38.34 MHz static result,
 the decimator accounts for 8,397 LUTX / 4,791 FFX / 12 DSP and spans 244x143

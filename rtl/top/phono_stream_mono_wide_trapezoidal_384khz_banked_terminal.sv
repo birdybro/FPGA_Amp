@@ -5,7 +5,9 @@
 // conversion and the exact 127-clock 384 kHz banked-terminal solver.
 module phono_stream_mono_wide_trapezoidal_384khz_banked_terminal #(
     parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048,
-    parameter bit PIPELINED_SOLVER_PROFILE = 1'b0
+    parameter bit PIPELINED_SOLVER_PROFILE = 1'b0,
+    parameter bit PREFETCH_TUBE_INPUTS = 1'b0,
+    parameter bit DECOUPLED_KCL_MAXIMUM_ONLY = 1'b0
 ) (
     input  logic                 clk,
     input  logic                 rst_n,
@@ -50,7 +52,9 @@ module phono_stream_mono_wide_trapezoidal_384khz_banked_terminal #(
         .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT),
         .TRAPEZOIDAL(1'b1),
         .TERMINAL_CORRECTION(1'b1),
-        .PIPELINED_SOLVER_PROFILE(PIPELINED_SOLVER_PROFILE)
+        .PIPELINED_SOLVER_PROFILE(PIPELINED_SOLVER_PROFILE),
+        .PREFETCH_TUBE_INPUTS(PREFETCH_TUBE_INPUTS),
+        .DECOUPLED_KCL_MAXIMUM_ONLY(DECOUPLED_KCL_MAXIMUM_ONLY)
     ) core (.*);
 
 endmodule

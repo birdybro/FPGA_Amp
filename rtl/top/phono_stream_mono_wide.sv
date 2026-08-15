@@ -20,7 +20,13 @@ module phono_stream_mono_wide #(
     // Scheduling-only profile: duplicate the two physical triode evaluators
     // and enable the previously bit-exact registered KCL/chord boundaries.
     // The circuit equations and fixed-point operations are unchanged.
-    parameter bit PIPELINED_SOLVER_PROFILE = 1'b0
+    parameter bit PIPELINED_SOLVER_PROFILE = 1'b0,
+    // Timing-only option that captures exact triode pin values before each
+    // residual launch. It preserves the default solver schedule/arithmetic.
+    parameter bit PREFETCH_TUBE_INPUTS = 1'b0,
+    // Keep correction latency unchanged while the final-only physical
+    // residual maximum completes on its exact sideband during chord work.
+    parameter bit DECOUPLED_KCL_MAXIMUM_ONLY = 1'b0
 ) (
     input  logic                 clk,
     input  logic                 rst_n,
@@ -98,12 +104,17 @@ module phono_stream_mono_wide #(
         .SAMPLE_RATE_384KHZ(SAMPLE_RATE_384KHZ),
         .TRAPEZOIDAL(TRAPEZOIDAL),
         .TERMINAL_CORRECTION(TERMINAL_CORRECTION),
+        .PREFETCH_TUBE_INPUTS(PREFETCH_TUBE_INPUTS),
         .PARALLEL_TUBES(PIPELINED_SOLVER_PROFILE),
         .PIPELINED_KCL_FINISH(PIPELINED_SOLVER_PROFILE),
         .PIPELINED_KCL_COLUMNS(PIPELINED_SOLVER_PROFILE),
         .PIPELINED_KCL_ACCUMULATOR(PIPELINED_SOLVER_PROFILE),
-        .PIPELINED_KCL_MAXIMUM(PIPELINED_SOLVER_PROFILE),
-        .DECOUPLED_KCL_MAXIMUM(PIPELINED_SOLVER_PROFILE),
+        .PIPELINED_KCL_MAXIMUM(
+            PIPELINED_SOLVER_PROFILE || DECOUPLED_KCL_MAXIMUM_ONLY
+        ),
+        .DECOUPLED_KCL_MAXIMUM(
+            PIPELINED_SOLVER_PROFILE || DECOUPLED_KCL_MAXIMUM_ONLY
+        ),
         .PIPELINED_CHORD_APPLY(PIPELINED_SOLVER_PROFILE)
     ) solver (
         .clk,

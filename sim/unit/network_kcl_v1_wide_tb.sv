@@ -191,7 +191,9 @@ module network_kcl_v1_wide_tb #(
                 errors = errors + 1;
             end
             if (DECOUPLED_MAXIMUM) begin
-                for (integer max_wait = 0; max_wait < 2; max_wait = max_wait + 1) begin
+                for (integer max_wait = 0;
+                     max_wait < (PIPELINED_FINISH ? 2 : 4);
+                     max_wait = max_wait + 1) begin
                     @(posedge clk);
                     #1;
                 end

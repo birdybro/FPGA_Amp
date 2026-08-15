@@ -31,8 +31,12 @@ def main() -> int:
         parser.error("--pipelined-accumulator requires --pipelined-columns")
     if args.pipelined_capacitor_current and not args.pipelined_columns:
         parser.error("--pipelined-capacitor-current requires --pipelined-columns")
-    if args.pipelined_maximum and not args.pipelined_finish:
-        parser.error("--pipelined-maximum requires --pipelined-finish")
+    if (args.pipelined_maximum and not args.pipelined_finish
+            and not args.decoupled_maximum):
+        parser.error(
+            "--pipelined-maximum without --pipelined-finish requires "
+            "--decoupled-maximum"
+        )
     if args.decoupled_maximum and not args.pipelined_maximum:
         parser.error("--decoupled-maximum requires --pipelined-maximum")
     if args.shared_capacitor_multiplier and not args.pipelined_columns:

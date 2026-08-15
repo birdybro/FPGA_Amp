@@ -6,6 +6,18 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added route-guided tube-pin prefetch and diagnostic-only KCL maximum
+  retiming experiments for the complete 49.152 MHz stream. The exact chord
+  preview, backward-Euler/384 kHz KCL sideband, 512-sample solver, and
+  64-output/512-update stream regressions all pass without changing the
+  127-clock solver latency. The final sideband registers absolute value and
+  each maximum-tree level while chord correction is active and suppresses a
+  dead maximum-output load when diagnostics are disabled. Yosys measures
+  15,852 LC / 9,793 FF / 207 DSP / 10 RAMB18 equivalents; the A200T pack is
+  58,322 LUTX / 9,793 FFX / 4,258 CARRY4 / 207 DSP. Its legal 24-iteration
+  route reaches only 47.07 MHz, with a 21.24 ns chord-preview-to-tube-input
+  path, versus the selected baseline's 48.482 MHz. The prefetch family is
+  therefore retained as rejected timing evidence and is not promoted.
 - Completed the first legal route of the full 48->384->48 kHz nonlinear
   stream on XC7A200T using only Yosys, nextpnr-Himbaechel, and Project X-Ray.
   The circular-resampler design routes at 48.482 MHz against 49.152 MHz, a

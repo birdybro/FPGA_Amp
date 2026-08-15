@@ -17,9 +17,14 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   packed FFX to 15,716 LC / 8,589 packed FFX. The full A200T route reaches
   48.482 MHz versus 49.152 MHz, leaving a 1.38% gap; its 20.626 ns state-to-
   tube path crosses the corrected/current voltage mux, plate-node subtraction,
-  Q20 conversion, and factorized-tube input mapping. Prefetch or register this
-  exact tube-input boundary without changing the 127-of-128-clock arithmetic
-  contract. A broad 123-clock parallel/pipelined profile remains exact but
+  Q20 conversion, and factorized-tube input mapping. Exact acceptance/chord
+  tube-pin prefetch removes that path, and a diagnostic-only four-boundary KCL
+  maximum pipeline preserves all KCL/solver/stream vectors at 127 clocks, but
+  the clean legal route reaches only 47.07 MHz through chord preview and tube
+  conversion. Reject this prefetch family: another register costs a clock per
+  correction pass and cannot fit the 127-of-128-clock contract. Try controlled
+  baseline seed/timing-weight routes or a tube primitive input-boundary change
+  that does not add solver clocks. A broad 123-clock parallel/pipelined profile remains exact but
   grows to 242 DSP / 66,658 packed LUTX and places at only 39.62 MHz, so do not
   promote it. Lower resource occupancy or nominal cycle margin alone is not
   timing closure.
@@ -138,6 +143,15 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   registered scheduling is required.
 
 ## Completed this milestone
+
+- [x] Implement and route exact tube-pin prefetch plus diagnostic-only KCL
+  maximum retiming without changing the 127-clock solver schedule. Match 1,024
+  backward-Euler KCL, 1,024 rate-specific trapezoidal KCL, 512 persistent
+  solver, and 64-output/512-update complete-stream vectors. Remove the
+  invalid-only combinational maximum load identified by route. Measure 15,852
+  LC / 9,793 FF / 207 DSP / 10 RAMB18 equivalents and a legal 47.07 MHz A200T
+  route with a 21.24 ns chord-preview/tube-input path. Reject the candidate as
+  slower than the selected 48.482 MHz baseline.
 
 - [x] Route the circular-resampler 49.152 MHz complete-stream harness legally
   on XC7A200T. Measure 48.482 MHz post-route, a 1.38% miss, with 56,041 LUTX /

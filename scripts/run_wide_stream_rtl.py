@@ -29,6 +29,16 @@ def main() -> int:
         help="select the exact 123-clock parallel/decoupled scheduling profile",
     )
     parser.add_argument(
+        "--prefetch-tube-inputs",
+        action="store_true",
+        help="capture exact tube pin pairs before each residual launch",
+    )
+    parser.add_argument(
+        "--decoupled-kcl-maximum-only",
+        action="store_true",
+        help="pipeline only the final KCL maximum on its exact sideband",
+    )
+    parser.add_argument(
         "--sample-rate-hz", type=int, choices=(384_000, 768_000), default=768_000
     )
     parser.add_argument(
@@ -158,6 +168,10 @@ def main() -> int:
         parameter_args.append("-GFABRIC_CLOCKS_PER_48K_INPUT=1024")
     if args.pipelined_solver_profile:
         parameter_args.append("-GPIPELINED_SOLVER_PROFILE=1")
+    if args.prefetch_tube_inputs:
+        parameter_args.append("-GPREFETCH_TUBE_INPUTS=1")
+    if args.decoupled_kcl_maximum_only:
+        parameter_args.append("-GDECOUPLED_KCL_MAXIMUM_ONLY=1")
     build = ROOT / "build" / (
         "verilator_phono_stream_wide"
         + ("_trapezoidal" if args.trapezoidal else "")
@@ -166,6 +180,12 @@ def main() -> int:
         + ("_banked" if args.banked else "")
         + ("_terminal" if args.terminal_correction else "")
         + ("_pipelined_solver" if args.pipelined_solver_profile else "")
+        + ("_prefetched_tube_inputs" if args.prefetch_tube_inputs else "")
+        + (
+            "_decoupled_kcl_maximum_only"
+            if args.decoupled_kcl_maximum_only
+            else ""
+        )
     )
     if not args.run_only:
         subprocess.run(

@@ -7,7 +7,9 @@ module phono_stream_mono_wide_tb #(
     parameter bit TERMINAL_CORRECTION = 1'b0,
     parameter bit SAMPLE_RATE_384KHZ = 1'b0,
     parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048,
-    parameter bit PIPELINED_SOLVER_PROFILE = 1'b0
+    parameter bit PIPELINED_SOLVER_PROFILE = 1'b0,
+    parameter bit PREFETCH_TUBE_INPUTS = 1'b0,
+    parameter bit DECOUPLED_KCL_MAXIMUM_ONLY = 1'b0
 );
     localparam int MAX_VECTOR_COUNT = 8192;
     localparam int EXPECTED_SOLVER_LATENCY = PIPELINED_SOLVER_PROFILE
@@ -80,7 +82,9 @@ module phono_stream_mono_wide_tb #(
         .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT),
         .TRAPEZOIDAL(TRAPEZOIDAL),
         .TERMINAL_CORRECTION(TERMINAL_CORRECTION),
-        .PIPELINED_SOLVER_PROFILE(PIPELINED_SOLVER_PROFILE)
+        .PIPELINED_SOLVER_PROFILE(PIPELINED_SOLVER_PROFILE),
+        .PREFETCH_TUBE_INPUTS(PREFETCH_TUBE_INPUTS),
+        .DECOUPLED_KCL_MAXIMUM_ONLY(DECOUPLED_KCL_MAXIMUM_ONLY)
     ) dut (.*);
     always #5 clk = ~clk;
 

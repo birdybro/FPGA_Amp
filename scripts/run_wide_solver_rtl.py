@@ -25,6 +25,7 @@ def main() -> int:
     parser.add_argument("--terminal-correction", action="store_true")
     parser.add_argument("--linear-tube", action="store_true")
     parser.add_argument("--parallel-tubes", action="store_true")
+    parser.add_argument("--prefetch-tube-inputs", action="store_true")
     parser.add_argument("--pipelined-kcl-finish", action="store_true")
     parser.add_argument("--pipelined-kcl-columns", action="store_true")
     parser.add_argument("--pipelined-kcl-accumulator", action="store_true")
@@ -49,8 +50,12 @@ def main() -> int:
             "--pipelined-kcl-capacitor-current requires "
             "--pipelined-kcl-columns"
         )
-    if args.pipelined_kcl_maximum and not args.pipelined_kcl_finish:
-        parser.error("--pipelined-kcl-maximum requires --pipelined-kcl-finish")
+    if (args.pipelined_kcl_maximum and not args.pipelined_kcl_finish
+            and not args.decoupled_kcl_maximum):
+        parser.error(
+            "--pipelined-kcl-maximum without --pipelined-kcl-finish "
+            "requires --decoupled-kcl-maximum"
+        )
     if args.decoupled_kcl_maximum and not args.pipelined_kcl_maximum:
         parser.error(
             "--decoupled-kcl-maximum requires --pipelined-kcl-maximum"
@@ -134,6 +139,8 @@ def main() -> int:
         parameter_args.append("-GLINEAR_TUBE=1")
     if args.parallel_tubes:
         parameter_args.append("-GPARALLEL_TUBES=1")
+    if args.prefetch_tube_inputs:
+        parameter_args.append("-GPREFETCH_TUBE_INPUTS=1")
     if args.pipelined_kcl_finish:
         parameter_args.append("-GPIPELINED_KCL_FINISH=1")
     if args.pipelined_kcl_columns:
@@ -178,6 +185,7 @@ def main() -> int:
         + ("_terminal" if args.terminal_correction else "")
         + ("_linear" if args.linear_tube else "")
         + ("_parallel_tubes" if args.parallel_tubes else "")
+        + ("_prefetched_tube_inputs" if args.prefetch_tube_inputs else "")
         + ("_pipelined_kcl" if args.pipelined_kcl_finish else "")
         + ("_pipelined_columns" if args.pipelined_kcl_columns else "")
         + (

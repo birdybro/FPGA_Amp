@@ -3,6 +3,7 @@
 
 module chord_corrector_v1_wide_tb #(
     parameter bit PIPELINED_APPLY = 1'b0,
+    parameter bit EARLY_PREVIEW = 1'b0,
     parameter bit TRAPEZOIDAL = 1'b0,
     parameter bit BANKED = 1'b0,
     parameter bit SAMPLE_RATE_384KHZ = 1'b0,
@@ -40,7 +41,8 @@ module chord_corrector_v1_wide_tb #(
         ),
         .COEFFICIENT_SETS(BANKED ? 5 : 1),
         .COEFFICIENT_WIDTH(COEFFICIENT_WIDTH),
-        .PIPELINED_APPLY(PIPELINED_APPLY)
+        .PIPELINED_APPLY(PIPELINED_APPLY),
+        .EARLY_PREVIEW(EARLY_PREVIEW)
     ) dut (.*);
     always #5 clk = ~clk;
 
@@ -139,9 +141,11 @@ module chord_corrector_v1_wide_tb #(
                 if (latency > 14)
                     $fatal(1, "timeout at vector %0d", vector_count);
             end
-            if (preview_count != (PIPELINED_APPLY ? 1 : 0)) begin
+            if (preview_count != ((PIPELINED_APPLY || EARLY_PREVIEW) ? 1 : 0)) begin
                 $error("preview count got=%0d expected=%0d at vector %0d",
-                       preview_count, PIPELINED_APPLY ? 1 : 0, vector_count);
+                       preview_count,
+                       (PIPELINED_APPLY || EARLY_PREVIEW) ? 1 : 0,
+                       vector_count);
                 errors = errors + 1;
             end
             if (latency != (PIPELINED_APPLY ? 12 : 10)) begin

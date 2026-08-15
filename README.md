@@ -90,8 +90,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   state selection, crosses voltage selection and plate-pin conversion, and
   ends in the factorized-tube input mapping. A separately named exact
   123-clock parallel/pipelined profile instead grows to 242 DSPs and places at
-  only 39.62 MHz, so it is rejected. The route remains diagnostic rather than
-  timing closure or a bitstream claim, and 8× remains unpromoted.
+  only 39.62 MHz, so it is rejected. A route-guided tube-pin prefetch plus
+  diagnostic-only KCL maximum pipeline also preserves all 64 outputs / 512
+  updates and the 127-clock latency. After removing an invalid-only dead
+  maximum load it routes legally at 47.07 MHz, but its 21.24 ns chord-preview
+  path is slower than the baseline and is likewise not promoted. The route
+  remains diagnostic rather than timing closure or a bitstream claim, and 8×
+  remains unpromoted.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both

@@ -25,6 +25,12 @@ module v1_solver_mono_wide #(
     // same time instead of reusing one engine sequentially.  This duplicates
     // the primitive but does not change its arithmetic or the circuit law.
     parameter bit PARALLEL_TUBES = 1'b0,
+    // Capture both triode pin pairs before each residual launch. Initial
+    // values are stable at sample acceptance; corrected values come from the
+    // chord corrector's exact one-cycle-early preview. This removes solver
+    // state and node-format logic from the tube request path without adding a
+    // solver clock or changing the numerical operations.
+    parameter bit PREFETCH_TUBE_INPUTS = 1'b0,
     // Split KCL finish conversion, global selection, and saturation across
     // registers. Intended to consume part of the parallel-tube cycle margin.
     parameter bit PIPELINED_KCL_FINISH = 1'b0,
@@ -592,27 +598,82 @@ module v1_solver_mono_wide #(
     logic signed [31:0] tube1_i_p;
     logic signed [31:0] tube1_i_g;
     logic tube1_range_clipped;
+    logic signed [31:0] prefetched_tube1_v_gk;
+    logic signed [31:0] prefetched_tube1_v_pk;
+    logic signed [31:0] prefetched_tube2_v_gk;
+    logic signed [31:0] prefetched_tube2_v_pk;
+
+    // These registers intentionally need no reset. Every sample captures the
+    // current state before the first launch, and every subsequent launch is
+    // preceded by an exact chord preview.
+    always_ff @(posedge clk) begin
+        if (PREFETCH_TUBE_INPUTS && rhs_start) begin
+            prefetched_tube1_v_gk <= node_difference_q24(
+                $signed(voltage_flat[0 * 40 +: 40]), 0,
+                $signed(voltage_flat[2 * 40 +: 40]), 2
+            );
+            prefetched_tube1_v_pk <= node_difference_q20(
+                $signed(voltage_flat[1 * 40 +: 40]), 1,
+                $signed(voltage_flat[2 * 40 +: 40]), 2
+            );
+            prefetched_tube2_v_gk <= node_difference_q24(
+                $signed(voltage_flat[4 * 40 +: 40]), 4,
+                $signed(voltage_flat[7 * 40 +: 40]), 7
+            );
+            prefetched_tube2_v_pk <= node_difference_q20(
+                $signed(voltage_flat[6 * 40 +: 40]), 6,
+                $signed(voltage_flat[7 * 40 +: 40]), 7
+            );
+        end else if (PREFETCH_TUBE_INPUTS && chord_preview_valid) begin
+            prefetched_tube1_v_gk <= node_difference_q24(
+                $signed(chord_preview_voltage[0 * 40 +: 40]), 0,
+                $signed(chord_preview_voltage[2 * 40 +: 40]), 2
+            );
+            prefetched_tube1_v_pk <= node_difference_q20(
+                $signed(chord_preview_voltage[1 * 40 +: 40]), 1,
+                $signed(chord_preview_voltage[2 * 40 +: 40]), 2
+            );
+            prefetched_tube2_v_gk <= node_difference_q24(
+                $signed(chord_preview_voltage[4 * 40 +: 40]), 4,
+                $signed(chord_preview_voltage[7 * 40 +: 40]), 7
+            );
+            prefetched_tube2_v_pk <= node_difference_q20(
+                $signed(chord_preview_voltage[6 * 40 +: 40]), 6,
+                $signed(chord_preview_voltage[7 * 40 +: 40]), 7
+            );
+        end
+    end
 
     always_comb begin
         triode_ce = residual_launch;
-        triode_v_gk = node_difference_q24(
-            $signed(residual_voltage_flat[0 * 40 +: 40]), 0,
-            $signed(residual_voltage_flat[2 * 40 +: 40]), 2
-        );
-        triode_v_pk = node_difference_q20(
-            $signed(residual_voltage_flat[1 * 40 +: 40]), 1,
-            $signed(residual_voltage_flat[2 * 40 +: 40]), 2
-        );
-        if (!PARALLEL_TUBES && state == WAIT_TUBE_1) begin
-            triode_ce = triode_valid;
+        if (PREFETCH_TUBE_INPUTS) begin
+            triode_v_gk = prefetched_tube1_v_gk;
+            triode_v_pk = prefetched_tube1_v_pk;
+        end else begin
             triode_v_gk = node_difference_q24(
-                node_voltage[4], 4,
-                node_voltage[7], 7
+                $signed(residual_voltage_flat[0 * 40 +: 40]), 0,
+                $signed(residual_voltage_flat[2 * 40 +: 40]), 2
             );
             triode_v_pk = node_difference_q20(
-                node_voltage[6], 6,
-                node_voltage[7], 7
+                $signed(residual_voltage_flat[1 * 40 +: 40]), 1,
+                $signed(residual_voltage_flat[2 * 40 +: 40]), 2
             );
+        end
+        if (!PARALLEL_TUBES && state == WAIT_TUBE_1) begin
+            triode_ce = triode_valid;
+            if (PREFETCH_TUBE_INPUTS) begin
+                triode_v_gk = prefetched_tube2_v_gk;
+                triode_v_pk = prefetched_tube2_v_pk;
+            end else begin
+                triode_v_gk = node_difference_q24(
+                    node_voltage[4], 4,
+                    node_voltage[7], 7
+                );
+                triode_v_pk = node_difference_q20(
+                    node_voltage[6], 6,
+                    node_voltage[7], 7
+                );
+            end
         end
         if (PARALLEL_TUBES) begin
             kcl_tube_current_valid = (state == WAIT_TUBE_1)
@@ -664,14 +725,19 @@ module v1_solver_mono_wide #(
             logic signed [31:0] v_pk;
 
             always_comb begin
-                v_gk = node_difference_q24(
-                    $signed(residual_voltage_flat[4 * 40 +: 40]), 4,
-                    $signed(residual_voltage_flat[7 * 40 +: 40]), 7
-                );
-                v_pk = node_difference_q20(
-                    $signed(residual_voltage_flat[6 * 40 +: 40]), 6,
-                    $signed(residual_voltage_flat[7 * 40 +: 40]), 7
-                );
+                if (PREFETCH_TUBE_INPUTS) begin
+                    v_gk = prefetched_tube2_v_gk;
+                    v_pk = prefetched_tube2_v_pk;
+                end else begin
+                    v_gk = node_difference_q24(
+                        $signed(residual_voltage_flat[4 * 40 +: 40]), 4,
+                        $signed(residual_voltage_flat[7 * 40 +: 40]), 7
+                    );
+                    v_pk = node_difference_q20(
+                        $signed(residual_voltage_flat[6 * 40 +: 40]), 6,
+                        $signed(residual_voltage_flat[7 * 40 +: 40]), 7
+                    );
+                end
             end
 
             if (USE_LINEAR_FACTORIZED_TUBE) begin : generate_linear_tube
@@ -729,7 +795,8 @@ module v1_solver_mono_wide #(
         .COEFFICIENT_FILE(CHORD_COEFFICIENT_FILE),
         .COEFFICIENT_SETS(CHORD_COEFFICIENT_SETS),
         .COEFFICIENT_WIDTH(CHORD_COEFFICIENT_WIDTH),
-        .PIPELINED_APPLY(PIPELINED_CHORD_APPLY)
+        .PIPELINED_APPLY(PIPELINED_CHORD_APPLY),
+        .EARLY_PREVIEW(PREFETCH_TUBE_INPUTS)
     ) chord_engine (
         .clk,
         .rst_n,
