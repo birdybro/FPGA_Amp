@@ -941,6 +941,8 @@ make pcm5242-dac-init-rtl          # verify exact DAC write sequence/NACK abort
 make synth-pcm5242-dac-init        # measure DAC bootstrap XC7 resources
 make pcm5242-dac-verify-rtl        # verify DAC readback/status fail-closed gate
 make synth-pcm5242-dac-verify      # measure readback/status XC7 resources
+make pcm5242-dac-startup-rtl       # verify integrated 44-operation unmute gate
+make synth-pcm5242-dac-startup     # measure integrated startup XC7 resources
 make codec-shared-i2s-guard-rtl    # verify shared LRCLK and startup zero gate
 make synth-nexys-phono-audio-xc7   # synthesize complete board wrapper
 make hermite-rtl                   # bit-exact iterative Hermite regression
@@ -1118,6 +1120,15 @@ complete success path and injected masked-mismatch/NACK failures. Its
 Yosys reports 170 logic cells, 173 flip-flops, no DSP/BRAM, and no warnings.
 This is a startup snapshot, so continuous runtime fault monitoring and final
 integration with the board permission outputs remain release gates.
+
+The integrated startup controller now makes that ordering explicit: it runs the
+20-write initializer, launches the 24-operation verifier only after ACK-only
+completion, and exposes a single fail-low `unmute_permitted`. Its full bus test
+proves 44-transaction success and shows that ACK-only completion, a later clock
+status mismatch, and an initialization NACK all remain muted. Yosys reports 241
+logic cells, 261 flip-flops, no DSP/BRAM, and no warnings. The signal is ready
+for the controller input of the board's hardware AND gates; continuous health
+monitoring and physical FPGA/PCB integration are still required.
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
 path is further reducing terminal-solver approximation error without breaking

@@ -99,6 +99,17 @@ startup snapshot, not continuous fault surveillance; a later board controller
 must combine it with persistent clock/fault monitoring and the external
 hardware supervisor.
 
+`pcm5242_dac_startup_controller` now performs that complete one-shot ordering.
+It automatically holds a single fail-low `unmute_permitted` output false through
+the startup delay, 20-write ACK phase, and 24-operation verification phase.
+Only the final verified state can assert permission; either sub-block's latched
+error terminates startup muted. Its integration regression exercises all 44
+successful bus transactions, observes that ACK-only completion remains muted,
+then separately injects a clock-status mismatch and an initialization NACK.
+Yosys reports 241 estimated XC7 logic cells / 261 flip-flops / no DSP or BRAM /
+zero warnings. The output is intended for the PCB's controller-side AND input,
+not as a replacement for `HARD_MUTE_N` or a continuous health monitor.
+
 ## Nominal clock tree
 
 ```text

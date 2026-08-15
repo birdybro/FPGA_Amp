@@ -15,6 +15,16 @@ access and finished-device compliance.
 
 ## Active, highest value first
 
+- [x] Integrate PCM5242 initialization and verification into one fail-low
+  startup controller. The verifier cannot start before all 20 configuration
+  writes are ACKed, and `unmute_permitted` remains low until the following 24
+  page/read/status operations all pass. A complete 44-transaction bus test
+  proves success, ACK-only non-permission, a clock-status mismatch after valid
+  writes, and an initialization NACK that prevents verification. Yosys reports
+  241 estimated XC7 logic cells / 261 flip-flops / no DSP or BRAM / zero
+  warnings. The result is ready to feed the controller side of the PCB AND
+  interlocks, but continuous runtime monitoring and top-level pin integration
+  remain release gates.
 - [x] Add a synthesizable one-byte-register I2C read primitive needed by the
   PCM5242 verification layer. The engine emits address+W, register, repeated
   START, address+R, one data byte, master NACK, and STOP while honoring clock

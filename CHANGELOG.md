@@ -6,6 +6,15 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added an integrated PCM5242 startup controller that automatically sequences
+  the 20-write initializer into the 24-operation readback/status verifier and
+  exposes one fail-low `unmute_permitted` output. A full bus regression proves
+  exact 44-transaction success, that ACK-only completion is insufficient, and
+  that both a later clock-status mismatch and an initialization NACK remain
+  muted and latch the correct phase evidence. Yosys reports 241 estimated XC7
+  logic cells / 261 flip-flops / no DSP or BRAM / zero warnings. This permission
+  is for the controller input of the PCB hardware interlocks; it does not
+  replace continuous monitoring or the independent external supervisor.
 - Added the page-aware PCM5242 startup verifier above the generic read
   transport. Its 24 operations compare critical page 0/1 writable fields with
   reserved-bit-safe masks, restore page 0, and require detected 48 kHz,
