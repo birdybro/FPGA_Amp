@@ -24,6 +24,9 @@ def main() -> int:
     parser.add_argument("--banked", action="store_true")
     parser.add_argument("--terminal-correction", action="store_true")
     parser.add_argument(
+        "--sample-rate-hz", type=int, choices=(384_000, 768_000), default=768_000
+    )
+    parser.add_argument(
         "--run-only",
         action="store_true",
         help="reuse an already built simulator for another vector file",
@@ -31,6 +34,13 @@ def main() -> int:
     args = parser.parse_args()
     if args.terminal_correction and not args.banked:
         parser.error("terminal correction requires --banked")
+    if args.sample_rate_hz == 384_000 and not (
+        args.trapezoidal and args.banked and args.terminal_correction
+    ):
+        parser.error(
+            "384 kHz stream verification requires --trapezoidal --banked "
+            "--terminal-correction"
+        )
     verilator = shutil.which(args.verilator)
     if verilator is None:
         print("ERROR: verilator unavailable", file=sys.stderr)
@@ -70,6 +80,18 @@ def main() -> int:
             if command[1].endswith("generate_wide_solver_vectors.py")
         ).append("--terminal-correction")
         generators[-1].append("--terminal-correction")
+    if args.sample_rate_hz != 768_000:
+        rate_arguments = ["--sample-rate-hz", str(args.sample_rate_hz)]
+        for command in generators:
+            if command[1].endswith(
+                (
+                    "generate_trapezoidal_network_vectors.py",
+                    "generate_wide_chord_vectors.py",
+                    "generate_wide_solver_vectors.py",
+                    "generate_stream_vectors.py",
+                )
+            ):
+                command.extend(rate_arguments)
     if not args.skip_generate:
         for command in generators:
             subprocess.run(command, cwd=ROOT, check=True)
@@ -88,6 +110,8 @@ def main() -> int:
         "rtl/filters/halfband_decimator_2x.sv",
         "rtl/audio/interpolator_16x.sv",
         "rtl/audio/decimator_16x.sv",
+        "rtl/audio/interpolator_8x.sv",
+        "rtl/audio/decimator_8x.sv",
         "rtl/top/phono_stream_mono_wide.sv",
         "sim/integration/phono_stream_mono_wide_tb.sv",
     ]
@@ -105,9 +129,12 @@ def main() -> int:
         parameter_args.append("-GBANKED=1")
     if args.terminal_correction:
         parameter_args.append("-GTERMINAL_CORRECTION=1")
+    if args.sample_rate_hz == 384_000:
+        parameter_args.append("-GSAMPLE_RATE_384KHZ=1")
     build = ROOT / "build" / (
         "verilator_phono_stream_wide"
         + ("_trapezoidal" if args.trapezoidal else "")
+        + ("_384khz" if args.sample_rate_hz == 384_000 else "")
         + ("_banked" if args.banked else "")
         + ("_terminal" if args.terminal_correction else "")
     )

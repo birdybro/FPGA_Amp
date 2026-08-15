@@ -79,7 +79,10 @@ preserves the same 48 kHz input phase contract. Its staggered stage-3 output is
 eight 384 kHz samples (20.83 µs) beyond the FIR state latency. Exact regression
 matches 1,024 interpolation and 128 decimation outputs with zero saturation,
 overrun, or phase errors. This establishes the converter arithmetic and clock-
-enable schedule; it does not by itself promote 8× to reference mode.
+enable schedule. The converter also composes bit-exactly with the 384 kHz
+nonlinear core for 64 external outputs / 512 internal updates, with zero
+converter, solver, or deadline diagnostics. This still does not promote 8× to
+reference mode because transient alias and recovery evidence remain open.
 
 Stage-1 unit tests match 256 input pairs exactly in each direction. Complete
 chain tests match 2,048 interpolation outputs and 128 decimation outputs exactly,

@@ -1,9 +1,9 @@
-"""Composed 48 kHz/768 kHz V1 phono-stream reference models.
+"""Composed 48 kHz V1 phono-stream fixed references at 384/768 kHz.
 
 The helpers in this module preserve the scheduling visible at the RTL stream
-boundary.  They deliberately keep interpolation, the 18-internal-sample RTL
-pipeline offset, the nonlinear circuit, output rounding, and decimation as
-separate arrays so each source of approximation error can be measured.
+boundary. They keep interpolation, the measured rate-specific RTL pipeline
+offset, nonlinear circuit, output rounding, and decimation as separate arrays
+so each source of approximation error can be measured.
 """
 
 from __future__ import annotations
@@ -22,6 +22,8 @@ from .fixed_circuit import (
     saturate_signed,
 )
 from .resampling import (
+    DEFAULT_STAGES,
+    EIGHT_X_STAGES,
     decimate_16x,
     decimate_16x_fixed_q24,
     interpolate_16x,
@@ -37,6 +39,7 @@ FloatArray = NDArray[np.float64]
 EXTERNAL_SAMPLE_RATE_HZ = 48_000.0
 INTERNAL_SAMPLE_RATE_HZ = 768_000.0
 INTERPOLATOR_PIPELINE_DELAY_INTERNAL_SAMPLES = 18
+EIGHT_X_INTERPOLATOR_PIPELINE_DELAY_INTERNAL_SAMPLES = 8
 CONVERTER_GROUP_DELAY_EXTERNAL_SAMPLES = (
     2 * interpolation_delay_internal_samples()
     + INTERPOLATOR_PIPELINE_DELAY_INTERNAL_SAMPLES
@@ -54,6 +57,9 @@ class FixedWideStreamResult:
     output_conversion_saturation_count: int
     decimation_saturation_count: int
     circuit: FixedWideStateV1CircuitModel
+    internal_sample_rate_hz: int
+    oversampling_factor: int
+    interpolator_pipeline_delay_internal_samples: int
 
     @property
     def diagnostic_counts(self) -> dict[str, int]:
@@ -84,18 +90,26 @@ class FloatingStreamResult:
     circuit: V1CircuitModel
 
 
-def _scheduled_internal(values: NDArray, output_count: int) -> NDArray:
+def _scheduled_internal(
+    values: NDArray,
+    output_count: int,
+    *,
+    oversampling_factor: int = 16,
+    pipeline_delay_internal_samples: int = (
+        INTERPOLATOR_PIPELINE_DELAY_INTERNAL_SAMPLES
+    ),
+) -> NDArray:
     """Apply the measured RTL interpolator offset and sample-window truncation."""
 
     return np.concatenate(
         (
             np.zeros(
-                INTERPOLATOR_PIPELINE_DELAY_INTERNAL_SAMPLES,
+                pipeline_delay_internal_samples,
                 dtype=values.dtype,
             ),
             values,
         )
-    )[: 16 * output_count]
+    )[: oversampling_factor * output_count]
 
 
 def compose_fixed_wide_stream(
@@ -104,20 +118,37 @@ def compose_fixed_wide_stream(
     trapezoidal: bool = False,
     banked: bool = False,
     terminal_correction: bool = False,
+    internal_sample_rate_hz: int = 768_000,
 ) -> FixedWideStreamResult:
     """Run the exact fixed arithmetic used by the complete wide RTL stream."""
 
     if terminal_correction and not banked:
         raise ValueError("terminal correction requires the banked chord solver")
+    if internal_sample_rate_hz == 768_000:
+        stages = DEFAULT_STAGES
+        oversampling_factor = 16
+        pipeline_delay = INTERPOLATOR_PIPELINE_DELAY_INTERNAL_SAMPLES
+    elif internal_sample_rate_hz == 384_000:
+        stages = EIGHT_X_STAGES
+        oversampling_factor = 8
+        pipeline_delay = EIGHT_X_INTERPOLATOR_PIPELINE_DELAY_INTERNAL_SAMPLES
+    else:
+        raise ValueError("internal sample rate must be 384000 or 768000 Hz")
     inputs = np.asarray(input_q24, dtype=np.int64)
     interpolated_q24, interpolation_saturations = interpolate_16x_fixed_q24(
-        inputs
+        inputs, stages=stages
     )
-    internal_q24 = _scheduled_internal(interpolated_q24, inputs.size)
+    internal_q24 = _scheduled_internal(
+        interpolated_q24,
+        inputs.size,
+        oversampling_factor=oversampling_factor,
+        pipeline_delay_internal_samples=pipeline_delay,
+    )
     tube = FixedFactorizedKoren12AX7()
     circuit: FixedWideStateV1CircuitModel
     if banked:
         circuit = FixedWideStateBankedChordV1CircuitModel(
+            sample_rate_hz=internal_sample_rate_hz,
             tube_lut=tube,
             integration_method=(
                 "trapezoidal" if trapezoidal else "backward_euler"
@@ -126,11 +157,15 @@ def compose_fixed_wide_stream(
         )
     elif trapezoidal:
         circuit = FixedWideStateTrapezoidalV1CircuitModel(
-            tube_lut=tube, terminal_correction=terminal_correction
+            sample_rate_hz=internal_sample_rate_hz,
+            tube_lut=tube,
+            terminal_correction=terminal_correction,
         )
     else:
         circuit = FixedWideStateV1CircuitModel(
-            tube_lut=tube, terminal_correction=terminal_correction
+            sample_rate_hz=internal_sample_rate_hz,
+            tube_lut=tube,
+            terminal_correction=terminal_correction,
         )
 
     circuit_output_q24 = np.empty(internal_q24.size, dtype=np.int64)
@@ -144,7 +179,7 @@ def compose_fixed_wide_stream(
         conversion_saturations += int(clipped)
 
     output_q24, decimation_saturations = decimate_16x_fixed_q24(
-        circuit_output_q24
+        circuit_output_q24, stages=stages
     )
     return FixedWideStreamResult(
         internal_input_q24=internal_q24,
@@ -154,6 +189,9 @@ def compose_fixed_wide_stream(
         output_conversion_saturation_count=conversion_saturations,
         decimation_saturation_count=decimation_saturations,
         circuit=circuit,
+        internal_sample_rate_hz=internal_sample_rate_hz,
+        oversampling_factor=oversampling_factor,
+        interpolator_pipeline_delay_internal_samples=pipeline_delay,
     )
 
 

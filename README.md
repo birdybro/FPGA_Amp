@@ -48,12 +48,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   leaves 129 of 256 clocks free at 98.304 MHz. Its Q17.1 chord inverse requires
   signed 19-bit coefficients rather than the 768 kHz core's 18 bits; controlled
   Yosys synthesis measures 13,713 LC / 183 DSP / 10 RAMB18 equivalents versus
-  13,158 LC / 174 DSP / 10 RAMB18 equivalents at 768 kHz. Reference mode and
-  the complete verified stream remain 16×/768 kHz. A separate three-stage 8×
-  converter now matches 1,024 interpolation and 128 decimation RTL outputs
-  exactly with zero diagnostics; Yosys measures 1,549 LC / 12 DSP and 2,355 LC
-  / 24 DSP respectively. Integration with the nonlinear core plus transient
-  alias and recovery tests remain before promotion.
+  13,158 LC / 174 DSP / 10 RAMB18 equivalents at 768 kHz. The complete
+  candidate stream now matches 64 external outputs across 512 nonlinear
+  updates exactly, with zero converter, solver, or deadline diagnostics.
+  Controlled full-stream synthesis measures 17,629 LC / 219 DSP / 10 RAMB18
+  equivalents at 384 kHz versus 18,302 / 222 / 10 at 768 kHz. Reference mode
+  remains 16×/768 kHz until transient alias and overload-recovery comparisons
+  are complete; the lower-rate result is not a timing-closure claim.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both
@@ -292,10 +293,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   histories from the corrected, saturated branch voltages on that same final
   edge. A second 384,000-update campaign is full-state exact and diagnostic-
   clean; burst RMS error versus floating trapezoidal is 0.276, 1.210, 4.709,
-  and 3.604 mV. Its 64-output complete stream is exact at 127 clocks. Generated
-  constant multipliers reduce the solver to 14,945 logic cells / 174 DSPs; the
-  full stream measures 20,241 / 222 / 8 RAMB18E1 + 1 RAMB36E1. This fits the provisional
-  A7-100T structurally with 18 DSPs free, but timing is not claimed.
+  and 3.604 mV. Its 64-output complete 768 kHz stream is exact at 127 clocks.
+  The current controlled Yosys build measures 13,158 logic cells / 174 DSPs
+  for the solver and 18,302 / 222 / 8 RAMB18E1 + 1 RAMB36E1 for the complete
+  stream. This fits the provisional A7-100T structurally with 18 DSPs free,
+  but timing is not claimed.
 - Schedule-neutral attempts to reduce its remaining 4.709/3.604 mV severe-
   burst error are preserved as negative results. Corrected-state bank
   reselection, rational terminal-residual relaxation, full dual-triode median
@@ -674,6 +676,8 @@ make trapezoidal-384-chord-rtl        # exact five-bank correction equivalence
 make trapezoidal-384-network-rtl      # exact 384 kHz KCL equivalence
 make trapezoidal-384-terminal-banked-solver-rtl # exact stateful core equivalence
 make synth-trapezoidal-384-terminal-banked-solver # rate-tagged Yosys report
+make stream-trapezoidal-384-terminal-banked-rtl # exact complete 48→384→48 kHz stream
+make synth-stream-trapezoidal-384-terminal-banked # controlled full-stream synthesis
 make trapezoidal-overload            # floating integrator overload stability
 python3 scripts/characterize_solver.py
 python3 scripts/study_solver_architecture.py

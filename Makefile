@@ -10,6 +10,8 @@ NEXTPNR ?= nextpnr-himbaechel
 .PHONY: internal-rate-study fixed-384-assets
 .PHONY: trapezoidal-banked-chord-rtl trapezoidal-384-chord-rtl trapezoidal-384-network-rtl trapezoidal-384-terminal-banked-solver-rtl
 .PHONY: synth-trapezoidal-384-terminal-banked-solver
+.PHONY: stream-trapezoidal-384-terminal-banked-rtl
+.PHONY: synth-stream-trapezoidal-384-terminal-banked
 
 all: reference test
 
@@ -319,6 +321,9 @@ stream-trapezoidal-rtl:
 stream-trapezoidal-terminal-banked-rtl:
 	$(PYTHON) scripts/run_wide_stream_rtl.py --verilator $(VERILATOR) --trapezoidal --banked --terminal-correction
 
+stream-trapezoidal-384-terminal-banked-rtl:
+	$(PYTHON) scripts/run_wide_stream_rtl.py --verilator $(VERILATOR) --trapezoidal --banked --terminal-correction --sample-rate-hz 384000
+
 guarded-stream-rtl:
 	$(PYTHON) scripts/run_guarded_stream_rtl.py --verilator $(VERILATOR)
 
@@ -559,6 +564,13 @@ synth-stream-trapezoidal-terminal-banked:
 	$(PYTHON) scripts/generate_stream_vectors.py --wide --trapezoidal --banked --terminal-correction
 	$(PYTHON) scripts/run_synthesis.py --top phono_stream_mono_wide_trapezoidal_banked_terminal
 
+synth-stream-trapezoidal-384-terminal-banked: fixed-384-assets
+	$(PYTHON) scripts/generate_wide_network_vectors.py
+	$(PYTHON) scripts/generate_factorized_tube.py
+	$(PYTHON) scripts/generate_halfband_rtl_vectors.py
+	$(PYTHON) scripts/generate_stream_vectors.py --wide --trapezoidal --banked --terminal-correction --sample-rate-hz 384000
+	$(PYTHON) scripts/run_synthesis.py --top phono_stream_mono_wide_trapezoidal_384khz_banked_terminal
+
 synth-stream-guarded:
 	$(PYTHON) scripts/generate_wide_network_vectors.py
 	$(PYTHON) scripts/generate_wide_chord_vectors.py
@@ -625,7 +637,7 @@ synth-i2s-spi-top: synth-mono-adapter
 python-test:
 	$(PYTHON) -m unittest discover -s model/tests -v
 
-test: python-test arithmetic-bounds rtl hermite-rtl factorized-rtl factorized-linear-rtl chord-rtl wide-chord-rtl wide-chord-pipelined-rtl trapezoidal-banked-chord-rtl trapezoidal-384-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl trapezoidal-384-network-rtl decoupled-diagnostic-kcl-rtl shared-capacitor-decoupled-diagnostic-kcl-rtl solver-rtl solver-factorized-rtl wide-solver-rtl wide-linear-solver-rtl parallel-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-banked-solver-rtl trapezoidal-terminal-banked-solver-rtl trapezoidal-384-terminal-banked-solver-rtl trapezoidal-parallel-terminal-banked-solver-rtl trapezoidal-parallel-pipelined-terminal-banked-solver-rtl trapezoidal-parallel-decoupled-diagnostic-pipelined-terminal-banked-solver-rtl trapezoidal-parallel-shared-capacitor-decoupled-diagnostic-pipelined-terminal-banked-solver-rtl trapezoidal-parallel-shared-capacitor-terminal-decoupled-diagnostic-pipelined-terminal-banked-solver-rtl terminal-current-half-parallel-rtl trapezoidal-parallel-shared-terminal-diagnostic-pipelined-terminal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl stream-trapezoidal-terminal-banked-rtl guarded-stream-rtl mute-rtl audio-clock-rtl async-fifo-rtl cdc-pulse-rtl cdc-snapshot-rtl spi-control-rtl i2s-rtl i2s-bridge-rtl calibration-rtl calibration-control-rtl control-registers-rtl frame-scheduler-rtl mono-adapter-rtl i2s-mono-top-rtl i2s-control-top-rtl i2s-spi-top-rtl
+test: python-test arithmetic-bounds rtl hermite-rtl factorized-rtl factorized-linear-rtl chord-rtl wide-chord-rtl wide-chord-pipelined-rtl trapezoidal-banked-chord-rtl trapezoidal-384-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl trapezoidal-384-network-rtl decoupled-diagnostic-kcl-rtl shared-capacitor-decoupled-diagnostic-kcl-rtl solver-rtl solver-factorized-rtl wide-solver-rtl wide-linear-solver-rtl parallel-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-banked-solver-rtl trapezoidal-terminal-banked-solver-rtl trapezoidal-384-terminal-banked-solver-rtl trapezoidal-parallel-terminal-banked-solver-rtl trapezoidal-parallel-pipelined-terminal-banked-solver-rtl trapezoidal-parallel-decoupled-diagnostic-pipelined-terminal-banked-solver-rtl trapezoidal-parallel-shared-capacitor-decoupled-diagnostic-pipelined-terminal-banked-solver-rtl trapezoidal-parallel-shared-capacitor-terminal-decoupled-diagnostic-pipelined-terminal-banked-solver-rtl terminal-current-half-parallel-rtl trapezoidal-parallel-shared-terminal-diagnostic-pipelined-terminal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl stream-trapezoidal-terminal-banked-rtl stream-trapezoidal-384-terminal-banked-rtl guarded-stream-rtl mute-rtl audio-clock-rtl async-fifo-rtl cdc-pulse-rtl cdc-snapshot-rtl spi-control-rtl i2s-rtl i2s-bridge-rtl calibration-rtl calibration-control-rtl control-registers-rtl frame-scheduler-rtl mono-adapter-rtl i2s-mono-top-rtl i2s-control-top-rtl i2s-spi-top-rtl
 
 openxc7-probe:
 	$(PYTHON) scripts/run_openxc7.py --probe --nextpnr $(NEXTPNR)

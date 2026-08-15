@@ -202,6 +202,15 @@ All notable engineering changes are recorded here. The project is pre-release; d
   structural synthesis reports 1,549 LC / 12 DSP and 2,355 LC / 24 DSP,
   respectively; the existing 16x modules remain reference mode.
 
+- Composed the three-stage converters with the rate-specific 384 kHz
+  banked-terminal nonlinear core. The generalized fixed reference and
+  SystemVerilog stream match 64 external outputs across 512 persistent solver
+  updates exactly, including all converter, solver, and deadline diagnostics.
+  Controlled Yosys 0.66 XC7 builds measure 17,629 LC / 219 DSP / 10 RAMB18
+  equivalents at 384 kHz versus 18,302 / 222 / 10 for the selected 768 kHz
+  stream. The 8x path remains an explicit non-reference candidate pending
+  transient alias, overload recovery, and named-part timing evidence.
+
 - Added a reproducible 384 kHz/8x architecture study while retaining
   768 kHz/16x as reference mode. The SPICE comparison now measures the lower-
   rate trapezoidal model at 10 and 20 kHz: maximum error is 0.06653 dB and

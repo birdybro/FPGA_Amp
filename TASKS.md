@@ -24,7 +24,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   contraction now requires a different solver formulation or additional
   schedule margin; do not tune the frozen circuit or accept a one-level fit.
 - [ ] Prove 98.304 MHz named-part timing for the 127-clock trapezoidal terminal
-  stream. Generic synthesis fits XC7A100T structurally at 20,241 LC / 222 of
+  stream. Current controlled generic synthesis fits XC7A100T structurally at
+  18,302 LC / 222 of
   240 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1, but the parallel terminal-current path and one-clock
   sample margin require the open Yosys/nextpnr-Himbaechel place/route flow
   before hardware selection. Project X-Ray contains the exact
@@ -97,11 +98,20 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   but reference mode remains 16x. Distinct 384 kHz fixed assets and the
   nonlinear RTL core are now exact across 1,024 all-bank chord, 1,024 KCL, and
   512 persistent solver vectors at 10/11/127 clocks with zero solver diagnostics. The 19-bit chord bank
-  costs nine more DSPs than the controlled 768 kHz synthesis. The separate
-  three-stage converter is now exact for 1,024 interpolation and 128 decimation
-  outputs with zero diagnostics. Compose it with the 384 kHz nonlinear core,
-  then add transient/pop and post-burst alias comparisons before promotion.
+  costs nine more DSPs than the controlled 768 kHz core synthesis. The complete
+  48→384→48 kHz candidate is now exact for 64 external outputs / 512
+  nonlinear updates with zero diagnostics. Full-stream synthesis is 17,629 LC /
+  219 DSP / 10 RAMB18 equivalents, versus 18,302 / 222 / 10 at 768 kHz. Add
+  transient/pop and post-burst alias comparisons before promotion.
 ## Completed this milestone
+
+- [x] Compose the exact three-stage converters with the rate-specific 384 kHz
+  banked-terminal core. Generalize the bit-accurate stream model and vector/
+  RTL runners without changing the 768 kHz default; match 64 outputs across
+  512 persistent nonlinear updates with zero converter, solver, or deadline
+  diagnostics. Measure controlled Yosys structures at 17,629 LC / 219 DSP / 10
+  RAMB18 equivalents for 384 kHz and 18,302 / 222 / 10 for 768 kHz; make no
+  Fmax or reference-mode promotion claim.
 
 - [x] Implement an explicit three-stage 48↔384 kHz converter without changing
   the four-stage reference modules. Match 1,024 interpolation and 128
@@ -475,8 +485,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   capacitor-current commit on the final chord edge. Match all state across
   384,000 overload updates with zero diagnostics; reduce 1.0/1.5 V burst RMS
   error to 4.709/3.604 mV; carry it through 64 complete-stream outputs; and
-  synthesize the 127-clock solver/stream to 14,945/20,241 LC, 174/222 DSP48E1,
-  and 8 RAMB18E1 + 1 RAMB36E1.
+  synthesize the then-current 127-clock solver/stream to 14,945/20,241 LC,
+  174/222 DSP48E1, and 8 RAMB18E1 + 1 RAMB36E1. Later controlled builds are
+  recorded separately rather than rewriting this historical milestone.
 - [x] Separate all 16 internal frequencies that fold to ±3 kHz in the captured
   complete-stream stress test. Prove the isolated 45 kHz third-harmonic output
   is exactly zero in Q8.24, capture the combined out-of-band projection exactly,

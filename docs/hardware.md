@@ -567,12 +567,20 @@ RAM. Its 127-clock solver latency leaves one clock between 768 kHz deadlines at
 will close routing on XC7A100T; the named-part open-source place/route flow must
 close before this mode can be selected for hardware.
 
-The complete trapezoidal banked terminal stream measures 20,241 logic cells,
+The current controlled complete trapezoidal banked terminal stream measures
+18,302 logic cells,
 222 DSP48E1s, eight RAMB18E1s, and one RAMB36E1 with zero structural check
 problems. It occupies 92.5% of the XC7A100T's DSPs, leaving 18 blocks and ruling out duplication for
 stereo. Its exact simulation latency is 127 clocks, but the terminal edge now
 contains constant-multiply current updates. Only named-part place-and-route can
 establish whether that path and the one-clock sample margin meet 98.304 MHz.
+
+The explicit 384 kHz candidate, including its three-stage converters and
+19-bit chord bank, measures 17,629 logic cells, 219 DSP48E1s, eight RAMB18E1s,
+and one RAMB36E1. Relative to the controlled 768 kHz stream this saves 673
+estimated cells and three DSPs while doubling the cycle budget to 256 clocks.
+These are out-of-context structural counts; neither candidate has complete
+named-part timing closure.
 
 The device-neutral asynchronous FIFO has a separately measured depth-8 × 32-bit
 configuration:

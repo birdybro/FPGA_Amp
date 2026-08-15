@@ -12,6 +12,8 @@ module phono_stream_mono_wide #(
     parameter CHORD_COEFFICIENT_FILE =
         "model/generated/v1_chord_inverse_q17_1.mem",
     parameter integer CHORD_COEFFICIENT_SETS = 1,
+    parameter integer CHORD_COEFFICIENT_WIDTH = 18,
+    parameter bit SAMPLE_RATE_384KHZ = 1'b0,
     parameter bit TRAPEZOIDAL = 1'b0,
     parameter bit TERMINAL_CORRECTION = 1'b0
 ) (
@@ -41,17 +43,33 @@ module phono_stream_mono_wide #(
     logic [31:0] interpolation_saturation_count;
     logic [31:0] interpolation_overrun_count;
 
-    interpolator_16x interpolator (
-        .clk,
-        .rst_n,
-        .ce_input(ce_input_48k),
-        .sample_input_q24,
-        .sample_output_q24(interpolated_q24),
-        .output_valid(interpolated_valid),
-        .saturation_count(interpolation_saturation_count),
-        .overrun_count(interpolation_overrun_count),
-        .input_phase_error_count
-    );
+    generate
+        if (SAMPLE_RATE_384KHZ) begin : generate_interpolator_8x
+            interpolator_8x interpolator (
+                .clk,
+                .rst_n,
+                .ce_input(ce_input_48k),
+                .sample_input_q24,
+                .sample_output_q24(interpolated_q24),
+                .output_valid(interpolated_valid),
+                .saturation_count(interpolation_saturation_count),
+                .overrun_count(interpolation_overrun_count),
+                .input_phase_error_count
+            );
+        end else begin : generate_interpolator_16x
+            interpolator_16x interpolator (
+                .clk,
+                .rst_n,
+                .ce_input(ce_input_48k),
+                .sample_input_q24,
+                .sample_output_q24(interpolated_q24),
+                .output_valid(interpolated_valid),
+                .saturation_count(interpolation_saturation_count),
+                .overrun_count(interpolation_overrun_count),
+                .input_phase_error_count
+            );
+        end
+    endgenerate
 
     logic signed [39:0] solver_output_q32;
     logic solver_output_valid;
@@ -67,6 +85,8 @@ module phono_stream_mono_wide #(
         .CAP_G_FILE(CAP_G_FILE),
         .CHORD_COEFFICIENT_FILE(CHORD_COEFFICIENT_FILE),
         .CHORD_COEFFICIENT_SETS(CHORD_COEFFICIENT_SETS),
+        .CHORD_COEFFICIENT_WIDTH(CHORD_COEFFICIENT_WIDTH),
+        .SAMPLE_RATE_384KHZ(SAMPLE_RATE_384KHZ),
         .TRAPEZOIDAL(TRAPEZOIDAL),
         .TERMINAL_CORRECTION(TERMINAL_CORRECTION)
     ) solver (
@@ -122,16 +142,31 @@ module phono_stream_mono_wide #(
 
     logic [31:0] decimation_saturation_count;
     logic [31:0] decimation_overrun_count;
-    decimator_16x decimator (
-        .clk,
-        .rst_n,
-        .ce_input(solver_output_valid),
-        .sample_input_q24(solver_output_q24),
-        .sample_output_q24,
-        .output_valid,
-        .saturation_count(decimation_saturation_count),
-        .overrun_count(decimation_overrun_count)
-    );
+    generate
+        if (SAMPLE_RATE_384KHZ) begin : generate_decimator_8x
+            decimator_8x decimator (
+                .clk,
+                .rst_n,
+                .ce_input(solver_output_valid),
+                .sample_input_q24(solver_output_q24),
+                .sample_output_q24,
+                .output_valid,
+                .saturation_count(decimation_saturation_count),
+                .overrun_count(decimation_overrun_count)
+            );
+        end else begin : generate_decimator_16x
+            decimator_16x decimator (
+                .clk,
+                .rst_n,
+                .ce_input(solver_output_valid),
+                .sample_input_q24(solver_output_q24),
+                .sample_output_q24,
+                .output_valid,
+                .saturation_count(decimation_saturation_count),
+                .overrun_count(decimation_overrun_count)
+            );
+        end
+    endgenerate
 
     always_comb begin
         resampler_saturation_count = interpolation_saturation_count

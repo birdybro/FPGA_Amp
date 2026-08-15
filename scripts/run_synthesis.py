@@ -70,6 +70,7 @@ def main() -> int:
             "phono_stream_mono_wide_banked_terminal",
             "phono_stream_mono_wide_trapezoidal",
             "phono_stream_mono_wide_trapezoidal_banked_terminal",
+            "phono_stream_mono_wide_trapezoidal_384khz_banked_terminal",
             "phono_stream_mono_wide_guarded",
             "output_mute_ramp",
             "audio_clock_rate_monitor",
@@ -349,6 +350,21 @@ def main() -> int:
             "rtl/audio/decimator_16x.sv",
             "rtl/top/phono_stream_mono_wide.sv",
             "rtl/top/phono_stream_mono_wide_trapezoidal_banked_terminal.sv",
+        ],
+        "phono_stream_mono_wide_trapezoidal_384khz_banked_terminal": [
+            "rtl/tube/triode_12ax7_factorized.sv",
+            "rtl/circuit/network_rhs_v1_wide.sv",
+            "rtl/circuit/network_kcl_v1_wide.sv",
+            "rtl/circuit/chord_corrector_v1_wide.sv",
+            "rtl/phono/v1_solver_mono_wide.sv",
+            "rtl/filters/halfband_interpolator_2x.sv",
+            "rtl/filters/halfband_decimator_2x.sv",
+            "rtl/audio/interpolator_16x.sv",
+            "rtl/audio/decimator_16x.sv",
+            "rtl/audio/interpolator_8x.sv",
+            "rtl/audio/decimator_8x.sv",
+            "rtl/top/phono_stream_mono_wide.sv",
+            "rtl/top/phono_stream_mono_wide_trapezoidal_384khz_banked_terminal.sv",
         ],
         "phono_stream_mono_wide_guarded": [
             "rtl/tube/triode_12ax7_factorized.sv",
@@ -881,6 +897,13 @@ def main() -> int:
     }
     if args.top == rate_selectable_top:
         summary["sample_rate_hz"] = args.sample_rate_hz
+    candidate_stream_top = (
+        "phono_stream_mono_wide_trapezoidal_384khz_banked_terminal"
+    )
+    if args.top == candidate_stream_top:
+        summary["input_sample_rate_hz"] = 48_000
+        summary["circuit_sample_rate_hz"] = 384_000
+        summary["output_sample_rate_hz"] = 48_000
     resampler_rates = {
         "interpolator_16x": (48_000, 768_000),
         "decimator_16x": (768_000, 48_000),

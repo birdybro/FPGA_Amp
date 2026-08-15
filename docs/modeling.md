@@ -90,9 +90,11 @@ Nyquist margin: selected products rise by 11.33 dB, though they remain
 -118.65 dBc. The subsequent fixed/RTL feasibility gate now passes: distinct
 384 kHz assets match 1,024 all-bank chord, 1,024 KCL, and 512 persistent
 full-solver vectors exactly, with zero full-solver diagnostics and 127-clock latency. The lower-rate inverse
-requires signed 19-bit rather than 18-bit Q17.1 coefficients. Clicks, post-burst
-recovery, the complete 8× stream, and broader alias vectors remain unverified,
-so reference mode stays 16x/768 kHz.
+requires signed 19-bit rather than 18-bit Q17.1 coefficients. The complete
+48→384→48 kHz fixed/RTL candidate subsequently matches 64 external outputs /
+512 internal updates exactly with zero converter, solver, or deadline events.
+Clicks, post-burst recovery, and broader alias vectors remain unverified, so
+reference mode stays 16x/768 kHz.
 
 The first trapezoidal large-signal gate applies 5 ms, 1 kHz bursts inside a
 100 ms trajectory. Both floating methods remain finite and Newton-convergent at
@@ -457,7 +459,8 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | 768 kHz backward-Euler integration | four SPICE transients, 100 Hz--20 kHz | <=0.0646 dB gain; phase grows to 4.72 degrees |
 | 768 kHz trapezoidal float candidate | 10/20 kHz SPICE transients | <=0.00846 dB gain / <=0.0582 degree phase; downstream proof open |
 | 384 kHz trapezoidal architecture study | 10/20 kHz SPICE plus 20 kHz nonlinear rate stress | <=0.06653 dB / <=0.02234 degree vs SPICE; nominal/hot complete-circuit selected products within 0.52 dB of 768 kHz; static-tube stress 11.33 dB worse but -118.65 dBc; not promoted |
-| 384 kHz fixed/RTL circuit core | 1,024 all-bank chord + 1,024 KCL + 512 persistent solver vectors | bit-exact at 10/11/127 clocks; zero solver diagnostics; 19-bit chord coefficient required; stream proof open |
+| 384 kHz fixed/RTL circuit core | 1,024 all-bank chord + 1,024 KCL + 512 persistent solver vectors | bit-exact at 10/11/127 clocks; zero solver diagnostics; 19-bit chord coefficient required |
+| 384 kHz fixed/RTL complete stream | 64 outputs / 512 nonlinear updates | exact Q8.24 output and diagnostics; 17,629 LC / 219 DSP / 10 RAMB18 equivalents versus 18,302 / 222 / 10 at 768 kHz; transient alias/recovery and Fmax open |
 | trapezoidal float overload stability | 20 mV--1.5 V, 100 ms records | finite/convergent; clean recovery matches BE; shared long memory above 0.5 V |
 | long floating overload tail | 0.5--1.5 V, 250 ms records / 235 ms post-burst | 0.5 V 10% recovery 146.552 ms; severe fitted crossings explicitly projected |
 | severe floating overload tail | 1.0/1.5 V, 850 ms records / 835 ms post-burst | early exponential projection falsified; 1.0 V 10% at 270.112 ms; 1.5 V not recovered |
@@ -494,7 +497,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | captured banked terminal overload | 384,000 RTL updates, 20 mV--1.5 V | fixed exact; zero diagnostics; H2--H10 0.903--25.213%; phase error <=0.00221 degree |
 | captured trapezoidal banked terminal overload | 384,000 RTL updates, 20 mV--1.5 V | fixed state/current exact; zero diagnostics; 0.276--4.709 mV burst RMS error |
 | banked terminal complete stream | 64 outputs / 1,024 nonlinear updates | exact fixed/RTL Q8.24 outputs, zero diagnostics; 18,466 LC / 168 DSP / 8 RAMB18 + 1 RAMB36 structural |
-| trapezoidal banked terminal complete stream | 64 outputs / 1,024 nonlinear updates | exact fixed/RTL Q8.24 outputs, zero diagnostics; 20,241 LC / 222 DSP / 8 RAMB18 + 1 RAMB36 structural |
+| trapezoidal banked terminal complete stream | 64 outputs / 1,024 nonlinear updates | exact fixed/RTL Q8.24 outputs, zero diagnostics; current controlled build 18,302 LC / 222 DSP / 8 RAMB18 + 1 RAMB36 structural |
 | trapezoidal banked terminal stream sweep | 19,200 captured outputs, 100 Hz--20 kHz | fixed exact; <=0.000134 dB / <=0.000444 degree vs float; startup drift retained, detrended null <=-74.79 dB |
 | long fixed state / click recovery | 1 s silence with +/-100 mV single-sample clicks | Q12.20 deadband leaves -5.368 mV late output; must be redesigned |
 | wide-state Python candidate | same 1 s click audit; 5 mV/1 kHz | 38.74 uV late residual; -63.83 dB nominal raw null; complete-RTL proof open |

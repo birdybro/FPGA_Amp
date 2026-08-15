@@ -39,12 +39,15 @@ chord, 1,024 KCL, and 512 persistent solver RTL vectors exactly. The core
 consumes 127 of 256 clocks,
 leaving 129 clocks for a more timing-friendly schedule. Its inverse matrix needs
 signed 19-bit Q17.1 coefficients, one bit wider than the 768 kHz implementation.
-Reference mode and the complete nonlinear stream remain 16×. The separately
-named three-stage 8× converter now matches exact fixed/RTL streams
-in both directions, with a stage-3 enable every 256 fabric clocks and eight-
-sample scheduling delay at 384 kHz. The lower-rate candidate must still pass
-nonlinear-core stream integration, transient alias, and recovery comparisons
-before it can be selected.
+Reference mode remains 16×. The separately named three-stage 8× converter and
+384 kHz nonlinear core now compose into a complete bit-exact candidate stream:
+64 external outputs cover 512 persistent solver updates with zero converter,
+solver, or deadline diagnostics. Its stage-3 enable occurs every 256 fabric
+clocks and interpolation scheduling delay is eight 384 kHz samples. Controlled
+Yosys synthesis measures 17,629 LC / 219 DSP / 10 RAMB18 equivalents versus
+18,302 / 222 / 10 for the selected 768 kHz stream. This is structural evidence,
+not Fmax closure. Transient alias and recovery comparisons remain required
+before the lower-rate candidate can be selected.
 
 `phono_stream_mono.sv` now implements this digital reference boundary from
 48 kHz Q8.24 physical input volts through 16× interpolation, the complete V1

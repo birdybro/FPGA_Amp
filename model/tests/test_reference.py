@@ -228,6 +228,28 @@ class ResamplerTests(unittest.TestCase):
             sum(trapezoidal_terminal.circuit.chord_bank_selection_count),
             16 * input_q24.size,
         )
+        candidate_8x = compose_fixed_wide_stream(
+            input_q24,
+            trapezoidal=True,
+            banked=True,
+            terminal_correction=True,
+            internal_sample_rate_hz=384_000,
+        )
+        self.assertEqual(candidate_8x.output_q24.size, input_q24.size)
+        self.assertEqual(candidate_8x.internal_input_q24.size, 8 * input_q24.size)
+        self.assertTrue(np.all(candidate_8x.internal_input_q24[:8] == 0))
+        self.assertEqual(sum(candidate_8x.diagnostic_counts.values()), 0)
+        self.assertEqual(candidate_8x.internal_sample_rate_hz, 384_000)
+        self.assertEqual(candidate_8x.oversampling_factor, 8)
+        self.assertEqual(
+            candidate_8x.interpolator_pipeline_delay_internal_samples, 8
+        )
+        self.assertEqual(
+            sum(candidate_8x.circuit.chord_bank_selection_count),
+            8 * input_q24.size,
+        )
+        with self.assertRaisesRegex(ValueError, "384000 or 768000"):
+            compose_fixed_wide_stream(input_q24, internal_sample_rate_hz=192_000)
 
     def test_halfband_structure_and_image_rejection(self) -> None:
         for stage in DEFAULT_STAGES:

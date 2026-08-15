@@ -626,10 +626,12 @@ branch voltage, evaluates `G*(v[n]-v[n-1])-i[n-1]` in Q4.44 with the same
 positive-half-LSB rounding as fixed Python, and saturates ten signed 48-bit
 histories. All 512 nominal samples and 384,000 overload updates match every
 fixed node and capacitor state at 127 clocks. Generated frozen-V1 conductance
-constants let Yosys reduce the parallel products; the solver measures 14,945
-logic cells / 174 DSP48E1s / 8 RAMB18E1 + 1 RAMB36E1, and the complete stream
-measures 20,241 / 222 / 8 RAMB18E1 + 1 RAMB36E1. No timing result is inferred
-from those structural counts.
+constants let Yosys reduce the parallel products. The current controlled build
+measures 13,158 logic cells / 174 DSP48E1s / 8 RAMB18E1 + 1 RAMB36E1 for the
+solver and 18,302 / 222 / 8 RAMB18E1 + 1 RAMB36E1 for the complete 768 kHz
+stream. The rate-specific 384 kHz stream is separately measured at 17,629 /
+219 / 8 RAMB18E1 + 1 RAMB36E1. No timing result is inferred from these
+structural counts.
 
 The overload gate passes only through the measured 0.5 V level. At 20 mV, the
 candidate matches analytical 10%/1% recovery within about 0.002/0.000 ms and

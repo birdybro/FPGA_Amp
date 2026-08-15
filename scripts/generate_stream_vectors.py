@@ -31,6 +31,9 @@ def main() -> int:
     parser.add_argument("--trapezoidal", action="store_true")
     parser.add_argument("--banked", action="store_true")
     parser.add_argument("--terminal-correction", action="store_true")
+    parser.add_argument(
+        "--sample-rate-hz", type=int, choices=(384_000, 768_000), default=768_000
+    )
     args = parser.parse_args()
     if args.terminal_correction and not args.banked:
         parser.error("terminal correction requires --banked")
@@ -40,6 +43,16 @@ def main() -> int:
         parser.error("banked and terminal modes require --wide")
     if args.wide:
         args.factorized = True
+    if args.sample_rate_hz == 384_000 and not (
+        args.wide
+        and args.trapezoidal
+        and args.banked
+        and args.terminal_correction
+    ):
+        parser.error(
+            "384 kHz stream generation requires --wide --trapezoidal "
+            "--banked --terminal-correction"
+        )
     rng = np.random.default_rng(0xA0D10)
     index = np.arange(args.vectors, dtype=np.float64)
     input_v = (
@@ -57,6 +70,7 @@ def main() -> int:
             trapezoidal=args.trapezoidal,
             banked=args.banked,
             terminal_correction=args.terminal_correction,
+            internal_sample_rate_hz=args.sample_rate_hz,
         )
         internal_q24 = composed.internal_input_q24
         model = composed.circuit
@@ -89,8 +103,12 @@ def main() -> int:
 
     vector_directory = REPOSITORY_ROOT / "sim" / "vectors" / "generated"
     vector_directory.mkdir(parents=True, exist_ok=True)
+    rate_suffix = "" if args.sample_rate_hz == 768_000 else "_384khz"
     if args.trapezoidal and args.banked and args.terminal_correction:
-        vector_name = "phono_stream_mono_wide_factorized_trapezoidal_banked_terminal.txt"
+        vector_name = (
+            "phono_stream_mono_wide_factorized_trapezoidal"
+            f"{rate_suffix}_banked_terminal.txt"
+        )
     elif args.trapezoidal and args.banked:
         vector_name = "phono_stream_mono_wide_factorized_trapezoidal_banked.txt"
     elif args.trapezoidal:
@@ -131,10 +149,14 @@ def main() -> int:
             127 if args.terminal_correction else (116 if args.wide else 126)
         ),
         "input_rate_hz": 48_000,
-        "circuit_rate_hz": 768_000,
+        "circuit_rate_hz": args.sample_rate_hz,
         "vectors": args.vectors,
         "internal_samples": int(internal_q24.size),
-        "interpolator_pipeline_delay_internal_samples": 18,
+        "interpolator_pipeline_delay_internal_samples": (
+            composed.interpolator_pipeline_delay_internal_samples
+            if args.wide
+            else 18
+        ),
         "interpolation_saturations": interpolation_saturations,
         "output_conversion_saturations": conversion_saturations,
         "decimation_saturations": decimation_saturations,
@@ -146,7 +168,10 @@ def main() -> int:
         "output": str(vector_path.relative_to(REPOSITORY_ROOT)),
     }
     if args.trapezoidal and args.banked and args.terminal_correction:
-        metadata_name = "phono_stream_wide_factorized_trapezoidal_banked_terminal_metadata.json"
+        metadata_name = (
+            "phono_stream_wide_factorized_trapezoidal"
+            f"{rate_suffix}_banked_terminal_metadata.json"
+        )
     elif args.trapezoidal and args.banked:
         metadata_name = "phono_stream_wide_factorized_trapezoidal_banked_metadata.json"
     elif args.trapezoidal:
