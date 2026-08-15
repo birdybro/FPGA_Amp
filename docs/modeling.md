@@ -106,11 +106,25 @@ paths measure -55.71 and -53.33 dB. At a common rate, fixed versus floating pop
 nulls are -58.88 dB at 384 kHz and -59.13 dB at 768 kHz. Thus most remaining
 rate delta is in the rate-dependent circuit trajectory, not fixed arithmetic or
 RTL. The aggregate is not mislabeled as alias alone. Reference mode stays
-16x/768 kHz pending absolute SPICE transient and timing evidence.
+16x/768 kHz pending broader evidence and named-part timing.
 Direct long-vector RTL then matches all 24,576 corresponding fixed outputs over
 294,912 nonlinear updates. Maximum residual is 0.672 uA at 384 kHz and 0.322 uA
 at 768 kHz, with zero diagnostics. This closes implementation equivalence for
 the tested transients without closing the rate-to-rate accuracy discrepancy.
+
+The absolute transient comparison uses a separate ngspice pop and matched
+5 mV/1 kHz control run at each rate. An ideal source drives `INPUT` with that
+rate's exact interpolator endpoints; the cartridge source network is bypassed
+so both implementations see the same circuit boundary. Subtracting control
+isolates the event response, after which the corresponding three- or four-stage
+decimator is applied. With no latency, gain, or DC fit, external Python-versus-
+SPICE residual is -61.468 dB at 384 kHz and -60.999 dB at 768 kHz. Maximum
+absolute error is 0.539/0.546 mV, relative gain error is +0.00563/+0.00531 dB,
+and both trajectories have zero failed solves. The 0.47 dB residual advantage
+for 384 kHz is small and specific to this event, but it closes the prior
+absolute-SPICE evidence gap and shows that this transient is not a reason to
+prefer 16×. The generated record is
+`model/generated/internal_rate_pop_spice.json`.
 
 The first trapezoidal large-signal gate applies 5 ms, 1 kHz bursts inside a
 100 ms trajectory. Both floating methods remain finite and Newton-convergent at
@@ -480,6 +494,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | 384/768 kHz fixed transient A/B | pop/control and 0.5 V burst/control; 772,608 nonlinear updates | zero diagnostics; known-delay sinc-aligned pop -35.92 dB / 2.623 mV peak / -53.33 dB in-band; recovery +0.1875 ms / -84.71 dB overall / -81.02 dB in-band |
 | internal-rate pop decomposition | converter-only plus floating/fixed circuit; 393,216 nonlinear updates | in-band 8x/16x residual -67.49 / -55.71 / -53.33 dB; same-rate fixed/float -58.88/-59.13 dB; prior linear-alignment result superseded |
 | 384/768 kHz transient RTL vs fixed | 24,576 pop/recovery outputs / 294,912 nonlinear updates | all Q8.24 outputs exact, zero diagnostics, 127 clocks; max residual 0.672/0.322 uA at 384/768 kHz; confirms implementation, not rate equivalence |
+| rate-specific pop float vs ngspice | matched pop/control INPUT-node PWL, matched decimator, no fitting | external residual -61.47/-61.00 dB and max error 0.539/0.546 mV at 384/768 kHz; zero failed solves; 8x slightly closer on this test |
 | trapezoidal float overload stability | 20 mV--1.5 V, 100 ms records | finite/convergent; clean recovery matches BE; shared long memory above 0.5 V |
 | long floating overload tail | 0.5--1.5 V, 250 ms records / 235 ms post-burst | 0.5 V 10% recovery 146.552 ms; severe fitted crossings explicitly projected |
 | severe floating overload tail | 1.0/1.5 V, 850 ms records / 835 ms post-burst | early exponential projection falsified; 1.0 V 10% at 270.112 ms; 1.5 V not recovered |

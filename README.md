@@ -62,9 +62,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   fixed/float nulls remain about -59 dB. This supersedes an invalid earlier
   linear-interpolation result. Direct RTL capture matches the corresponding
   fixed models for all 24,576 pop/recovery outputs and 294,912 nonlinear
-  updates at both rates with zero diagnostics. The modest three-DSP saving,
-  missing absolute transient-to-SPICE comparison, and open named-part timing
-  keep 8× unpromoted. Neither structural result is a timing-closure claim.
+  updates at both rates with zero diagnostics. A matched, unfitted absolute
+  pop-response comparison against ngspice measures -61.47 dB residual at the
+  48 kHz output boundary for 384 kHz and -61.00 dB for 768 kHz; maximum errors
+  are 0.539 and 0.546 mV, respectively, with zero failed floating solves. This
+  experiment therefore does not support keeping 16× on transient-accuracy
+  grounds. The modest three-DSP saving and open named-part timing still keep
+  8× unpromoted. Neither structural result is a timing-closure claim.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both
@@ -682,6 +686,7 @@ python3 scripts/compare_spice_python.py
 make spice-python-frequency          # four SPICE transients + integrator study
 make internal-rate-study             # explicit 8x-vs-16x nonlinear rate study
 make internal-rate-pop-decomposition # converter/float/fixed transient layers
+make internal-rate-spice-pop         # absolute rate-specific pop vs ngspice
 make internal-rate-transient-rtl     # direct long pop/recovery RTL equivalence
 make fixed-384-assets                 # regenerate distinct 384 kHz fixed assets
 make trapezoidal-384-chord-rtl        # exact five-bank correction equivalence

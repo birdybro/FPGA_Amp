@@ -55,8 +55,15 @@ overall, 2.623 mV peak, and -53.33 dB in-band. Converter-only in-band error is
 -67.49 dB, while the floating/fixed complete paths are -55.71/-53.33 dB, so the
 remaining delta is primarily rate-dependent circuit behavior. Direct RTL
 matches all 24,576 fixed outputs across 294,912 updates. The candidate remains
-unpromoted because its area saving is modest, absolute transient-to-SPICE
-evidence is open, and Fmax is unproven.
+bit-exact at both rates. The subsequent absolute pop-response test drives
+ngspice from each rate's actual interpolated INPUT-node waveform, subtracts a
+matched 5 mV/1 kHz control trajectory, and applies the corresponding decimator.
+Without latency, gain, or DC fitting, Python-to-SPICE external residual is
+-61.47 dB / 0.539 mV maximum at 384 kHz and -61.00 dB / 0.546 mV at 768 kHz.
+Both floating solves converge. This transient slightly favors 8×, but the
+difference is too small and too stimulus-specific to establish a general
+accuracy advantage. The candidate remains unpromoted because its area saving
+is modest and named-part Fmax is unproven.
 
 `phono_stream_mono.sv` now implements this digital reference boundary from
 48 kHz Q8.24 physical input volts through 16× interpolation, the complete V1

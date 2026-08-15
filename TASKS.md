@@ -109,10 +109,20 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   result. Converter/float/fixed in-band decomposition is -67.49/-55.71/-53.33
   dB. Long-vector RTL proves both
   rate-specific implementations exact for 24,576 outputs / 294,912 nonlinear
-  updates. Compare the 384 kHz pop directly with an ngspice transient and obtain
+  updates. The matched absolute pop-response comparison now measures -61.47 dB
+  residual / 0.539 mV maximum at the 384 kHz path's 48 kHz output versus
+  -61.00 dB / 0.546 mV for 768 kHz, without latency, gain, or DC fitting and
+  with zero failed solves. Thus this transient does not favor 16x. Obtain
   named-part timing before considering promotion; a three-DSP area saving alone
   is insufficient.
+
 ## Completed this milestone
+
+- [x] Compare both floating rate-specific pop/control responses directly with
+  ngspice driven at the ideal INPUT node. Use matched interpolation and
+  decimation, 180,000--360,000 raw SPICE points per run, and no alignment or
+  gain fitting. Measure -61.47/-61.00 dB external residual and 0.539/0.546 mV
+  maximum error at 384/768 kHz, with zero failed Newton solves.
 
 - [x] Correct the transient A/B alignment error. Add optional caller-known
   latency and 64-tap Lanczos-windowed sinc interpolation to the null tool, with

@@ -144,6 +144,7 @@ make spice                          ngspice DC/AC/transient
 scripts/spice_level_sweep.py        H1-H10/THD/gain compression
 scripts/compare_spice_python.py     transient residual
 scripts/compare_spice_python_frequency.py  four-point integrator/SPICE sweep
+scripts/compare_internal_rate_pop_spice.py matched 8x/16x pop vs ngspice
 scripts/characterize_solver.py      fixed-iteration residual/convergence
 scripts/study_lut_resolution.py     BRAM/error trade study
 scripts/study_factorized_tube.py    factorized current/circuit accuracy
@@ -202,6 +203,7 @@ scripts/run_frame_scheduler_formal.py  phase/zero-fill/counter induction
 | 384/768 kHz fixed transient rate A/B | 4,096-frame pop/control plus 12,000-frame 0.5 V burst/control | 772,608 updates, zero diagnostics; known -1.25-sample sinc alignment: pop -35.923 dB / 2.623 mV max / -53.334 dB in-band; 8x recovery 147.771 ms vs 147.583 ms, -84.706 dB overall / -81.020 dB in-band |
 | internal-rate pop decomposition | identity converter plus complete floating/fixed pop/control | 393,216 nonlinear updates; converter/float/fixed in-band residual -67.488/-55.710/-53.334 dB; same-rate fixed/float -58.878/-59.133 dB; corrected linear-alignment artifact |
 | 384/768 kHz long transient RTL | 4,096 pop + 8,192 recovery outputs at each rate | all 24,576 outputs / 294,912 nonlinear updates fixed-exact; zero diagnostics; 127 clocks; max residual 0.672 uA at 384 kHz / 0.322 uA at 768 kHz; does not promote 8x |
+| rate-specific floating pop vs ngspice | separate pop/control, ideal INPUT-node PWL, corresponding decimator, no fitting | external residual -61.468/-60.999 dB and max error 0.539/0.546 mV at 384/768 kHz; zero failed solves; generated JSON retained |
 | trapezoidal overload stability | 20 mV/0.5/1.0/1.5 V, 85 ms post-burst | finite/convergent; 20 mV recovery within 2.6 us of BE |
 | long trapezoidal overload recovery | 0.5/1.0/1.5 V, 235 ms post-burst | 0.5 V 10% recovery 146.552 ms; 98.2--118.1 ms fitted modes; severe crossings remain labeled projections |
 | severe trapezoidal overload recovery | 1.0/1.5 V, 835 ms post-burst | 1.0 V sustained 10% 270.112 ms; 1.5 V not 10%; 413--451x cancellation rebound falsifies early fit |

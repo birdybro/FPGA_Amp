@@ -6,6 +6,13 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added an automated absolute record-pop comparison between the 384/768 kHz
+  floating trapezoidal paths and ngspice. Each SPICE run is driven by the
+  corresponding interpolated INPUT-node PWL, paired with a matched 5 mV/1 kHz
+  control, and passed through the matching decimator. With no latency, gain, or
+  DC fitting, external residual is -61.47/-61.00 dB and maximum error is
+  0.539/0.546 mV at 384/768 kHz; both solves converge. This closes the prior
+  absolute-transient evidence gap but does not promote 8x before timing closes.
 - Adopted a fully open Linux FPGA implementation path. A pinned non-root
   bootstrap now builds nextpnr-Himbaechel for XC7A100T against Project X-Ray,
   and `run_openxc7.py` probes versions then composes Yosys synthesis with

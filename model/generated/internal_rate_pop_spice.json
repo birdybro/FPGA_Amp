@@ -1,0 +1,113 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "comparison": "rate-specific floating trapezoidal model vs ngspice",
+  "external_sample_rate_hz": 48000,
+  "frame_count": 2048,
+  "stimulus": {
+    "nominal_tone_hz": 1000,
+    "nominal_tone_peak_v": 0.005,
+    "event_sample": 512,
+    "event_samples_v": [
+      0.02,
+      -0.012
+    ],
+    "input_quantization": "signed Q8.24 before interpolation"
+  },
+  "comparison_interval": {
+    "start_external_sample": 448,
+    "latency_alignment": false,
+    "gain_alignment": false,
+    "dc_alignment": false
+  },
+  "measurements": [
+    {
+      "internal_sample_rate_hz": 384000,
+      "integration_method": "trapezoidal",
+      "ngspice": {
+        "pop": {
+          "raw_spice_points": 180269,
+          "maximum_step_s": 3.255208333333333e-07,
+          "duration_s": 0.042666666666666665
+        },
+        "control": {
+          "raw_spice_points": 180231,
+          "maximum_step_s": 3.255208333333333e-07,
+          "duration_s": 0.042666666666666665
+        },
+        "input_source": "ideal INPUT-node PWL from the rate-specific floating interpolator; cartridge/load network bypassed"
+      },
+      "internal_response_python_vs_spice": {
+        "sample_count": 12800,
+        "reference_rms": 0.016945404244401083,
+        "candidate_rms": 0.01695644258008266,
+        "residual_rms": 1.434668833437415e-05,
+        "normalized_residual_db": -61.44600539685213,
+        "maximum_absolute_residual": 0.0005646394924533338,
+        "candidate_relative_gain": 1.0006512596269383,
+        "candidate_relative_gain_db": 0.005654928031961635,
+        "least_squares_gain_to_apply": 0.9993488721439523,
+        "correlation_coefficient": 0.9999998536929141
+      },
+      "external_response_python_vs_spice": {
+        "sample_count": 1600,
+        "reference_rms": 0.01690371940765865,
+        "candidate_rms": 0.01691468920618771,
+        "residual_rms": 1.4275591080504488e-05,
+        "normalized_residual_db": -61.46776351628998,
+        "maximum_absolute_residual": 0.0005385540524073806,
+        "candidate_relative_gain": 1.0006488116428556,
+        "candidate_relative_gain_db": 0.005633678925059585,
+        "least_squares_gain_to_apply": 0.9993513173452885,
+        "correlation_coefficient": 0.999999853821932
+      },
+      "floating_nonconvergence_count": 0
+    },
+    {
+      "internal_sample_rate_hz": 768000,
+      "integration_method": "trapezoidal",
+      "ngspice": {
+        "pop": {
+          "raw_spice_points": 360475,
+          "maximum_step_s": 1.6276041666666666e-07,
+          "duration_s": 0.042666666666666665
+        },
+        "control": {
+          "raw_spice_points": 360453,
+          "maximum_step_s": 1.6276041666666666e-07,
+          "duration_s": 0.042666666666666665
+        },
+        "input_source": "ideal INPUT-node PWL from the rate-specific floating interpolator; cartridge/load network bypassed"
+      },
+      "internal_response_python_vs_spice": {
+        "sample_count": 25600,
+        "reference_rms": 0.016962133223154607,
+        "candidate_rms": 0.01697257363930776,
+        "residual_rms": 1.5199354423962438e-05,
+        "normalized_residual_db": -60.95310655499884,
+        "maximum_absolute_residual": 0.0006073840337144643,
+        "candidate_relative_gain": 1.0006153011084753,
+        "candidate_relative_gain_db": 0.005342793977378481,
+        "least_squares_gain_to_apply": 0.9993846536806048,
+        "correlation_coefficient": 0.9999997835231162
+      },
+      "external_response_python_vs_spice": {
+        "sample_count": 1600,
+        "reference_rms": 0.01691078974379064,
+        "candidate_rms": 0.016921141906617188,
+        "residual_rms": 1.5073032745822134e-05,
+        "normalized_residual_db": -60.99926494468268,
+        "maximum_absolute_residual": 0.0005463715176963202,
+        "candidate_relative_gain": 1.000611953320576,
+        "candidate_relative_gain_db": 0.005313733293579557,
+        "least_squares_gain_to_apply": 0.999388001731691,
+        "correlation_coefficient": 0.9999997856625239
+      },
+      "floating_nonconvergence_count": 0
+    }
+  ],
+  "limitations": [
+    "each rate is compared to SPICE driven by its own interpolated input",
+    "PWL is linear between internal samples while the discrete model samples those endpoints",
+    "this is numerical SPICE-model agreement, not measured tube hardware truth"
+  ]
+}
