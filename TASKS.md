@@ -109,19 +109,21 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   forced-zero startup data, and status indicators. A mutation-tested contract
   checks 18 physical pin/IO-standard pairs, active-low reset, open-drain I2C,
   the internal 3.072 MHz BCLK constraint, the selected 384 kHz schedule, and
-  fail-closed release. The shared-I2S guard regression proves zero DAC data
-  until two synchronized ready edges. Complete Yosys synthesis reports 16,688
+  fail-closed release. The shared-I2S guard regression proves zero DAC data and
+  a held serial-transport reset until two synchronized ready edges, preventing
+  undefined pre-bootstrap ADC frames from filling the receive FIFO. Complete
+  Yosys synthesis reports 16,688
   LC / 11,687 FF / 217 DSP / ten RAMB18 equivalents with zero structural
-  problems; open packing uses 59,709 LUTX / 11,687 FFX / 4,192 CARRY4. This is
+  problems; open packing uses 59,710 LUTX / 11,687 FFX / 4,192 CARRY4. This is
   composition/fit evidence, not a hardware-ready claim.
 - [x] Complete and retain the full board route, then generate and CRC-check its
   Project-X-Ray bitstream. Both generated domains and the otherwise-uninferrable
   fabric-divided BCLK carry explicit constraints. Static placement estimates
-  only 42.24 MHz, but router2 reaches zero overuse in 30 iterations and passes
-  at 58.008 MHz against 49.152 MHz fabric plus 116.809 MHz against 3.072 MHz
-  BCLK under the experimental `DEFAULT` grade. The 56,733,386-byte routed FASM
+  only 41.03 MHz, but router2 reaches zero overuse in 20 iterations and passes
+  at 54.663 MHz against 49.152 MHz fabric plus 123.457 MHz against 3.072 MHz
+  BCLK under the experimental `DEFAULT` grade. The 56,556,532-byte routed FASM
   converts to 20,230 frame records and a 9,730,825-byte `.bit`; two conversions
-  are identical at SHA-256 `3ea5cea8...c286f23`, and `bitread -C` accepts
+  are identical at SHA-256 `5f196e52...b09dbb8`, and `bitread -C` accepts
   24,060 frames / 2,432,650 words. The result is neither qualified -1 timing
   nor a hardware validation claim; the image remains unprogrammed.
 - [ ] Program the complete image on a matching Nexys Video and validate reset,

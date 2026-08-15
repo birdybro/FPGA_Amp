@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "rtl": "fpga/nexys_video/phono_audio_top_xc7.sv",
-  "rtl_sha256": "a8449b28d37b9aeb986142ee2e0894ecf72886d01dba19b771423e82ce0a1874",
+  "rtl_sha256": "35b538db122fe7d07e1527017fc3bd1ba480fdea57054eddd7208a2d8b657d39",
   "constraints": "fpga/nexys_video/phono_audio_top_xc7.xdc",
   "constraints_sha256": "071c70675651e80739c4055cb93817b592006afbd41979c889eb44c5ef29d22d",
   "board": "Digilent Nexys Video Rev. A",
@@ -94,6 +94,7 @@
   "validation": {
     "active_low_reset_checked": true,
     "fail_closed_audio_release_checked": true,
+    "preconfiguration_serial_frames_blocked": true,
     "single_shared_lrclk_guard_checked": true,
     "open_drain_i2c_checked": true,
     "scope": "Static RTL/XDC composition contract only; simulation, open place/route, bitstream generation, and hardware are separate gates."

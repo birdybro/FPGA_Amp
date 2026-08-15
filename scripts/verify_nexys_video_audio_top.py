@@ -121,6 +121,11 @@ def verify_top(
             "missing shared-LRCLK/zero-data guard",
         ),
         (
+            r"\.rst_n\s*\(\s*serial_rst_n\s*\).*?"
+            r"\.codec_transport_rst_n\s*\(\s*i2s_rst_n\s*\)",
+            "I2S transport reset is not held through codec configuration",
+        ),
+        (
             r"phono_i2s_spi_top\s*#\s*\(.*?"
             r"\.MODEL_SAMPLE_RATE_HZ\s*\(\s*384000\s*\).*?"
             r"\.FABRIC_CLOCKS_PER_48K_INPUT\s*\(\s*1024\s*\).*?"
@@ -169,6 +174,7 @@ def verify_top(
         "validation": {
             "active_low_reset_checked": True,
             "fail_closed_audio_release_checked": True,
+            "preconfiguration_serial_frames_blocked": True,
             "single_shared_lrclk_guard_checked": True,
             "open_drain_i2c_checked": True,
             "scope": (

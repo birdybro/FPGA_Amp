@@ -17,7 +17,8 @@ module codec_shared_i2s_guard (
     output logic codec_lrclk,
     output logic codec_dac_serial_data,
     input  logic codec_adc_serial_data,
-    output logic codec_ready_bclk
+    output logic codec_ready_bclk,
+    output logic codec_transport_rst_n
 );
 
     (* ASYNC_REG = "TRUE" *) logic [1:0] ready_pipeline;
@@ -31,6 +32,10 @@ module codec_shared_i2s_guard (
 
     always_comb begin
         codec_ready_bclk = ready_pipeline[1];
+        // Hold the receiver/transmitter and both serial-side FIFO ports reset
+        // until the codec can produce defined frames.  Deassertion is already
+        // synchronous to BCLK because it comes from the second ready stage.
+        codec_transport_rst_n = rst_n && codec_ready_bclk;
         codec_lrclk = digital_dac_lrclk;
         digital_adc_lrclk = digital_dac_lrclk;
         digital_adc_serial_data = codec_adc_serial_data;

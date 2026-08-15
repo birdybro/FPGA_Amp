@@ -800,8 +800,12 @@ SPI control plane. The codec's single U5 LRCLK is driven from the digital DAC
 frame clock and also fed to the ADC receiver; there are no fictional separate
 ADC/DAC LRCLK pins. The ADC serial input passes inward while DAC serial output
 is held at zero until `configured` has crossed a two-flop BCLK synchronizer.
-The circuit datapath remains in reset and the modern output mute remains forced
-until every codec write has ACKed.
+The I2S receiver/transmitter and the FIFO serial-side ports also remain reset
+through those two stages, so undefined ADC frames during the 10 ms bootstrap
+cannot fill the receive FIFO or latch a false overflow. BCLK itself continues
+running because the subordinate codec needs it. The circuit datapath remains
+in reset and the modern output mute remains forced until every codec write has
+ACKed.
 
 The wrapper XDC binds all 18 oscillator/reset/switch/codec/Pmod/LED signals to
 the Digilent Rev. A pin map. It constrains R4 at 100 MHz and explicitly
@@ -817,29 +821,35 @@ uses one LUT plus two asynchronous-reset synchronizer flip-flops in Yosys. The
 complete wrapper passes structural synthesis with zero check problems at
 16,688 estimated logic cells, 11,687 flip-flops, 217 DSP48E1s, eight RAMB18E1s,
 and one RAMB36E1 (ten RAMB18 equivalents). Open packing on the XC7A200T uses
-59,709 LUTX, 11,687 FFX, 4,192 CARRY4s, 217 DSPs, the same BRAM, three BUFGs,
+59,710 LUTX, 11,687 FFX, 4,192 CARRY4s, 217 DSPs, the same BRAM, three BUFGs,
 two MMCMs, and 18 pads. These are digital composition/fit results; physical
 codec ACKs, converter clocks, audio, and analog mute behavior remain unmeasured.
 
-Static placement estimates 42.24 MHz for the 49.152 MHz fabric domain, but the
-complete router2 result converges to zero overuse in 30 iterations. Post-route
-timing is 58.008 MHz against the 49.152 MHz fabric constraint and 116.809 MHz
-against the explicit 3.072 MHz BCLK constraint. The 17.24 ns fabric critical
-path is inside chord-correction saturation accounting (5.76 ns logic and
-11.48 ns routing); the BCLK critical path is an 8.56 ns transmit-FIFO control
-path. The fabric-to-BCLK configured synchronizer path is 4.37 ns and the
-BCLK-to-fabric path is 2.04 ns. These crossings are functionally protected by
+Static placement estimates 41.03 MHz for the 49.152 MHz fabric domain, but the
+complete router2 result converges to zero overuse in 20 iterations. Post-route
+timing is 54.663 MHz against the 49.152 MHz fabric constraint and 123.457 MHz
+against the explicit 3.072 MHz BCLK constraint. The 18.29 ns fabric critical
+path runs from the prefetched tube-two plate node through factorized-tube input
+and range logic (6.45 ns logic and 11.85 ns routing); the BCLK critical path is
+an 8.10 ns transmit-FIFO control path. The fabric-to-BCLK configured
+synchronizer path is 2.34 ns and the BCLK-to-fabric path is 1.78 ns. These
+crossings are functionally protected by
 the synchronizer/FIFO contracts; the numbers are retained as routing evidence,
 not substituted for CDC analysis.
 
-The routed 56,733,386-byte FASM hashes to
-`cd74d9c5fc8bcf600f8a853f78617928b557910f30920d6547b9885dd8e74e33`.
+The routed 56,556,532-byte FASM hashes to
+`b242b9326ebaab1e0db58215a94d268a4d90f076144681284d87d4f1c5e18567`.
 Pinned Project X-Ray converts it to 20,230 frame records and a reproducible
 9,730,825-byte bitstream; two conversions are byte-identical at SHA-256
-`3ea5cea88fdbc8ab03c5f8a159d438a010f036d767e7e9168836f5be4c286f23`.
+`5f196e5232a391d63f57f1cbe2ee00ec5a261f445c7432530e5442f43b09dbb8`.
 `bitread -C` accepts 24,060 frames / 2,432,650 words. The open backend still
 reports only its experimental `DEFAULT` timing grade, not qualified
 XC7A200T-1 timing. The bitstream has not been loaded onto a board.
+
+This image supersedes the earlier `3ea5cea8...c286f23` board artifact. That
+version zero-gated DAC data but released the I2S bridge as soon as clocks
+locked, allowing pre-configuration ADC frames to enter the receive FIFO. It
+was never programmed or physically validated.
 
 The codec-control foundation is now implemented as a device-neutral open-drain
 I2C register writer. Each command emits the seven-bit target address plus write

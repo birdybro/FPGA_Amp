@@ -33,6 +33,7 @@ module phono_audio_top_xc7 (
     logic fabric_clk;
     logic clocks_locked;
     logic fabric_rst_n;
+    logic serial_rst_n;
     logic i2s_rst_n;
     logic audio_rst_n;
     logic codec_scl_drive_low;
@@ -84,7 +85,7 @@ module phono_audio_top_xc7 (
         .async_reset(board_reset || !clocks_locked),
         .codec_bclk_3m072(codec_bclk),
         .fabric_rst_n,
-        .i2s_rst_n
+        .i2s_rst_n(serial_rst_n)
     );
 
     adau1761_codec_init codec_initializer (
@@ -103,7 +104,7 @@ module phono_audio_top_xc7 (
 
     codec_shared_i2s_guard shared_serial_guard (
         .bclk(codec_bclk),
-        .rst_n(i2s_rst_n),
+        .rst_n(serial_rst_n),
         .codec_configured,
         .digital_dac_lrclk,
         .digital_dac_serial_data,
@@ -112,7 +113,8 @@ module phono_audio_top_xc7 (
         .codec_lrclk,
         .codec_dac_serial_data,
         .codec_adc_serial_data,
-        .codec_ready_bclk
+        .codec_ready_bclk,
+        .codec_transport_rst_n(i2s_rst_n)
     );
 
     phono_i2s_spi_top #(

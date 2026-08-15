@@ -143,15 +143,17 @@ The mono reference and complete 768 kHz circuit solver are operating:
   timing-closed phono profile, SPI control, open-drain I2C, and fail-closed DAC
   data. A mutation-tested contract checks all 18 LOC/IOSTANDARD pairs, active-
   low reset, internal 3.072 MHz BCLK constraint, model rate, and startup mute;
-  a separate guard regression proves that serial DAC data stays zero through
-  two BCLK synchronizer edges after configuration. Complete synthesis reports
+  a separate guard regression proves that serial DAC data stays zero and the
+  I2S bridge/FIFO serial ports stay reset through two BCLK synchronizer edges
+  after configuration. This prevents undefined ADC frames during the 10 ms
+  bootstrap from pre-filling the receive FIFO. Complete synthesis reports
   16,688 estimated logic cells / 11,687 flip-flops / 217 DSPs / ten RAMB18
   equivalents and zero structural problems. Programming, physical ACKs,
   analog audio, and clock measurements remain open. The full open A200T route
-  converges legally in 30 iterations and estimates 58.008 MHz against the
-  49.152 MHz fabric constraint and 116.809 MHz against 3.072 MHz BCLK. The
+  converges legally in 20 iterations and estimates 54.663 MHz against the
+  49.152 MHz fabric constraint and 123.457 MHz against 3.072 MHz BCLK. The
   pinned Project-X-Ray stage twice emits the same CRC-readable 9,730,825-byte
-  bitstream at SHA-256 `3ea5cea8...c286f23`. This closes the experimental open
+  bitstream at SHA-256 `5f196e52...b09dbb8`. This closes the experimental open
   implementation gate only; the `DEFAULT` timing grade is not qualified -1
   signoff and the image has not been programmed.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite

@@ -12,17 +12,22 @@ All notable engineering changes are recorded here. The project is pre-release; d
   phono profile, SPI control, open-drain I2C, and four status LEDs on the real
   Rev. A pins. Audio remains reset/muted and DAC serial data remains zero until
   all codec writes ACK and the ready bit crosses two BCLK synchronizer stages.
-  A mutation-tested static contract checks every LOC/IOSTANDARD, active-low G4
-  reset, the explicit internal 3.072 MHz BCLK constraint, model schedule, I2C,
-  and fail-closed release. The shared-I2S guard is warning-free at one logic
+  It also holds the I2S bridge/FIFO serial ports reset through the same ready
+  synchronizer so undefined ADC frames cannot fill the receive FIFO during
+  bootstrap. A mutation-tested static contract checks every LOC/IOSTANDARD,
+  active-low G4 reset, the explicit internal 3.072 MHz BCLK constraint, model
+  schedule, I2C, pre-configuration-frame exclusion, and fail-closed release.
+  The shared-I2S guard is warning-free at one logic
   cell / two flip-flops. Complete Yosys synthesis reports 16,688 estimated
   logic cells / 11,687 flip-flops / 217 DSPs / ten RAMB18 equivalents and zero
-  structural problems; open A200T packing uses 59,709 LUTX / 11,687 FFX /
+  structural problems; open A200T packing uses 59,710 LUTX / 11,687 FFX /
   4,192 CARRY4 / 217 DSP / three BUFG / two MMCM. Router2 reaches zero overuse
-  in 30 iterations and passes the experimental constraints at 58.008 MHz for
-  the 49.152 MHz fabric domain and 116.809 MHz for 3.072 MHz BCLK. Pinned
+  in 20 iterations and passes the experimental constraints at 54.663 MHz for
+  the 49.152 MHz fabric domain and 123.457 MHz for 3.072 MHz BCLK. Pinned
   Project X-Ray twice produces the same CRC-readable 9,730,825-byte bitstream,
-  SHA-256 `3ea5cea88fdbc8ab03c5f8a159d438a010f036d767e7e9168836f5be4c286f23`.
+  SHA-256 `5f196e5232a391d63f57f1cbe2ee00ec5a261f445c7432530e5442f43b09dbb8`.
+  It supersedes the unprogrammed `3ea5cea8...c286f23` artifact that released
+  the serial transport before codec configuration.
   This does not claim qualified -1 timing, physical codec ACK, programmed
   hardware, measured clocks, or analog audio.
 - Added the fixed ADAU1761 startup sequencer above the generic I2C writer. Its

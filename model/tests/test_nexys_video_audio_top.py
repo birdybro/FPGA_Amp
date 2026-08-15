@@ -34,6 +34,9 @@ class NexysVideoAudioTopTests(unittest.TestCase):
         self.assertEqual(report["clock_constraints"]["bclk_hz"], 3_072_000)
         self.assertEqual(report["audio_profile"]["model_sample_rate_hz"], 384_000)
         self.assertTrue(report["validation"]["fail_closed_audio_release_checked"])
+        self.assertTrue(
+            report["validation"]["preconfiguration_serial_frames_blocked"]
+        )
 
     def test_active_high_reset_drift_is_rejected(self) -> None:
         with self._changed_file(
@@ -63,6 +66,16 @@ class NexysVideoAudioTopTests(unittest.TestCase):
         ) as directory:
             rtl = Path(directory) / BOARD_TOP.DEFAULT_RTL.name
             with self.assertRaisesRegex(ValueError, "384 kHz schedule"):
+                BOARD_TOP.verify_top(rtl)
+
+    def test_early_i2s_transport_release_is_rejected(self) -> None:
+        with self._changed_file(
+            BOARD_TOP.DEFAULT_RTL,
+            ".codec_transport_rst_n(i2s_rst_n)",
+            ".codec_transport_rst_n(serial_rst_n)",
+        ) as directory:
+            rtl = Path(directory) / BOARD_TOP.DEFAULT_RTL.name
+            with self.assertRaisesRegex(ValueError, "transport reset"):
                 BOARD_TOP.verify_top(rtl)
 
 
