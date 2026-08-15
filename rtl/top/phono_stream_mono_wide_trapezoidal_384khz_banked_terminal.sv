@@ -3,7 +3,9 @@
 
 // Explicit non-reference 48 kHz stream candidate using three-stage 8x rate
 // conversion and the exact 127-clock 384 kHz banked-terminal solver.
-module phono_stream_mono_wide_trapezoidal_384khz_banked_terminal (
+module phono_stream_mono_wide_trapezoidal_384khz_banked_terminal #(
+    parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048
+) (
     input  logic                 clk,
     input  logic                 rst_n,
     input  logic                 ce_input_48k,
@@ -44,6 +46,7 @@ module phono_stream_mono_wide_trapezoidal_384khz_banked_terminal (
         .CHORD_COEFFICIENT_SETS(5),
         .CHORD_COEFFICIENT_WIDTH(19),
         .SAMPLE_RATE_384KHZ(1'b1),
+        .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT),
         .TRAPEZOIDAL(1'b1),
         .TERMINAL_CORRECTION(1'b1)
     ) core (.*);

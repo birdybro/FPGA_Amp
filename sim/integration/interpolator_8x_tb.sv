@@ -1,7 +1,9 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-module interpolator_8x_tb;
+module interpolator_8x_tb #(
+    parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048
+);
     localparam int INPUT_COUNT = 128;
     localparam int OUTPUT_COUNT = 8 * INPUT_COUNT;
 
@@ -17,7 +19,9 @@ module interpolator_8x_tb;
     logic signed [31:0] input_vector [0:INPUT_COUNT-1];
     logic signed [31:0] expected_vector [0:OUTPUT_COUNT-1];
 
-    interpolator_8x dut (.*);
+    interpolator_8x #(
+        .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT)
+    ) dut (.*);
     always #5 clk = ~clk;
 
     integer file_handle;
@@ -79,13 +83,14 @@ module interpolator_8x_tb;
                 end
                 output_index = output_index + 1;
             end
-            if ((clock_count % 2048) == 0
+            if ((clock_count % FABRIC_CLOCKS_PER_48K_INPUT) == 0
                 && input_index + 1 < INPUT_COUNT) begin
                 input_index = input_index + 1;
                 sample_input_q24 <= input_vector[input_index];
                 ce_input <= 1'b1;
             end
-            if (clock_count > OUTPUT_COUNT * 300)
+            if (clock_count
+                > INPUT_COUNT * (FABRIC_CLOCKS_PER_48K_INPUT + 300))
                 $fatal(1, "interpolator timeout output=%0d", output_index);
         end
         if (saturation_count != 0 || overrun_count != 0

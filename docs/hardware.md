@@ -596,6 +596,17 @@ The result is not qualified -1 signoff, but it proves that neither raw A200T
 capacity nor the 8× candidate's doubled cycle budget makes the present
 combinational structure viable.
 
+The separately named `stream_384khz_49mhz_pnr_harness` tests the same circuit
+and arithmetic with a 49.152 MHz fabric clock: 1,024 clocks per external input
+and 128 per internal update. Exact RTL verifies the 127-clock solver with one
+clock of margin across 64 outputs / 512 updates and zero diagnostics. The A200T
+pack is unchanged at 63,902 LUTX / 207 DSP, apart from two fewer phase-counter
+flip-flops. Static placement improves to 38.34 MHz against 49.152 MHz, reducing
+the timing ratio miss from 2.86x to 1.28x but not closing it. A timing-driven
+heap attempt on the reduced netlist still fails legalization after 10,001
+attempts at a stage-three decimator flip-flop. Routing remains unjustified and
+is not claimed.
+
 The device-neutral asynchronous FIFO has a separately measured depth-8 × 32-bit
 configuration:
 

@@ -1,10 +1,13 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-// Three-stage 48 kHz to 384 kHz Q8.24 architecture candidate at a 98.304 MHz
-// fabric clock. ce_input occurs once every 2048 clocks at phase zero. This is
-// separate from the four-stage 16x reference path so selecting it is explicit.
-module interpolator_8x (
+// Three-stage 48 kHz to 384 kHz Q8.24 architecture candidate. The default
+// 98.304 MHz fabric clock presents ce_input every 2048 clocks; the explicit
+// 49.152 MHz candidate uses 1024. This remains separate from the four-stage
+// 16x reference path so selecting either rate/clock combination is explicit.
+module interpolator_8x #(
+    parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048
+) (
     input  logic                 clk,
     input  logic                 rst_n,
     input  logic                 ce_input,
@@ -16,14 +19,30 @@ module interpolator_8x (
     output logic [31:0]          input_phase_error_count
 );
 
-    logic [10:0] phase_counter;
+    localparam int PHASE_WIDTH = $clog2(FABRIC_CLOCKS_PER_48K_INPUT);
+    localparam int STAGE1_PERIOD_WIDTH =
+        $clog2(FABRIC_CLOCKS_PER_48K_INPUT / 2);
+    localparam int STAGE2_PERIOD_WIDTH =
+        $clog2(FABRIC_CLOCKS_PER_48K_INPUT / 4);
+    localparam int STAGE3_PERIOD_WIDTH =
+        $clog2(FABRIC_CLOCKS_PER_48K_INPUT / 8);
+    localparam int STAGE2_PHASE = FABRIC_CLOCKS_PER_48K_INPUT / 32;
+    localparam int STAGE3_PHASE = FABRIC_CLOCKS_PER_48K_INPUT / 16;
+
+    initial begin
+        if (FABRIC_CLOCKS_PER_48K_INPUT != 2048
+            && FABRIC_CLOCKS_PER_48K_INPUT != 1024)
+            $error("interpolator_8x supports 2048 or 1024 fabric clocks/input");
+    end
+
+    logic [PHASE_WIDTH-1:0] phase_counter;
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             phase_counter <= '0;
             input_phase_error_count <= '0;
         end else begin
             phase_counter <= phase_counter + 1'b1;
-            if (ce_input && (phase_counter != 11'd0))
+            if (ce_input && (phase_counter != '0))
                 input_phase_error_count <= input_phase_error_count + 1'b1;
         end
     end
@@ -32,9 +51,13 @@ module interpolator_8x (
     logic ce_stage2_output;
     logic ce_stage3_output;
     always_comb begin
-        ce_stage1_output = phase_counter[9:0] == 10'd0;
-        ce_stage2_output = phase_counter[8:0] == 9'd64;
-        ce_stage3_output = phase_counter[7:0] == 8'd128;
+        ce_stage1_output = phase_counter[STAGE1_PERIOD_WIDTH-1:0] == '0;
+        ce_stage2_output =
+            phase_counter[STAGE2_PERIOD_WIDTH-1:0]
+            == STAGE2_PERIOD_WIDTH'(STAGE2_PHASE);
+        ce_stage3_output =
+            phase_counter[STAGE3_PERIOD_WIDTH-1:0]
+            == STAGE3_PERIOD_WIDTH'(STAGE3_PHASE);
     end
 
     logic signed [31:0] stage1_sample;

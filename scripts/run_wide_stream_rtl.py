@@ -27,6 +27,12 @@ def main() -> int:
         "--sample-rate-hz", type=int, choices=(384_000, 768_000), default=768_000
     )
     parser.add_argument(
+        "--fabric-clock-hz",
+        type=int,
+        choices=(49_152_000, 98_304_000),
+        default=98_304_000,
+    )
+    parser.add_argument(
         "--run-only",
         action="store_true",
         help="reuse an already built simulator for another vector file",
@@ -41,6 +47,8 @@ def main() -> int:
             "384 kHz stream verification requires --trapezoidal --banked "
             "--terminal-correction"
         )
+    if args.fabric_clock_hz == 49_152_000 and args.sample_rate_hz != 384_000:
+        parser.error("49.152 MHz fabric operation requires the 384 kHz stream")
     verilator = shutil.which(args.verilator)
     if verilator is None:
         print("ERROR: verilator unavailable", file=sys.stderr)
@@ -131,10 +139,13 @@ def main() -> int:
         parameter_args.append("-GTERMINAL_CORRECTION=1")
     if args.sample_rate_hz == 384_000:
         parameter_args.append("-GSAMPLE_RATE_384KHZ=1")
+    if args.fabric_clock_hz == 49_152_000:
+        parameter_args.append("-GFABRIC_CLOCKS_PER_48K_INPUT=1024")
     build = ROOT / "build" / (
         "verilator_phono_stream_wide"
         + ("_trapezoidal" if args.trapezoidal else "")
         + ("_384khz" if args.sample_rate_hz == 384_000 else "")
+        + ("_49mhz" if args.fabric_clock_hz == 49_152_000 else "")
         + ("_banked" if args.banked else "")
         + ("_terminal" if args.terminal_correction else "")
     )

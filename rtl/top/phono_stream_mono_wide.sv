@@ -14,6 +14,7 @@ module phono_stream_mono_wide #(
     parameter integer CHORD_COEFFICIENT_SETS = 1,
     parameter integer CHORD_COEFFICIENT_WIDTH = 18,
     parameter bit SAMPLE_RATE_384KHZ = 1'b0,
+    parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048,
     parameter bit TRAPEZOIDAL = 1'b0,
     parameter bit TERMINAL_CORRECTION = 1'b0
 ) (
@@ -45,7 +46,11 @@ module phono_stream_mono_wide #(
 
     generate
         if (SAMPLE_RATE_384KHZ) begin : generate_interpolator_8x
-            interpolator_8x interpolator (
+            interpolator_8x #(
+                .FABRIC_CLOCKS_PER_48K_INPUT(
+                    FABRIC_CLOCKS_PER_48K_INPUT
+                )
+            ) interpolator (
                 .clk,
                 .rst_n,
                 .ce_input(ce_input_48k),

@@ -57,24 +57,41 @@ def main() -> int:
         )
         subprocess.run([str(build / f"V{top}")], cwd=REPOSITORY_ROOT, check=True)
     integrations = (
-        ("interpolator_16x", "interpolator_16x_tb"),
-        ("decimator_16x", "decimator_16x_tb"),
-        ("interpolator_8x", "interpolator_8x_tb"),
-        ("decimator_8x", "decimator_8x_tb"),
+        ("interpolator_16x", "interpolator_16x_tb", None),
+        ("decimator_16x", "decimator_16x_tb", None),
+        ("interpolator_8x", "interpolator_8x_tb", None),
+        (
+            "interpolator_8x",
+            "interpolator_8x_tb",
+            "FABRIC_CLOCKS_PER_48K_INPUT=1024",
+        ),
+        ("decimator_8x", "decimator_8x_tb", None),
     )
-    for module, top in integrations:
+    for module, top, parameter in integrations:
         primitive = (
             "rtl/filters/halfband_interpolator_2x.sv"
             if module.startswith("interpolator_")
             else "rtl/filters/halfband_decimator_2x.sv"
         )
         sources = [primitive, f"rtl/audio/{module}.sv", f"sim/integration/{top}.sv"]
+        parameter_args = [f"-G{parameter}"] if parameter is not None else []
         subprocess.run(
-            [verilator, "--lint-only", "--timing", "-Wall", "-Wno-fatal", "-sv", *sources],
+            [
+                verilator,
+                "--lint-only",
+                "--timing",
+                "-Wall",
+                "-Wno-fatal",
+                "-sv",
+                *parameter_args,
+                *sources,
+            ],
             cwd=REPOSITORY_ROOT,
             check=True,
         )
-        build = REPOSITORY_ROOT / "build" / f"verilator_{module}"
+        build = REPOSITORY_ROOT / "build" / (
+            f"verilator_{module}" + ("_49mhz" if parameter is not None else "")
+        )
         subprocess.run(
             [
                 verilator,
@@ -87,6 +104,7 @@ def main() -> int:
                 top,
                 "--Mdir",
                 str(build),
+                *parameter_args,
                 *sources,
             ],
             cwd=REPOSITORY_ROOT,

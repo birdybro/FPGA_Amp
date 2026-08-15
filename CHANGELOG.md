@@ -6,6 +6,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added an explicit 49.152 MHz fabric schedule for the 384 kHz candidate. It
+  scales the three interpolator enable phases to 1,024 clocks per external
+  sample and 128 per nonlinear update without changing circuit arithmetic.
+  Both interpolator schedules and the complete 64-output / 512-update stream
+  are bit-exact with zero diagnostics; the solver consumes 127 of 128 clocks.
+  A200T static placement reaches 38.34 MHz against 49.152 MHz, reducing the
+  miss to 1.28x; the reduced-netlist heap placer still fails decimator-FF
+  legalization, so routing and promotion remain open.
 - Added a complete three-pin 384 kHz stream timing harness and exposed
   nextpnr's heap/SA/static placer selection. The reduced-DSP design packs on
   XC7A100T at 63,902 LUTX / 14,737 FFX / 4,071 CARRY4 / 207 DSP but heap

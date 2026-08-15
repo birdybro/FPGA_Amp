@@ -73,8 +73,14 @@ The mono reference and complete 768 kHz circuit solver are operating:
   legalize. The identical reduced-DSP netlist legally places on XC7A200T with
   nextpnr's static placer at only 34.40 MHz versus 98.304 MHz. The experimental
   backend's `DEFAULT` grade is not qualified -1 signoff, but the 2.86× miss is
-  decisive enough to skip routing. The 587-LC saving, one additional DSP, and
-  failed timing keep 8× unpromoted.
+  decisive enough to skip routing. An explicit 49.152 MHz fabric schedule then
+  halves every enable interval while preserving the same 384 kHz arithmetic:
+  its 127-clock solver fits exactly within the 128-clock internal period, and
+  the complete 64-output/512-update regression remains bit-exact with zero
+  diagnostics. Static A200T placement improves to 38.34 MHz versus 49.152 MHz,
+  a remaining 1.28× miss; the timing-driven heap placer still fails to legalize
+  a decimator register. The 587-LC saving, one additional DSP, and failed
+  timing keep 8× unpromoted.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both
@@ -700,6 +706,7 @@ make trapezoidal-384-network-rtl      # exact 384 kHz KCL equivalence
 make trapezoidal-384-terminal-banked-solver-rtl # exact stateful core equivalence
 make synth-trapezoidal-384-terminal-banked-solver # rate-tagged Yosys report
 make stream-trapezoidal-384-terminal-banked-rtl # exact complete 48→384→48 kHz stream
+make stream-trapezoidal-384-terminal-banked-half-clock-rtl # same stream at 49.152 MHz
 make synth-stream-trapezoidal-384-terminal-banked # controlled full-stream synthesis
 make trapezoidal-overload            # floating integrator overload stability
 python3 scripts/characterize_solver.py
@@ -841,6 +848,7 @@ make openxc7-a200t-probe           # verify the second Artix-7 chip database
 make openxc7-stream-384-pack       # pack complete 384 kHz stream on A7-100T
 make openxc7-stream-384-place      # attempt A7-100T heap placement
 make openxc7-a200t-stream-384-static-place # static-place stream on A7-200T
+make openxc7-a200t-stream-384-half-clock-static-place # test 49.152 MHz schedule
 make openxc7-pnr                   # route the solver timing harness on A7-100T
 make openxc7-hermite-pnr           # route the Hermite timing harness on A7-100T
 make openxc7-linear-tube-pnr       # route the value-only tube harness

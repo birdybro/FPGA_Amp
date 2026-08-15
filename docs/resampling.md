@@ -74,9 +74,11 @@ latency, and this delay is present in—not aligned out of—the exact regressio
 The decimator is self-timed by upstream valid pulses.
 
 The separately named 8× architecture candidate uses only stages 1--3 and
-preserves the same 48 kHz input phase contract. Its staggered stage-3 output is
-384 kHz, one pulse every 256 fabric clocks. The measured scheduling delay is
-eight 384 kHz samples (20.83 µs) beyond the FIR state latency. Exact regression
+preserves the same 48 kHz input phase contract. At the default 98.304 MHz its
+staggered stage-3 output is 384 kHz, one pulse every 256 fabric clocks. At the
+explicit 49.152 MHz candidate the same phases are scaled to one pulse every 128
+clocks, with 1,024 clocks between 48 kHz inputs. The measured scheduling delay
+remains eight 384 kHz samples (20.83 µs) beyond the FIR state latency. Exact regression
 matches 1,024 interpolation and 128 decimation outputs with zero saturation,
 overrun, or phase errors. This establishes the converter arithmetic and clock-
 enable schedule. The converter also composes bit-exactly with the 384 kHz
@@ -89,6 +91,10 @@ converter-only in-band residual is -67.49 dB, versus -55.71 dB floating and
 rate-specific integrator and circuit. The complete 8× path's lower estimated
 logic count is not by itself enough to promote it; after center-tap sharing it
 uses one more DSP than the 16× stream.
+Both fabric schedules match all 1,024 interpolation outputs exactly. The
+half-clock complete stream also matches 64 outputs / 512 solver updates with
+zero resampler, solver, or deadline diagnostics; its solver consumes 127 of
+128 clocks. This is a scheduling option, not a circuit-model change.
 Direct long-vector RTL matches each rate's corresponding fixed trajectory for
 4,096 pop and 8,192 overload/recovery outputs, totaling 24,576 outputs and
 294,912 nonlinear updates. This rules out a converter/solver RTL mismatch; it

@@ -3,14 +3,19 @@
 
 // Minimal physical-I/O wrapper for named-part timing of the complete 8x
 // candidate stream. This is not a board top or a bitstream-ready clock design.
-module stream_384khz_pnr_harness (
+module stream_384khz_pnr_harness #(
+    parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048
+) (
     input  logic fabric_clk,
     input  logic reset,
     output logic activity
 );
 
     logic rst_n;
-    logic [10:0] input_phase;
+    localparam int INPUT_PHASE_WIDTH =
+        $clog2(FABRIC_CLOCKS_PER_48K_INPUT);
+
+    logic [INPUT_PHASE_WIDTH-1:0] input_phase;
     logic signed [31:0] stimulus_lfsr;
     logic ce_input_48k;
 
@@ -31,7 +36,7 @@ module stream_384khz_pnr_harness (
     (* keep *) logic [7:0] solver_latency_cycles;
 
     assign rst_n = !reset;
-    assign ce_input_48k = input_phase == 11'd0;
+    assign ce_input_48k = input_phase == '0;
 
     always_ff @(posedge fabric_clk) begin
         if (!rst_n) begin
@@ -69,8 +74,9 @@ module stream_384khz_pnr_harness (
         end
     end
 
-    (* keep *) phono_stream_mono_wide_trapezoidal_384khz_banked_terminal
-        stream (
+    (* keep *) phono_stream_mono_wide_trapezoidal_384khz_banked_terminal #(
+        .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT)
+    ) stream (
             .clk(fabric_clk),
             .rst_n,
             .ce_input_48k,
@@ -92,6 +98,18 @@ module stream_384khz_pnr_harness (
             .solver_latency_cycles
         );
 
+endmodule
+
+// Explicit half-frequency timing target. The circuit sample rate and all
+// arithmetic remain identical; only the fabric enable schedule changes.
+module stream_384khz_49mhz_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+    stream_384khz_pnr_harness #(
+        .FABRIC_CLOCKS_PER_48K_INPUT(1024)
+    ) candidate (.*);
 endmodule
 
 `default_nettype wire

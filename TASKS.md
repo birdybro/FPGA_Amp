@@ -115,10 +115,20 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   -61.00 dB / 0.546 mV for 768 kHz, without latency, gain, or DC fitting and
   with zero failed solves. Thus this transient does not favor 16x. The complete
   harness packs on A100T but heap placement fails legalization; a legal A200T
-  static placement reaches only 34.40 MHz against 98.304 MHz. Reference mode
-  remains 16x and broader scheduling/pipelining work is required.
+  static placement reaches only 34.40 MHz against 98.304 MHz. An explicit
+  49.152 MHz schedule is exact with one clock of solver margin and improves
+  static placement to 38.34 MHz against 49.152 MHz, but still misses by 1.28x;
+  the reduced-netlist heap placer fails decimator-FF legalization. Reference
+  mode remains 16x and broader registered scheduling is required.
 
 ## Completed this milestone
+
+- [x] Implement and verify a half-frequency fabric schedule for the 384 kHz
+  candidate without changing circuit arithmetic. Match both 1,024-output
+  interpolator schedules and all 64 complete outputs / 512 nonlinear updates
+  exactly at 49.152 MHz with zero diagnostics and a 127-of-128-clock solver.
+  Place the complete A200T static design at 38.34 MHz versus 49.152 MHz and
+  retain the reduced-netlist heap legalization failure; do not claim routing.
 
 - [x] Serialize the half-band decimator center tap through the existing MAC.
   Preserve the pre-shift history operand explicitly and match 256 unit, both

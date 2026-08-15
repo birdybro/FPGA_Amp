@@ -42,8 +42,8 @@ signed 19-bit Q17.1 coefficients, one bit wider than the 768 kHz implementation.
 Reference mode remains 16×. The separately named three-stage 8× converter and
 384 kHz nonlinear core now compose into a complete bit-exact candidate stream:
 64 external outputs cover 512 persistent solver updates with zero converter,
-solver, or deadline diagnostics. Its stage-3 enable occurs every 256 fabric
-clocks and interpolation scheduling delay is eight 384 kHz samples. Controlled
+solver, or deadline diagnostics. Its default stage-3 enable occurs every 256
+fabric clocks and interpolation scheduling delay is eight 384 kHz samples.
 After sharing each decimator stage's center-tap multiplier, Yosys synthesis
 measures 17,693 LC / 207 DSP / 10 RAMB18 equivalents versus 18,280 / 206 / 10
 for the selected 768 kHz stream. This is structural evidence, not Fmax closure.
@@ -65,9 +65,14 @@ Both floating solves converge. This transient slightly favors 8×, but the
 difference is too small and too stimulus-specific to establish a general
 accuracy advantage. Named-part evidence is now negative: A100T packs but does
 not legalize under the heap placer, while legal A200T static placement reaches
-34.40 MHz against 98.304 MHz. The candidate saves 587 estimated logic cells but
-uses one more DSP than 16× after sharing, and remains unpromoted pending a
-broader scheduled/pipelined architecture.
+34.40 MHz against 98.304 MHz. An explicit 49.152 MHz schedule instead uses
+1,024 clocks per 48 kHz input and 128 per 384 kHz update. The same 127-clock
+solver and all 64 complete outputs remain exact with zero diagnostics, proving
+one clock of real schedule margin. Static A200T placement reaches 38.34 MHz
+against 49.152 MHz; the reduced 207-DSP heap placement still fails
+legalization. The candidate saves 587 estimated logic cells but uses one more
+DSP than 16× after sharing, and remains unpromoted pending registered
+cross-block scheduling and timing closure.
 
 `phono_stream_mono.sv` now implements this digital reference boundary from
 48 kHz Q8.24 physical input volts through 16× interpolation, the complete V1

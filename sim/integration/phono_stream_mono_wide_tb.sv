@@ -5,7 +5,8 @@ module phono_stream_mono_wide_tb #(
     parameter bit TRAPEZOIDAL = 1'b0,
     parameter bit BANKED = 1'b0,
     parameter bit TERMINAL_CORRECTION = 1'b0,
-    parameter bit SAMPLE_RATE_384KHZ = 1'b0
+    parameter bit SAMPLE_RATE_384KHZ = 1'b0,
+    parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048
 );
     localparam int MAX_VECTOR_COUNT = 8192;
     localparam int EXPECTED_SOLVER_LATENCY = TERMINAL_CORRECTION ? 127 : 116;
@@ -73,6 +74,7 @@ module phono_stream_mono_wide_tb #(
         .CHORD_COEFFICIENT_SETS(BANKED ? (TRAPEZOIDAL ? 5 : 4) : 1),
         .CHORD_COEFFICIENT_WIDTH(SAMPLE_RATE_384KHZ ? 19 : 18),
         .SAMPLE_RATE_384KHZ(SAMPLE_RATE_384KHZ),
+        .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT),
         .TRAPEZOIDAL(TRAPEZOIDAL),
         .TERMINAL_CORRECTION(TERMINAL_CORRECTION)
     ) dut (.*);
@@ -162,12 +164,14 @@ module phono_stream_mono_wide_tb #(
                             sample_output_q24);
                 output_index = output_index + 1;
             end
-            if ((clock_count % 2048) == 0 && input_index + 1 < vector_count) begin
+            if ((clock_count % FABRIC_CLOCKS_PER_48K_INPUT) == 0
+                && input_index + 1 < vector_count) begin
                 input_index = input_index + 1;
                 sample_input_q24 <= input_vector[input_index];
                 ce_input_48k <= 1'b1;
             end
-            if (clock_count > vector_count * 2300)
+            if (clock_count > vector_count
+                              * (FABRIC_CLOCKS_PER_48K_INPUT + 300))
                 $fatal(1, "stream timeout output=%0d", output_index);
         end
 
