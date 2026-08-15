@@ -6,10 +6,13 @@ module phono_stream_mono_wide_tb #(
     parameter bit BANKED = 1'b0,
     parameter bit TERMINAL_CORRECTION = 1'b0,
     parameter bit SAMPLE_RATE_384KHZ = 1'b0,
-    parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048
+    parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048,
+    parameter bit PIPELINED_SOLVER_PROFILE = 1'b0
 );
     localparam int MAX_VECTOR_COUNT = 8192;
-    localparam int EXPECTED_SOLVER_LATENCY = TERMINAL_CORRECTION ? 127 : 116;
+    localparam int EXPECTED_SOLVER_LATENCY = PIPELINED_SOLVER_PROFILE
+        ? (TERMINAL_CORRECTION ? 123 : 110)
+        : (TERMINAL_CORRECTION ? 127 : 116);
 
     logic clk;
     logic rst_n = 1'b0;
@@ -76,7 +79,8 @@ module phono_stream_mono_wide_tb #(
         .SAMPLE_RATE_384KHZ(SAMPLE_RATE_384KHZ),
         .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT),
         .TRAPEZOIDAL(TRAPEZOIDAL),
-        .TERMINAL_CORRECTION(TERMINAL_CORRECTION)
+        .TERMINAL_CORRECTION(TERMINAL_CORRECTION),
+        .PIPELINED_SOLVER_PROFILE(PIPELINED_SOLVER_PROFILE)
     ) dut (.*);
     always #5 clk = ~clk;
 

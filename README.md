@@ -85,8 +85,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   the first time, but its 22.79 MHz estimate still fails timing. Static
   placement initially reaches 38.38 MHz. Circular interpolation then reduces
   the pack to 56,041 LUTX / 8,589 FFX / 4,116 CARRY4 / 207 DSP and improves
-  static placement to 41.27 MHz, still short of 49.152 MHz. The open route is
-  diagnostic rather than a timing-closure claim, and 8× remains unpromoted.
+  static placement to 41.27 MHz. The completed legal route reaches 48.482 MHz,
+  only 1.38% below 49.152 MHz. Its 20.626 ns critical path starts at solver
+  state selection, crosses voltage selection and plate-pin conversion, and
+  ends in the factorized-tube input mapping. A separately named exact
+  123-clock parallel/pipelined profile instead grows to 242 DSPs and places at
+  only 39.62 MHz, so it is rejected. The route remains diagnostic rather than
+  timing closure or a bitstream claim, and 8× remains unpromoted.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both
@@ -589,7 +594,7 @@ The mono reference and complete 768 kHz circuit solver are operating:
   the raw -74.59 dBc bin is no longer left ambiguous or mislabeled as aliasing.
 
 There is no physical host-adapter backend, fabricated analog front end,
-converter board, completed full-hierarchy named-part route, qualified speed-grade timing, or
+converter board, timing-clean full-hierarchy named-part route, qualified speed-grade timing, or
 physical measurement yet. An experimental open XC7 placement now measures the
 solver timing harness at only 13.90 MHz against 98.304 MHz; this is a diagnosed
 architecture failure, not a timing-closure claim. A bit-exact three-clock
@@ -713,6 +718,7 @@ make trapezoidal-384-terminal-banked-solver-rtl # exact stateful core equivalenc
 make synth-trapezoidal-384-terminal-banked-solver # rate-tagged Yosys report
 make stream-trapezoidal-384-terminal-banked-rtl # exact complete 48→384→48 kHz stream
 make stream-trapezoidal-384-terminal-banked-half-clock-rtl # same stream at 49.152 MHz
+make stream-trapezoidal-384-terminal-banked-half-clock-pipelined-rtl # exact rejected 123-clock schedule
 make synth-stream-trapezoidal-384-terminal-banked # controlled full-stream synthesis
 make trapezoidal-overload            # floating integrator overload stability
 python3 scripts/characterize_solver.py

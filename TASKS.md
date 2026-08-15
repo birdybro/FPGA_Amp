@@ -12,12 +12,17 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 ## Active, highest value first
 
 - [ ] Close the remaining 49.152 MHz complete-stream timing gap with registered
-  cross-block scheduling, guided by routed critical-path evidence. Circular
+  cross-block scheduling, guided by the now-completed legal route. Circular
   histories reduce the complete 384 kHz candidate from 17,693 LC / 14,737
-  packed FFX to 15,716 LC / 8,589 packed FFX and improve static A200T placement
-  from 38.34 to 41.27 MHz, but still miss the clock by 19.1%. Preserve the
-  127-of-128-clock arithmetic contract and bit-exact stream while retiming;
-  lower resource occupancy alone is not timing closure.
+  packed FFX to 15,716 LC / 8,589 packed FFX. The full A200T route reaches
+  48.482 MHz versus 49.152 MHz, leaving a 1.38% gap; its 20.626 ns state-to-
+  tube path crosses the corrected/current voltage mux, plate-node subtraction,
+  Q20 conversion, and factorized-tube input mapping. Prefetch or register this
+  exact tube-input boundary without changing the 127-of-128-clock arithmetic
+  contract. A broad 123-clock parallel/pipelined profile remains exact but
+  grows to 242 DSP / 66,658 packed LUTX and places at only 39.62 MHz, so do not
+  promote it. Lower resource occupancy or nominal cycle margin alone is not
+  timing closure.
 - [ ] Isolate and reduce the remaining fixed circuit/state/chord error. With
   the implemented 1,024-point grid branch, raw final-window error is now
   0.372/0.291 mV at 1.0 V and 0.631/0.321 mV at 1.5 V for backward Euler/
@@ -133,6 +138,14 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   registered scheduling is required.
 
 ## Completed this milestone
+
+- [x] Route the circular-resampler 49.152 MHz complete-stream harness legally
+  on XC7A200T. Measure 48.482 MHz post-route, a 1.38% miss, with 56,041 LUTX /
+  8,589 FFX / 4,116 CARRY4 / 207 DSP and a 20.626 ns state/voltage/tube-input
+  critical path. Preserve the generated FASM only as implementation evidence;
+  do not claim a bitstream or hardware readiness. Compose and reject a broader
+  exact 123-clock profile after its 66,658-LUTX / 242-DSP A200T placement
+  reaches only 39.62 MHz.
 
 - [x] Replace reset-cleared half-band interpolator shift registers with reset-
   masked circular distributed memories using one multiplexed asynchronous read

@@ -45,6 +45,7 @@ SUPPORTED_TOPS = (
     "pipelined_chord_pnr_harness",
     "stream_384khz_pnr_harness",
     "stream_384khz_49mhz_pnr_harness",
+    "stream_384khz_49mhz_pipelined_pnr_harness",
 )
 RUN_TAG_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 

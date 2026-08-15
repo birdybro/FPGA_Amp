@@ -4,7 +4,8 @@
 // Minimal physical-I/O wrapper for named-part timing of the complete 8x
 // candidate stream. This is not a board top or a bitstream-ready clock design.
 module stream_384khz_pnr_harness #(
-    parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048
+    parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048,
+    parameter bit PIPELINED_SOLVER_PROFILE = 1'b0
 ) (
     input  logic fabric_clk,
     input  logic reset,
@@ -75,7 +76,8 @@ module stream_384khz_pnr_harness #(
     end
 
     (* keep *) phono_stream_mono_wide_trapezoidal_384khz_banked_terminal #(
-        .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT)
+        .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT),
+        .PIPELINED_SOLVER_PROFILE(PIPELINED_SOLVER_PROFILE)
     ) stream (
             .clk(fabric_clk),
             .rst_n,
@@ -109,6 +111,20 @@ module stream_384khz_49mhz_pnr_harness (
 );
     stream_384khz_pnr_harness #(
         .FABRIC_CLOCKS_PER_48K_INPUT(1024)
+    ) candidate (.*);
+endmodule
+
+// Separately named, scheduling-only candidate. It uses the previously verified
+// 123-clock parallel/decoupled pipeline and leaves five clocks per 384 kHz
+// update at 49.152 MHz. It is not the default circuit stream.
+module stream_384khz_49mhz_pipelined_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+    stream_384khz_pnr_harness #(
+        .FABRIC_CLOCKS_PER_48K_INPUT(1024),
+        .PIPELINED_SOLVER_PROFILE(1'b1)
     ) candidate (.*);
 endmodule
 

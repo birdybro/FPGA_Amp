@@ -24,6 +24,11 @@ def main() -> int:
     parser.add_argument("--banked", action="store_true")
     parser.add_argument("--terminal-correction", action="store_true")
     parser.add_argument(
+        "--pipelined-solver-profile",
+        action="store_true",
+        help="select the exact 123-clock parallel/decoupled scheduling profile",
+    )
+    parser.add_argument(
         "--sample-rate-hz", type=int, choices=(384_000, 768_000), default=768_000
     )
     parser.add_argument(
@@ -49,6 +54,16 @@ def main() -> int:
         )
     if args.fabric_clock_hz == 49_152_000 and args.sample_rate_hz != 384_000:
         parser.error("49.152 MHz fabric operation requires the 384 kHz stream")
+    if args.pipelined_solver_profile and not (
+        args.sample_rate_hz == 384_000
+        and args.trapezoidal
+        and args.banked
+        and args.terminal_correction
+    ):
+        parser.error(
+            "the pipelined solver profile requires the 384 kHz trapezoidal "
+            "banked-terminal stream"
+        )
     verilator = shutil.which(args.verilator)
     if verilator is None:
         print("ERROR: verilator unavailable", file=sys.stderr)
@@ -141,6 +156,8 @@ def main() -> int:
         parameter_args.append("-GSAMPLE_RATE_384KHZ=1")
     if args.fabric_clock_hz == 49_152_000:
         parameter_args.append("-GFABRIC_CLOCKS_PER_48K_INPUT=1024")
+    if args.pipelined_solver_profile:
+        parameter_args.append("-GPIPELINED_SOLVER_PROFILE=1")
     build = ROOT / "build" / (
         "verilator_phono_stream_wide"
         + ("_trapezoidal" if args.trapezoidal else "")
@@ -148,6 +165,7 @@ def main() -> int:
         + ("_49mhz" if args.fabric_clock_hz == 49_152_000 else "")
         + ("_banked" if args.banked else "")
         + ("_terminal" if args.terminal_correction else "")
+        + ("_pipelined_solver" if args.pipelined_solver_profile else "")
     )
     if not args.run_only:
         subprocess.run(

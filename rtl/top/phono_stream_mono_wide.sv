@@ -16,7 +16,11 @@ module phono_stream_mono_wide #(
     parameter bit SAMPLE_RATE_384KHZ = 1'b0,
     parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048,
     parameter bit TRAPEZOIDAL = 1'b0,
-    parameter bit TERMINAL_CORRECTION = 1'b0
+    parameter bit TERMINAL_CORRECTION = 1'b0,
+    // Scheduling-only profile: duplicate the two physical triode evaluators
+    // and enable the previously bit-exact registered KCL/chord boundaries.
+    // The circuit equations and fixed-point operations are unchanged.
+    parameter bit PIPELINED_SOLVER_PROFILE = 1'b0
 ) (
     input  logic                 clk,
     input  logic                 rst_n,
@@ -93,7 +97,14 @@ module phono_stream_mono_wide #(
         .CHORD_COEFFICIENT_WIDTH(CHORD_COEFFICIENT_WIDTH),
         .SAMPLE_RATE_384KHZ(SAMPLE_RATE_384KHZ),
         .TRAPEZOIDAL(TRAPEZOIDAL),
-        .TERMINAL_CORRECTION(TERMINAL_CORRECTION)
+        .TERMINAL_CORRECTION(TERMINAL_CORRECTION),
+        .PARALLEL_TUBES(PIPELINED_SOLVER_PROFILE),
+        .PIPELINED_KCL_FINISH(PIPELINED_SOLVER_PROFILE),
+        .PIPELINED_KCL_COLUMNS(PIPELINED_SOLVER_PROFILE),
+        .PIPELINED_KCL_ACCUMULATOR(PIPELINED_SOLVER_PROFILE),
+        .PIPELINED_KCL_MAXIMUM(PIPELINED_SOLVER_PROFILE),
+        .DECOUPLED_KCL_MAXIMUM(PIPELINED_SOLVER_PROFILE),
+        .PIPELINED_CHORD_APPLY(PIPELINED_SOLVER_PROFILE)
     ) solver (
         .clk,
         .rst_n,

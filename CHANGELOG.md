@@ -6,6 +6,22 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Completed the first legal route of the full 48->384->48 kHz nonlinear
+  stream on XC7A200T using only Yosys, nextpnr-Himbaechel, and Project X-Ray.
+  The circular-resampler design routes at 48.482 MHz against 49.152 MHz, a
+  1.38% miss, with 56,041 LUTX / 8,589 FFX / 4,116 CARRY4 / 207 DSP. The
+  20.626 ns critical path begins at solver state selection, crosses the
+  corrected/current voltage mux and Q20 plate-voltage conversion, and ends in
+  the first factorized-tube input mapping; logic/routing split is 6.19/14.44
+  ns. This is route evidence, not timing closure or a bitstream claim.
+- Added a separately named complete-stream profile that composes the already
+  bit-exact parallel-tube, pipelined-KCL, decoupled-maximum, and pipelined-chord
+  schedules. The same 64 outputs / 512 nonlinear updates remain exact with
+  zero diagnostics at 123 clocks, but synthesis grows to 17,161 LC / 15,046
+  FF / 242 DSP / 20 RAMB18 equivalents and A200T static placement falls to
+  39.62 MHz. It is retained as measured scheduling evidence and is not the
+  default or a promoted hardware architecture.
+
 - Replaced each half-band interpolator's reset-cleared shift history with a
   reset-masked circular distributed memory. A single asynchronous read address
   is multiplexed between the serial MAC and pre-write odd-phase delay capture,

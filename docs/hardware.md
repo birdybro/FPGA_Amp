@@ -615,8 +615,25 @@ MHz, effectively unchanged from the old 38.34 MHz result. Converting the
 interpolator history as well reduces controlled synthesis to 15,716 LC / 8,547
 FF and the pack to 56,041 LUTX / 8,589 FFX / 4,116 CARRY4 / 207 DSP. Static
 placement improves to 41.27 MHz, a remaining 19.1% frequency shortfall. A full
-open route is retained as diagnostic evidence and is not pre-labeled timing
-closure.
+router2 run then completes legally in 15 iterations and emits FASM. Post-route
+timing is 48.482 MHz versus 49.152 MHz: a 1.38% miss rather than closure. The
+20.626 ns critical path contains 6.19 ns logic and 14.44 ns routing. It starts
+at solver state selection, crosses the corrected/current voltage mux and the
+stage-one plate-node subtraction/Q20 conversion, then traverses the
+factorized-tube plate-coordinate range logic before ending at a tube-engine
+register. This is the first completed full-stream route and the relevant
+retiming evidence. It is not a qualified `-1` result, a generated bitstream,
+or hardware readiness.
+
+The separately named `stream_384khz_49mhz_pipelined_pnr_harness` composes the
+existing parallel-tube, registered KCL/chord, and decoupled-diagnostic
+schedules without changing equations or fixed-point operations. The complete
+64-output regression remains bit-exact with zero diagnostics at 123 solver
+clocks, leaving five clocks per internal update. That apparent margin is not a
+timing win: Yosys measures 17,161 LC / 15,046 FF / 242 DSP / 20 RAMB18
+equivalents, which exceeds the A100T DSP count, and the A200T pack is 66,658
+LUTX / 15,046 FFX / 4,633 CARRY4 / 242 DSP. Static placement reaches only
+39.62 MHz. Routing is therefore skipped and the profile is not promoted.
 
 The placement analyzer now recognizes complete-stream resampler hierarchy
 instead of folding it into harness constants. In the 38.34 MHz static result,
