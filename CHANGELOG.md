@@ -195,6 +195,13 @@ All notable engineering changes are recorded here. The project is pre-release; d
   build. The verified reference stream remains 16x pending complete 8x
   converter, transient, recovery, and alias proof.
 
+- Added separate three-stage `interpolator_8x` and `decimator_8x` RTL for the
+  384 kHz candidate. Exact regressions match 1,024 interpolation and 128
+  decimation outputs with zero saturation, overrun, or phase errors and measure
+  eight 384 kHz samples (20.83 us) of interpolation scheduling delay. Yosys
+  structural synthesis reports 1,549 LC / 12 DSP and 2,355 LC / 24 DSP,
+  respectively; the existing 16x modules remain reference mode.
+
 - Added a reproducible 384 kHz/8x architecture study while retaining
   768 kHz/16x as reference mode. The SPICE comparison now measures the lower-
   rate trapezoidal model at 10 and 20 kHz: maximum error is 0.06653 dB and

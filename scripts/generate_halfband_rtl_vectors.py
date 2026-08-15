@@ -16,6 +16,7 @@ sys.path.insert(0, str(REPOSITORY_ROOT / "model" / "python"))
 
 from fpga_amp.resampling import (  # noqa: E402
     DEFAULT_STAGES,
+    EIGHT_X_STAGES,
     decimate_2x_fixed_q24,
     interpolate_2x_fixed_q24,
     quantized_coefficients_q23,
@@ -160,6 +161,77 @@ def main() -> int:
         (
             str(chain_interpolation_path.relative_to(REPOSITORY_ROOT)),
             str(chain_decimation_path.relative_to(REPOSITORY_ROOT)),
+        )
+    )
+
+    candidate_interpolated = chain_input_q24
+    candidate_interpolation_saturations = 0
+    for stage in EIGHT_X_STAGES:
+        candidate_interpolated, count = interpolate_2x_fixed_q24(
+            candidate_interpolated, quantized_coefficients_q23(stage)
+        )
+        candidate_interpolation_saturations += count
+    candidate_pipeline_delay = 8
+    candidate_interpolation_expected = np.concatenate(
+        (
+            np.zeros(candidate_pipeline_delay, dtype=np.int64),
+            candidate_interpolated,
+        )
+    )[: 8 * chain_vectors]
+    candidate_interpolation_path = (
+        vector_directory / "interpolator_8x_stream.txt"
+    )
+    with candidate_interpolation_path.open("w", encoding="ascii") as handle:
+        for value in chain_input_q24:
+            handle.write(f"{int(value)}\n")
+        handle.write("EXPECTED\n")
+        for value in candidate_interpolation_expected:
+            handle.write(f"{int(value)}\n")
+
+    candidate_high_index = np.arange(8 * chain_vectors, dtype=np.float64)
+    candidate_high_values = (
+        0.35 * np.sin(2.0 * np.pi * 0.0146484375 * candidate_high_index)
+        + 0.08 * np.sin(2.0 * np.pi * 0.2138671875 * candidate_high_index)
+        + rng.normal(0.0, 0.01, candidate_high_index.size)
+    )
+    candidate_high_values[0] += 0.4
+    candidate_high_q24 = np.rint(
+        candidate_high_values * (1 << 24)
+    ).astype(np.int64)
+    candidate_decimated = candidate_high_q24
+    candidate_decimation_saturations = 0
+    for stage in reversed(EIGHT_X_STAGES):
+        candidate_decimated, count = decimate_2x_fixed_q24(
+            candidate_decimated, quantized_coefficients_q23(stage)
+        )
+        candidate_decimation_saturations += count
+    candidate_decimation_path = vector_directory / "decimator_8x_stream.txt"
+    with candidate_decimation_path.open("w", encoding="ascii") as handle:
+        for value in candidate_high_q24:
+            handle.write(f"{int(value)}\n")
+        handle.write("EXPECTED\n")
+        for value in candidate_decimated[:chain_vectors]:
+            handle.write(f"{int(value)}\n")
+
+    metadata.update(
+        {
+            "candidate_8x_input_vectors": chain_vectors,
+            "candidate_8x_interpolation_output_vectors": 8 * chain_vectors,
+            "candidate_8x_pipeline_delay_internal_samples": (
+                candidate_pipeline_delay
+            ),
+            "candidate_8x_interpolation_saturations": (
+                candidate_interpolation_saturations
+            ),
+            "candidate_8x_decimation_saturations": (
+                candidate_decimation_saturations
+            ),
+        }
+    )
+    metadata["outputs"].extend(
+        (
+            str(candidate_interpolation_path.relative_to(REPOSITORY_ROOT)),
+            str(candidate_decimation_path.relative_to(REPOSITORY_ROOT)),
         )
     )
     metadata_path = generated / "halfband_rtl_metadata.json"

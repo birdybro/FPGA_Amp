@@ -39,9 +39,12 @@ chord, 1,024 KCL, and 512 persistent solver RTL vectors exactly. The core
 consumes 127 of 256 clocks,
 leaving 129 clocks for a more timing-friendly schedule. Its inverse matrix needs
 signed 19-bit Q17.1 coefficients, one bit wider than the 768 kHz implementation.
-Clock enables and the verified interpolation/decimation stream remain 16×. The
-lower-rate candidate must still pass transient alias, recovery, and complete 8×
-stream comparisons before it can be selected.
+Reference mode and the complete nonlinear stream remain 16×. The separately
+named three-stage 8× converter now matches exact fixed/RTL streams
+in both directions, with a stage-3 enable every 256 fabric clocks and eight-
+sample scheduling delay at 384 kHz. The lower-rate candidate must still pass
+nonlinear-core stream integration, transient alias, and recovery comparisons
+before it can be selected.
 
 `phono_stream_mono.sv` now implements this digital reference boundary from
 48 kHz Q8.24 physical input volts through 16× interpolation, the complete V1

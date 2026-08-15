@@ -97,10 +97,18 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   but reference mode remains 16x. Distinct 384 kHz fixed assets and the
   nonlinear RTL core are now exact across 1,024 all-bank chord, 1,024 KCL, and
   512 persistent solver vectors at 10/11/127 clocks with zero solver diagnostics. The 19-bit chord bank
-  costs nine more DSPs than the controlled 768 kHz synthesis. Implement and
-  verify the three-stage 8x interpolation/decimation stream, then add
-  transient/pop and post-burst alias comparisons before promotion.
+  costs nine more DSPs than the controlled 768 kHz synthesis. The separate
+  three-stage converter is now exact for 1,024 interpolation and 128 decimation
+  outputs with zero diagnostics. Compose it with the 384 kHz nonlinear core,
+  then add transient/pop and post-burst alias comparisons before promotion.
 ## Completed this milestone
+
+- [x] Implement an explicit three-stage 48↔384 kHz converter without changing
+  the four-stage reference modules. Match 1,024 interpolation and 128
+  decimation Q8.24 RTL outputs exactly with zero saturation, overrun, or input-
+  phase errors; measure eight internal samples / 20.83 µs of interpolation
+  scheduling delay. Yosys reports 1,549 LC / 12 DSP for interpolation and
+  2,355 LC / 24 DSP for decimation, with no Fmax claim.
 
 - [x] Generate a distinct 384 kHz trapezoidal fixed-point asset set and make
   its numerical differences explicit. Widen the Q17.1 chord bank from signed

@@ -504,6 +504,8 @@ synth-halfband:
 	$(PYTHON) scripts/generate_halfband_rtl_vectors.py
 	$(PYTHON) scripts/run_synthesis.py --top interpolator_16x
 	$(PYTHON) scripts/run_synthesis.py --top decimator_16x
+	$(PYTHON) scripts/run_synthesis.py --top interpolator_8x
+	$(PYTHON) scripts/run_synthesis.py --top decimator_8x
 
 synth-stream:
 	$(PYTHON) scripts/generate_tube_lut.py

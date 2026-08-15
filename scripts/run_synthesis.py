@@ -62,6 +62,8 @@ def main() -> int:
             "halfband_decimator_2x",
             "interpolator_16x",
             "decimator_16x",
+            "interpolator_8x",
+            "decimator_8x",
             "phono_stream_mono",
             "phono_stream_mono_factorized",
             "phono_stream_mono_wide",
@@ -262,6 +264,14 @@ def main() -> int:
         "decimator_16x": [
             "rtl/filters/halfband_decimator_2x.sv",
             "rtl/audio/decimator_16x.sv",
+        ],
+        "interpolator_8x": [
+            "rtl/filters/halfband_interpolator_2x.sv",
+            "rtl/audio/interpolator_8x.sv",
+        ],
+        "decimator_8x": [
+            "rtl/filters/halfband_decimator_2x.sv",
+            "rtl/audio/decimator_8x.sv",
         ],
         "phono_stream_mono": [
             "rtl/tube/triode_12ax7.sv",
@@ -831,7 +841,6 @@ def main() -> int:
             else "Yosys out-of-context synth_xilinx XC7; no place/route"
         ),
         "top": args.top,
-        "sample_rate_hz": args.sample_rate_hz,
         "result_tag": args.result_tag,
         "soft_multiplier_module": args.soft_multiplier_module,
         "soft_multiplier_scope": soft_multiplier_scope,
@@ -870,6 +879,18 @@ def main() -> int:
             else "Fmax requires named-part place-and-route and is not claimed here."
         ),
     }
+    if args.top == rate_selectable_top:
+        summary["sample_rate_hz"] = args.sample_rate_hz
+    resampler_rates = {
+        "interpolator_16x": (48_000, 768_000),
+        "decimator_16x": (768_000, 48_000),
+        "interpolator_8x": (48_000, 384_000),
+        "decimator_8x": (384_000, 48_000),
+    }
+    if args.top in resampler_rates:
+        input_rate_hz, output_rate_hz = resampler_rates[args.top]
+        summary["input_sample_rate_hz"] = input_rate_hz
+        summary["output_sample_rate_hz"] = output_rate_hz
     if pnr_json_path is not None:
         summary["pnr_json"] = str(pnr_json_path.relative_to(REPOSITORY_ROOT))
     summary_path = results / f"synthesis_{args.top}{log_suffix}_summary.json"

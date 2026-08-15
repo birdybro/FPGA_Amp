@@ -49,8 +49,11 @@ The mono reference and complete 768 kHz circuit solver are operating:
   signed 19-bit coefficients rather than the 768 kHz core's 18 bits; controlled
   Yosys synthesis measures 13,713 LC / 183 DSP / 10 RAMB18 equivalents versus
   13,158 LC / 174 DSP / 10 RAMB18 equivalents at 768 kHz. Reference mode and
-  the verified converter stream remain 16×/768 kHz until transient alias,
-  recovery, and complete 8× stream tests pass.
+  the complete verified stream remain 16×/768 kHz. A separate three-stage 8×
+  converter now matches 1,024 interpolation and 128 decimation RTL outputs
+  exactly with zero diagnostics; Yosys measures 1,549 LC / 12 DSP and 2,355 LC
+  / 24 DSP respectively. Integration with the nonlinear core plus transient
+  alias and recovery tests remain before promotion.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both

@@ -196,6 +196,8 @@ scripts/run_frame_scheduler_formal.py  phase/zero-fill/counter induction
 | 384 kHz trapezoidal KCL RTL | 1,024 randomized/directed vectors | exact residual/current; 11 clocks; 989 deliberate current saturations |
 | 384 kHz banked-terminal solver RTL | 512 persistent samples | exact nodes, capacitor voltages/currents, output, and diagnostics; 127 clocks; 4.565 nA max preterminal residual; zero diagnostics |
 | 384 kHz banked-terminal solver synthesis | Yosys 0.66 XC7 out-of-context | 13,713 LC / 183 DSP / 10 RAMB18 equivalents; controlled 768 kHz build 13,158 / 174 / 10; no Fmax claim |
+| 8x interpolator/decimator RTL | 128 external inputs; 1,024/128 compared outputs | bit-exact Q8.24; zero saturation/overrun/phase errors; 8-sample 384 kHz interpolation schedule delay |
+| 8x interpolator/decimator synthesis | Yosys 0.66 XC7 out-of-context | interpolation 1,549 LC / 12 DSP; decimation 2,355 LC / 24 DSP; no Fmax claim |
 | trapezoidal overload stability | 20 mV/0.5/1.0/1.5 V, 85 ms post-burst | finite/convergent; 20 mV recovery within 2.6 us of BE |
 | long trapezoidal overload recovery | 0.5/1.0/1.5 V, 235 ms post-burst | 0.5 V 10% recovery 146.552 ms; 98.2--118.1 ms fitted modes; severe crossings remain labeled projections |
 | severe trapezoidal overload recovery | 1.0/1.5 V, 835 ms post-burst | 1.0 V sustained 10% 270.112 ms; 1.5 V not 10%; 413--451x cancellation rebound falsifies early fit |

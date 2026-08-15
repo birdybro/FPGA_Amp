@@ -59,11 +59,13 @@ def main() -> int:
     integrations = (
         ("interpolator_16x", "interpolator_16x_tb"),
         ("decimator_16x", "decimator_16x_tb"),
+        ("interpolator_8x", "interpolator_8x_tb"),
+        ("decimator_8x", "decimator_8x_tb"),
     )
     for module, top in integrations:
         primitive = (
             "rtl/filters/halfband_interpolator_2x.sv"
-            if module == "interpolator_16x"
+            if module.startswith("interpolator_")
             else "rtl/filters/halfband_decimator_2x.sv"
         )
         sources = [primitive, f"rtl/audio/{module}.sv", f"sim/integration/{top}.sv"]

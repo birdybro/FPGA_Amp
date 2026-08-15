@@ -19,11 +19,18 @@
     "sim/vectors/generated/halfband_interpolator_stage1.txt",
     "sim/vectors/generated/halfband_decimator_stage1.txt",
     "sim/vectors/generated/interpolator_16x_stream.txt",
-    "sim/vectors/generated/decimator_16x_stream.txt"
+    "sim/vectors/generated/decimator_16x_stream.txt",
+    "sim/vectors/generated/interpolator_8x_stream.txt",
+    "sim/vectors/generated/decimator_8x_stream.txt"
   ],
   "chain_input_vectors": 128,
   "chain_interpolation_output_vectors": 2048,
   "chain_pipeline_delay_internal_samples": 18,
   "chain_interpolation_saturations": 0,
-  "chain_decimation_saturations": 0
+  "chain_decimation_saturations": 0,
+  "candidate_8x_input_vectors": 128,
+  "candidate_8x_interpolation_output_vectors": 1024,
+  "candidate_8x_pipeline_delay_internal_samples": 8,
+  "candidate_8x_interpolation_saturations": 0,
+  "candidate_8x_decimation_saturations": 0
 }

@@ -73,6 +73,14 @@ hardware schedule adds 18 samples at 768 kHz (23.44 µs) beyond the FIR state
 latency, and this delay is present in—not aligned out of—the exact regression.
 The decimator is self-timed by upstream valid pulses.
 
+The separately named 8× architecture candidate uses only stages 1--3 and
+preserves the same 48 kHz input phase contract. Its staggered stage-3 output is
+384 kHz, one pulse every 256 fabric clocks. The measured scheduling delay is
+eight 384 kHz samples (20.83 µs) beyond the FIR state latency. Exact regression
+matches 1,024 interpolation and 128 decimation outputs with zero saturation,
+overrun, or phase errors. This establishes the converter arithmetic and clock-
+enable schedule; it does not by itself promote 8× to reference mode.
+
 Stage-1 unit tests match 256 input pairs exactly in each direction. Complete
 chain tests match 2,048 interpolation outputs and 128 decimation outputs exactly,
 with zero saturation, overrun, or input-phase errors. The decimator bench also
@@ -80,6 +88,11 @@ supports 131,072 custom inputs / 8,192 captured outputs for spectral tests.
 Generic XC7 synthesis
 reports 2,053 estimated logic cells / 16 DSP48E1s for interpolation and 3,002 /
 32 DSP48E1s for decimation. No Fmax is claimed without place-and-route.
+
+The three-stage candidate synthesizes to 1,549 estimated logic cells / 12
+DSP48E1s for interpolation and 2,355 / 24 for decimation. Relative to the
+four-stage blocks this removes 504/647 estimated cells and 4/8 DSPs. These are
+Yosys structural measurements, not timing results.
 
 Stage tap counts shrink as physical image transitions widen. Symmetry can reduce
 resource use further; the present serial cores exploit zeros but do not pre-add
