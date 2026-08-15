@@ -23,6 +23,7 @@ NEXYS_AUDIO_BIT ?= build/openxc7/xc7a200tsbg484-1/phono_audio_top_xc7/routed/pho
 .PHONY: product-hardware-spec kicad-motor-generate kicad-motor-route kicad-motor-check kicad-motor-fab
 .PHONY: kicad-controller-generate kicad-controller-route kicad-controller-check kicad-controller-render
 .PHONY: kicad-phono-adc-generate kicad-phono-adc-route kicad-phono-adc-check kicad-phono-adc-render
+.PHONY: kicad-dac-line-generate kicad-dac-line-route kicad-dac-line-check kicad-dac-line-render
 .PHONY: volume-servo-test
 .PHONY: master-volume-rtl synth-master-volume
 
@@ -853,6 +854,32 @@ kicad-phono-adc-render:
 	$(KICAD_CLI) pcb render --quality high --width 2000 --height 1300 \
 		-o build/kicad/phono_adc_eval/phono_adc_eval.png \
 		hardware/kicad/phono_adc_eval_rev_a/phono_adc_eval.kicad_pcb
+
+kicad-dac-line-generate:
+	$(PYTHON) hardware/kicad/dac_line_output_eval_rev_a/generate.py
+
+kicad-dac-line-route: kicad-dac-line-generate
+	@test -n "$(FREEROUTING_JAR)" || (echo "set FREEROUTING_JAR=/path/to/freerouting.jar" >&2; exit 2)
+	$(PYTHON) hardware/kicad/dac_line_output_eval_rev_a/route_open.py --jar "$(FREEROUTING_JAR)" --passes 40
+
+kicad-dac-line-check:
+	mkdir -p build/kicad/dac_line_output_eval
+	$(KICAD_CLI) sch erc --severity-all --exit-code-violations --format json \
+		-o build/kicad/dac_line_output_eval/erc.json \
+		hardware/kicad/dac_line_output_eval_rev_a/dac_line_output_eval.kicad_sch
+	$(KICAD_CLI) pcb drc --refill-zones --save-board --severity-all --exit-code-violations --format json \
+		-o build/kicad/dac_line_output_eval/drc.json \
+		hardware/kicad/dac_line_output_eval_rev_a/dac_line_output_eval.kicad_pcb
+	$(PYTHON) hardware/kicad/dac_line_output_eval_rev_a/verify.py \
+		--erc build/kicad/dac_line_output_eval/erc.json \
+		--drc build/kicad/dac_line_output_eval/drc.json \
+		--output build/kicad/dac_line_output_eval/stats.json
+
+kicad-dac-line-render:
+	mkdir -p build/kicad/dac_line_output_eval
+	$(KICAD_CLI) pcb render --quality high --width 2000 --height 1300 \
+		-o build/kicad/dac_line_output_eval/dac_line_output_eval.png \
+		hardware/kicad/dac_line_output_eval_rev_a/dac_line_output_eval.kicad_pcb
 
 volume-servo-test:
 	mkdir -p build/firmware_front_panel

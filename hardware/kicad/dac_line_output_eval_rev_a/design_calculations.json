@@ -1,0 +1,47 @@
+{
+  "converter": {
+    "bck_hz": 3072000.0,
+    "bck_ratio_fs": 64.0,
+    "differential_full_scale_rms_v_unloaded": 4.2,
+    "mode": "48 kHz slave, 24-bit I2S, external SCK, I2C control, VREF output mode",
+    "part": "PCM5242RHBR",
+    "sample_rate_hz": 48000.0,
+    "sck_hz": 24576000.0,
+    "sck_ratio_fs": 512.0,
+    "single_ended_full_scale_rms_v_unloaded": 2.1
+  },
+  "mute_contract": {
+    "mute": "drive XSMT low and wait for soft-ramp completion before dropping relays",
+    "reset": "XSMT pulled low and all signal relays de-energized/open",
+    "safety": "SN74LVC1G08 hardware AND gates require both controller and external supervisor release for XSMT and relay enable",
+    "unmute": "configure/read back unity path while XSMT low; energize relays; then raise XSMT"
+  },
+  "outputs": {
+    "balanced": {
+      "differential_capacitance_f": 1e-09,
+      "full_scale_at_20khz_rms_v": 3.9721426722206843,
+      "full_scale_at_dc_rms_v": 4.0003809886655874,
+      "relative_20khz_db": -0.061530309934421205,
+      "series_resistance_per_leg_ohm": 499.0,
+      "specified_differential_load_ohm": 20000.0
+    },
+    "rca": {
+      "full_scale_at_20khz_rms_v": 1.9831441180118612,
+      "full_scale_at_dc_rms_v": 2.0001904943327937,
+      "relative_20khz_db": -0.07434165678786467,
+      "series_resistance_ohm": 499.0,
+      "shunt_capacitance_f": 2.2e-09,
+      "specified_load_ohm": 10000.0
+    }
+  },
+  "population": {
+    "dac_default_digital_volume_db": 0.0,
+    "dac_minidsp_creative_processing": "disabled in reference mode",
+    "line_outputs": [
+      "stereo balanced harness",
+      "stereo RCA harness"
+    ],
+    "relay_count": 3
+  },
+  "status": "EVT calculations; not measured hardware performance"
+}

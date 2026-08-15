@@ -267,12 +267,23 @@ for those types is claimed from modern reissue marketing data.
   differential full scale, 116 dB unweighted 48 kHz dynamic range, master-mode
   strap table, 512-fS SCKI, 128-fS BCK, reference bypass, VCOM restriction, and
   high-pass-disable polarity define the board and its verifier.
-- TI, [PCM5242](https://www.ti.com/product/PCM5242) and
+- TI, [PCM5242 data sheet](https://www.ti.com/lit/ds/symlink/pcm5242.pdf),
+  [PCM5242EVM user guide](https://www.ti.com/lit/ug/slau592a/slau592a.pdf), and
   [PCM1792A](https://www.ti.com/product/PCM1792A/part-details/PCM1792ADB);
   AKM, [AK4493S announcement/specification](https://www.akm.com/global/en/about-us/news/2022/20220207-ak4493sak4490r/).
   Current DAC candidates spanning integrated voltage output through higher-
-  performance external-I/V designs. PCB selection awaits measured clock,
-  headroom, and output-stage requirements.
+  performance external-I/V designs. PCM5242 is the Rev-A EVT selection: its
+  exact RHB-32 pin map, external-SCK recommendation, ground-centered 2.1 V RMS
+  per-pin output, charge-pump capacitors, XSMT behavior, I2C mode straps, and
+  EVM 499 ohm/1 nF balanced network define the board and verifier. This does not
+  make its published 114 dB SNR or -94 dB THD+N a measured board result.
+- Texas Instruments,
+  [SN74LVC1G08 data sheet](https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf),
+  and Omron, [G6K relay family](https://components.omron.com/sg-en/products/relays/G6K).
+  Primary sources for the Rev-A output board's DBV pin order and normally-open
+  relay contact/coil implementation. Two positive-AND gates make controller
+  permission subordinate to the independent hard-mute supervisor; the relay
+  loss-of-power state opens all signal contacts.
 
 ## Audio measurement procedures
 

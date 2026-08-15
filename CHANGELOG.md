@@ -6,6 +6,23 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added the routed four-layer PCM5242 DAC/protected line-output Rev-A EVT KiCad
+  project. It implements 48 kHz 24-bit I2S slave operation with external
+  24.576 MHz SCK, I2C unity/reference configuration, separate analog/digital
+  TPS7A2033 post-regulators, official-reference 499 ohm/1 nF differential and
+  499 ohm/2.2 nF RCA reconstruction branches, three normally-open fail-open
+  signal relays, and provisional chassis-referenced ESD sites. Two
+  SN74LVC1G08 gates require both controller and external-supervisor release
+  before relay drive or PCM5242 XSMT can assert, fixing an initial unsafe
+  concept that directly tied the two control sources. Rotating the PCM5242 so
+  analog outputs face the reconstruction side eliminated fragile QFN escape
+  routing; a deterministic back-edge I2C trace completes the open Freerouting
+  result. One source model generates 85 schematic parts, 89 board footprints,
+  53 nets, BOM, and exact clock/load calculations. The 112 x 72 mm route has
+  581 segments / 86 vias; KiCad 10.0.5 reports zero ERC, zero DRC, and zero
+  unconnected items. The board is unbuilt and not fabrication-released pending
+  register/readback firmware, loaded audio performance, mute/fault sequencing,
+  output connector/chassis, ESD/RF, stackup, DFM, and physical validation.
 - Added a receive-only PCM4202 I2S/fabric boundary for the phono/ADC EVT board.
   It captures 24-bit I2S in the converter's fixed 64-BCK half-frames at
   6.144 MHz, crosses complete stereo frames through a depth-8 asynchronous FIFO,

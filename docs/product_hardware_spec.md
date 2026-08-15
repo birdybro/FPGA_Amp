@@ -179,6 +179,18 @@ state arrangement. The release decision is based on THD+N, resistance,
 charge-injection transient, fail state, and lifetime measurements, not on part
 category alone.
 
+The concrete Rev-A EVT artifact is
+`hardware/kicad/dac_line_output_eval_rev_a/`. It implements a PCM5242 in 48 kHz
+external-clock slave/I2C mode, official-reference 499 ohm reconstruction
+branches, direct ground-centered balanced and RCA outputs, separate analog and
+digital post-regulators, normally-open signal relays, and two fail-low hardware
+AND interlocks. The controller and external supervisor must both release the
+relay path and PCM5242 XSMT independently. The routed 112 x 72 mm four-layer
+board passes KiCad 10.0.5 with zero ERC, DRC, and unconnected items. It remains
+an unbuilt EVT artifact: converter configuration/readback, audio performance,
+all mute/fault transitions, ESD/RF, connector/chassis mechanics, stackup, and
+DFM remain release gates.
+
 ### 2.4 FP — front-panel board
 
 Responsibilities:

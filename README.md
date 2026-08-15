@@ -1032,6 +1032,8 @@ under `model/generated/` as part of the numerical contract.
   touchscreen, UI MCU, memory, control, and backlight EVT controller
 - `hardware/kicad/phono_adc_eval_rev_a/`: generated/routed four-layer MM input,
   flat-gain, differential-driver, and PCM4202 ADC EVT board
+- `hardware/kicad/dac_line_output_eval_rev_a/`: generated/routed four-layer
+  PCM5242 DAC, reconstruction, hardware-mute, and line-output EVT board
 - `hardware/kicad/front_panel_motor_eval_rev_a/`: generated and routed KiCad
   motor/position EVT daughterboard, source generator, BOM, and invariants
 - `docs/`: engineering decisions, budgets, known limitations, and hardware path
@@ -1078,6 +1080,18 @@ post-regulation. It remains an unbuilt EVT design; measured input capacitance,
 noise/hum/overload/RF/ESD, production connector mechanics, muted relay changes,
 and physical validation of the simulated 6.144 MHz/128-fS FPGA receiver are
 explicit release gates.
+
+The matching audio-output PCB is at
+[`hardware/kicad/dac_line_output_eval_rev_a/`](hardware/kicad/dac_line_output_eval_rev_a/README.md).
+Its checked 112 x 72 mm four-layer route has 0 ERC violations, 0 DRC
+violations, and 0 unconnected items under KiCad 10.0.5. It implements a
+PCM5242 external-clock slave, balanced and RCA reconstruction networks,
+separate low-noise analog/digital post-regulators, normally-open output relays,
+and dual hardware AND interlocks so an external supervisor dominates both DAC
+XSMT and relay permission. It remains an unbuilt EVT design; converter
+register/readback firmware, loaded audio measurements, fault/mute sequencing,
+ESD/RF, production connector/chassis mechanics, stackup, and DFM are explicit
+release gates.
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
 path is further reducing terminal-solver approximation error without breaking

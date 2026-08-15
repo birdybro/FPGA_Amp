@@ -53,8 +53,12 @@ OPA1656's 2.9 nV/√Hz typical 10 kHz headline but still omits 1/f noise.
 - Arithmetic: fixed circuit-state quantization should contribute at least 20 dB
   less RIAA-weighted noise than 0.70 µV input referred. Saturation counts are a
   separate overload metric, never averaged into quantization noise.
-- DAC/line driver: target at least 115 dB A-weighted dynamic range at 2 V RMS and
-  output noise below 4 µV RMS; verify unweighted 20 Hz–20 kHz as well.
+- DAC/line driver: the system target remains at least 115 dB A-weighted dynamic
+  range at 2 V RMS and output noise below 4 µV RMS, with unweighted 20 Hz–20 kHz
+  verification. The Rev-A PCM5242 EVT part publishes 114 dB A-weighted typical,
+  so it does not close that production allocation on specification alone; the
+  board is an architecture/mute prototype pending measurement and a production
+  converter decision.
 - Physical power stage: choose an input/output gain so its speaker-referred idle
   noise does not dominate the DAC; set a numeric target only with the eventual
   power and sensitivity requirements.

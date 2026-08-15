@@ -7,6 +7,18 @@ ADC/DAC serial interfaces remain muted until clocks are stable, converter reset
 is released, frames are valid, and the model has produced a configurable number
 of valid samples.
 
+The routed PCM5242 line-output EVT board now implements the independent analog
+half of this policy. Three signal relays use normally-open contacts. One
+SN74LVC1G08 requires controller relay permission and `HARD_MUTE_N` before their
+drivers can energize; a second independently requires controller soft-unmute
+permission and `HARD_MUTE_N` before PCM5242 XSMT can rise. All three permission
+inputs and XSMT default low. An external power/protection supervisor can
+therefore force both mute mechanisms even with a controller output stuck high.
+Firmware must configure and read back the DAC under XSMT mute, close relays,
+then release XSMT; shutdown first ramps/mutes XSMT and only then opens relays.
+This topology is checked for connectivity but its acoustic transient, brownout,
+missing-clock, and fault timing remain unmeasured release gates.
+
 The low-level pin top reports live BCLK/fabric rate lock after three good
 measurement windows and latches any bad window. The register-controlled wrapper
 now converts that evidence into a fail-closed digital output policy: it asserts

@@ -15,6 +15,22 @@ access and finished-device compliance.
 
 ## Active, highest value first
 
+- [x] Generate and openly route the four-layer PCM5242 DAC/line-output Rev-A
+  EVT board. The 112 x 72 mm design implements 48 kHz external-clock slave I2S,
+  I2C unity/reference configuration, separate analog/digital TPS7A2033
+  post-regulation, official-reference 499 ohm balanced and RCA reconstruction
+  branches, three normally-open fail-open signal relays, and provisional
+  chassis-referenced ESD sites. Two SN74LVC1G08 gates independently require
+  controller and external-supervisor permission before relay drive or PCM5242
+  XSMT can assert; all permissions fail low. Rotating the DAC to face its analog
+  pins toward the filters fixed the initially fragile output escapes. The open
+  route has 581 segments and 86 vias; KiCad 10.0.5 reports zero ERC, zero DRC,
+  and zero unconnected items. The verifier locks converter/interlock/relay pad
+  maps, mode straps, filter values, DNP chassis options, loading calculations,
+  stack, dimensions, and routing minima. This is not fabrication-released:
+  register/readback firmware, loaded audio and mute/brownout measurements,
+  connector/chassis mechanics, ESD/RF, stackup, DFM, and physical validation
+  remain gates.
 - [x] Generate and openly route the four-layer phono/ADC Rev-A EVT board. The
   130 x 90 mm design implements 47.5 kilohm MM loading, relay-selected
   0/47/100/147 pF capacitance, OPA1656 flat 20.008/26.064/32.002 dB gain,

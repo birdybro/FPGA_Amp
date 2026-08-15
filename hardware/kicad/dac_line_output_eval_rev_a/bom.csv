@@ -1,0 +1,86 @@
+Reference,Value,Footprint,Description
+J1,DAC_AUDIO,Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical,24.576MHz SCK; 3.072MHz BCK; 48kHz LRCK; 24-bit I2S from digital board
+J2,DAC_CONTROL,Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical,Low-speed control; DAC and relay paths fail muted
+J3,POWER_INPUT,Connector_PinHeader_2.54mm:PinHeader_2x04_P2.54mm_Vertical,Separate analog; digital; relay; chassis; and return feeds from power board
+J4,BALANCED_PANEL_HARNESS_EVT,Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical,EVT harness to enclosure XLRs; XLR pin 1 bonds to chassis at connector
+J5,RCA_PANEL_HARNESS_EVT,Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical,EVT harness to isolated RCA output jacks
+U1,PCM5242RHBR,Package_DFN_QFN:Texas_RHB0032E_VQFN-32-1EP_5x5mm_P0.5mm_EP3.45x3.45mm_ThermalVias,Stereo DirectPath DAC; I2C mode; slave clocks; external SCK; VREF output mode
+U2,TPS7A2033PDBVR_ANALOG,Package_TO_SOT_SMD:SOT-23-5,Low-noise analog/charge-pump 3.3V post-regulator
+U3,TPS7A2033PDBVR_DIGITAL,Package_TO_SOT_SMD:SOT-23-5,Low-noise digital 3.3V post-regulator
+U4,SN74LVC1G08DBVR_RELAY_INTERLOCK,Package_TO_SOT_SMD:SOT-23-5,Hardware AND: controller and independent supervisor must both release line relays
+U5,SN74LVC1G08DBVR_XSMT_INTERLOCK,Package_TO_SOT_SMD:SOT-23-5,Hardware AND: controller and independent supervisor must both release DAC XSMT
+R1,0R_LINK,Resistor_SMD:R_0402_1005Metric,Receiver-side link; source damping belongs on digital board
+R2,0R_LINK,Resistor_SMD:R_0402_1005Metric,Receiver-side link; source damping belongs on digital board
+R3,0R_LINK,Resistor_SMD:R_0402_1005Metric,Receiver-side link; source damping belongs on digital board
+R4,0R_LINK,Resistor_SMD:R_0402_1005Metric,Receiver-side link; source damping belongs on digital board
+R5,1k,Resistor_SMD:R_0603_1608Metric,
+R6,100k_FAIL_MUTE,Resistor_SMD:R_0603_1608Metric,
+C1,10nF_X7R,Capacitor_SMD:C_0603_1608Metric,
+R7,4.7k,Resistor_SMD:R_0603_1608Metric,
+R8,4.7k,Resistor_SMD:R_0603_1608Metric,
+R9,0R_LINK,Resistor_SMD:R_0603_1608Metric,
+R10,0R_LINK,Resistor_SMD:R_0603_1608Metric,
+R11,10k,Resistor_SMD:R_0603_1608Metric,
+R12,100k_FAIL_MUTE,Resistor_SMD:R_0603_1608Metric,
+R13,100k_FAIL_MUTE,Resistor_SMD:R_0603_1608Metric,Independent supervisor release defaults low if disconnected
+R14,100k_FAIL_MUTE,Resistor_SMD:R_0603_1608Metric,
+C11,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,U4 local bypass
+C12,100nF_X7R,Capacitor_SMD:C_0402_1005Metric,U5 local bypass
+C2,100nF_X7R_LDOO,Capacitor_SMD:C_0402_1005Metric,
+C3,2.2uF_X7R_FLY,Capacitor_SMD:C_0603_1608Metric,
+C4,2.2uF_X7R_VNEG,Capacitor_SMD:C_0603_1608Metric,
+C5,100nF_X7R_AVDD,Capacitor_SMD:C_0402_1005Metric,
+C6,10uF_X5R_AVDD,Capacitor_SMD:C_0805_2012Metric,
+C7,100nF_X7R_CPVDD,Capacitor_SMD:C_0402_1005Metric,
+C8,2.2uF_X7R_CPVDD,Capacitor_SMD:C_0603_1608Metric,
+C9,100nF_X7R_DVDD,Capacitor_SMD:C_0402_1005Metric,
+C10,10uF_X5R_DVDD,Capacitor_SMD:C_0805_2012Metric,
+R20,499R_0.1%,Resistor_SMD:R_0805_2012Metric,
+R21,499R_0.1%,Resistor_SMD:R_0805_2012Metric,
+R22,499R_0.1%,Resistor_SMD:R_0805_2012Metric,
+R23,499R_0.1%,Resistor_SMD:R_0805_2012Metric,
+R24,499R_0.1%,Resistor_SMD:R_0805_2012Metric,
+R25,499R_0.1%,Resistor_SMD:R_0805_2012Metric,
+C20,1nF_C0G_DIFF,Capacitor_SMD:C_0603_1608Metric,
+C21,1nF_C0G_DIFF,Capacitor_SMD:C_0603_1608Metric,
+C22,2.2nF_C0G_SE,Capacitor_SMD:C_0603_1608Metric,
+C23,2.2nF_C0G_SE,Capacitor_SMD:C_0603_1608Metric,
+K1,G6K-2F-Y-5V_FAIL_OPEN_1,Relay_SMD:Relay_DPDT_Omron_G6K-2F-Y,Left balanced normally-open hard mute
+Q1,MMBT3904,Package_TO_SOT_SMD:SOT-23,Independent low-side relay driver
+R31,2.2k,Resistor_SMD:R_0603_1608Metric,
+R34,100k,Resistor_SMD:R_0603_1608Metric,
+D1,1N4148W_FLYBACK,Diode_SMD:D_SOD-123,
+K2,G6K-2F-Y-5V_FAIL_OPEN_2,Relay_SMD:Relay_DPDT_Omron_G6K-2F-Y,Right balanced normally-open hard mute
+Q2,MMBT3904,Package_TO_SOT_SMD:SOT-23,Independent low-side relay driver
+R32,2.2k,Resistor_SMD:R_0603_1608Metric,
+R35,100k,Resistor_SMD:R_0603_1608Metric,
+D2,1N4148W_FLYBACK,Diode_SMD:D_SOD-123,
+K3,G6K-2F-Y-5V_FAIL_OPEN_3,Relay_SMD:Relay_DPDT_Omron_G6K-2F-Y,Stereo RCA normally-open hard mute
+Q3,MMBT3904,Package_TO_SOT_SMD:SOT-23,Independent low-side relay driver
+R33,2.2k,Resistor_SMD:R_0603_1608Metric,
+R36,100k,Resistor_SMD:R_0603_1608Metric,
+D3,1N4148W_FLYBACK,Diode_SMD:D_SOD-123,
+D4,PESD5V0X1BCL_EVT,Diode_SMD:D_SOD-882,EVT bidirectional line-output ESD candidate; qualify to IEC test plan
+D5,PESD5V0X1BCL_EVT,Diode_SMD:D_SOD-882,EVT bidirectional line-output ESD candidate; qualify to IEC test plan
+D6,PESD5V0X1BCL_EVT,Diode_SMD:D_SOD-882,EVT bidirectional line-output ESD candidate; qualify to IEC test plan
+D7,PESD5V0X1BCL_EVT,Diode_SMD:D_SOD-882,EVT bidirectional line-output ESD candidate; qualify to IEC test plan
+D8,PESD5V0X1BCL_EVT,Diode_SMD:D_SOD-882,EVT bidirectional line-output ESD candidate; qualify to IEC test plan
+D9,PESD5V0X1BCL_EVT,Diode_SMD:D_SOD-882,EVT bidirectional line-output ESD candidate; qualify to IEC test plan
+R40,1R_ANALOG_ISOLATION,Resistor_SMD:R_0805_2012Metric,
+C30,1uF_X7R_LDO_IN,Capacitor_SMD:C_0805_2012Metric,
+C31,2.2uF_X7R_LDO_OUT,Capacitor_SMD:C_0805_2012Metric,
+C32,10uF_X5R_ANALOG_BULK,Capacitor_SMD:C_0805_2012Metric,
+C33,1uF_X7R_LDO_IN,Capacitor_SMD:C_0805_2012Metric,
+C34,2.2uF_X7R_LDO_OUT,Capacitor_SMD:C_0805_2012Metric,
+C35,10uF_X5R_DIGITAL_BULK,Capacitor_SMD:C_0805_2012Metric,
+C36,10uF_X5R_RELAY_BULK,Capacitor_SMD:C_0805_2012Metric,
+R50,DNP_0R_CHASSIS_BOND,Resistor_SMD:R_1206_3216Metric,DNP; populate only from complete chassis grounding review
+C50,DNP_4.7nF_CHASSIS,Capacitor_SMD:C_1206_3216Metric,DNP; safety/EMC population requires rated part and review
+TP1,+3V3A,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point
+TP2,+3V3D,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point
+TP3,DAC_XSMT_PIN,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point
+TP4,LINE_RELAY_EN_SAFE,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point
+TP5,L_RCA_OUT,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point
+TP6,R_RCA_OUT,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point
+TP7,CHASSIS,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point
+TP8,GND,TestPoint:TestPoint_Pad_D1.0mm,Local EVT pogo point

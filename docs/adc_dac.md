@@ -1,9 +1,10 @@
 # ADC, DAC, and audio clocks
 
-No converter is selected for a production PCB. PCM4202 is selected for the
-unbuilt Rev-A phono/ADC EVT board so that its clock, driver, headroom, and
-layout assumptions can be tested. The following official specifications narrow
-prototype work; they are not claims about measured performance.
+No converter is released for a production PCB. PCM4202 and PCM5242 are selected
+for the routed Rev-A input and output EVT boards so their clock, driver,
+headroom, mute, and layout assumptions can be tested. The following official
+specifications narrow prototype work; they are not claims about measured
+performance.
 
 ## ADC candidates
 
@@ -32,6 +33,36 @@ input. A 2 V RMS DAC therefore needs calibrated attenuation or a post-DAC gain
 stage; the 4.2 V RMS differential PCM5242 class offers more direct headroom.
 Reconstruction filtering and line-driver load are measured as part of the full
 path, never subtracted from a data-sheet number.
+
+### Rev-A PCM5242 output contract
+
+The routed `hardware/kicad/dac_line_output_eval_rev_a/` board makes the first
+selection concrete without promoting it to production status. PCM5242 runs as
+a 48 kHz slave with 24-bit I2S in 32-BCK channel slots, external 24.576 MHz SCK,
+3.072 MHz BCK, I2C mode, and its ground-centered VREF output setting. Reference
+firmware must configure and read back a unity path while XSMT remains low; the
+integrated miniDSP is not part of historical/reference processing.
+
+The balanced branch follows the official EVM's 499 ohm per-leg / 1 nF
+differential reconstruction network. Into 20 kilohm it calculates to 4.00038 V
+RMS at DC and 3.97214 V RMS at 20 kHz (-0.0615 dB relative). The RCA branch uses
+499 ohm / 2.2 nF single-ended filtering and calculates to 2.00019 V RMS at DC
+and 1.98314 V RMS at 20 kHz into 10 kilohm (-0.0743 dB). These are circuit
+calculations, not measurements.
+
+Three normally-open G6K relays make loss of power a physical open-circuit mute.
+Separate SN74LVC1G08 gates require both controller permission and an independent
+active-high supervisor release (`HARD_MUTE_N`) before either relay drive or DAC
+XSMT can assert. All permission inputs and XSMT have fail-low pull-downs. This
+prevents a stuck controller from overriding the external mute supervisor; it
+does not replace required sequencing and transient measurements.
+
+The four-layer 112 x 72 mm route has 581 segments and 86 vias. KiCad 10.0.5
+reports zero ERC, zero DRC, and zero unconnected items, and the source-aware
+verifier locks the converter/interlock/relay maps and calculated loading. It
+remains unbuilt pending register/readback firmware, loaded audio measurements,
+mute/brownout tests, connector and chassis qualification, ESD/RF testing,
+stackup review, and DFM.
 
 ## Nominal clock tree
 
