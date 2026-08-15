@@ -19,8 +19,16 @@ BUILD = ROOT.parents[2] / "build" / "kicad" / "front_panel_controller"
 def finish_board(board: pcbnew.BOARD) -> None:
     """Apply reviewed deterministic finish work after heuristic routing."""
     footprints = {item.GetReference(): item for item in board.GetFootprints()}
-    j6_pad2 = next(pad for pad in footprints["J6"].Pads() if pad.GetNumber() == "2")
-    j6_pad2.SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
+    for reference, pad_number in (("J6", "2"), ("J7", "9")):
+        pad = next(item for item in footprints[reference].Pads() if item.GetNumber() == pad_number)
+        pad.SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
+
+    # Keep a checked routed artifact aligned with a source-level annotation
+    # correction when finish-only is used rather than a full reroute.
+    for drawing in board.GetDrawings():
+        if isinstance(drawing, pcbnew.PCB_TEXT) and drawing.GetText() == "J3 52271-0679":
+            drawing.SetTextHeight(pcbnew.FromMM(0.8))
+            drawing.SetTextWidth(pcbnew.FromMM(0.8))
 
     # Freerouting v2.2.4 occasionally terminates one segment short of U2.54
     # even though it leaves a same-net F.Cu endpoint 1.6 mm directly east.

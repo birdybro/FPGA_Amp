@@ -21,7 +21,7 @@ L6  B.Cu    signals and ground pour
 
 KiCad 10.0.5 reports zero schematic ERC violations, zero PCB DRC
 violations, and zero unconnected items after zone fill. The open route has
-1,895 track segments and 314 vias at minimum 0.20 mm track / 0.30 mm drill.
+1,827 track segments and 327 vias at minimum 0.20 mm track / 0.30 mm drill.
 The source-aware verifier checks the package pin map, connector electrical map,
 layer stack, board size, source damping, regulator choice, and routed
 geometries.
@@ -30,8 +30,8 @@ This is an EVT routing baseline, **not a fabrication release**. In particular,
 the checked board deliberately carries `NOT FAB RELEASED` silkscreen and the
 following gates remain open:
 
-- replace and sign off the provisional 40-pin/6-pin FFC land patterns against
-  the exact Molex 54104-4031 and 52271-0679 drawings;
+- print and physically fit the drawing-derived Molex 54104-4031 and 52271-0679
+  footprints, obtain assembler DFM review, and inspect first-article joints;
 - define the fabricator's six-layer stackup, then review impedance, return
   paths, SDRAM flight time/skew, and LTDC edge integrity;
 - perform a specialist layout review of the TPS62132 buck and TPS61165 boost,
@@ -56,6 +56,10 @@ open.
 - Exact NHD-5.0-800480AF-ASXP-CTP electrical pin assignment. Unused RGB LSBs
   are grounded for RGB565; DE, HSYNC, VSYNC, standby, and the capacitive-touch
   reset/interrupt signals are retained.
+- Project-local footprints for the exact Molex 54104-4031 40-pin top-contact
+  TFT connector and 52271-0679 6-pin bottom-contact touch connector. Their
+  manufacturer-drawing pad count, pitch, land size, and fitting-nail geometry
+  are locked by `verify.py`; see `footprint_audit.md` for the dimension audit.
 - TPS61165 backlight boost from 12 V with a 3.32 ohm feedback resistor for
   approximately 60.2 mA nominal LED current and 32 kHz PWM target. The display
   data sheet's typical LED string voltage is about 21.1 V.
@@ -101,6 +105,8 @@ duplicate package pins or package-position drift before board generation.
 ## Primary references
 
 - [Newhaven NHD-5.0-800480AF-ASXP-CTP data sheet](https://newhavendisplay.com/content/specs/NHD-5.0-800480AF-ASXP-CTP.pdf)
+- [Molex 54104-4031 product/drawing record](https://www.molex.com/en-us/products/part-detail/541044031)
+- [Molex 52271-0679 product/drawing record](https://www.molex.com/en-us/products/part-detail/522710679)
 - [ST STM32H753ZI data sheet](https://www.st.com/resource/en/datasheet/stm32h753zi.pdf)
 - [ST AN4938 hardware-development guidance](https://www.st.com/resource/en/application_note/an4938-getting-started-with-stm32h74xig-and-stm32h75xig-mcu-hardware-development-stmicroelectronics.pdf)
 - [ST official open pin data](https://github.com/STMicroelectronics/STM32_open_pin_data), pinned extract provenance commit `7d1f1514ed5583ec5007ad91236b4e1d377295b1`

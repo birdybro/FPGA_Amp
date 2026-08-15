@@ -23,11 +23,13 @@ access and finished-device compliance.
   nominal 60.2 mA backlight boost, MCU analog/core power, oscillators, reset,
   SWD, source damping, fail-asserted mute, and separate panel/control/motor
   harnesses. KiCad 10.0.5 reports 0 ERC, 0 DRC, and 0 unconnected items on the
-  150 x 90 mm route with 1,895 segments and 314 vias. This is not a fabrication
-  release: exact Molex TFT/touch footprints, six-layer stackup/SI and SDRAM
-  timing, switching-supply layout, enclosure mechanics, sourcing, EMC, and
-  physical validation remain gates. The pin audit also proves direct RMII
-  Ethernet is unavailable in this Rev-A LQFP allocation.
+  150 x 90 mm route with 1,827 segments and 327 vias. Exact project-local Molex
+  54104-4031/52271-0679 footprints now reproduce the manufacturer-drawing pad
+  count, pitch, land size, contact style, and fitting-nail geometry under
+  regression. This is not a fabrication release: physical connector fit/FAI,
+  six-layer stackup/SI and SDRAM timing, switching-supply layout, enclosure
+  mechanics, sourcing, EMC, and physical validation remain gates. The pin audit
+  also proves direct RMII Ethernet is unavailable in this Rev-A LQFP allocation.
 - [x] Create and openly route the first KiCad EVT PCB for the motorized-volume
   subsystem. The 80 x 48 mm four-layer daughterboard implements the protected
   5 V rail, DRV8874 PH/EN bridge, hardware current regulation, IPROPI and fault
@@ -78,12 +80,12 @@ access and finished-device compliance.
   relock, and latency on analyzer/EVM hardware. Do not advertise compressed or
   multichannel formats in V1.
 - [ ] Turn the completed front-panel controller and motor-volume EVT boards
-  into a fabrication candidate: generate exact Molex 54104-4031/52271-0679
-  footprints from manufacturer drawings and inspect them independently;
-  obtain a fabricator stackup and run SDRAM/LTDC/clock SI; manually review and
-  refine both switching converters; freeze encoder/display/enclosure geometry;
-  select keyed production harnesses; then close sourcing, EMC, touch-safety,
-  motor torque/noise/stall, and 100,000-cycle mechanism qualification.
+  into a fabrication candidate: print/fit the drawing-derived Molex footprints,
+  obtain assembler DFM and first-article inspection; obtain a fabricator stackup
+  and run SDRAM/LTDC/clock SI; manually review and refine both switching
+  converters; freeze encoder/display/enclosure geometry; select keyed production
+  harnesses; then close sourcing, EMC, touch-safety, motor torque/noise/stall,
+  and 100,000-cycle mechanism qualification.
 - [ ] Implement and openly route the actual stereo product hierarchy before
   freezing the production FPGA/package. The present 217-DSP mono Nexys build is
   evidence for an XC7A200T resource-class baseline, not proof that stereo plus

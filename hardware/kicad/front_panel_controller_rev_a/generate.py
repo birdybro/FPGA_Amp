@@ -2,9 +2,9 @@
 """Generate the Rev-A front-panel controller KiCad project.
 
 The schematic and placed six-layer PCB are generated from the same part/net
-table.  This is an EVT design: electrical architecture and pin allocation are
-concrete, while the display FFC footprint and enclosure-dependent connector
-locations remain release gates called out on the PCB and in README.md.
+table.  This is an EVT design: electrical architecture, pin allocation, and
+manufacturer-derived display FFC footprints are concrete; enclosure-dependent
+connector locations remain release gates called out on the PCB and README.
 """
 
 from __future__ import annotations
@@ -102,12 +102,12 @@ PARTS: list[Part] = [
     }, (24.0, 48.0), description="38 V boost LED driver; 60 mA nominal current"),
     part("J1", "UI_12V_INPUT", "Connector_JST:JST_VH_B2P-VH-B_1x02_P3.96mm_Vertical",
          {"1": "UI_12V_IN", "2": "GND"}, (10.0, 14.0), description="Protected 12 V input from product power board"),
-    part("J2", "NHD-5.0-800480AF-ASXP-CTP_TFT", "Connector_FFC-FPC:Hirose_FH12-40S-0.5SH_1x40-1MP_P0.50mm_Horizontal", {},
-         (75.0, 8.0), description="40-pin 0.5 mm TFT FFC; EVT footprint pending Molex 54104-4031 drawing signoff"),
-    part("J3", "NHD_CTP_6P", "Connector_FFC-FPC:Molex_200528-0060_1x06-1MP_P1.00mm_Horizontal", {
+    part("J2", "NHD-5.0-800480AF-ASXP-CTP_TFT", "fpga_amp:Molex_54104-4031_1x40-2MP_P0.50mm_Horizontal", {},
+         (75.0, 8.0), description="40-pin 0.5 mm TFT FFC; land pattern from Molex 541041000 rev B"),
+    part("J3", "NHD_CTP_6P", "fpga_amp:Molex_52271-0679_1x06-2MP_P1.00mm_Horizontal", {
         "1": "+3V3_TOUCH", "2": "GND", "3": "TOUCH_SCL", "4": "TOUCH_SDA",
         "5": "TOUCH_INT_N", "6": "TOUCH_RESET_N",
-    }, (124.0, 9.0), description="6-pin 1.0 mm capacitive touch FFC; EVT footprint verification gate"),
+    }, (124.0, 6.5), description="6-pin 1.0 mm capacitive touch FFC; land pattern from Molex SD-52271-036 rev F"),
     part("J4", "MOTOR_VOLUME_BOARD", "Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical", {
         "1": "+3V3", "2": "GND", "3": "MOTOR_PWM", "4": "MOTOR_DIR",
         "5": "MOTOR_SLEEP", "6": "MOTOR_FAULT_N", "7": "MOTOR_CURRENT_ADC",
@@ -142,7 +142,7 @@ LCD_PINS = {
     "32": "LCD_HSYNC", "33": "LCD_VSYNC", "34": "LCD_DE", "36": "GND",
 }
 PARTS[6] = part("J2", "NHD-5.0-800480AF-ASXP-CTP_TFT",
-                "Connector_FFC-FPC:Hirose_FH12-40S-0.5SH_1x40-1MP_P0.50mm_Horizontal",
+                "fpga_amp:Molex_54104-4031_1x40-2MP_P0.50mm_Horizontal",
                 LCD_PINS, (75.0, 8.0), description=PARTS[6].description)
 
 
@@ -252,6 +252,8 @@ for index, net in enumerate(["+12V_UI", "+3V3", "GND", "VCAP_CORE", "VDDA", "LCD
 
 def library_path(footprint: str) -> tuple[str, str]:
     library, footprint_name = footprint.split(":", 1)
+    if library == "fpga_amp":
+        return str(ROOT / "fpga_amp.pretty"), footprint_name
     return f"/usr/share/kicad/footprints/{library}.pretty", footprint_name
 
 
@@ -334,11 +336,13 @@ def write_board() -> Path:
                 pad.SetNet(nets[net_name])
         board.Add(footprint)
 
-    # The dense two-row panel header starves one inner-plane thermal at the
-    # chosen placement. Use a local solid connection instead of weakening the
-    # thermal-spoke rule for every through-hole pad on the board.
-    j6 = next(item for item in board.GetFootprints() if item.GetReference() == "J6")
-    next(pad for pad in j6.Pads() if pad.GetNumber() == "2").SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
+    # Dense two-row headers can starve an inner-plane thermal at the chosen
+    # placement. Use local solid connections on these low-current ground pins
+    # instead of weakening the board-wide thermal-spoke rule.
+    footprints = {item.GetReference(): item for item in board.GetFootprints()}
+    for reference, pad_number in (("J6", "2"), ("J7", "9")):
+        pad = next(item for item in footprints[reference].Pads() if item.GetNumber() == pad_number)
+        pad.SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
 
     for ref, xy in [("H1", (6.0, 6.0)), ("H2", (148.0, 6.0)), ("H3", (6.0, 88.0)), ("H4", (148.0, 88.0))]:
         footprint = pcbnew.FootprintLoad("/usr/share/kicad/footprints/MountingHole.pretty", "MountingHole_3.2mm_M3")
@@ -352,8 +356,8 @@ def write_board() -> Path:
     add_outline(board)
     add_text(board, "FPGA AMP - FRONT PANEL CONTROLLER REV A EVT", (77.0, 4.0), 1.1)
     add_text(board, "NOT FAB RELEASED", (77.0, 90.5), 1.0)
-    add_text(board, "J2 TFT FFC - VERIFY MOLEX 54104-4031 LAND PATTERN", (75.0, 16.5), 0.8)
-    add_text(board, "J3 TOUCH", (124.0, 4.5), 0.8)
+    add_text(board, "J2 TFT FFC - MOLEX 54104-4031", (75.0, 16.5), 0.8)
+    add_text(board, "J3 52271-0679", (139.0, 4.0), 0.8)
     add_text(board, "J1 12V", (9.0, 8.0), 0.8)
     add_text(board, "J4 MOTOR", (132.0, 69.0), 0.8)
     add_text(board, "J5 DIGITAL", (143.0, 33.0), 0.8)
@@ -413,7 +417,7 @@ def write_controller_schematic() -> Path:
         "  (generator_version \"1.0\")", f"  (uuid {core.q(root_uuid)})", "  (paper \"A0\")",
         "  (title_block (title \"FPGA Amp front-panel controller\") (date \"2026-08-15\") (rev \"A / EVT\") (company \"FPGA_Amp\")",
         "    (comment 1 \"STM32H753 LTDC + SDRAM + touch + physical controls\")",
-        "    (comment 2 \"Six-layer Rev-A EVT; exact display connector footprint is a release gate\")",
+        "    (comment 2 \"Six-layer Rev-A EVT; display connector footprints derived from Molex drawings\")",
         "    (comment 3 \"NOT PRODUCTION RELEASED\")",
         "    (comment 4 \"Generated from generate.py\"))", "  (lib_symbols",
     ]

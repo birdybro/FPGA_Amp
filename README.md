@@ -1060,9 +1060,11 @@ The matching front-panel controller is at
 Its checked 150 x 90 mm six-layer route has 0 ERC violations, 0 DRC
 violations, and 0 unconnected items under KiCad 10.0.5. It concretely maps an
 STM32H753ZIT6 to LTDC RGB565, 32 MiB SDRAM, Quad-SPI, touch, physical encoders,
-mute/standby, and the motor/digital board links. It is visibly marked and
-documented as not fabrication-released until the exact Molex FFC land patterns,
-stackup/SI, switching-power layout, and mechanical interfaces are signed off.
+mute/standby, and the motor/digital board links. Exact project-local Molex
+54104-4031/52271-0679 footprints are dimension-audited and regression-checked.
+The board is visibly marked and documented as not fabrication-released until
+physical connector fit/first-article inspection, stackup/SI, switching-power
+layout, and mechanical interfaces are signed off.
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
 path is further reducing terminal-solver approximation error without breaking

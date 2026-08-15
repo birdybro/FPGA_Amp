@@ -30,6 +30,50 @@ def pad_map(footprint: pcbnew.FOOTPRINT) -> dict[str, str]:
     }
 
 
+def require_ffc_geometry(
+    footprint: pcbnew.FOOTPRINT,
+    *,
+    name: str,
+    signal_count: int,
+    pitch_mm: float,
+    signal_size_mm: tuple[float, float],
+    mp_centers_x_mm: tuple[float, float],
+    mp_size_mm: tuple[float, float],
+) -> None:
+    """Lock manufacturer-drawing land dimensions into the regression."""
+    require(footprint.GetFPID().GetLibItemName() == name, f"{footprint.GetReference()}: wrong footprint")
+    signals = {
+        int(pad.GetNumber()): pad
+        for pad in footprint.Pads()
+        if pad.GetNumber().isdigit()
+    }
+    require(set(signals) == set(range(1, signal_count + 1)),
+            f"{footprint.GetReference()}: signal pad-number set changed")
+    positions = [signals[index].GetFPRelativePosition() for index in range(1, signal_count + 1)]
+    for left, right in zip(positions, positions[1:]):
+        require(abs((right.x - left.x) / 1e6 - pitch_mm) < 0.001,
+                f"{footprint.GetReference()}: signal pitch changed")
+        require(right.y == left.y, f"{footprint.GetReference()}: signal row is not straight")
+    for pad in signals.values():
+        size = pad.GetSize()
+        require(abs(size.x / 1e6 - signal_size_mm[0]) < 0.001
+                and abs(size.y / 1e6 - signal_size_mm[1]) < 0.001,
+                f"{footprint.GetReference()}: signal land size changed")
+    mounting = sorted(
+        (pad for pad in footprint.Pads() if pad.GetNumber() == "MP"),
+        key=lambda pad: pad.GetFPRelativePosition().x,
+    )
+    require(len(mounting) == 2, f"{footprint.GetReference()}: expected two fitting-nail lands")
+    for pad, expected_x in zip(mounting, mp_centers_x_mm):
+        position = pad.GetFPRelativePosition()
+        size = pad.GetSize()
+        require(abs(position.x / 1e6 - expected_x) < 0.001,
+                f"{footprint.GetReference()}: fitting-nail position changed")
+        require(abs(size.x / 1e6 - mp_size_mm[0]) < 0.001
+                and abs(size.y / 1e6 - mp_size_mm[1]) < 0.001,
+                f"{footprint.GetReference()}: fitting-nail land size changed")
+
+
 def routed_lengths(board: pcbnew.BOARD) -> dict[str, float]:
     result: dict[str, float] = defaultdict(float)
     net_by_code = {
@@ -75,6 +119,24 @@ def main() -> None:
 
     require(pad_map(footprints["U1"]) == MCU_NETS, "STM32 package pad/net map changed")
     require(pad_map(footprints["J2"]) == LCD_PINS, "TFT electrical connector map changed")
+    require_ffc_geometry(
+        footprints["J2"],
+        name="Molex_54104-4031_1x40-2MP_P0.50mm_Horizontal",
+        signal_count=40,
+        pitch_mm=0.50,
+        signal_size_mm=(0.30, 1.20),
+        mp_centers_x_mm=(-11.85, 11.85),
+        mp_size_mm=(2.40, 2.40),
+    )
+    require_ffc_geometry(
+        footprints["J3"],
+        name="Molex_52271-0679_1x06-2MP_P1.00mm_Horizontal",
+        signal_count=6,
+        pitch_mm=1.00,
+        signal_size_mm=(0.60, 2.20),
+        mp_centers_x_mm=(-5.65, 5.65),
+        mp_size_mm=(2.10, 2.20),
+    )
     require(footprints["U4"].GetValue().startswith("TPS62132"), "3.3 V buck part changed from TPS62132")
     require(footprints["U5"].GetValue().startswith("TPS61165"), "LCD LED driver changed")
     require(
@@ -146,7 +208,7 @@ def main() -> None:
         "sdram_route_lengths_mm": sdram_lengths,
         "display_route_lengths_mm": display_lengths,
         "release_gates": [
-            "Molex 54104-4031 and 52271-0679 land-pattern signoff",
+            "physical connector fit/coupon and first-article land-pattern signoff",
             "stackup-specific impedance and SDRAM timing review",
             "switching-regulator and LED-boost layout review",
             "enclosure/mechanical connector signoff",

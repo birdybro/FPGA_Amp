@@ -6,6 +6,16 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Replaced both provisional display connector footprints with project-local,
+  manufacturer-drawing implementations for the Molex 54104-4031 40-pin
+  top-contact TFT FFC and 52271-0679 6-pin bottom-contact touch FFC. A dimension
+  audit records pad count, pitch, signal-land size, fitting-nail size/location,
+  contact side, and source drawing revisions; the board verifier now locks those
+  geometries. The larger truthful J3 actuator courtyard exposed five placement
+  errors, which were fixed by relocating J3 before rerouting. The final open
+  route has 1,827 segments / 327 vias and passes KiCad 10.0.5 with zero ERC,
+  zero DRC, and zero unconnected items. Physical fit, assembler DFM, and
+  first-article inspection remain fabrication gates.
 - Added the routed six-layer front-panel controller Rev-A EVT KiCad project.
   One source model generates 111 schematic elements, a 150 x 90 mm placement,
   native symbols, BOM, and the exact 106-I/O STM32H753ZIT6 allocation. The
@@ -16,11 +26,11 @@ All notable engineering changes are recorded here. The project is pre-release; d
   harnesses, motor-volume telemetry/control, and fail-asserted mute. The open
   Freerouting v2.2.4 route finishes in five passes plus one reviewed 1.6 mm
   U2-ground dogleg; after zone refill KiCad 10.0.5 reports zero ERC, zero DRC,
-  and zero unconnected items on 1,895 track segments / 314 vias. A source-aware
+  and zero unconnected items on the original 1,895-track / 314-via baseline. A source-aware
   verifier audits package and display pin maps, layers, dimensions, damping,
   regulator identity, route geometry, and records SDRAM/display route lengths.
-  Exact Molex FFC footprints,
-  stackup/SI, regulator layout, mechanics, sourcing, EMC, and physical tests
+  Exact Molex FFC physical-fit/FAI signoff, stackup/SI, regulator layout,
+  mechanics, sourcing, EMC, and physical tests
   remain fabrication stop conditions. The allocation also documents that
   direct RMII Ethernet cannot coexist with the selected LTDC/FMC mapping.
   A pre-commit TI data-sheet audit corrected the TPS61165 WSON order to

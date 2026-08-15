@@ -195,9 +195,10 @@ The routed Rev-A controller source is in
 `hardware/kicad/front_panel_controller_rev_a/`. It implements the MCU, SDRAM,
 QSPI, RGB565/touch display, backlight supply, panel-control harnesses, and
 motor-board/control-board interfaces. It passes KiCad connectivity checks but
-remains an EVT artifact: exact display-connector land patterns, stackup/SI,
-switching-power layout, and enclosure geometry are explicit fabrication stop
-conditions.
+remains an EVT artifact. The exact Molex 54104-4031/52271-0679 land patterns
+are now drawing-derived and regression-checked; physical connector fit and
+first-article inspection, stackup/SI, switching-power layout, and enclosure
+geometry remain explicit fabrication stop conditions.
 
 ### 2.5 PB — power and protection board
 
