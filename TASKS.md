@@ -15,16 +15,17 @@ access and finished-device compliance.
 
 ## Active, highest value first
 
-- [x] Integrate PCM5242 initialization and verification into one fail-low
-  startup controller. The verifier cannot start before all 20 configuration
-  writes are ACKed, and `unmute_permitted` remains low until the following 24
-  page/read/status operations all pass. A complete 44-transaction bus test
-  proves success, ACK-only non-permission, a clock-status mismatch after valid
-  writes, and an initialization NACK that prevents verification. Yosys reports
-  241 estimated XC7 logic cells / 261 flip-flops / no DSP or BRAM / zero
-  warnings. The result is ready to feed the controller side of the PCB AND
-  interlocks, but continuous runtime monitoring and top-level pin integration
-  remain release gates.
+- [x] Integrate PCM5242 initialization, verification, and runtime health into
+  one fail-low controller. The verifier cannot start before all 20 writes are
+  ACKed; the first four-register runtime poll cannot start before all 24
+  page/read/status checks pass; and `unmute_permitted` stays low until all 48
+  transactions succeed. Periodic polls then check live/latched clock errors,
+  active/sticky output shorts, DSP boot, and run state. Simulation proves
+  success, ACK-only and startup-snapshot non-permission, both startup failure
+  phases, and post-unmute short detection that revokes permission. Yosys reports
+  340 estimated XC7 logic cells / 439 flip-flops / no DSP or BRAM / zero
+  warnings. Top-level pin integration and physical fault/mute timing remain
+  release gates.
 - [x] Add a synthesizable one-byte-register I2C read primitive needed by the
   PCM5242 verification layer. The engine emits address+W, register, repeated
   START, address+R, one data byte, master NACK, and STOP while honoring clock
@@ -32,7 +33,7 @@ access and finished-device compliance.
   returned data, released-bus completion, and fail-closed address-NACK abort.
   Yosys reports 70 estimated XC7 logic cells / 63 flip-flops / no DSP or BRAM /
   zero warnings. This primitive does not itself declare the DAC configured;
-  masked register/status verification and unmute gating remain active work.
+  the completed verifier/controller layers own that decision.
 - [x] Implement the PCM5242 write-only reference-path bootstrap. The common I2C
   engine now supports one- or two-byte register addresses without regressing
   the ADAU1761 path. The new sequence emits twenty exact transactions at board
@@ -41,8 +42,8 @@ access and finished-device compliance.
   de-emphasis, and disabled zero-detect auto mute. A bus model checks every
   byte, released-bus completion, and fail-closed NACK abort. Yosys reports 83
   estimated XC7 logic cells / 86 flip-flops / no DSP or BRAM / zero warnings.
-  `configuration_written` is explicitly not an unmute permit; I2C readback and
-  clock/power-state validation remain the next converter-control gate.
+  `configuration_written` is explicitly not an unmute permit; the downstream
+  verifier and runtime monitor now provide the stronger controller gate.
 - [x] Generate and openly route the four-layer PCM5242 DAC/line-output Rev-A
   EVT board. The 112 x 72 mm design implements 48 kHz external-clock slave I2S,
   I2C unity/reference configuration, separate analog/digital TPS7A2033
@@ -143,8 +144,8 @@ access and finished-device compliance.
   bus simulation proves success plus masked-mismatch and NACK fail-closed paths.
   Yosys reports 170 estimated XC7 logic cells / 173 flip-flops / no DSP or BRAM /
   zero warnings. `configuration_verified` remains distinct from the earlier
-  ACK-only result and is a startup snapshot; integrate it with the board permit
-  gate and add continuous clock/fault monitoring before hardware release.
+  ACK-only result and is a startup snapshot; the integrated controller now
+  follows it with continuous clock/short/power polling before and after unmute.
 - [ ] Turn the completed front-panel controller and motor-volume EVT boards
   into a fabrication candidate: print/fit the drawing-derived Molex footprints,
   obtain assembler DFM and first-article inspection; obtain a fabricator stackup

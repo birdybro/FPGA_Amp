@@ -10,7 +10,8 @@
 // supervisor, and continuous runtime clock/fault monitoring remains separate.
 module pcm5242_dac_startup_controller #(
     parameter int unsigned STARTUP_DELAY_CYCLES = 491_520,
-    parameter int unsigned I2C_CLOCK_DIVIDER = 32
+    parameter int unsigned I2C_CLOCK_DIVIDER = 32,
+    parameter int unsigned RUNTIME_POLL_INTERVAL_CYCLES = 9_830_400
 ) (
     input  logic       clk,
     input  logic       rst_n,
@@ -29,6 +30,10 @@ module pcm5242_dac_startup_controller #(
     output logic       verification_error,
     output logic       verification_nack_error,
     output logic       verification_mismatch_error,
+    output logic       runtime_healthy,
+    output logic       runtime_fault,
+    output logic       runtime_nack_error,
+    output logic       runtime_mismatch_error,
     output logic [4:0] initialization_sequence_index,
     output logic [4:0] initialization_failed_index,
     output logic [4:0] verification_sequence_index,
@@ -37,7 +42,17 @@ module pcm5242_dac_startup_controller #(
     output logic [7:0] failed_expected,
     output logic [7:0] failed_mask,
     output logic [7:0] clock_status,
-    output logic [7:0] power_status
+    output logic [7:0] power_status,
+    output logic [7:0] runtime_failed_register,
+    output logic [7:0] runtime_failed_observed,
+    output logic [7:0] runtime_failed_expected,
+    output logic [7:0] runtime_failed_mask,
+    output logic [1:0] runtime_sequence_index,
+    output logic [31:0] runtime_poll_count,
+    output logic [7:0] runtime_clock_status,
+    output logic [7:0] runtime_clock_error_status,
+    output logic [7:0] runtime_short_status,
+    output logic [7:0] runtime_power_status
 );
 
     logic init_busy;
@@ -48,14 +63,19 @@ module pcm5242_dac_startup_controller #(
     logic verify_busy;
     logic verify_scl_drive_low;
     logic verify_sda_drive_low;
+    logic runtime_busy;
+    logic runtime_scl_drive_low;
+    logic runtime_sda_drive_low;
 
     always_comb begin
-        scl_drive_low = init_scl_drive_low | verify_scl_drive_low;
-        sda_drive_low = init_sda_drive_low | verify_sda_drive_low;
-        error = initialization_error | verification_error;
-        busy = init_busy || verify_busy ||
-               (!configuration_verified && !error);
-        unmute_permitted = configuration_verified && !error;
+        scl_drive_low = init_scl_drive_low | verify_scl_drive_low |
+                        runtime_scl_drive_low;
+        sda_drive_low = init_sda_drive_low | verify_sda_drive_low |
+                        runtime_sda_drive_low;
+        error = initialization_error | verification_error | runtime_fault;
+        busy = init_busy || verify_busy || runtime_busy ||
+               ((!configuration_verified || !runtime_healthy) && !error);
+        unmute_permitted = configuration_verified && runtime_healthy && !error;
     end
 
     pcm5242_dac_init #(
@@ -97,6 +117,34 @@ module pcm5242_dac_startup_controller #(
         .failed_mask,
         .clock_status,
         .power_status
+    );
+
+    pcm5242_dac_runtime_monitor #(
+        .I2C_CLOCK_DIVIDER(I2C_CLOCK_DIVIDER),
+        .POLL_INTERVAL_CYCLES(RUNTIME_POLL_INTERVAL_CYCLES)
+    ) runtime_monitor (
+        .clk,
+        .rst_n,
+        .enable(configuration_verified),
+        .scl_in,
+        .sda_in,
+        .scl_drive_low(runtime_scl_drive_low),
+        .sda_drive_low(runtime_sda_drive_low),
+        .busy(runtime_busy),
+        .healthy(runtime_healthy),
+        .fault(runtime_fault),
+        .nack_error(runtime_nack_error),
+        .mismatch_error(runtime_mismatch_error),
+        .sequence_index(runtime_sequence_index),
+        .failed_register(runtime_failed_register),
+        .failed_observed(runtime_failed_observed),
+        .failed_expected(runtime_failed_expected),
+        .failed_mask(runtime_failed_mask),
+        .poll_count(runtime_poll_count),
+        .clock_status(runtime_clock_status),
+        .clock_error_status(runtime_clock_error_status),
+        .short_status(runtime_short_status),
+        .power_status(runtime_power_status)
     );
 
     always_ff @(posedge clk or negedge rst_n) begin

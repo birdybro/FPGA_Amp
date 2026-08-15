@@ -20,6 +20,10 @@ module pcm5242_dac_startup_controller_tb;
     logic verification_error;
     logic verification_nack_error;
     logic verification_mismatch_error;
+    logic runtime_healthy;
+    logic runtime_fault;
+    logic runtime_nack_error;
+    logic runtime_mismatch_error;
     logic [4:0] initialization_sequence_index;
     logic [4:0] initialization_failed_index;
     logic [4:0] verification_sequence_index;
@@ -29,6 +33,16 @@ module pcm5242_dac_startup_controller_tb;
     logic [7:0] failed_mask;
     logic [7:0] clock_status;
     logic [7:0] power_status;
+    logic [7:0] runtime_failed_register;
+    logic [7:0] runtime_failed_observed;
+    logic [7:0] runtime_failed_expected;
+    logic [7:0] runtime_failed_mask;
+    logic [1:0] runtime_sequence_index;
+    logic [31:0] runtime_poll_count;
+    logic [7:0] runtime_clock_status;
+    logic [7:0] runtime_clock_error_status;
+    logic [7:0] runtime_short_status;
+    logic [7:0] runtime_power_status;
     tri1 scl_bus;
     tri1 sda_bus;
 
@@ -43,7 +57,8 @@ module pcm5242_dac_startup_controller_tb;
 
     pcm5242_dac_startup_controller #(
         .STARTUP_DELAY_CYCLES(3),
-        .I2C_CLOCK_DIVIDER(1)
+        .I2C_CLOCK_DIVIDER(1),
+        .RUNTIME_POLL_INTERVAL_CYCLES(16)
     ) dut (
         .clk,
         .rst_n,
@@ -60,6 +75,10 @@ module pcm5242_dac_startup_controller_tb;
         .verification_error,
         .verification_nack_error,
         .verification_mismatch_error,
+        .runtime_healthy,
+        .runtime_fault,
+        .runtime_nack_error,
+        .runtime_mismatch_error,
         .initialization_sequence_index,
         .initialization_failed_index,
         .verification_sequence_index,
@@ -68,7 +87,17 @@ module pcm5242_dac_startup_controller_tb;
         .failed_expected,
         .failed_mask,
         .clock_status,
-        .power_status
+        .power_status,
+        .runtime_failed_register,
+        .runtime_failed_observed,
+        .runtime_failed_expected,
+        .runtime_failed_mask,
+        .runtime_sequence_index,
+        .runtime_poll_count,
+        .runtime_clock_status,
+        .runtime_clock_error_status,
+        .runtime_short_status,
+        .runtime_power_status
     );
 
     function automatic logic [7:0] init_register(input integer index);
@@ -163,6 +192,23 @@ module pcm5242_dac_startup_controller_tb;
             21: verify_response = 8'h40;
             22: verify_response = 8'h20;
             default: verify_response = 8'h85;
+        endcase
+    endfunction
+
+    function automatic logic [7:0] runtime_register(input integer index);
+        case (index)
+            0: runtime_register = 8'h5e;
+            1: runtime_register = 8'h5f;
+            2: runtime_register = 8'h6d;
+            default: runtime_register = 8'h76;
+        endcase
+    endfunction
+
+    function automatic logic [7:0] runtime_response(input integer index);
+        case (index)
+            0: runtime_response = 8'h20;
+            1, 2: runtime_response = 8'h00;
+            default: runtime_response = 8'h85;
         endcase
     endfunction
 
@@ -302,6 +348,19 @@ module pcm5242_dac_startup_controller_tb;
         end
     endtask
 
+    task automatic serve_runtime_poll(input integer corrupt_index);
+        integer index;
+        logic [7:0] response;
+        begin
+            for (index = 0; index < 4; index = index + 1) begin
+                response = runtime_response(index);
+                if (index == corrupt_index)
+                    response = response ^ 8'h01;
+                serve_read(runtime_register(index), response);
+            end
+        end
+    endtask
+
     task automatic reset_test;
         begin
             @(negedge clk);
@@ -331,13 +390,35 @@ module pcm5242_dac_startup_controller_tb;
             $fatal(1, "ACK-only completion incorrectly allowed unmute");
         serve_verification(23, -1);
         wait (configuration_verified || error);
+        #1;
+        if (!configuration_verified || unmute_permitted)
+            $fatal(1, "startup snapshot bypassed first runtime-health poll");
+        serve_runtime_poll(-1);
+        wait (unmute_permitted || error);
         @(posedge clk);
         if (!configuration_written || !configuration_verified ||
-            !unmute_permitted || error || busy || transaction_count != 44 ||
+            !unmute_permitted || error || busy || transaction_count != 48 ||
             clock_status !== 8'h20 || power_status !== 8'h85 ||
+            !runtime_healthy || runtime_fault || runtime_poll_count != 1 ||
+            runtime_clock_status !== 8'h20 ||
+            runtime_clock_error_status !== 8'h00 ||
+            runtime_short_status !== 8'h00 || runtime_power_status !== 8'h85 ||
             initialization_sequence_index != 19 ||
             verification_sequence_index != 23 || scl_drive_low || sda_drive_low)
             $fatal(1, "successful integrated startup status mismatch");
+
+        serve_read(runtime_register(0), runtime_response(0));
+        serve_read(runtime_register(1), runtime_response(1));
+        serve_read(runtime_register(2), 8'h01);
+        wait (runtime_fault);
+        @(posedge clk);
+        if (unmute_permitted || !error || !runtime_fault || runtime_healthy ||
+            runtime_nack_error || !runtime_mismatch_error ||
+            transaction_count != 51 || runtime_sequence_index != 2 ||
+            runtime_failed_register !== 8'h6d ||
+            runtime_failed_observed !== 8'h01 ||
+            runtime_failed_expected !== 8'h00 || runtime_failed_mask !== 8'h11)
+            $fatal(1, "post-unmute output-short status did not revoke permission");
 
         reset_test();
         serve_initialization(19, -1);
@@ -365,7 +446,7 @@ module pcm5242_dac_startup_controller_tb;
         if (transaction_count != 7 || busy || scl_drive_low || sda_drive_low)
             $fatal(1, "controller continued or held bus after initialization failure");
 
-        $display("PASS PCM5242 startup controller: 44-operation success and both phases fail muted");
+        $display("PASS PCM5242 controller: 48-operation release, runtime revoke, and both startup phases fail muted");
         $finish;
     end
 

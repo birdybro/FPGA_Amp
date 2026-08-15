@@ -28,14 +28,15 @@ is a one-shot startup snapshot and must still be combined with continuous clock
 monitoring, system fault state, and `HARD_MUTE_N`; it is not by itself a
 safety-rated output or permission for firmware to bypass the physical gates.
 
-The integrated startup controller sequences the ACK-only writer and this
-verifier without firmware races. Its `unmute_permitted` remains false across
-the startup delay and all 44 bus operations, then rises only after final status
-acceptance; errors in either phase latch it low until reset. Simulation covers
-successful startup, an invalid live clock-status byte after otherwise correct
-configuration, and an early initialization NACK. This permission should drive
-the controller side of both board interlocks. The external supervisor input
-retains independent veto authority.
+The integrated controller sequences the ACK-only writer, verifier, and periodic
+health monitor without firmware races. `unmute_permitted` remains false across
+the startup delay and all 48 release operations. It then polls clock-valid,
+latched/live clock-error, active/sticky output-short, and DSP power state every
+nominal 100 ms; any NACK or masked fault revokes permission and latches evidence
+until reset. Simulation covers successful startup, both startup failure phases,
+and an output-short indication after unmute. This permission should drive the
+controller side of both board interlocks. The external supervisor input retains
+independent veto authority and supplies the faster asynchronous safety path.
 
 The low-level pin top reports live BCLK/fabric rate lock after three good
 measurement windows and latches any bad window. The register-controlled wrapper

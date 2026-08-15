@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lint and verify the integrated PCM5242 startup/unmute controller."""
+"""Lint and verify the periodic PCM5242 runtime health monitor."""
 
 from __future__ import annotations
 
@@ -22,20 +22,16 @@ def main() -> int:
         print("ERROR: verilator unavailable", file=sys.stderr)
         return 2
     sources = [
-        "rtl/io/i2c_write_master.sv",
         "rtl/io/i2c_read_register_master.sv",
-        "rtl/io/pcm5242_dac_init.sv",
-        "rtl/io/pcm5242_dac_verify.sv",
         "rtl/io/pcm5242_dac_runtime_monitor.sv",
-        "rtl/io/pcm5242_dac_startup_controller.sv",
-        "sim/unit/pcm5242_dac_startup_controller_tb.sv",
+        "sim/unit/pcm5242_dac_runtime_monitor_tb.sv",
     ]
     subprocess.run(
         [verilator, "--lint-only", "--timing", "-Wall", "-Wno-fatal", "-sv", *sources],
         cwd=ROOT,
         check=True,
     )
-    build = ROOT / "build" / "verilator_pcm5242_dac_startup_controller"
+    build = ROOT / "build" / "verilator_pcm5242_dac_runtime_monitor"
     subprocess.run(
         [
             verilator,
@@ -45,7 +41,7 @@ def main() -> int:
             "-Wno-fatal",
             "-sv",
             "--top-module",
-            "pcm5242_dac_startup_controller_tb",
+            "pcm5242_dac_runtime_monitor_tb",
             "--Mdir",
             str(build),
             *sources,
@@ -54,7 +50,7 @@ def main() -> int:
         check=True,
     )
     subprocess.run(
-        [str(build / "Vpcm5242_dac_startup_controller_tb")],
+        [str(build / "Vpcm5242_dac_runtime_monitor_tb")],
         cwd=ROOT,
         check=True,
     )

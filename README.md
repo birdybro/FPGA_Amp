@@ -941,7 +941,9 @@ make pcm5242-dac-init-rtl          # verify exact DAC write sequence/NACK abort
 make synth-pcm5242-dac-init        # measure DAC bootstrap XC7 resources
 make pcm5242-dac-verify-rtl        # verify DAC readback/status fail-closed gate
 make synth-pcm5242-dac-verify      # measure readback/status XC7 resources
-make pcm5242-dac-startup-rtl       # verify integrated 44-operation unmute gate
+make pcm5242-dac-runtime-rtl       # verify periodic clock/short/power monitor
+make synth-pcm5242-dac-runtime     # measure runtime monitor XC7 resources
+make pcm5242-dac-startup-rtl       # verify integrated startup/runtime gate
 make synth-pcm5242-dac-startup     # measure integrated startup XC7 resources
 make codec-shared-i2s-guard-rtl    # verify shared LRCLK and startup zero gate
 make synth-nexys-phono-audio-xc7   # synthesize complete board wrapper
@@ -1118,17 +1120,19 @@ valid clock flags, DSP boot, and run state. Directed simulation covers the
 complete success path and injected masked-mismatch/NACK failures. Its
 `configuration_verified` result is distinct from the ACK-only write result;
 Yosys reports 170 logic cells, 173 flip-flops, no DSP/BRAM, and no warnings.
-This is a startup snapshot, so continuous runtime fault monitoring and final
-integration with the board permission outputs remain release gates.
+This remains a startup snapshot; the integrated controller follows it with a
+separate continuous monitor rather than treating it as permanent health.
 
-The integrated startup controller now makes that ordering explicit: it runs the
+The integrated controller now makes that ordering explicit: it runs the
 20-write initializer, launches the 24-operation verifier only after ACK-only
-completion, and exposes a single fail-low `unmute_permitted`. Its full bus test
-proves 44-transaction success and shows that ACK-only completion, a later clock
-status mismatch, and an initialization NACK all remain muted. Yosys reports 241
-logic cells, 261 flip-flops, no DSP/BRAM, and no warnings. The signal is ready
-for the controller input of the board's hardware AND gates; continuous health
-monitoring and physical FPGA/PCB integration are still required.
+completion, then requires a four-register runtime-health sweep before exposing
+one fail-low `unmute_permitted`. Periodic polls read live/latched clock faults,
+active/sticky output-short status, and DSP power state. Its full bus test proves
+48-transaction release and shows that ACK-only completion, the startup snapshot,
+both startup failure phases, and a post-unmute short cannot leave permission
+asserted. The runtime monitor alone is 122 logic cells / 178 flip-flops; the
+integrated controller is 340 / 439, with no DSP/BRAM or warnings. Physical
+FPGA/PCB integration and measured fault/mute timing remain release gates.
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
 path is further reducing terminal-solver approximation error without breaking
