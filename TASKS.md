@@ -11,13 +11,14 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
-- [ ] Replace the 8x resampler's reset-cleared shifting history only if a
-  reset-safe circular/distributed-memory implementation remains bit-exact.
-  The improved half-clock placement attributes 4,791 FFX to the decimator and
-  2,910 to the interpolator, each spread across 244 X coordinates, and heap
-  legalization fails in decimator stage three. Preserve reset semantics and
-  all FIR/complete-stream vectors; measure inference and placement rather than
-  assuming a memory rewrite helps.
+- [ ] Replace the remaining 8x interpolator reset-cleared shifting history with
+  a reset-masked circular/distributed-memory implementation, preserving the
+  exact even/odd output order and existing schedule. The completed decimator
+  rewrite proves the method: its 8x block falls from 2,448 LC / 4,791 FF to
+  961 / 618, the complete stream from 17,693 LC / 14,737 packed FFX to 16,315
+  LC / 10,562 packed FFX, and A200T heap placement now legalizes. Apply the
+  same reset-after-history and full-stream evidence before replacing the
+  interpolator baseline.
 - [ ] Isolate and reduce the remaining fixed circuit/state/chord error. With
   the implemented 1,024-point grid branch, raw final-window error is now
   0.372/0.291 mV at 1.0 V and 0.631/0.321 mV at 1.5 V for backward Euler/
@@ -107,9 +108,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   512 persistent solver vectors at 10/11/127 clocks with zero solver diagnostics. The 19-bit chord bank
   costs nine more DSPs than the controlled 768 kHz core synthesis. The complete
   48→384→48 kHz candidate is now exact for 64 external outputs / 512
-  nonlinear updates with zero diagnostics. After serial center-tap sharing in
-  every decimator stage, full-stream synthesis is 17,693 LC / 207 DSP / 10
-  RAMB18 equivalents, versus 18,280 / 206 / 10 at 768 kHz. The
+  nonlinear updates with zero diagnostics. After serial center-tap sharing and
+  reset-masked circular decimator histories, full-stream synthesis is 16,315
+  LC / 10,520 FF / 207 DSP / 10 RAMB18 equivalents at 384 kHz and 16,704 /
+  11,282 / 206 / 10 at 768 kHz; the corresponding 16x decimator alone is 1,408
+  LC / 817 FF / 16 DSP. The
   772,608-update fixed transient comparison is diagnostic-clean and finds only
   +0.1875 ms recovery delta / -84.71 dB aligned recovery error. Known-delay
   windowed-sinc alignment measures the pop at -35.92 dB overall / 2.623 mV
@@ -124,11 +127,25 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   harness packs on A100T but heap placement fails legalization; a legal A200T
   static placement reaches only 34.40 MHz against 98.304 MHz. An explicit
   49.152 MHz schedule is exact with one clock of solver margin and improves
-  static placement to 38.34 MHz against 49.152 MHz, but still misses by 1.28x;
-  the reduced-netlist heap placer fails decimator-FF legalization. Reference
-  mode remains 16x and broader registered scheduling is required.
+  static placement to 38.34 MHz against 49.152 MHz, but still misses by 1.28x.
+  Circular decimator history removes 4,173 packed FFX and makes heap placement
+  legal for the first time, although its 22.79 MHz estimate still fails the
+  clock. Reference mode remains 16x and broader registered scheduling is
+  required.
 
 ## Completed this milestone
+
+- [x] Replace reset-cleared half-band decimator shift registers with a
+  reset-masked circular distributed-memory history. Mask retained memory using
+  an explicit valid-sample count, add a post-history reset regression, and
+  preserve every unit, 8x/16x converter, and complete 384/768 kHz stream output
+  exactly. Measure 349 LC / 214 FF / 4 DSP for one 79-tap stage, 961 / 618 / 12
+  for 8x, and 1,408 / 817 / 16 for 16x. Reduce the complete 384 kHz stream to
+  16,315 LC / 10,520 FF / 207 DSP and prove legal A200T heap placement at
+  58,363 packed LUTX / 10,562 FFX, while retaining its failed 22.79 MHz timing
+  result and the static placer's still-failing 38.38 MHz result, then skip
+  routing. The refreshed static hierarchy is 2,725 LUTX / 618 FFX / 12 DSP for
+  the decimator versus the prior 8,397 / 4,791 / 12.
 
 - [x] Extend the placed-JSON hierarchy analyzer to distinguish the complete
   8x interpolator and decimator, with regression coverage for flattened names.

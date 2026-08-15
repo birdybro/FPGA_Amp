@@ -51,10 +51,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   13,158 LC / 174 DSP / 10 RAMB18 equivalents at 768 kHz. The complete
   candidate stream now matches 64 external outputs across 512 nonlinear
   updates exactly, with zero converter, solver, or deadline diagnostics.
-  After serializing each decimator center tap through its existing multiplier,
-  controlled full-stream synthesis measures 17,693 LC / 207 DSP / 10 RAMB18
-  equivalents at 384 kHz versus 18,280 / 206 / 10 at 768 kHz. Reference mode
-  remains 16×/768 kHz. A 772,608-update paired fixed-stream campaign finds
+  After serializing each decimator center tap and replacing its reset-cleared
+  shift history with reset-masked circular distributed memory, controlled
+  full-stream synthesis measures 16,315 LC / 10,520 FF / 207 DSP / 10 RAMB18
+  equivalents at 384 kHz versus 16,704 / 11,282 / 206 / 10 for 768 kHz.
+  Reference mode remains 16×/768 kHz. A 772,608-update paired fixed-stream
+  campaign finds
   8× recovery only 0.1875 ms later, with -84.71 dB aligned waveform and
   -81.02 dB audio-band residuals. Known-delay, windowed-sinc alignment measures
   the synthetic pop at -35.92 dB overall, 2.623 mV peak error, and -53.33 dB
@@ -68,19 +70,21 @@ The mono reference and complete 768 kHz circuit solver are operating:
   48 kHz output boundary for 384 kHz and -61.00 dB for 768 kHz; maximum errors
   are 0.539 and 0.546 mV, respectively, with zero failed floating solves. This
   experiment therefore does not support keeping 16× on transient-accuracy
-  grounds. A three-pin complete-stream harness packs on XC7A100T at 63,902
-  LUTX / 14,737 FFX / 4,071 CARRY4 / 207 DSP, but heap placement does not
-  legalize. The identical reduced-DSP netlist legally places on XC7A200T with
+  grounds. The earlier shifting-history three-pin harness packs on XC7A100T at
+  63,902 LUTX / 14,737 FFX / 4,071 CARRY4 / 207 DSP, but heap placement does
+  not legalize. That baseline legally places on XC7A200T with
   nextpnr's static placer at only 34.40 MHz versus 98.304 MHz. The experimental
   backend's `DEFAULT` grade is not qualified -1 signoff, but the 2.86× miss is
   decisive enough to skip routing. An explicit 49.152 MHz fabric schedule then
   halves every enable interval while preserving the same 384 kHz arithmetic:
   its 127-clock solver fits exactly within the 128-clock internal period, and
   the complete 64-output/512-update regression remains bit-exact with zero
-  diagnostics. Static A200T placement improves to 38.34 MHz versus 49.152 MHz,
-  a remaining 1.28× miss; the timing-driven heap placer still fails to legalize
-  a decimator register. The 587-LC saving, one additional DSP, and failed
-  timing keep 8× unpromoted.
+  diagnostics. Baseline static A200T placement improves to 38.34 MHz versus
+  49.152 MHz. Circular decimator history then cuts the packed design to 58,363
+  LUTX / 10,562 FFX / 4,099 CARRY4 / 207 DSP and makes heap placement legal for
+  the first time, but its 22.79 MHz estimate still fails timing. Static
+  placement reaches 38.38 MHz, effectively unchanged from the old 38.34 MHz
+  result. Routing is skipped and 8× remains unpromoted.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both

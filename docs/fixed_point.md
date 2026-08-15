@@ -630,10 +630,13 @@ constants let Yosys reduce the parallel products. The current controlled build
 measures 13,158 logic cells / 174 DSP48E1s / 8 RAMB18E1 + 1 RAMB36E1 for the
 solver and 18,302 / 222 / 8 RAMB18E1 + 1 RAMB36E1 for the initial complete
 768 kHz stream. Serializing the decimator center tap through its existing MAC
-supersedes those complete-stream counts with 18,280 / 206 and 17,693 / 207 at
-768/384 kHz, respectively, with the same RAM. The A200T legal placement result
-is only 34.40 MHz against 98.304 MHz, so structural fit is not misstated as
-timing closure.
+first superseded those complete-stream counts with 18,280 / 206 and 17,693 /
+207 at 768/384 kHz. Replacing the shifting decimator histories with reset-
+masked circular distributed memory then reduces the 384 kHz stream to 16,315
+LC / 10,520 FF / 207 DSP and the 768 kHz stream to 16,704 / 11,282 / 206, with
+the same block RAM. A200T heap placement now legalizes, but its 22.79 MHz
+estimate misses 49.152 MHz; static placement reaches only 38.38 MHz, so
+structural and placement success are not misstated as timing closure.
 
 The overload gate passes only through the measured 0.5 V level. At 20 mV, the
 candidate matches analytical 10%/1% recovery within about 0.002/0.000 ms and

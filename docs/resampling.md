@@ -105,15 +105,20 @@ chain tests match 2,048 interpolation outputs and 128 decimation outputs exactly
 with zero saturation, overrun, or input-phase errors. The decimator bench also
 supports 131,072 custom inputs / 8,192 captured outputs for spectral tests.
 Generic XC7 synthesis reports 2,053 estimated logic cells / 16 DSP48E1s for
-interpolation and 3,000 / 16 for decimation. No Fmax is claimed without
-place-and-route. Each decimator stage now captures the pre-shift center sample
-and schedules that product through the existing serial MAC one clock before
-the off-center taps; exact samples are unchanged.
+interpolation and 1,408 logic cells / 817 flip-flops / 16 DSP48E1s for
+decimation. No Fmax is claimed without place-and-route. Each decimator stage
+schedules its center product through the existing serial MAC one clock before
+the off-center taps. Its sample history is an unreset circular distributed
+memory; a reset valid-count mask supplies the same causal zero history and
+prevents retained physical bits from appearing after reset. Exact samples and
+latency are unchanged.
 
 The three-stage candidate synthesizes to 1,549 estimated logic cells / 12
-DSP48E1s for interpolation and 2,448 / 12 for decimation. Relative to the
-four-stage blocks this removes 504/552 estimated cells and four DSPs in each
-direction. These are Yosys structural measurements, not timing results.
+DSP48E1s for interpolation and 961 logic cells / 618 flip-flops / 12 DSP48E1s
+for decimation. One 79-tap decimator stage measures 349 LC / 214 FF / 4 DSP,
+down from the shifting history's 1,284 / 2,753 / 4. Yosys maps the three-stage
+histories into 30 `RAM32M` distributed-memory primitives rather than block RAM.
+These are controlled structural measurements, not timing results.
 
 Stage tap counts shrink as physical image transitions widen. Symmetry can reduce
 resource use further; the present serial cores exploit zeros but do not pre-add

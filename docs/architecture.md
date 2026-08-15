@@ -44,9 +44,10 @@ Reference mode remains 16×. The separately named three-stage 8× converter and
 64 external outputs cover 512 persistent solver updates with zero converter,
 solver, or deadline diagnostics. Its default stage-3 enable occurs every 256
 fabric clocks and interpolation scheduling delay is eight 384 kHz samples.
-After sharing each decimator stage's center-tap multiplier, Yosys synthesis
-measures 17,693 LC / 207 DSP / 10 RAMB18 equivalents versus 18,280 / 206 / 10
-for the selected 768 kHz stream. This is structural evidence, not Fmax closure.
+After sharing each decimator stage's center-tap multiplier and replacing its
+shifting history with reset-masked circular distributed memory, Yosys synthesis
+measures 16,315 LC / 10,520 FF / 207 DSP / 10 RAMB18 equivalents versus 16,704
+/ 11,282 / 206 / 10 at 768 kHz. This is structural evidence, not Fmax closure.
 The subsequent complete fixed-stream transient gate processes
 772,608 nonlinear updates with zero diagnostics. Its accepted-range overload
 recovery is close: 8× is 0.1875 ms later, -84.71 dB aligned overall, and
@@ -68,11 +69,12 @@ not legalize under the heap placer, while legal A200T static placement reaches
 34.40 MHz against 98.304 MHz. An explicit 49.152 MHz schedule instead uses
 1,024 clocks per 48 kHz input and 128 per 384 kHz update. The same 127-clock
 solver and all 64 complete outputs remain exact with zero diagnostics, proving
-one clock of real schedule margin. Static A200T placement reaches 38.34 MHz
-against 49.152 MHz; the reduced 207-DSP heap placement still fails
-legalization. The candidate saves 587 estimated logic cells but uses one more
-DSP than 16× after sharing, and remains unpromoted pending registered
-cross-block scheduling and timing closure.
+one clock of real schedule margin. The shifting-history baseline reaches 38.34
+MHz with static placement against 49.152 MHz. Circular decimator history cuts
+4,173 packed flip-flops and lets heap placement legalize, but the resulting
+22.79 MHz estimate still fails the clock. Static placement reaches 38.38 MHz,
+effectively unchanged from the old 38.34 MHz result. The candidate remains
+unpromoted pending registered cross-block scheduling and timing closure.
 
 `phono_stream_mono.sv` now implements this digital reference boundary from
 48 kHz Q8.24 physical input volts through 16× interpolation, the complete V1

@@ -6,6 +6,23 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Replaced every half-band decimator's reset-cleared shifting sample array with
+  a circular history inferred as distributed RAM. An explicit valid-sample
+  count provides architectural zero fill after reset while leaving physical
+  memory bits unreset; a new reset-after-history regression proves that stale
+  data cannot leak. Unit, 8x/16x converter, and complete 384/768 kHz streams
+  remain bit-exact. A 79-tap stage falls from 1,284 LC / 2,753 FF to 349 / 214,
+  the 8x decimator from 2,448 / 4,791 to 961 / 618, and the 16x decimator from
+  3,000 / 5,615 to 1,408 / 817, with unchanged DSP counts. The complete 384 kHz
+  stream drops from 17,693 LC / 14,737 packed FFX to 16,315 LC / 10,562 packed
+  FFX; the refreshed complete 768 kHz stream is 16,704 LC / 11,282 FF / 206
+  DSP. A200T heap placement now legalizes at 58,363 LUTX / 10,562 FFX / 4,099
+  CARRY4 / 207 DSP, removing the prior decimator-FF placement blocker, but its
+  22.79 MHz estimate still fails 49.152 MHz. Static placement reaches 38.38 MHz,
+  effectively unchanged from the old 38.34 MHz result, with the decimator
+  hierarchy reduced from 8,397 LUTX / 4,791 FFX to 2,725 / 618. Routing remains
+  skipped.
+
 - Extended the placed-JSON analyzer to separate complete-stream interpolator,
   decimator, and solver-control hierarchy, with flattened-name regression
   coverage. The half-clock static placement attributes 8,397 LUTX / 4,791 FFX

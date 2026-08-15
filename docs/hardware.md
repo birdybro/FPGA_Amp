@@ -567,21 +567,23 @@ RAM. Its 127-clock solver latency leaves one clock between 768 kHz deadlines at
 will close routing on XC7A100T; the named-part open-source place/route flow must
 close before this mode can be selected for hardware.
 
-The current controlled complete trapezoidal banked terminal stream measures
-18,280 logic cells, 206 DSP48E1s, eight RAMB18E1s, and one RAMB36E1 with zero
-structural check problems. Each half-band decimator now captures its pre-shift
-center sample and spends one additional MAC clock on that product instead of
-instantiating a second multiplier. Unit, complete-converter, and complete-
-stream regressions remain exact. This occupies 85.8% of the XC7A100T's DSPs,
+The last controlled 768 kHz complete trapezoidal banked terminal stream
+measurement is 18,280 logic cells, 206 DSP48E1s, eight RAMB18E1s, and one
+RAMB36E1 with zero structural check problems. Each half-band decimator spends
+one additional MAC clock on its center product instead of instantiating a
+second multiplier. The subsequently selected reset-masked circular history is
+bit-exact at 16×, reduces the standalone four-stage decimator to 1,408 LC / 817
+FF / 16 DSP, and reduces the complete 768 kHz stream to 16,704 LC / 11,282 FF /
+206 DSP. This occupies 85.8% of the XC7A100T's DSPs,
 leaving 34 blocks but still ruling out duplication for stereo. Its exact solver
 latency remains 127 clocks; only named-part place-and-route can establish
 whether the arithmetic meets 98.304 MHz.
 
-The explicit 384 kHz candidate, including its three-stage converters and
-19-bit chord bank, measures 17,693 logic cells, 207 DSP48E1s, eight RAMB18E1s,
-and one RAMB36E1. Relative to the controlled 768 kHz stream this saves 587
-estimated cells, uses one additional DSP, and doubles the cycle budget to 256
-clocks.
+The explicit 384 kHz candidate, including its three-stage converters, 19-bit
+chord bank, and circular decimator histories, measures 16,315 logic cells,
+10,520 flip-flops, 207 DSP48E1s, eight RAMB18E1s, and one RAMB36E1. The prior
+shifting-history implementation measured 17,693 LC / 14,737 packed FFX. The
+circuit arithmetic is unchanged and the cycle budget remains 256 clocks.
 
 `stream_384khz_pnr_harness` preserves the complete candidate behind the same
 three physical timing pins as the solver harness. On XC7A100T it packs to
@@ -603,20 +605,33 @@ clock of margin across 64 outputs / 512 updates and zero diagnostics. The A200T
 pack is unchanged at 63,902 LUTX / 207 DSP, apart from two fewer phase-counter
 flip-flops. Static placement improves to 38.34 MHz against 49.152 MHz, reducing
 the timing ratio miss from 2.86x to 1.28x but not closing it. A timing-driven
-heap attempt on the reduced netlist still fails legalization after 10,001
-attempts at a stage-three decimator flip-flop. Routing remains unjustified and
-is not claimed.
+heap attempt on the shifting-history netlist still fails legalization after
+10,001 attempts at a stage-three decimator flip-flop. The selected circular
+history reduces controlled synthesis to 16,315 LC / 10,520 FF and packs at
+58,363 LUTX / 10,562 FFX / 4,099 CARRY4 / 207 DSP. Heap placement now
+legalizes, proving that the decimator registers were a real congestion blocker,
+but reaches only 22.79 MHz against 49.152 MHz. Static placement reaches 38.38
+MHz, effectively unchanged from the old 38.34 MHz result. Routing remains
+unjustified and is not claimed.
 
 The placement analyzer now recognizes complete-stream resampler hierarchy
 instead of folding it into harness constants. In the 38.34 MHz static result,
 the decimator accounts for 8,397 LUTX / 4,791 FFX / 12 DSP and spans 244x143
 placement coordinates; the interpolator is 5,193 / 2,910 / 12 over 244x139.
 For comparison, KCL is 19,609 / 2,920 / 72 over 190x185. The resampler history
-registers and their nearly device-wide placement are therefore a first-class
+registers and their nearly device-wide placement were therefore a first-class
 congestion target, consistent with the heap failure occurring in decimator
-stage three. A reset-safe circular/distributed-memory history is the next
-candidate; resource reduction must be measured and exact FIR vectors preserved
-before it replaces the shift-register baseline.
+stage three. The reset-masked circular implementation preserves every exact FIR
+and complete-stream vector, maps the 8× histories into 30 `RAM32M` primitives,
+and reduces that decimator to 961 LC / 618 FF / 12 DSP. Its successful heap
+legalization closes the congestion diagnosis, while the 22.79 MHz result shows
+that the complete timing problem remains elsewhere as well. In the refreshed
+static placement, the decimator hierarchy is 2,725 LUTX / 618 FFX / 12 DSP
+versus the old 8,397 / 4,791 / 12. It still spans 244x181 placement coordinates,
+while the unchanged interpolator consumes 5,225 / 2,910 / 12 over 184x242 and
+KCL consumes 19,616 / 2,920 / 72 over 211x160. The nearly unchanged static Fmax
+despite the decimator reduction is direct evidence against continuing to treat
+that history as the critical timing path.
 
 The device-neutral asynchronous FIFO has a separately measured depth-8 × 32-bit
 configuration:

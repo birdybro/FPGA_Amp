@@ -79,6 +79,27 @@ module halfband_decimator_2x_tb;
             end
         end
         $fclose(file_handle);
+
+        // History storage is allowed to retain physical bits through reset,
+        // but no stale sample may become architecturally visible afterward.
+        rst_n <= 1'b0;
+        @(posedge clk);
+        #1;
+        rst_n <= 1'b1;
+        @(posedge clk);
+        pulse_input(32'sd0);
+        timeout = 0;
+        while (!output_valid) begin
+            @(posedge clk);
+            #1;
+            timeout = timeout + 1;
+            if (timeout > 44) $fatal(1, "post-reset decimator timeout");
+        end
+        if (sample_output_q24 !== 32'sd0) begin
+            $error("post-reset stale history: got=%0d", sample_output_q24);
+            error_count = error_count + 1;
+        end
+
         if (saturation_count != 0 || overrun_count != 0) begin
             $error("diagnostics saturation=%0d overrun=%0d",
                    saturation_count, overrun_count);
