@@ -628,10 +628,12 @@ histories. All 512 nominal samples and 384,000 overload updates match every
 fixed node and capacitor state at 127 clocks. Generated frozen-V1 conductance
 constants let Yosys reduce the parallel products. The current controlled build
 measures 13,158 logic cells / 174 DSP48E1s / 8 RAMB18E1 + 1 RAMB36E1 for the
-solver and 18,302 / 222 / 8 RAMB18E1 + 1 RAMB36E1 for the complete 768 kHz
-stream. The rate-specific 384 kHz stream is separately measured at 17,629 /
-219 / 8 RAMB18E1 + 1 RAMB36E1. No timing result is inferred from these
-structural counts.
+solver and 18,302 / 222 / 8 RAMB18E1 + 1 RAMB36E1 for the initial complete
+768 kHz stream. Serializing the decimator center tap through its existing MAC
+supersedes those complete-stream counts with 18,280 / 206 and 17,693 / 207 at
+768/384 kHz, respectively, with the same RAM. The A200T legal placement result
+is only 34.40 MHz against 98.304 MHz, so structural fit is not misstated as
+timing closure.
 
 The overload gate passes only through the measured 0.5 V level. At 20 mV, the
 candidate matches analytical 10%/1% recovery within about 0.002/0.000 ms and

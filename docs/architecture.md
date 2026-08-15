@@ -44,9 +44,10 @@ Reference mode remains 16×. The separately named three-stage 8× converter and
 64 external outputs cover 512 persistent solver updates with zero converter,
 solver, or deadline diagnostics. Its stage-3 enable occurs every 256 fabric
 clocks and interpolation scheduling delay is eight 384 kHz samples. Controlled
-Yosys synthesis measures 17,629 LC / 219 DSP / 10 RAMB18 equivalents versus
-18,302 / 222 / 10 for the selected 768 kHz stream. This is structural evidence,
-not Fmax closure. The subsequent complete fixed-stream transient gate processes
+After sharing each decimator stage's center-tap multiplier, Yosys synthesis
+measures 17,693 LC / 207 DSP / 10 RAMB18 equivalents versus 18,280 / 206 / 10
+for the selected 768 kHz stream. This is structural evidence, not Fmax closure.
+The subsequent complete fixed-stream transient gate processes
 772,608 nonlinear updates with zero diagnostics. Its accepted-range overload
 recovery is close: 8× is 0.1875 ms later, -84.71 dB aligned overall, and
 -81.02 dB in-band. The pop comparison uses the independently known -1.25-sample
@@ -62,8 +63,11 @@ Without latency, gain, or DC fitting, Python-to-SPICE external residual is
 -61.47 dB / 0.539 mV maximum at 384 kHz and -61.00 dB / 0.546 mV at 768 kHz.
 Both floating solves converge. This transient slightly favors 8×, but the
 difference is too small and too stimulus-specific to establish a general
-accuracy advantage. The candidate remains unpromoted because its area saving
-is modest and named-part Fmax is unproven.
+accuracy advantage. Named-part evidence is now negative: A100T packs but does
+not legalize under the heap placer, while legal A200T static placement reaches
+34.40 MHz against 98.304 MHz. The candidate saves 587 estimated logic cells but
+uses one more DSP than 16× after sharing, and remains unpromoted pending a
+broader scheduled/pipelined architecture.
 
 `phono_stream_mono.sv` now implements this digital reference boundary from
 48 kHz Q8.24 physical input volts through 16× interpolation, the complete V1

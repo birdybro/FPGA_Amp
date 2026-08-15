@@ -194,7 +194,7 @@ retained snapshot cannot tear when `force_mute` changes, takes a second image,
 captures a deliberately aborted frame, reads the snapshotted transport-frame
 count, and transfers one diagnostic-clear event into the unrelated I²S clock
 domain. With the fail-closed BCLK guard and coherent I²S snapshot, flattened XC7
-structural synthesis is 21,589 estimated logic cells / 18,094 FF / 232 DSP48E1 /
+structural synthesis is 19,719 estimated logic cells / 18,856 FF / 216 DSP48E1 /
 8 RAMB18E1 + 1 RAMB36E1. There is still no named-part SCLK, CDC, I/O, or
 98.304 MHz timing claim, and no physical host backend. No protocol-specific
 state belongs in the audio solver.

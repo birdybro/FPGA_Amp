@@ -24,7 +24,9 @@ module halfband_decimator_2x #(
 
     logic signed [23:0] coefficient [0:TAPS-1];
     logic signed [31:0] history [0:TAPS-1];
+    logic signed [31:0] center_sample;
     logic input_phase;
+    logic center_pending;
     logic [INDEX_WIDTH-1:0] tap_index;
     logic signed [62:0] accumulator;
 
@@ -34,10 +36,19 @@ module halfband_decimator_2x #(
         $readmemh(COEFFICIENT_FILE, coefficient);
     end
 
+    logic signed [23:0] selected_coefficient;
+    logic signed [31:0] selected_sample;
     logic signed [55:0] product;
     logic signed [62:0] sum_with_product;
     always_comb begin
-        product = coefficient[tap_index] * history[tap_index];
+        if (center_pending) begin
+            selected_coefficient = coefficient[CENTER];
+            selected_sample = center_sample;
+        end else begin
+            selected_coefficient = coefficient[tap_index];
+            selected_sample = history[tap_index];
+        end
+        product = selected_coefficient * selected_sample;
         sum_with_product = accumulator + {{7{product[55]}}, product};
     end
 
@@ -74,6 +85,8 @@ module halfband_decimator_2x #(
             saturation_count <= '0;
             overrun_count <= '0;
             input_phase <= 1'b0;
+            center_sample <= '0;
+            center_pending <= 1'b0;
             tap_index <= '0;
             accumulator <= '0;
             for (lane = 0; lane < TAPS; lane = lane + 1)
@@ -88,8 +101,9 @@ module halfband_decimator_2x #(
                         history[lane] <= history[lane - 1];
                     history[0] <= sample_input_q24;
                     if (!input_phase) begin
-                        accumulator <= $signed(coefficient[CENTER]) *
-                                       $signed(history[CENTER - 1]);
+                        accumulator <= '0;
+                        center_sample <= history[CENTER - 1];
+                        center_pending <= 1'b1;
                         tap_index <= '0;
                         busy <= 1'b1;
                     end
@@ -98,7 +112,10 @@ module halfband_decimator_2x #(
             end
 
             if (busy) begin
-                if (tap_index == INDEX_WIDTH'(TAPS - 1)) begin
+                if (center_pending) begin
+                    accumulator <= sum_with_product;
+                    center_pending <= 1'b0;
+                end else if (tap_index == INDEX_WIDTH'(TAPS - 1)) begin
                     sample_output_q24 <= rounded_saturated(sum_with_product);
                     if (output_overflows(sum_with_product))
                         saturation_count <= saturation_count + 1'b1;

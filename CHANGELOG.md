@@ -6,6 +6,20 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a complete three-pin 384 kHz stream timing harness and exposed
+  nextpnr's heap/SA/static placer selection. The reduced-DSP design packs on
+  XC7A100T at 63,902 LUTX / 14,737 FFX / 4,071 CARRY4 / 207 DSP but heap
+  placement does not legalize. The independent static placer legally places
+  it on XC7A200T at only 34.40 MHz versus 98.304 MHz under the experimental
+  `DEFAULT` grade; routing is skipped after the 2.86x miss.
+- Serialized each half-band decimator's center tap through its existing MAC,
+  capturing the pre-shift history operand explicitly. The unit, 8x/16x chain,
+  and complete nonlinear-stream regressions remain bit-exact. Decimator DSP
+  use falls from 24 to 12 at 8x and 32 to 16 at 16x; controlled complete-stream
+  synthesis is now 17,693 LC / 207 DSP at 384 kHz and 18,280 / 206 at 768 kHz.
+  Refreshed flattened integration results are 18,642 LC / 16,354 FF / 216 DSP
+  for the fabric adapter, 19,156 / 17,669 / 216 for the I²S top, 19,616 /
+  18,684 / 216 for the controlled top, and 19,719 / 18,856 / 216 with SPI.
 - Added an automated absolute record-pop comparison between the 384/768 kHz
   floating trapezoidal paths and ngspice. Each SPICE run is driven by the
   corresponding interpolated INPUT-node PWL, paired with a matched 5 mV/1 kHz
@@ -206,16 +220,16 @@ All notable engineering changes are recorded here. The project is pre-release; d
   384 kHz candidate. Exact regressions match 1,024 interpolation and 128
   decimation outputs with zero saturation, overrun, or phase errors and measure
   eight 384 kHz samples (20.83 us) of interpolation scheduling delay. Yosys
-  structural synthesis reports 1,549 LC / 12 DSP and 2,355 LC / 24 DSP,
-  respectively; the existing 16x modules remain reference mode.
+  initial structural synthesis reported 1,549 LC / 12 DSP and 2,355 LC / 24
+  DSP, respectively; later center-tap sharing supersedes the decimator count.
 
 - Composed the three-stage converters with the rate-specific 384 kHz
   banked-terminal nonlinear core. The generalized fixed reference and
   SystemVerilog stream match 64 external outputs across 512 persistent solver
   updates exactly, including all converter, solver, and deadline diagnostics.
-  Controlled Yosys 0.66 XC7 builds measure 17,629 LC / 219 DSP / 10 RAMB18
+  Initial controlled Yosys 0.66 XC7 builds measured 17,629 LC / 219 DSP / 10 RAMB18
   equivalents at 384 kHz versus 18,302 / 222 / 10 for the selected 768 kHz
-  stream. The 8x path remains an explicit non-reference candidate pending
+  stream; later center-tap sharing supersedes both resource counts. The 8x path remains an explicit non-reference candidate pending
   transient alias, overload recovery, and named-part timing evidence.
 
 - Extended the internal-rate study through complete fixed-stream synthetic-pop

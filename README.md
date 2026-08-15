@@ -51,8 +51,9 @@ The mono reference and complete 768 kHz circuit solver are operating:
   13,158 LC / 174 DSP / 10 RAMB18 equivalents at 768 kHz. The complete
   candidate stream now matches 64 external outputs across 512 nonlinear
   updates exactly, with zero converter, solver, or deadline diagnostics.
-  Controlled full-stream synthesis measures 17,629 LC / 219 DSP / 10 RAMB18
-  equivalents at 384 kHz versus 18,302 / 222 / 10 at 768 kHz. Reference mode
+  After serializing each decimator center tap through its existing multiplier,
+  controlled full-stream synthesis measures 17,693 LC / 207 DSP / 10 RAMB18
+  equivalents at 384 kHz versus 18,280 / 206 / 10 at 768 kHz. Reference mode
   remains 16×/768 kHz. A 772,608-update paired fixed-stream campaign finds
   8× recovery only 0.1875 ms later, with -84.71 dB aligned waveform and
   -81.02 dB audio-band residuals. Known-delay, windowed-sinc alignment measures
@@ -67,8 +68,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   48 kHz output boundary for 384 kHz and -61.00 dB for 768 kHz; maximum errors
   are 0.539 and 0.546 mV, respectively, with zero failed floating solves. This
   experiment therefore does not support keeping 16× on transient-accuracy
-  grounds. The modest three-DSP saving and open named-part timing still keep
-  8× unpromoted. Neither structural result is a timing-closure claim.
+  grounds. A three-pin complete-stream harness packs on XC7A100T at 63,902
+  LUTX / 14,737 FFX / 4,071 CARRY4 / 207 DSP, but heap placement does not
+  legalize. The identical reduced-DSP netlist legally places on XC7A200T with
+  nextpnr's static placer at only 34.40 MHz versus 98.304 MHz. The experimental
+  backend's `DEFAULT` grade is not qualified -1 signoff, but the 2.86× miss is
+  decisive enough to skip routing. The 587-LC saving, one additional DSP, and
+  failed timing keep 8× unpromoted.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both
@@ -207,8 +213,8 @@ The mono reference and complete 768 kHz circuit solver are operating:
   state before the first accepted frame. A downstream modern safety ramp begins
   muted, reaches exact-unity bypass, and leaves reference mode bit-identical;
   the integration test also checks a synchronous force-mute gain clamp.
-  Flattened structural synthesis is 20,489 LC / 15,592 FF / 232 DSP48E1 /
-  8 RAMB18E1 + 1 RAMB36E1. This leaves only 8 DSPs on the provisional
+  Flattened structural synthesis is 18,642 LC / 16,354 FF / 216 DSP48E1 /
+  8 RAMB18E1 + 1 RAMB36E1. This leaves 24 DSPs on the provisional
   XC7A100T and has no placed timing, serial-pin, or physical-converter claim.
 - A pin-facing digital top now composes the asynchronous I²S bridge with that
   adapter. With exactly frequency-locked but phase-offset 3.072 MHz BCLK and
@@ -225,7 +231,7 @@ The mono reference and complete 768 kHz circuit solver are operating:
   complete valid model-output DAC frame. This is transport latency, not FIR or
   circuit group delay. All four local FIFO views remain at a one-frame
   high-water mark, and the clock monitor is locked after four exact 1,024-edge
-  windows. Flattened synthesis is 21,014 LC / 16,907 FF / 232 DSP48E1 /
+  windows. Flattened synthesis is 19,156 LC / 17,669 FF / 216 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1. This is a
   digital protocol integration, not placed CDC/I/O timing or converter/analog
   validation. The digital ramp cannot revoke frames already queued in the CDC
@@ -309,8 +315,8 @@ The mono reference and complete 768 kHz circuit solver are operating:
   clean; burst RMS error versus floating trapezoidal is 0.276, 1.210, 4.709,
   and 3.604 mV. Its 64-output complete 768 kHz stream is exact at 127 clocks.
   The current controlled Yosys build measures 13,158 logic cells / 174 DSPs
-  for the solver and 18,302 / 222 / 8 RAMB18E1 + 1 RAMB36E1 for the complete
-  stream. This fits the provisional A7-100T structurally with 18 DSPs free,
+  for the solver and 18,280 / 206 / 8 RAMB18E1 + 1 RAMB36E1 for the complete
+  stream. This fits the provisional A7-100T structurally with 34 DSPs free,
   but timing is not claimed.
 - Schedule-neutral attempts to reduce its remaining 4.709/3.604 mV severe-
   burst error are preserved as negative results. Corrected-state bank
@@ -340,7 +346,7 @@ The mono reference and complete 768 kHz circuit solver are operating:
   destination reset while the retained source toggle is odd. Integration is
   warning-free. The wrapper also fails closed through BCLK qualification and
   after a retained rate error without changing reference-circuit state.
-  Structural synthesis is 21,466 LC / 17,922 FF / 232 DSP48E1 /
+  Structural synthesis is 19,616 LC / 18,684 FF / 216 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1. The current 22-word image adds a coherent held-bus
   I²S occupancy capture; stopped BCLK times out explicitly without advancing
   the retained-image sequence. Named-part timing is not claimed.
@@ -354,8 +360,8 @@ The mono reference and complete 768 kHz circuit solver are operating:
   passes 15 SPI frames through the pin-facing hierarchy, including untorn
   force-mute snapshots, snapshotted transport count, calibration ownership,
   a retained short-frame fault, and one I²S-domain clear event. Flattened
-  synthesis is 21,589 LC / 18,094 FF /
-  232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; placed SCLK/CDC/I/O limits remain open.
+  synthesis is 19,719 LC / 18,856 FF /
+  216 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1; placed SCLK/CDC/I/O limits remain open.
 - A dependency-free Python host client defines the same ten-byte full-duplex
   wire frame, register/capability constants, status validation, explicit-mute
   snapshot/clear commands, snapshot completion polling, and guarded calibration
@@ -832,6 +838,9 @@ make factorized-linear-study       # Hermite/linear/full-Newton circuit A/B
 make tools-openxc7                 # build pinned open XC7 P&R tools locally
 make openxc7-probe                 # report Yosys/nextpnr/database revisions
 make openxc7-a200t-probe           # verify the second Artix-7 chip database
+make openxc7-stream-384-pack       # pack complete 384 kHz stream on A7-100T
+make openxc7-stream-384-place      # attempt A7-100T heap placement
+make openxc7-a200t-stream-384-static-place # static-place stream on A7-200T
 make openxc7-pnr                   # route the solver timing harness on A7-100T
 make openxc7-hermite-pnr           # route the Hermite timing harness on A7-100T
 make openxc7-linear-tube-pnr       # route the value-only tube harness

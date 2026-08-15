@@ -568,19 +568,33 @@ will close routing on XC7A100T; the named-part open-source place/route flow must
 close before this mode can be selected for hardware.
 
 The current controlled complete trapezoidal banked terminal stream measures
-18,302 logic cells,
-222 DSP48E1s, eight RAMB18E1s, and one RAMB36E1 with zero structural check
-problems. It occupies 92.5% of the XC7A100T's DSPs, leaving 18 blocks and ruling out duplication for
-stereo. Its exact simulation latency is 127 clocks, but the terminal edge now
-contains constant-multiply current updates. Only named-part place-and-route can
-establish whether that path and the one-clock sample margin meet 98.304 MHz.
+18,280 logic cells, 206 DSP48E1s, eight RAMB18E1s, and one RAMB36E1 with zero
+structural check problems. Each half-band decimator now captures its pre-shift
+center sample and spends one additional MAC clock on that product instead of
+instantiating a second multiplier. Unit, complete-converter, and complete-
+stream regressions remain exact. This occupies 85.8% of the XC7A100T's DSPs,
+leaving 34 blocks but still ruling out duplication for stereo. Its exact solver
+latency remains 127 clocks; only named-part place-and-route can establish
+whether the arithmetic meets 98.304 MHz.
 
 The explicit 384 kHz candidate, including its three-stage converters and
-19-bit chord bank, measures 17,629 logic cells, 219 DSP48E1s, eight RAMB18E1s,
-and one RAMB36E1. Relative to the controlled 768 kHz stream this saves 673
-estimated cells and three DSPs while doubling the cycle budget to 256 clocks.
-These are out-of-context structural counts; neither candidate has complete
-named-part timing closure.
+19-bit chord bank, measures 17,693 logic cells, 207 DSP48E1s, eight RAMB18E1s,
+and one RAMB36E1. Relative to the controlled 768 kHz stream this saves 587
+estimated cells, uses one additional DSP, and doubles the cycle budget to 256
+clocks.
+
+`stream_384khz_pnr_harness` preserves the complete candidate behind the same
+three physical timing pins as the solver harness. On XC7A100T it packs to
+63,902 `SLICE_LUTX`, 14,737 `SLICE_FFX`, 4,071 CARRY4s, 207 DSP48E1s, eight
+RAMB18E1s, and one RAMB36E1. The default heap placement does not legalize; the
+earlier 219-DSP form also fails with deeper heap search. On the larger
+XC7A200T, heap seeds 1 and 2 fail legalization for the earlier 219-DSP form.
+The independent static placer legally places the reduced 207-DSP netlist and
+reports 34.40 MHz against 98.304 MHz under the experimental `DEFAULT` timing
+grade. This is a 2.86x placement miss, so routing is deliberately skipped.
+The result is not qualified -1 signoff, but it proves that neither raw A200T
+capacity nor the 8× candidate's doubled cycle budget makes the present
+combinational structure viable.
 
 The device-neutral asynchronous FIFO has a separately measured depth-8 × 32-bit
 configuration:
@@ -679,9 +693,9 @@ The accuracy-first fabric mono adapter has the flattened combined result:
 
 | Resource | Count |
 |---|---:|
-| estimated logic cells | 20,489 |
-| flip-flops | 15,592 (15,116 FDRE + 476 FDSE) |
-| DSP48E1 | 232 |
+| estimated logic cells | 18,642 |
+| flip-flops | 16,354 (15,878 FDRE + 476 FDSE) |
+| DSP48E1 | 216 |
 | RAMB18E1 / RAMB36E1 | 8 / 1 |
 | RAMB18-equivalents | 10 |
 
@@ -691,9 +705,9 @@ notices retained in the full log; they are not mislabeled as a dual-clock FIFO
 inference warning. This top includes frame scheduling, both runtime calibration
 multipliers, the 127-clock trapezoidal/banked/terminal stream, and the two-DSP
 modern output ramp. It excludes the asynchronous I²S bridge, atomic control
-commit, and dedicated safety hardware. At 232/240 DSPs it leaves only eight DSP48E1s on the
-provisional A7-100T. Structural fit does not prove that its one-clock solver
-margin meets 98.304 MHz.
+commit, and dedicated safety hardware. At 216/240 DSPs it leaves 24 DSP48E1s on
+the provisional A7-100T. Structural fit does not prove that its one-clock
+solver margin meets 98.304 MHz.
 
 The resource reporter now records RAMB36E1 separately and publishes a
 RAMB18-equivalent total. Earlier summaries silently omitted the one mapped
@@ -706,12 +720,12 @@ adapter produces the pin-facing digital hierarchy:
 
 | Resource | Count |
 |---|---:|
-| estimated logic cells | 21,014 |
-| flip-flops | 16,907 |
-| DSP48E1 | 232 |
+| estimated logic cells | 19,156 |
+| flip-flops | 17,669 |
+| DSP48E1 | 216 |
 | RAMB18E1 / RAMB36E1 | 8 / 1 |
 
-The flip-flop total is 15,820 FDRE, 476 FDSE, 471 FDCE, 3 FDPE, 131
+The flip-flop total is 16,582 FDRE, 476 FDSE, 471 FDCE, 3 FDPE, 131
 falling-edge FDCE, and 6 falling-edge FDPE. Structural check reports zero
 problems; the 77 unique warnings retain local-array/FIFO register expansion and
 primitive resize notices. The result has no clock constraints, synchronizer
@@ -731,9 +745,9 @@ pin hierarchy:
 
 | Resource | Register-controlled | SPI-controlled |
 |---|---:|---:|
-| estimated logic cells | 21,466 | 21,589 |
-| flip-flops | 17,922 | 18,094 |
-| DSP48E1 | 232 | 232 |
+| estimated logic cells | 19,616 | 19,719 |
+| flip-flops | 18,684 | 18,856 |
+| DSP48E1 | 216 | 216 |
 | RAMB18E1 / RAMB36E1 | 8 / 1 | 8 / 1 |
 
 Both flattened structural checks report zero problems. These current totals

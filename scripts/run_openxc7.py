@@ -43,6 +43,7 @@ SUPPORTED_TOPS = (
     "shared_capacitor_decoupled_diagnostic_pipelined_kcl_pnr_harness",
     "chord_pnr_harness",
     "pipelined_chord_pnr_harness",
+    "stream_384khz_pnr_harness",
 )
 RUN_TAG_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 
@@ -196,6 +197,12 @@ def main() -> int:
         default=Path("fpga/arty_a7_100t/solver_pnr_harness.xdc"),
     )
     parser.add_argument("--router", choices=("router1", "router2"), default="router2")
+    parser.add_argument(
+        "--placer",
+        choices=("heap", "sa", "static"),
+        default="heap",
+        help="nextpnr placement algorithm (default: heap)",
+    )
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--threads", type=int, default=1)
     parser.add_argument(
@@ -386,6 +393,8 @@ def main() -> int:
         str(netlist),
         "--freq",
         str(args.frequency_mhz),
+        "--placer",
+        args.placer,
         "--router",
         args.router,
         "--seed",
@@ -424,6 +433,7 @@ def main() -> int:
     summary = probe | {
         "top": args.top,
         "target_frequency_mhz": args.frequency_mhz,
+        "placer": args.placer,
         "router": args.router,
         "seed": args.seed,
         "threads": args.threads,

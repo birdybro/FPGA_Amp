@@ -490,7 +490,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | 768 kHz trapezoidal float candidate | 10/20 kHz SPICE transients | <=0.00846 dB gain / <=0.0582 degree phase; downstream proof open |
 | 384 kHz trapezoidal architecture study | 10/20 kHz SPICE plus 20 kHz nonlinear rate stress | <=0.06653 dB / <=0.02234 degree vs SPICE; nominal/hot complete-circuit selected products within 0.52 dB of 768 kHz; static-tube stress 11.33 dB worse but -118.65 dBc; not promoted |
 | 384 kHz fixed/RTL circuit core | 1,024 all-bank chord + 1,024 KCL + 512 persistent solver vectors | bit-exact at 10/11/127 clocks; zero solver diagnostics; 19-bit chord coefficient required |
-| 384 kHz fixed/RTL complete stream | 64 outputs / 512 nonlinear updates | exact Q8.24 output and diagnostics; 17,629 LC / 219 DSP / 10 RAMB18 equivalents versus 18,302 / 222 / 10 at 768 kHz; Fmax open, long-vector proof below |
+| 384 kHz fixed/RTL complete stream | 64 outputs / 512 nonlinear updates | exact Q8.24 output and diagnostics; after shared center-tap MAC, 17,693 LC / 207 DSP / 10 RAMB18 equivalents versus 18,280 / 206 / 10 at 768 kHz; long-vector proof below |
 | 384/768 kHz fixed transient A/B | pop/control and 0.5 V burst/control; 772,608 nonlinear updates | zero diagnostics; known-delay sinc-aligned pop -35.92 dB / 2.623 mV peak / -53.33 dB in-band; recovery +0.1875 ms / -84.71 dB overall / -81.02 dB in-band |
 | internal-rate pop decomposition | converter-only plus floating/fixed circuit; 393,216 nonlinear updates | in-band 8x/16x residual -67.49 / -55.71 / -53.33 dB; same-rate fixed/float -58.88/-59.13 dB; prior linear-alignment result superseded |
 | 384/768 kHz transient RTL vs fixed | 24,576 pop/recovery outputs / 294,912 nonlinear updates | all Q8.24 outputs exact, zero diagnostics, 127 clocks; max residual 0.672/0.322 uA at 384/768 kHz; confirms implementation, not rate equivalence |
@@ -531,7 +531,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | captured banked terminal overload | 384,000 RTL updates, 20 mV--1.5 V | fixed exact; zero diagnostics; H2--H10 0.903--25.213%; phase error <=0.00221 degree |
 | captured trapezoidal banked terminal overload | 384,000 RTL updates, 20 mV--1.5 V | fixed state/current exact; zero diagnostics; 0.276--4.709 mV burst RMS error |
 | banked terminal complete stream | 64 outputs / 1,024 nonlinear updates | exact fixed/RTL Q8.24 outputs, zero diagnostics; 18,466 LC / 168 DSP / 8 RAMB18 + 1 RAMB36 structural |
-| trapezoidal banked terminal complete stream | 64 outputs / 1,024 nonlinear updates | exact fixed/RTL Q8.24 outputs, zero diagnostics; current controlled build 18,302 LC / 222 DSP / 8 RAMB18 + 1 RAMB36 structural |
+| trapezoidal banked terminal complete stream | 64 outputs / 1,024 nonlinear updates | exact fixed/RTL Q8.24 outputs, zero diagnostics; current controlled build 18,280 LC / 206 DSP / 8 RAMB18 + 1 RAMB36 structural |
 | trapezoidal banked terminal stream sweep | 19,200 captured outputs, 100 Hz--20 kHz | fixed exact; <=0.000134 dB / <=0.000444 degree vs float; startup drift retained, detrended null <=-74.79 dB |
 | long fixed state / click recovery | 1 s silence with +/-100 mV single-sample clicks | Q12.20 deadband leaves -5.368 mV late output; must be redesigned |
 | wide-state Python candidate | same 1 s click audit; 5 mV/1 kHz | 38.74 uV late residual; -63.83 dB nominal raw null; complete-RTL proof open |

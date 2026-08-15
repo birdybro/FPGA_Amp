@@ -25,7 +25,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   schedule margin; do not tune the frozen circuit or accept a one-level fit.
 - [ ] Prove 98.304 MHz named-part timing for the 127-clock trapezoidal terminal
   stream. Current controlled generic synthesis fits XC7A100T structurally at
-  18,302 LC / 222 of
+  18,280 LC / 206 of
   240 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1, but the parallel terminal-current path and one-clock
   sample margin require the open Yosys/nextpnr-Himbaechel place/route flow
   before hardware selection. Project X-Ray contains the exact
@@ -100,8 +100,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   512 persistent solver vectors at 10/11/127 clocks with zero solver diagnostics. The 19-bit chord bank
   costs nine more DSPs than the controlled 768 kHz core synthesis. The complete
   48→384→48 kHz candidate is now exact for 64 external outputs / 512
-  nonlinear updates with zero diagnostics. Full-stream synthesis is 17,629 LC /
-  219 DSP / 10 RAMB18 equivalents, versus 18,302 / 222 / 10 at 768 kHz. The
+  nonlinear updates with zero diagnostics. After serial center-tap sharing in
+  every decimator stage, full-stream synthesis is 17,693 LC / 207 DSP / 10
+  RAMB18 equivalents, versus 18,280 / 206 / 10 at 768 kHz. The
   772,608-update fixed transient comparison is diagnostic-clean and finds only
   +0.1875 ms recovery delta / -84.71 dB aligned recovery error. Known-delay
   windowed-sinc alignment measures the pop at -35.92 dB overall / 2.623 mV
@@ -112,11 +113,24 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   updates. The matched absolute pop-response comparison now measures -61.47 dB
   residual / 0.539 mV maximum at the 384 kHz path's 48 kHz output versus
   -61.00 dB / 0.546 mV for 768 kHz, without latency, gain, or DC fitting and
-  with zero failed solves. Thus this transient does not favor 16x. Obtain
-  named-part timing before considering promotion; a three-DSP area saving alone
-  is insufficient.
+  with zero failed solves. Thus this transient does not favor 16x. The complete
+  harness packs on A100T but heap placement fails legalization; a legal A200T
+  static placement reaches only 34.40 MHz against 98.304 MHz. Reference mode
+  remains 16x and broader scheduling/pipelining work is required.
 
 ## Completed this milestone
+
+- [x] Serialize the half-band decimator center tap through the existing MAC.
+  Preserve the pre-shift history operand explicitly and match 256 unit, both
+  8x/16x chain, and both complete nonlinear-stream regressions exactly. Reduce
+  decimator synthesis from 24 to 12 DSPs at 8x and from 32 to 16 at 16x; update
+  complete synthesis to 17,693 LC / 207 DSP and 18,280 / 206 respectively.
+
+- [x] Add a complete 384 kHz three-pin timing harness and open-tool placement
+  path. Pack it on XC7A100T at 63,902 LUTX / 14,737 FFX / 4,071 CARRY4 / 207
+  DSP; retain the failed heap legalization. Legally place the same netlist on
+  XC7A200T with the static placer and measure 34.40 MHz versus 98.304 MHz, then
+  skip routing after the 2.86x miss.
 
 - [x] Compare both floating rate-specific pop/control responses directly with
   ngspice driven at the ideal INPUT node. Use matched interpolation and
@@ -147,16 +161,16 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   banked-terminal core. Generalize the bit-accurate stream model and vector/
   RTL runners without changing the 768 kHz default; match 64 outputs across
   512 persistent nonlinear updates with zero converter, solver, or deadline
-  diagnostics. Measure controlled Yosys structures at 17,629 LC / 219 DSP / 10
-  RAMB18 equivalents for 384 kHz and 18,302 / 222 / 10 for 768 kHz; make no
-  Fmax or reference-mode promotion claim.
+  diagnostics. The initial controlled Yosys structures were 17,629 LC / 219 DSP
+  / 10 RAMB18 equivalents for 384 kHz and 18,302 / 222 / 10 for 768 kHz;
+  center-tap multiplier sharing supersedes those resource values above.
 
 - [x] Implement an explicit three-stage 48↔384 kHz converter without changing
   the four-stage reference modules. Match 1,024 interpolation and 128
   decimation Q8.24 RTL outputs exactly with zero saturation, overrun, or input-
   phase errors; measure eight internal samples / 20.83 µs of interpolation
-  scheduling delay. Yosys reports 1,549 LC / 12 DSP for interpolation and
-  2,355 LC / 24 DSP for decimation, with no Fmax claim.
+  scheduling delay. The initial decimator was 2,355 LC / 24 DSP; the later
+  bit-exact center-tap sharing milestone supersedes it with 2,448 / 12.
 
 - [x] Generate a distinct 384 kHz trapezoidal fixed-point asset set and make
   its numerical differences explicit. Widen the Q17.1 chord bank from signed
@@ -357,8 +371,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   recovery/re-arm, timeout snapshot, and explicit clear; update the host client
   to poll completion and reject stale sequence results. Bump the compatible ABI
   minor to 1.1. Current structural synthesis is 354 LC / 735 FF for the register
-  bank, 21,466 LC / 17,922 FF for the controlled hierarchy, and 21,589 LC /
-  18,094 FF with SPI; the complete variants retain 232 DSP48E1 /
+  bank, 19,616 LC / 18,684 FF for the controlled hierarchy, and 19,719 LC /
+  18,856 FF with SPI; the complete variants retain 216 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1 and zero structural-check problems.
 - [x] Implement the held-bus CDC primitive needed for coherent I²S-domain
   occupancy snapshots. Use a four-phase request/acknowledge protocol, hold all
@@ -379,8 +393,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   through clock reacquisition, snapshot the evidence, and release only after an
   explicit host clear reaches both fabric and I²S domains. Keep model scheduling
   active so startup qualification cannot overflow the receive FIFO. Updated
-  later structural synthesis is 21,466 LC / 17,922 FF for the controlled
-  hierarchy and 21,589 LC / 18,094 FF with SPI, both retaining 232 DSP48E1 /
+  later structural synthesis is 19,616 LC / 18,684 FF for the controlled
+  hierarchy and 19,719 LC / 18,856 FF with SPI, both retaining 216 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1 and zero structural-check problems.
 - [x] Compose the SPI transport, fabric register bank, guarded calibration, and
   pin-facing I²S/model hierarchy. Prove 15 complete 5 MHz frames through the
@@ -388,7 +402,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   force-mute snapshots, a snapshotted short-frame fault and transport count,
   and exactly one diagnostic clear in the unrelated BCLK domain. Synthesize the
   flattened hierarchy to
-  21,506 LC / 17,959 FF / 232 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1 with zero
+  19,719 LC / 18,856 FF / 216 DSP48E1 / 8 RAMB18E1 + 1 RAMB36E1 with zero
   structural-check problems; placed timing and a physical host backend remain
   open.
 - [x] Implement an oversampled SPI mode-0 transport for the fabric register bus
@@ -402,7 +416,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   faults, transfer diagnostic clear by one toggle event, and own calibration/
   mute through the bus. Prove retained snapshots, startup calibration, and one
   I²S clear pulse across unrelated clocks; synthesize the crossing to 1 LC /
-  5 FF and the complete wrapper to 21,363 LC / 17,755 FF / 232 DSP48E1 /
+  5 FF and the complete wrapper to 19,616 LC / 18,684 FF / 216 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1. No Fmax is claimed.
 - [x] Implement a protocol-neutral fabric control register bank with reset-muted
   state, a coherent calibration shadow/commit transaction, distinct attempted
@@ -424,7 +438,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   BCLK as zero edges, and revoke live state on BCLK reset. The actual-rate pin
   test measures 1,024 edges across four
   windows without changing audio/latency. Synthesize standalone to 68 LC / 125
-  FF and the updated pin top to 21,014 LC / 16,907 FF / 232 DSP48E1 /
+  FF and the updated pin top to 19,156 LC / 17,669 FF / 216 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1.
 - [x] Add conservative local-domain occupancy and retained high-water
   diagnostics to both sides of each asynchronous FIFO. Reach exact depth eight,
@@ -432,7 +446,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   bridge, backpressure records RX 3/3 and TX 4/4 frames without loss; at the
   locked pin-level rate all four views peak at one frame without changing audio
   or latency. Updated synthesis is FIFO 127 LC / 331 FF, bridge 571 LC / 1,547
-  FF, and the later clock-monitored pin top 21,014 LC / 16,907 FF; no DSP/RAM
+  FF, and the later clock-monitored pin top 19,156 LC / 17,669 FF; no DSP/RAM
   change from diagnostics.
 - [x] Correct the pin-level integration clocks from the accidentally ratio-only
   100/3.125 MHz test to the stated 98.304/3.072 MHz rates. Timestamp internal
@@ -447,8 +461,8 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   as exact mono duplicates. Retain expected startup starvation and zero all
   other diagnostics; atomically commit the startup converter-scaling pair while
   muted and reject a later live pair without changing active values; synthesize
-  the later clock-monitored top to 21,014 LC / 16,907 FF /
-  232 DSP48E1 /
+  the later clock-monitored top to 19,156 LC / 17,669 FF /
+  216 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1 with no placed CDC/I/O/converter claim.
 - [x] Add a protocol-neutral atomic calibration commit guard. Reset both active
   Q8.24 coefficients inactive, accept a positive pair only while fully muted,
@@ -464,7 +478,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   the held frame while model/calibration diagnostics remain zero. Prevent the discovered hidden
   startup-state advance by holding the core reset through phase acquisition;
   integrate the downstream safety ramp and synthesize the combined hierarchy to
-  20,489 LC / 15,592 FF / 232 DSP48E1 /
+  18,642 LC / 16,354 FF / 216 DSP48E1 /
   8 RAMB18E1 + 1 RAMB36E1 with no structural problems and no timing claim.
 - [x] Correct synthesis resource accounting to retain both RAMB18E1 and
   RAMB36E1 primitives plus their 18-Kib equivalent total. Existing factorized

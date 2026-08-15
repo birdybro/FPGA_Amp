@@ -86,8 +86,9 @@ then finds -84.71 dB aligned overload recovery and a -35.92 dB / 2.623 mV
 record-pop difference using known-delay windowed-sinc alignment. The pop's
 converter-only in-band residual is -67.49 dB, versus -55.71 dB floating and
 -53.33 dB fixed through the complete circuit. This aggregate includes the
-rate-specific integrator and circuit. The modest converter saving is not by
-itself enough to promote 8×.
+rate-specific integrator and circuit. The complete 8× path's lower estimated
+logic count is not by itself enough to promote it; after center-tap sharing it
+uses one more DSP than the 16× stream.
 Direct long-vector RTL matches each rate's corresponding fixed trajectory for
 4,096 pop and 8,192 overload/recovery outputs, totaling 24,576 outputs and
 294,912 nonlinear updates. This rules out a converter/solver RTL mismatch; it
@@ -97,14 +98,16 @@ Stage-1 unit tests match 256 input pairs exactly in each direction. Complete
 chain tests match 2,048 interpolation outputs and 128 decimation outputs exactly,
 with zero saturation, overrun, or input-phase errors. The decimator bench also
 supports 131,072 custom inputs / 8,192 captured outputs for spectral tests.
-Generic XC7 synthesis
-reports 2,053 estimated logic cells / 16 DSP48E1s for interpolation and 3,002 /
-32 DSP48E1s for decimation. No Fmax is claimed without place-and-route.
+Generic XC7 synthesis reports 2,053 estimated logic cells / 16 DSP48E1s for
+interpolation and 3,000 / 16 for decimation. No Fmax is claimed without
+place-and-route. Each decimator stage now captures the pre-shift center sample
+and schedules that product through the existing serial MAC one clock before
+the off-center taps; exact samples are unchanged.
 
 The three-stage candidate synthesizes to 1,549 estimated logic cells / 12
-DSP48E1s for interpolation and 2,355 / 24 for decimation. Relative to the
-four-stage blocks this removes 504/647 estimated cells and 4/8 DSPs. These are
-Yosys structural measurements, not timing results.
+DSP48E1s for interpolation and 2,448 / 12 for decimation. Relative to the
+four-stage blocks this removes 504/552 estimated cells and four DSPs in each
+direction. These are Yosys structural measurements, not timing results.
 
 Stage tap counts shrink as physical image transitions widen. Symmetry can reduce
 resource use further; the present serial cores exploit zeros but do not pre-add

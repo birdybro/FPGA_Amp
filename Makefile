@@ -12,6 +12,7 @@ NEXTPNR ?= nextpnr-himbaechel
 .PHONY: synth-trapezoidal-384-terminal-banked-solver
 .PHONY: stream-trapezoidal-384-terminal-banked-rtl
 .PHONY: synth-stream-trapezoidal-384-terminal-banked
+.PHONY: openxc7-stream-384-pack openxc7-stream-384-place openxc7-a200t-stream-384-static-place
 
 all: reference test
 
@@ -661,6 +662,15 @@ openxc7-a200t-probe:
 
 openxc7-pnr:
 	$(PYTHON) scripts/run_openxc7.py --nextpnr $(NEXTPNR)
+
+openxc7-stream-384-pack: fixed-384-assets
+	$(PYTHON) scripts/run_openxc7.py --top stream_384khz_pnr_harness --nextpnr $(NEXTPNR) --pack-only
+
+openxc7-stream-384-place: fixed-384-assets
+	$(PYTHON) scripts/run_openxc7.py --top stream_384khz_pnr_harness --nextpnr $(NEXTPNR) --place-only
+
+openxc7-a200t-stream-384-static-place: fixed-384-assets
+	$(PYTHON) scripts/run_openxc7.py --top stream_384khz_pnr_harness --device xc7a200tsbg484-1 --xdc fpga/nexys_video/solver_pnr_harness.xdc --nextpnr $(NEXTPNR) --placer static --run-tag static --place-only
 
 openxc7-hermite-pnr:
 	$(PYTHON) scripts/run_openxc7.py --top hermite_pnr_harness --nextpnr $(NEXTPNR)
