@@ -80,12 +80,26 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   71,592-LUT block does not complete analytical placement in a useful interval,
   so no Fmax is claimed. Softening only the two capacitor multipliers reduces
   the full design to 171 DSPs at 66,341 LUTX, but the isolated KCL places at
-  only 37.57 MHz and is also rejected. Develop a broader cross-block
-  time-multiplexed schedule with registered multiplier boundaries. Decoupling
-  the final-only exact maximum diagnostic now recovers a bit-exact 123-clock
-  schedule and five-clock margin; use that margin for explicitly measured
-  sharing rather than altering the frozen numerical contract.
+  only 37.57 MHz and is also rejected. Decoupling the final-only exact maximum
+  diagnostic recovers a bit-exact 123-clock schedule and five-clock margin.
+  Acceptance-edge branch-9 prefetch now spends none of that margin while
+  sharing the two KCL capacitor products: isolated/full DSP use falls from
+  72/209 to 63/200, but placement reaches only 72.95/35.06 MHz and a weight-20
+  full placement falls to 29.05 MHz. Composing this with terminal-current
+  sharing produces an exact 124-clock, 180-DSP solver, but default and
+  floorplanned placements reach only 30.63/32.94 MHz. Develop a broader
+  cross-block time-multiplexed schedule with registered multiplier boundaries;
+  do not treat lower DSP occupancy by itself as evidence of timing progress.
 ## Completed this milestone
+
+- [x] Reuse the two KCL capacitor products through one explicit 48-by-44-bit
+  multiplier. Prefetch branch 9 on the accepting edge so 1,024 vectors per
+  integration method remain exact at 16 clocks and the 512-vector complete
+  solver stays exact at 123 clocks. Measure 63 isolated and 200 complete DSPs,
+  but only 72.95 and 35.06 MHz placement. Compose with terminal-current sharing
+  at 124 clocks / 180 DSPs and measure only 30.63 MHz default and 32.94 MHz
+  floorplanned placement. Retain the exact area option while rejecting it as
+  the selected timing architecture.
 
 - [x] Decouple the final-only exact KCL maximum diagnostic from the correction
   result consumed by chord. Verify 1,024 vectors per integration method and 512

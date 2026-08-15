@@ -171,6 +171,18 @@ All notable engineering changes are recorded here. The project is pre-release; d
   and places at 31.97 MHz. The five recovered clocks are retained for broader
   arithmetic scheduling, but no timing-closure claim is made.
 
+- Added selectable, cycle-free KCL capacitor-multiplier sharing. Capacitor
+  branch 9 is prefetched from the accepting request buses, after which its
+  48-by-44-bit multiplier is reused for branches 0--8. Both 1,024-vector KCL
+  modes remain bit-exact at 16 correction clocks and the 512-vector full solver
+  remains exact at 123 clocks. Isolated/full DSP use falls from 72/209 to
+  63/200, but placement reaches only 72.95/35.06 MHz; a tagged full timing-
+  weight-20 run falls to 29.05 MHz. Composing the same KCL schedule with the
+  two-batch terminal-current engine is exact at 124 clocks and 180 DSPs, yet
+  default and overlapping-region placements reach only 30.63/32.94 MHz. These
+  are retained as reproducible area results, not timing closure or a reference-
+  circuit change.
+
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,
   0--80 bit-count bound/transition, one-cycle request decode and exact fields,

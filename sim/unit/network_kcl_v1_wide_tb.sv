@@ -7,7 +7,8 @@ module network_kcl_v1_wide_tb #(
     parameter bit PIPELINED_ACCUMULATOR = 1'b0,
     parameter bit PIPELINED_CAPACITOR_CURRENT = 1'b0,
     parameter bit PIPELINED_MAXIMUM = 1'b0,
-    parameter bit DECOUPLED_MAXIMUM = 1'b0
+    parameter bit DECOUPLED_MAXIMUM = 1'b0,
+    parameter bit SHARED_CAPACITOR_MULTIPLIER = 1'b0
 );
     logic clk;
     logic rst_n = 1'b0;
@@ -37,7 +38,8 @@ module network_kcl_v1_wide_tb #(
         .PIPELINED_ACCUMULATOR(PIPELINED_ACCUMULATOR),
         .PIPELINED_CAPACITOR_CURRENT(PIPELINED_CAPACITOR_CURRENT),
         .PIPELINED_MAXIMUM(PIPELINED_MAXIMUM),
-        .DECOUPLED_MAXIMUM(DECOUPLED_MAXIMUM)
+        .DECOUPLED_MAXIMUM(DECOUPLED_MAXIMUM),
+        .SHARED_CAPACITOR_MULTIPLIER(SHARED_CAPACITOR_MULTIPLIER)
     ) dut (
         .clk,
         .rst_n,

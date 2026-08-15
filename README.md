@@ -601,6 +601,16 @@ to 123 clocks. The isolated decoupled candidate legally routes at only 87.07
 MHz (29,569 LUTX / 72 DSP), timing-weight-20 placement reaches 80.03 MHz, and
 the 209-DSP full hierarchy places at only 31.97 MHz. The change is retained for
 its five-clock scheduling margin, not represented as physical timing closure.
+That margin now supports an exact acceptance-edge prefetch of capacitor branch
+9, allowing all ten capacitor branches to reuse one wide KCL multiplier with
+no added latency. The isolated KCL and complete solver remain bit-exact at 16
+and 123 clocks while DSP use falls from 72 to 63 and from 209 to 200. The
+isolated candidate places at 72.95 MHz; the full hierarchy reaches 35.06 MHz at
+the default weight but only 29.05 MHz at timing weight 20. Combining the same
+KCL sharing with the two-batch terminal engine produces an exact 124-clock,
+180-DSP solver, yet default and floorplanned placements reach only 30.63 and
+32.94 MHz. These measured area reductions do not improve on the 36.83 MHz
+complete-placement result and are not promoted as timing closure.
 None of these experiments is timing closure or a reference-mode change.
 All figures use the backend's unqualified `DEFAULT` timing grade. The implemented digital mute
 primitive is not independent analog speaker protection.
@@ -794,9 +804,16 @@ make openxc7-parallel-pipelined-solver-pnr # route 119-clock solver candidate
 make openxc7-diagnostic-pipelined-kcl-pnr # route 19-clock final-diagnostic KCL
 make openxc7-decoupled-diagnostic-pipelined-kcl-pnr # route 16-clock correction/sideband KCL
 make openxc7-decoupled-diagnostic-pipelined-kcl-timing-place # weight-20 placement only
+make shared-capacitor-decoupled-diagnostic-kcl-rtl # exact 63-DSP KCL schedule
+make openxc7-shared-capacitor-decoupled-diagnostic-kcl-place # place shared KCL
 make openxc7-parallel-diagnostic-pipelined-solver-place # diagnose full placement
 make openxc7-parallel-diagnostic-pipelined-solver-pnr # route 126-clock solver
 make openxc7-parallel-decoupled-diagnostic-pipelined-solver-place # place 123-clock solver
+make trapezoidal-parallel-shared-capacitor-decoupled-diagnostic-pipelined-terminal-banked-solver-rtl # exact 200-DSP solver
+make openxc7-parallel-shared-capacitor-decoupled-diagnostic-pipelined-solver-place # place 200-DSP solver
+make openxc7-parallel-shared-capacitor-decoupled-diagnostic-pipelined-solver-timing-place # tagged weight-20 experiment
+make trapezoidal-parallel-shared-capacitor-terminal-decoupled-diagnostic-pipelined-terminal-banked-solver-rtl # exact 180-DSP composition
+make openxc7-parallel-shared-capacitor-terminal-decoupled-diagnostic-pipelined-solver-regions-place # floorplan 180-DSP solver
 make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-place # place 189-DSP candidate
 make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-timing-place # tagged weight-20 experiment
 make openxc7-parallel-shared-terminal-diagnostic-pipelined-solver-regions-place # overlapping hierarchy floorplan

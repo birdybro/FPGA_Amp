@@ -13,6 +13,7 @@ module solver_pnr_harness #(
     parameter bit PIPELINED_KCL_CAPACITOR_CURRENT = 1'b0,
     parameter bit PIPELINED_KCL_MAXIMUM = 1'b0,
     parameter bit DECOUPLED_KCL_MAXIMUM = 1'b0,
+    parameter bit SHARED_KCL_CAPACITOR_MULTIPLIER = 1'b0,
     parameter bit PIPELINED_CHORD_APPLY = 1'b0,
     parameter bit HALF_PARALLEL_TERMINAL_CURRENT = 1'b0
 ) (
@@ -90,6 +91,9 @@ module solver_pnr_harness #(
         .PIPELINED_KCL_CAPACITOR_CURRENT(PIPELINED_KCL_CAPACITOR_CURRENT),
         .PIPELINED_KCL_MAXIMUM(PIPELINED_KCL_MAXIMUM),
         .DECOUPLED_KCL_MAXIMUM(DECOUPLED_KCL_MAXIMUM),
+        .SHARED_KCL_CAPACITOR_MULTIPLIER(
+            SHARED_KCL_CAPACITOR_MULTIPLIER
+        ),
         .PIPELINED_CHORD_APPLY(PIPELINED_CHORD_APPLY),
         .HALF_PARALLEL_TERMINAL_CURRENT(
             HALF_PARALLEL_TERMINAL_CURRENT
@@ -242,9 +246,52 @@ module parallel_decoupled_diagnostic_pipelined_solver_pnr_harness (
 
 endmodule
 
+// Prefetch capacitor branch 9 from the accepting request buses and reuse the
+// same wide multiplier for branches 0--8 without extending the solve.
+module parallel_shared_capacitor_decoupled_diagnostic_pipelined_solver_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+
+    solver_pnr_harness #(
+        .PARALLEL_TUBES(1'b1),
+        .PIPELINED_KCL_FINISH(1'b1),
+        .PIPELINED_KCL_COLUMNS(1'b1),
+        .PIPELINED_KCL_ACCUMULATOR(1'b1),
+        .PIPELINED_KCL_MAXIMUM(1'b1),
+        .DECOUPLED_KCL_MAXIMUM(1'b1),
+        .SHARED_KCL_CAPACITOR_MULTIPLIER(1'b1),
+        .PIPELINED_CHORD_APPLY(1'b1)
+    ) harness (.*);
+
+endmodule
+
+// Combine cycle-free KCL capacitor sharing with the separately verified
+// two-batch terminal-current schedule. The composed solver takes 124 clocks.
+module parallel_shared_capacitor_terminal_decoupled_diagnostic_pipelined_solver_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+
+    solver_pnr_harness #(
+        .PARALLEL_TUBES(1'b1),
+        .PIPELINED_KCL_FINISH(1'b1),
+        .PIPELINED_KCL_COLUMNS(1'b1),
+        .PIPELINED_KCL_ACCUMULATOR(1'b1),
+        .PIPELINED_KCL_MAXIMUM(1'b1),
+        .DECOUPLED_KCL_MAXIMUM(1'b1),
+        .SHARED_KCL_CAPACITOR_MULTIPLIER(1'b1),
+        .PIPELINED_CHORD_APPLY(1'b1),
+        .HALF_PARALLEL_TERMINAL_CURRENT(1'b1)
+    ) harness (.*);
+
+endmodule
+
 // Reuse the terminal companion-current multipliers in two five-lane batches.
 // The first batch overlaps the final chord preview, retaining the selected
-// 126-clock contract while reducing simultaneous terminal hard blocks.
+// 127-clock contract while reducing simultaneous terminal hard blocks.
 module parallel_shared_terminal_diagnostic_pipelined_solver_pnr_harness (
     input  logic fabric_clk,
     input  logic reset,

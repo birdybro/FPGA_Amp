@@ -234,6 +234,47 @@ CARRY4s, and 209 DSPs, then places at only 31.97 MHz. These results keep the
 decoupled schedule as cycle-budget infrastructure while rejecting it as a
 standalone Fmax fix.
 
+### KCL capacitor-multiplier sharing
+
+The decoupled schedule permits a cycle-free reduction in simultaneous KCL hard
+multipliers. On the accepting `start` edge, capacitor branch 9's exact Q0.47 by
+Q30 product is formed directly from the request voltage and history buses and
+captured before those buses are latched. The same explicitly muxed 48-by-44-bit
+multiplier then serves branches 0--8 during the existing pipelined column
+schedule. This removes one wide multiplier implementation, or nine DSP48E1s,
+without changing a product, rounding boundary, state update, or latency.
+
+Both 1,024-vector integration-mode KCL regressions remain bit-exact at the
+16-clock correction latency with the exact maximum sideband two clocks later.
+Yosys measures the isolated candidate at 6,422 estimated logic cells, 10,437
+flip-flops, and 63 DSP48E1s instead of 72. It packs to 29,469 `SLICE_LUTX`,
+10,437 `SLICE_FFX`, 1,783 CARRY4s, and 63 DSPs, but seed-1 placement reaches
+only 72.95 MHz. Because this is below the 98.304 MHz request and the established
+72-DSP KCL has already routed at 87.07 MHz under the same decoupled schedule,
+routing is skipped. The candidate is an area result, not an isolated timing
+improvement.
+
+The complete solver remains exact for all 512 stateful vectors at 123 clocks.
+Its structural result is 14,779 estimated logic cells, 13,459 flip-flops, 200
+DSPs, 16 RAMB18E1s, and two RAMB36E1s. Default placement uses 58,885 LUTX,
+13,459 FFX, 4,005 CARRY4s, and 200 DSPs and reaches 35.06 MHz, a small gain over
+the otherwise matching 209-DSP decoupled hierarchy's 31.97 MHz. A controlled
+timing-weight-20 placement instead falls to 29.05 MHz. Neither run justifies
+routing or promotion as the timing architecture.
+
+Composing this KCL sharing with the two-batch terminal-current engine removes
+another 20 DSPs. The 180-DSP solver is bit-exact for 512 stateful vectors at
+124 clocks and synthesizes to 14,975 estimated logic cells and 14,591
+flip-flops. Default placement reaches 30.63 MHz; the existing overlapping
+hierarchy floorplan and timing weight 20 reach 32.94 MHz while matching 36,180
+KCL/RHS and 25,572 nonlinear cells. Both are slower than the prior 189-DSP
+floorplanned candidate's 36.83 MHz. An attempted reuse of that floorplan for
+the 200-DSP candidate over-constrained its larger nonlinear group and was
+stopped before a timing result. Multiplier sharing is therefore retained as a
+selectable, exact scheduling architecture, while the measured results direct
+the next timing work toward broader registered data paths rather than DSP count
+alone.
+
 With parallel triodes, KCL column/finish/accumulator boundaries, the final-only
 maximum pipeline, and chord-apply boundaries enabled, the complete trapezoidal/
 banked/terminal solver remains bit-exact across 512 stateful vectors at 126

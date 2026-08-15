@@ -33,7 +33,10 @@ module network_kcl_v1_wide #(
     // Emit the correction result after the first maximum-pipeline boundary,
     // then complete the final-only diagnostic through a separate max_valid
     // sideband. The engine remains busy until that sideband is committed.
-    parameter bit DECOUPLED_MAXIMUM = 1'b0
+    parameter bit DECOUPLED_MAXIMUM = 1'b0,
+    // Reuse the wide capacitor multiplier for branch 9 and branches 0--8.
+    // Branch 9 is prefetched directly from the request buses on acceptance.
+    parameter bit SHARED_CAPACITOR_MULTIPLIER = 1'b0
 ) (
     input  logic                  clk,
     input  logic                  rst_n,
@@ -100,6 +103,8 @@ module network_kcl_v1_wide #(
     logic [3:0] current_saturation_running;
 
     initial begin
+        if (SHARED_CAPACITOR_MULTIPLIER && !PIPELINED_COLUMNS)
+            $error("SHARED_CAPACITOR_MULTIPLIER requires PIPELINED_COLUMNS");
         $readmemh(MATRIX_FILE, matrix);
         $readmemh(CAP_G_FILE, capacitor_g);
     end
@@ -303,11 +308,16 @@ module network_kcl_v1_wide #(
     // Q30 history state.  After conversion, that exact difference requires
     // 44 signed bits; 43 bits would silently wrap at the declared limits.
     logic signed [43:0] cap_delta_q30;
+    logic signed [47:0] capacitor_multiplier_g;
+    logic signed [43:0] capacitor_multiplier_delta;
     logic signed [91:0] cap_product;
     logic signed [62:0] cap_current_q44;
     logic signed [41:0] cap9_voltage_a_q30;
     logic signed [41:0] cap9_voltage_b_q30;
     logic signed [43:0] cap9_delta_q30;
+    logic signed [41:0] cap9_input_voltage_a_q30;
+    logic signed [41:0] cap9_input_voltage_b_q30;
+    logic signed [43:0] cap9_input_delta_q30;
     logic signed [91:0] cap9_product;
     logic signed [62:0] cap9_current_q44;
     logic signed [62:0] cap9_current_from_product_q44;
@@ -407,7 +417,34 @@ module network_kcl_v1_wide #(
                          - $signed({{2{cap_voltage_b_q30[41]}}, cap_voltage_b_q30})
                          - $signed({{4{capacitor_latched[column][39]}},
                                     capacitor_latched[column]});
-        cap_product = capacitor_g[column] * cap_delta_q30;
+        cap9_voltage_a_q30 = node_voltage_q30(voltage_latched[6], 6);
+        cap9_voltage_b_q30 = node_voltage_q30(voltage_latched[8], 8);
+        cap9_delta_q30 = $signed({{2{cap9_voltage_a_q30[41]}}, cap9_voltage_a_q30})
+                          - $signed({{2{cap9_voltage_b_q30[41]}}, cap9_voltage_b_q30})
+                          - $signed({{4{capacitor_latched[9][39]}},
+                                     capacitor_latched[9]});
+        cap9_input_voltage_a_q30 = node_voltage_q30(
+            $signed(voltage[6 * 40 +: 40]), 6
+        );
+        cap9_input_voltage_b_q30 = node_voltage_q30(
+            $signed(voltage[8 * 40 +: 40]), 8
+        );
+        cap9_input_delta_q30 = $signed({
+            {2{cap9_input_voltage_a_q30[41]}}, cap9_input_voltage_a_q30
+        }) - $signed({
+            {2{cap9_input_voltage_b_q30[41]}}, cap9_input_voltage_b_q30
+        }) - $signed({
+            {4{capacitor_state_q30[9 * 40 + 39]}},
+            capacitor_state_q30[9 * 40 +: 40]
+        });
+        if (SHARED_CAPACITOR_MULTIPLIER && !busy) begin
+            capacitor_multiplier_g = capacitor_g[9];
+            capacitor_multiplier_delta = cap9_input_delta_q30;
+        end else begin
+            capacitor_multiplier_g = capacitor_g[column];
+            capacitor_multiplier_delta = cap_delta_q30;
+        end
+        cap_product = capacitor_multiplier_g * capacitor_multiplier_delta;
         cap_current_q44 = rounded_capacitor_q44(cap_product);
         if (TRAPEZOIDAL)
             cap_current_q44 = cap_current_q44 - $signed({
@@ -415,13 +452,10 @@ module network_kcl_v1_wide #(
                 capacitor_current_latched[column]
             });
 
-        cap9_voltage_a_q30 = node_voltage_q30(voltage_latched[6], 6);
-        cap9_voltage_b_q30 = node_voltage_q30(voltage_latched[8], 8);
-        cap9_delta_q30 = $signed({{2{cap9_voltage_a_q30[41]}}, cap9_voltage_a_q30})
-                          - $signed({{2{cap9_voltage_b_q30[41]}}, cap9_voltage_b_q30})
-                          - $signed({{4{capacitor_latched[9][39]}},
-                                     capacitor_latched[9]});
-        cap9_product = capacitor_g[9] * cap9_delta_q30;
+        if (SHARED_CAPACITOR_MULTIPLIER)
+            cap9_product = cap_product;
+        else
+            cap9_product = capacitor_g[9] * cap9_delta_q30;
         cap9_current_q44 = rounded_capacitor_q44(cap9_product);
         if (TRAPEZOIDAL)
             cap9_current_q44 = cap9_current_q44 - $signed({
@@ -690,6 +724,8 @@ module network_kcl_v1_wide #(
                     saturation_any <= 1'b0;
                     saturation_count <= '0;
                     current_saturation_running <= '0;
+                    if (SHARED_CAPACITOR_MULTIPLIER)
+                        cap9_product_staged <= cap_product;
                     maximum_pipeline_stage <= '0;
                     for (lane = 0; lane < 9; lane = lane + 1) begin
                         voltage_latched[lane] <= $signed(
@@ -736,7 +772,8 @@ module network_kcl_v1_wide #(
                             capacitor_product_staged <= cap_product;
                             product_column_staged <= column;
                             product_stage_valid <= 1'b1;
-                            if (column == 4'd0)
+                            if (column == 4'd0
+                                && !SHARED_CAPACITOR_MULTIPLIER)
                                 cap9_product_staged <= cap9_product;
                             if (column == 4'd8)
                                 columns_issued <= 1'b1;

@@ -125,7 +125,8 @@ module kcl_pnr_harness #(
     parameter bit PIPELINED_ACCUMULATOR = 1'b0,
     parameter bit PIPELINED_CAPACITOR_CURRENT = 1'b0,
     parameter bit PIPELINED_MAXIMUM = 1'b0,
-    parameter bit DECOUPLED_MAXIMUM = 1'b0
+    parameter bit DECOUPLED_MAXIMUM = 1'b0,
+    parameter bit SHARED_CAPACITOR_MULTIPLIER = 1'b0
 ) (
     input  logic fabric_clk,
     input  logic reset,
@@ -205,7 +206,8 @@ module kcl_pnr_harness #(
         .PIPELINED_ACCUMULATOR(PIPELINED_ACCUMULATOR),
         .PIPELINED_CAPACITOR_CURRENT(PIPELINED_CAPACITOR_CURRENT),
         .PIPELINED_MAXIMUM(PIPELINED_MAXIMUM),
-        .DECOUPLED_MAXIMUM(DECOUPLED_MAXIMUM)
+        .DECOUPLED_MAXIMUM(DECOUPLED_MAXIMUM),
+        .SHARED_CAPACITOR_MULTIPLIER(SHARED_CAPACITOR_MULTIPLIER)
     ) engine (
         .clk(fabric_clk),
         .rst_n,
@@ -289,6 +291,23 @@ module decoupled_diagnostic_pipelined_kcl_pnr_harness (
         .PIPELINED_ACCUMULATOR(1'b1),
         .PIPELINED_MAXIMUM(1'b1),
         .DECOUPLED_MAXIMUM(1'b1)
+    ) harness (.*);
+
+endmodule
+
+module shared_capacitor_decoupled_diagnostic_pipelined_kcl_pnr_harness (
+    input  logic fabric_clk,
+    input  logic reset,
+    output logic activity
+);
+
+    kcl_pnr_harness #(
+        .PIPELINED_FINISH(1'b1),
+        .PIPELINED_COLUMNS(1'b1),
+        .PIPELINED_ACCUMULATOR(1'b1),
+        .PIPELINED_MAXIMUM(1'b1),
+        .DECOUPLED_MAXIMUM(1'b1),
+        .SHARED_CAPACITOR_MULTIPLIER(1'b1)
     ) harness (.*);
 
 endmodule
