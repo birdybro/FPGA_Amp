@@ -33,6 +33,9 @@ def main() -> int:
     parser.add_argument("--banked", action="store_true")
     parser.add_argument("--terminal-correction", action="store_true")
     parser.add_argument("--linear-tube", action="store_true")
+    parser.add_argument(
+        "--sample-rate-hz", type=int, choices=(384_000, 768_000), default=768_000
+    )
     args = parser.parse_args()
     tube = (
         FixedLinearFactorizedKoren12AX7()
@@ -41,6 +44,7 @@ def main() -> int:
     )
     if args.banked:
         model = FixedWideStateBankedChordV1CircuitModel(
+            sample_rate_hz=args.sample_rate_hz,
             tube_lut=tube,
             integration_method=(
                 "trapezoidal" if args.trapezoidal else "backward_euler"
@@ -54,12 +58,14 @@ def main() -> int:
             else FixedWideStateV1CircuitModel
         )
         model = model_type(
+            sample_rate_hz=args.sample_rate_hz,
             tube_lut=tube,
             terminal_correction=args.terminal_correction,
         )
     generated = REPOSITORY_ROOT / "model" / "generated"
     generated.mkdir(parents=True, exist_ok=True)
-    asset_suffix = "_trapezoidal" if args.trapezoidal else ""
+    rate_suffix = "" if args.sample_rate_hz == 768_000 else "_384khz"
+    asset_suffix = ("_trapezoidal" if args.trapezoidal else "") + rate_suffix
     vector_suffix = (
         asset_suffix
         + ("_banked" if args.banked else "")
@@ -78,7 +84,8 @@ def main() -> int:
     )
     if args.trapezoidal:
         write_memory(
-            generated / "v1_cap_current_initial_q4_44_trapezoidal.mem",
+            generated
+            / f"v1_cap_current_initial_q4_44_trapezoidal{rate_suffix}.mem",
             [int(capacitor.previous_current_q44) for capacitor in model.capacitors],
             48,
         )

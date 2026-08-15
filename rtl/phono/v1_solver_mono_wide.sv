@@ -12,6 +12,8 @@ module v1_solver_mono_wide #(
     parameter CHORD_COEFFICIENT_FILE =
         "model/generated/v1_chord_inverse_q17_1.mem",
     parameter integer CHORD_COEFFICIENT_SETS = 1,
+    parameter integer CHORD_COEFFICIENT_WIDTH = 18,
+    parameter bit SAMPLE_RATE_384KHZ = 1'b0,
     parameter bit TRAPEZOIDAL = 1'b0,
     // Reuse the final diagnostic residual for a fourth chord update.  The
     // reported residual remains the explicitly documented pre-update value.
@@ -443,7 +445,9 @@ module v1_solver_mono_wide #(
 
     generate
         if (HALF_PARALLEL_TERMINAL_CURRENT) begin : generate_half_terminal_current
-            terminal_current_update_v1_half_parallel terminal_current_engine (
+            terminal_current_update_v1_half_parallel #(
+                .SAMPLE_RATE_384KHZ(SAMPLE_RATE_384KHZ)
+            ) terminal_current_engine (
                 .clk,
                 .rst_n,
                 .start(terminal_current_preview_start),
@@ -462,7 +466,9 @@ module v1_solver_mono_wide #(
                     terminal_capacitor_flat[terminal_lane * 40 +: 40] =
                         terminal_capacitor_next[terminal_lane];
             end
-            terminal_current_update_v1 terminal_current_engine (
+            terminal_current_update_v1 #(
+                .SAMPLE_RATE_384KHZ(SAMPLE_RATE_384KHZ)
+            ) terminal_current_engine (
                 .terminal_voltage_q30(terminal_capacitor_flat),
                 .previous_voltage_q30(capacitor_flat),
                 .previous_current_q44(capacitor_current_flat),
@@ -722,6 +728,7 @@ module v1_solver_mono_wide #(
     chord_corrector_v1_wide #(
         .COEFFICIENT_FILE(CHORD_COEFFICIENT_FILE),
         .COEFFICIENT_SETS(CHORD_COEFFICIENT_SETS),
+        .COEFFICIENT_WIDTH(CHORD_COEFFICIENT_WIDTH),
         .PIPELINED_APPLY(PIPELINED_CHORD_APPLY)
     ) chord_engine (
         .clk,

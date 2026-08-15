@@ -41,10 +41,16 @@ The mono reference and complete 768 kHz circuit solver are operating:
   at most 0.06653 dB / 0.02234° against the same 10/20 kHz SPICE captures. At
   20 kHz, its complete-circuit selected 4/8/12/16 kHz products remain within
   0.52 dB of 768 kHz for 5 mV, 20 mV, and steady 0.5 V inputs, while a hot
-  static-tube stress is 11.33 dB worse but still -118.65 dBc. The candidate
-  would provide 256 fabric clocks per nonlinear sample, but reference mode,
-  fixed coefficients, and RTL remain 16×/768 kHz until transient alias and
-  fixed/RTL equivalence are proven.
+  static-tube stress is 11.33 dB worse but still -118.65 dBc. Distinct
+  fixed-point assets now match 1,024 all-bank chord, 1,024 KCL, and 512
+  persistent full-solver RTL vectors exactly at 384 kHz with zero solver
+  diagnostics. The 127-clock core
+  leaves 129 of 256 clocks free at 98.304 MHz. Its Q17.1 chord inverse requires
+  signed 19-bit coefficients rather than the 768 kHz core's 18 bits; controlled
+  Yosys synthesis measures 13,713 LC / 183 DSP / 10 RAMB18 equivalents versus
+  13,158 LC / 174 DSP / 10 RAMB18 equivalents at 768 kHz. Reference mode and
+  the verified converter stream remain 16×/768 kHz until transient alias,
+  recovery, and complete 8× stream tests pass.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both
@@ -660,6 +666,11 @@ python3 scripts/run_reference.py --plots
 python3 scripts/compare_spice_python.py
 make spice-python-frequency          # four SPICE transients + integrator study
 make internal-rate-study             # explicit 8x-vs-16x nonlinear rate study
+make fixed-384-assets                 # regenerate distinct 384 kHz fixed assets
+make trapezoidal-384-chord-rtl        # exact five-bank correction equivalence
+make trapezoidal-384-network-rtl      # exact 384 kHz KCL equivalence
+make trapezoidal-384-terminal-banked-solver-rtl # exact stateful core equivalence
+make synth-trapezoidal-384-terminal-banked-solver # rate-tagged Yosys report
 make trapezoidal-overload            # floating integrator overload stability
 python3 scripts/characterize_solver.py
 python3 scripts/study_solver_architecture.py

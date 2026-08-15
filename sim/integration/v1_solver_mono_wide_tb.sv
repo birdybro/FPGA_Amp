@@ -3,6 +3,7 @@
 
 module v1_solver_mono_wide_tb #(
     parameter bit TRAPEZOIDAL = 1'b0,
+    parameter bit SAMPLE_RATE_384KHZ = 1'b0,
     parameter bit BANKED = 1'b0,
     parameter bit TERMINAL_CORRECTION = 1'b0,
     parameter bit LINEAR_TUBE = 1'b0,
@@ -53,29 +54,46 @@ module v1_solver_mono_wide_tb #(
     v1_solver_mono_wide #(
         .NODE_INITIAL_FILE(
             TRAPEZOIDAL
-                ? "model/generated/v1_node_initial_wide_trapezoidal.mem"
+                ? (SAMPLE_RATE_384KHZ
+                   ? "model/generated/v1_node_initial_wide_trapezoidal_384khz.mem"
+                   : "model/generated/v1_node_initial_wide_trapezoidal.mem")
                 : "model/generated/v1_node_initial_wide.mem"
         ),
         .CAP_INITIAL_FILE(
             TRAPEZOIDAL
-                ? "model/generated/v1_cap_initial_q30_wide_trapezoidal.mem"
+                ? (SAMPLE_RATE_384KHZ
+                   ? "model/generated/v1_cap_initial_q30_wide_trapezoidal_384khz.mem"
+                   : "model/generated/v1_cap_initial_q30_wide_trapezoidal.mem")
                 : "model/generated/v1_cap_initial_q30_wide.mem"
+        ),
+        .CAP_CURRENT_INITIAL_FILE(
+            SAMPLE_RATE_384KHZ
+                ? "model/generated/v1_cap_current_initial_q4_44_trapezoidal_384khz.mem"
+                : "model/generated/v1_cap_current_initial_q4_44_trapezoidal.mem"
         ),
         .CAP_G_FILE(
             TRAPEZOIDAL
-                ? "model/generated/v1_cap_conductance_q0_47_trapezoidal.mem"
+                ? (SAMPLE_RATE_384KHZ
+                   ? "model/generated/v1_cap_conductance_q0_47_trapezoidal_384khz.mem"
+                   : "model/generated/v1_cap_conductance_q0_47_trapezoidal.mem")
                 : "model/generated/v1_cap_conductance_q0_47.mem"
         ),
         .CHORD_COEFFICIENT_FILE(
             BANKED
                 ? (TRAPEZOIDAL
-                   ? "model/generated/v1_chord_inverse_banked_q17_1_trapezoidal.mem"
+                   ? (SAMPLE_RATE_384KHZ
+                      ? "model/generated/v1_chord_inverse_banked_q17_1_trapezoidal_384khz.mem"
+                      : "model/generated/v1_chord_inverse_banked_q17_1_trapezoidal.mem")
                    : "model/generated/v1_chord_inverse_banked_q17_1.mem")
                 : (TRAPEZOIDAL
-                   ? "model/generated/v1_chord_inverse_q17_1_trapezoidal.mem"
+                   ? (SAMPLE_RATE_384KHZ
+                      ? "model/generated/v1_chord_inverse_q17_1_trapezoidal_384khz.mem"
+                      : "model/generated/v1_chord_inverse_q17_1_trapezoidal.mem")
                    : "model/generated/v1_chord_inverse_q17_1.mem")
         ),
         .CHORD_COEFFICIENT_SETS(BANKED ? (TRAPEZOIDAL ? 5 : 4) : 1),
+        .CHORD_COEFFICIENT_WIDTH(SAMPLE_RATE_384KHZ ? 19 : 18),
+        .SAMPLE_RATE_384KHZ(SAMPLE_RATE_384KHZ),
         .TRAPEZOIDAL(TRAPEZOIDAL),
         .TERMINAL_CORRECTION(TERMINAL_CORRECTION),
         .USE_LINEAR_FACTORIZED_TUBE(LINEAR_TUBE),
@@ -117,8 +135,18 @@ module v1_solver_mono_wide_tb #(
     initial begin
         clk = 1'b0;
         input_q24 = '0;
+        if (SAMPLE_RATE_384KHZ && !TRAPEZOIDAL)
+            $fatal(1, "384 kHz study requires trapezoidal state assets");
         if (!$value$plusargs("VECTORS=%s", vector_path)) begin
-            if (TRAPEZOIDAL && BANKED && TERMINAL_CORRECTION)
+            if (SAMPLE_RATE_384KHZ && BANKED && TERMINAL_CORRECTION)
+                vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_trapezoidal_384khz_banked_terminal.txt";
+            else if (SAMPLE_RATE_384KHZ && BANKED)
+                vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_trapezoidal_384khz_banked.txt";
+            else if (SAMPLE_RATE_384KHZ && TERMINAL_CORRECTION)
+                vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_trapezoidal_384khz_terminal.txt";
+            else if (SAMPLE_RATE_384KHZ)
+                vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_trapezoidal_384khz.txt";
+            else if (TRAPEZOIDAL && BANKED && TERMINAL_CORRECTION)
                 vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_trapezoidal_banked_terminal.txt";
             else if (TRAPEZOIDAL && TERMINAL_CORRECTION)
                 vector_path = "sim/vectors/generated/v1_solver_wide_factorized_stream_trapezoidal_terminal.txt";

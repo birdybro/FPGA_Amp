@@ -153,6 +153,31 @@ add-half/arithmetic shift into the destination node format, and 32-bit
 saturation. Capacitor differences are rounded to Q12.20 only after the corrected
 node vector is committed.
 
+### 384 kHz candidate formats
+
+The explicitly non-reference 8× candidate regenerates its trapezoidal
+conductances, quiescent capacitor-current history, initial node/capacitor state,
+and all five chord banks at 384 kHz. It does not reuse the 768 kHz assets. The
+largest capacitor conductance is 50,800,603,796,739 Q0.47 (0.36096 S), which
+still fits the established signed 48-bit conductance contract.
+
+The lower-rate chord inverse spans -23,414 through +146,717 in Q17.1. The
+positive endpoint exceeds signed 18-bit range, so this candidate uses a signed
+19-bit coefficient and a 44-bit raw coefficient/residual product before exact
+sign extension into the existing 48-bit accumulator. The established 768 kHz
+bank remains signed 18 bit (-10,596 through +124,001). This is a measured
+numerical-format difference, not a circuit-value change.
+
+At 384 kHz, 1,024 randomized/boundary chord vectors distribute 204 or 205
+cases across each of the five banks and match RTL exactly at 10 clocks,
+including 109 saturating cases. Another 1,024 randomized/directed KCL vectors
+match exactly at 11 clocks, including 989 deliberate current-saturation cases. A 512-sample
+persistent full-circuit sequence matches all fixed-point states and outputs at
+127 clocks, with a 4.565 nA maximum recorded preterminal residual and zero
+saturation, LUT-clip, nonconvergence, or correction-fallback diagnostics. The
+core therefore leaves 129 clocks of a 256-clock sample period at 98.304 MHz;
+the 8× converter stream and its alias behavior remain separate open gates.
+
 The compact correction was selected by a reproducible precision study. Against
 the original Q17.15 × Q4.44 correction, Q17.1 × 25-bit-Q30 is -83.63 dB
 normalized residual, 0.492 mV worst output error, and -0.00047 dB RMS gain error

@@ -23,6 +23,9 @@ def main() -> int:
     parser.add_argument("--pipelined-maximum", action="store_true")
     parser.add_argument("--decoupled-maximum", action="store_true")
     parser.add_argument("--shared-capacitor-multiplier", action="store_true")
+    parser.add_argument(
+        "--sample-rate-hz", type=int, choices=(384_000, 768_000), default=768_000
+    )
     args = parser.parse_args()
     if args.pipelined_accumulator and not args.pipelined_columns:
         parser.error("--pipelined-accumulator requires --pipelined-columns")
@@ -41,7 +44,12 @@ def main() -> int:
         print("ERROR: verilator unavailable", file=sys.stderr)
         return 2
     subprocess.run(
-        [sys.executable, "scripts/generate_trapezoidal_network_vectors.py"],
+        [
+            sys.executable,
+            "scripts/generate_trapezoidal_network_vectors.py",
+            "--sample-rate-hz",
+            str(args.sample_rate_hz),
+        ],
         cwd=ROOT,
         check=True,
     )
@@ -51,6 +59,8 @@ def main() -> int:
         "sim/unit/network_kcl_v1_wide_trapezoidal_tb.sv",
     ]
     parameter_args = []
+    if args.sample_rate_hz == 384_000:
+        parameter_args.append("-GSAMPLE_RATE_384KHZ=1")
     if args.pipelined_finish:
         parameter_args.append("-GPIPELINED_FINISH=1")
     if args.pipelined_columns:
@@ -75,6 +85,7 @@ def main() -> int:
     )
     build = ROOT / "build" / (
         "verilator_network_kcl_wide_trapezoidal"
+        + ("_384khz" if args.sample_rate_hz == 384_000 else "")
         + ("_pipelined_finish" if args.pipelined_finish else "")
         + ("_pipelined_columns" if args.pipelined_columns else "")
         + ("_pipelined_accumulator" if args.pipelined_accumulator else "")

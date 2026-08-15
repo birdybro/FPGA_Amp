@@ -2,6 +2,7 @@
 `default_nettype none
 
 module network_kcl_v1_wide_trapezoidal_tb #(
+    parameter bit SAMPLE_RATE_384KHZ = 1'b0,
     parameter bit PIPELINED_FINISH = 1'b0,
     parameter bit PIPELINED_COLUMNS = 1'b0,
     parameter bit PIPELINED_ACCUMULATOR = 1'b0,
@@ -34,7 +35,11 @@ module network_kcl_v1_wide_trapezoidal_tb #(
     logic valid;
 
     network_kcl_v1_wide #(
-        .CAP_G_FILE("model/generated/v1_cap_conductance_q0_47_trapezoidal.mem"),
+        .CAP_G_FILE(
+            SAMPLE_RATE_384KHZ
+                ? "model/generated/v1_cap_conductance_q0_47_trapezoidal_384khz.mem"
+                : "model/generated/v1_cap_conductance_q0_47_trapezoidal.mem"
+        ),
         .TRAPEZOIDAL(1'b1),
         .PIPELINED_FINISH(PIPELINED_FINISH),
         .PIPELINED_COLUMNS(PIPELINED_COLUMNS),
@@ -71,7 +76,10 @@ module network_kcl_v1_wide_trapezoidal_tb #(
     initial begin
         clk = 1'b0;
         file_handle = $fopen(
-            "sim/vectors/generated/network_kcl_wide_trapezoidal.txt", "r"
+            SAMPLE_RATE_384KHZ
+                ? "sim/vectors/generated/network_kcl_wide_trapezoidal_384khz.txt"
+                : "sim/vectors/generated/network_kcl_wide_trapezoidal.txt",
+            "r"
         );
         if (file_handle == 0)
             $fatal(1, "cannot open wide trapezoidal KCL vectors");

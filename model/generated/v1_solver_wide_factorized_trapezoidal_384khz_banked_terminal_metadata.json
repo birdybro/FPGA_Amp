@@ -1,0 +1,29 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "algorithm": "wide trapezoidal Q30-voltage/Q4.44-current state, three adaptive Q30/Q34/Q40 chord corrections plus terminal Q40 correction with corrected current-history commit and preterminal residual diagnostic",
+  "integration_method": "trapezoidal",
+  "tube_implementation": "factorized_hermite",
+  "sample_rate_hz": 384000,
+  "vectors": 512,
+  "seed": 328099,
+  "maximum_residual_q44": 80310,
+  "maximum_residual_a": 4.565094968711492e-09,
+  "saturation_count": 0,
+  "lut_clip_count": 0,
+  "nonconvergence_count": 0,
+  "correction_scale_fallback_count": 0,
+  "minimum_correction_residual_fractional_bits": null,
+  "banked_chord": true,
+  "terminal_correction": true,
+  "residual_diagnostic_state": "preterminal_correction",
+  "chord_bank_selection_count": [
+    0,
+    0,
+    0,
+    0,
+    512
+  ],
+  "slew_qualified_selection_count": 0,
+  "latency_clocks": 127,
+  "output": "sim/vectors/generated/v1_solver_wide_factorized_stream_trapezoidal_384khz_banked_terminal.txt"
+}

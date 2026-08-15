@@ -2,7 +2,12 @@
 `default_nettype none
 
 module chord_corrector_v1_wide_tb #(
-    parameter bit PIPELINED_APPLY = 1'b0
+    parameter bit PIPELINED_APPLY = 1'b0,
+    parameter bit TRAPEZOIDAL = 1'b0,
+    parameter bit BANKED = 1'b0,
+    parameter bit SAMPLE_RATE_384KHZ = 1'b0,
+    parameter integer COEFFICIENT_WIDTH =
+        SAMPLE_RATE_384KHZ ? 19 : 18
 );
     logic clk;
     logic rst_n = 1'b0;
@@ -20,6 +25,21 @@ module chord_corrector_v1_wide_tb #(
     logic valid;
 
     chord_corrector_v1_wide #(
+        .COEFFICIENT_FILE(
+            BANKED
+                ? (TRAPEZOIDAL
+                   ? (SAMPLE_RATE_384KHZ
+                      ? "model/generated/v1_chord_inverse_banked_q17_1_trapezoidal_384khz.mem"
+                      : "model/generated/v1_chord_inverse_banked_q17_1_trapezoidal.mem")
+                   : "model/generated/v1_chord_inverse_banked_q17_1.mem")
+                : (TRAPEZOIDAL
+                   ? (SAMPLE_RATE_384KHZ
+                      ? "model/generated/v1_chord_inverse_q17_1_trapezoidal_384khz.mem"
+                      : "model/generated/v1_chord_inverse_q17_1_trapezoidal.mem")
+                   : "model/generated/v1_chord_inverse_q17_1.mem")
+        ),
+        .COEFFICIENT_SETS(BANKED ? 5 : 1),
+        .COEFFICIENT_WIDTH(COEFFICIENT_WIDTH),
         .PIPELINED_APPLY(PIPELINED_APPLY)
     ) dut (.*);
     always #5 clk = ~clk;
@@ -29,6 +49,7 @@ module chord_corrector_v1_wide_tb #(
     integer vector_count = 0;
     integer errors = 0;
     integer expected_saturation_count;
+    logic [2:0] scanned_coefficient_set;
     integer latency;
     integer preview_count;
     longint signed voltage_value [0:8];
@@ -37,15 +58,41 @@ module chord_corrector_v1_wide_tb #(
 
     initial begin
         clk = 1'b0;
-        file_handle = $fopen("sim/vectors/generated/wide_chord.txt", "r");
+        if (SAMPLE_RATE_384KHZ && BANKED)
+            file_handle = $fopen(
+                "sim/vectors/generated/wide_chord_trapezoidal_384khz_banked.txt",
+                "r"
+            );
+        else if (TRAPEZOIDAL && BANKED)
+            file_handle = $fopen(
+                "sim/vectors/generated/wide_chord_trapezoidal_banked.txt", "r"
+            );
+        else if (TRAPEZOIDAL)
+            file_handle = $fopen(
+                "sim/vectors/generated/wide_chord_trapezoidal.txt", "r"
+            );
+        else if (BANKED)
+            file_handle = $fopen(
+                "sim/vectors/generated/wide_chord_banked.txt", "r"
+            );
+        else
+            file_handle = $fopen("sim/vectors/generated/wide_chord.txt", "r");
         if (file_handle == 0)
             $fatal(1, "cannot open wide chord vectors");
         repeat (3) @(posedge clk);
         rst_n = 1'b1;
         @(negedge clk);
         while (!$feof(file_handle)) begin
-            scan_count = $fscanf(file_handle, "%d", residual_fractional_bits);
-            if (scan_count != 1)
+            if (BANKED) begin
+                scan_count = $fscanf(file_handle, "%d", scanned_coefficient_set);
+                coefficient_set = scanned_coefficient_set;
+            end else begin
+                scan_count = 0;
+                coefficient_set = '0;
+            end
+            scan_count = scan_count
+                + $fscanf(file_handle, "%d", residual_fractional_bits);
+            if (scan_count != (BANKED ? 2 : 1))
                 break;
             for (integer lane = 0; lane < 9; lane = lane + 1)
                 scan_count = scan_count + $fscanf(file_handle, "%d", voltage_value[lane]);
@@ -54,7 +101,7 @@ module chord_corrector_v1_wide_tb #(
             for (integer lane = 0; lane < 9; lane = lane + 1)
                 scan_count = scan_count + $fscanf(file_handle, "%d", expected_value[lane]);
             scan_count = scan_count + $fscanf(file_handle, "%d\n", expected_saturation_count);
-            if (scan_count != 29)
+            if (scan_count != (BANKED ? 30 : 29))
                 $fatal(1, "malformed vector %0d, fields=%0d", vector_count, scan_count);
             for (integer lane = 0; lane < 9; lane = lane + 1) begin
                 voltage[lane * 40 +: 40] = voltage_value[lane][39:0];

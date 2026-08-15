@@ -94,10 +94,22 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   0.06653 dB / 0.02234 degree and finds complete-circuit selected products
   within 0.52 dB of 768 kHz through steady 0.5 V, while exposing an 11.33 dB
   static-tube stress penalty at -118.65 dBc. Its 256-cycle budget is promising,
-  but reference mode remains 16x. Generate and verify a distinct 384 kHz fixed
-  coefficient/state set, add transient/pop and post-burst alias comparisons,
-  and only then decide whether an 8x RTL scheduling branch is justified.
+  but reference mode remains 16x. Distinct 384 kHz fixed assets and the
+  nonlinear RTL core are now exact across 1,024 all-bank chord, 1,024 KCL, and
+  512 persistent solver vectors at 10/11/127 clocks with zero solver diagnostics. The 19-bit chord bank
+  costs nine more DSPs than the controlled 768 kHz synthesis. Implement and
+  verify the three-stage 8x interpolation/decimation stream, then add
+  transient/pop and post-burst alias comparisons before promotion.
 ## Completed this milestone
+
+- [x] Generate a distinct 384 kHz trapezoidal fixed-point asset set and make
+  its numerical differences explicit. Widen the Q17.1 chord bank from signed
+  18 to 19 bits for its measured -23,414..+146,717 range; preserve exact
+  product width/sign extension. Match 1,024 all-bank chord, 1,024 KCL, and 512
+  persistent full-solver RTL vectors at 10/11/127 clocks with zero solver diagnostics. Synthesize the
+  complete core using Yosys at 13,713 LC / 183 DSP / 10 RAMB18 equivalents,
+  versus a controlled 13,158 / 174 / 10 build at 768 kHz; make no Fmax or
+  reference-mode promotion claim.
 
 - [x] Quantify an explicit 8x internal-rate architecture without changing the
   16x reference. Extend the reproducible SPICE study to 384 kHz trapezoidal,

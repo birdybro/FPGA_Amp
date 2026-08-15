@@ -34,7 +34,12 @@ def main() -> int:
     parser.add_argument("--shared-kcl-capacitor-multiplier", action="store_true")
     parser.add_argument("--pipelined-chord-apply", action="store_true")
     parser.add_argument("--half-parallel-terminal-current", action="store_true")
+    parser.add_argument(
+        "--sample-rate-hz", type=int, choices=(384_000, 768_000), default=768_000
+    )
     args = parser.parse_args()
+    if args.sample_rate_hz == 384_000 and not args.trapezoidal:
+        parser.error("384 kHz study currently requires --trapezoidal")
     if args.pipelined_kcl_accumulator and not args.pipelined_kcl_columns:
         parser.error(
             "--pipelined-kcl-accumulator requires --pipelined-kcl-columns"
@@ -90,6 +95,15 @@ def main() -> int:
         if args.linear_tube:
             generators[2 if not args.trapezoidal else 3].append("--linear")
             generators[-1].append("--linear-tube")
+        if args.sample_rate_hz != 768_000:
+            rate_arguments = ["--sample-rate-hz", str(args.sample_rate_hz)]
+            for command in generators:
+                if command[1] in (
+                    "scripts/generate_trapezoidal_network_vectors.py",
+                    "scripts/generate_wide_chord_vectors.py",
+                    "scripts/generate_wide_solver_vectors.py",
+                ):
+                    command.extend(rate_arguments)
         for command in generators:
             subprocess.run(command, cwd=ROOT, check=True)
     sources = [
@@ -110,6 +124,8 @@ def main() -> int:
         else "v1_solver_mono_wide_tb"
     )
     parameter_args = ["-GBANKED=1"] if args.banked else []
+    if args.sample_rate_hz == 384_000:
+        parameter_args.append("-GSAMPLE_RATE_384KHZ=1")
     if args.trapezoidal and args.terminal_correction:
         parameter_args.append("-GTRAPEZOIDAL=1")
     if args.terminal_correction:
@@ -157,6 +173,7 @@ def main() -> int:
     build = ROOT / "build" / (
         "verilator_v1_solver_wide"
         + ("_trapezoidal" if args.trapezoidal else "")
+        + ("_384khz" if args.sample_rate_hz == 384_000 else "")
         + ("_banked" if args.banked else "")
         + ("_terminal" if args.terminal_correction else "")
         + ("_linear" if args.linear_tube else "")
@@ -211,6 +228,7 @@ def main() -> int:
     elif args.linear_tube:
         vector_suffix = (
             ("_trapezoidal" if args.trapezoidal else "")
+            + ("_384khz" if args.sample_rate_hz == 384_000 else "")
             + ("_banked" if args.banked else "")
             + ("_terminal" if args.terminal_correction else "")
             + "_linear"

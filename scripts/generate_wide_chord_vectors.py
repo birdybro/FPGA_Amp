@@ -29,11 +29,15 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--trapezoidal", action="store_true")
     parser.add_argument("--banked", action="store_true")
+    parser.add_argument(
+        "--sample-rate-hz", type=int, choices=(384_000, 768_000), default=768_000
+    )
     args = parser.parse_args()
     vectors = 1024
     rng = np.random.default_rng(0x40C0DE)
     if args.banked:
         model = FixedWideStateBankedChordV1CircuitModel(
+            sample_rate_hz=args.sample_rate_hz,
             tube_lut=FixedFactorizedKoren12AX7(),
             integration_method=(
                 "trapezoidal" if args.trapezoidal else "backward_euler"
@@ -45,14 +49,19 @@ def main() -> int:
             if args.trapezoidal
             else FixedWideStateV1CircuitModel
         )
-        model = model_type(tube_lut=FixedFactorizedKoren12AX7())
-    suffix = "_trapezoidal" if args.trapezoidal else ""
+        model = model_type(
+            sample_rate_hz=args.sample_rate_hz,
+            tube_lut=FixedFactorizedKoren12AX7(),
+        )
+    rate_suffix = "" if args.sample_rate_hz == 768_000 else "_384khz"
+    suffix = ("_trapezoidal" if args.trapezoidal else "") + rate_suffix
+    vector_suffix = suffix + ("_banked" if args.banked else "")
     path = (
         REPOSITORY_ROOT
         / "sim"
         / "vectors"
         / "generated"
-        / f"wide_chord{suffix}.txt"
+        / f"wide_chord{vector_suffix}.txt"
     )
     path.parent.mkdir(parents=True, exist_ok=True)
     coefficient_path = (
@@ -76,17 +85,23 @@ def main() -> int:
     else:
         coefficient_sets = [model.chord_inverse_q]
         coefficients = [int(value) for value in model.chord_inverse_q.flat]
-    if not all(-(1 << 17) <= value < (1 << 17) for value in coefficients):
-        raise RuntimeError("chord inverse exceeds signed 18-bit contract")
-    write_memory(coefficient_path, coefficients, 18)
+    if all(-(1 << 17) <= value < (1 << 17) for value in coefficients):
+        coefficient_width_bits = 18
+    elif all(-(1 << 18) <= value < (1 << 18) for value in coefficients):
+        coefficient_width_bits = 19
+    else:
+        raise RuntimeError("chord inverse exceeds signed 19-bit study contract")
+    write_memory(coefficient_path, coefficients, coefficient_width_bits)
     if args.banked:
         report = {
             "algorithm": "Vgk2-selected bank of 9x9 Q17.1 chord inverses",
             "integration_method": (
                 "trapezoidal" if args.trapezoidal else "backward_euler"
             ),
+            "sample_rate_hz": args.sample_rate_hz,
             "coefficient_sets": len(coefficient_sets),
             "coefficients_per_set": 81,
+            "coefficient_width_bits": coefficient_width_bits,
             "coefficient_min": min(coefficients),
             "coefficient_max": max(coefficients),
             "cutoff_regimes": [
@@ -122,13 +137,14 @@ def main() -> int:
             / "generated"
             / f"wide_chord_banked{suffix}_metadata.json"
         )
-        metadata.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-        print(json.dumps(report, indent=2))
-        return 0
     saturation_vectors = 0
+    coefficient_set_counts = [0] * len(coefficient_sets)
     fractions = (30, 34, 40)
     with path.open("w", encoding="ascii") as handle:
         for index in range(vectors):
+            coefficient_set_index = index % len(coefficient_sets)
+            inverse = coefficient_sets[coefficient_set_index]
+            coefficient_set_counts[coefficient_set_index] += 1
             fraction = fractions[index % len(fractions)]
             voltage = [
                 int(rng.integers(-(1 << 38), 1 << 38)) for _ in range(9)
@@ -145,7 +161,7 @@ def main() -> int:
             saturation_count = 0
             for row in range(9):
                 accumulator = sum(
-                    int(model.chord_inverse_q[row, column]) * residual[column]
+                    int(inverse[row, column]) * residual[column]
                     for column in range(9)
                 )
                 correction = round_shift(
@@ -159,17 +175,16 @@ def main() -> int:
                 saturation_count += int(clipped)
             saturation_vectors += int(saturation_count != 0)
             fields = [fraction, *voltage, *residual, *corrected, saturation_count]
+            if args.banked:
+                fields.insert(0, coefficient_set_index)
             handle.write(" ".join(str(value) for value in fields) + "\n")
-    report = {
-        "algorithm": "9x9 Q17.1 inverse by adaptive signed 25-bit residual",
-        "integration_method": (
-            "trapezoidal" if args.trapezoidal else "backward_euler"
-        ),
+    vector_report = {
         "vectors": vectors,
         "seed": 0x40C0DE,
         "node_fractional_bits": model.VOLTAGE_FRACTIONAL_BITS.tolist(),
         "node_width_bits": 40,
         "residual_fractional_bits": list(fractions),
+        "coefficient_set_vector_counts": coefficient_set_counts,
         "saturation_vectors": saturation_vectors,
         "latency_clocks": 10,
         "outputs": [
@@ -177,12 +192,24 @@ def main() -> int:
             for item in (coefficient_path, path)
         ],
     }
-    metadata = (
-        REPOSITORY_ROOT
-        / "model"
-        / "generated"
-        / f"wide_chord{suffix}_metadata.json"
-    )
+    if args.banked:
+        report.update(vector_report)
+    else:
+        report = {
+            "algorithm": "9x9 Q17.1 inverse by adaptive signed 25-bit residual",
+            "integration_method": (
+                "trapezoidal" if args.trapezoidal else "backward_euler"
+            ),
+            "sample_rate_hz": args.sample_rate_hz,
+            "coefficient_width_bits": coefficient_width_bits,
+            **vector_report,
+        }
+        metadata = (
+            REPOSITORY_ROOT
+            / "model"
+            / "generated"
+            / f"wide_chord{suffix}_metadata.json"
+        )
     metadata.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
     return 0

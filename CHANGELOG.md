@@ -183,6 +183,18 @@ All notable engineering changes are recorded here. The project is pre-release; d
   are retained as reproducible area results, not timing closure or a reference-
   circuit change.
 
+- Added reproducible 384 kHz fixed-point and RTL assets for the explicitly
+  non-reference 8x candidate. The lower-rate chord bank is measured at
+  -23,414..+146,717 Q17.1 and therefore uses signed 19-bit coefficients with an
+  exact 44-bit product, while 768 kHz remains signed 18 bit. Verilator matches
+  1,024 all-bank chord, 1,024 KCL, and 512 persistent full-solver vectors
+  exactly at 10/11/127 clocks;
+  the solver records a 4.565 nA maximum preterminal residual and zero
+  diagnostics. Rate-specific Yosys synthesis measures 13,713 LC / 183 DSP / 10
+  RAMB18 equivalents, versus 13,158 / 174 / 10 for the controlled 768 kHz
+  build. The verified reference stream remains 16x pending complete 8x
+  converter, transient, recovery, and alias proof.
+
 - Added a reproducible 384 kHz/8x architecture study while retaining
   768 kHz/16x as reference mode. The SPICE comparison now measures the lower-
   rate trapezoidal model at 10 and 20 kHz: maximum error is 0.06653 dB and

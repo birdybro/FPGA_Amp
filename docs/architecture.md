@@ -34,9 +34,14 @@ substantial multiplier reuse. Floating comparison bounds its 20 kHz SPICE
 error at -0.06653 dB / +0.01167° and finds no meaningful selected-product
 increase in 5 mV, 20 mV, or steady 0.5 V complete-circuit tests. A hot static-
 tube stress is 11.33 dB worse than 16×, although still -118.65 dBc. The current
-fixed coefficients, RTL, diagnostics, clock enables, and verified stream remain
-16×. The lower-rate candidate must pass transient alias, recovery, fixed-point,
-and complete RTL comparisons before it can be selected.
+384 kHz fixed coefficient/state set and nonlinear core match 1,024 all-bank
+chord, 1,024 KCL, and 512 persistent solver RTL vectors exactly. The core
+consumes 127 of 256 clocks,
+leaving 129 clocks for a more timing-friendly schedule. Its inverse matrix needs
+signed 19-bit Q17.1 coefficients, one bit wider than the 768 kHz implementation.
+Clock enables and the verified interpolation/decimation stream remain 16×. The
+lower-rate candidate must still pass transient alias, recovery, and complete 8×
+stream comparisons before it can be selected.
 
 `phono_stream_mono.sv` now implements this digital reference boundary from
 48 kHz Q8.24 physical input volts through 16× interpolation, the complete V1

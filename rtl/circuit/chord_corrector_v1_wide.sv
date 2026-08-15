@@ -7,6 +7,7 @@
 module chord_corrector_v1_wide #(
     parameter COEFFICIENT_FILE = "model/generated/v1_chord_inverse_q17_1.mem",
     parameter integer COEFFICIENT_SETS = 1,
+    parameter integer COEFFICIENT_WIDTH = 18,
     // Optional timing schedule. Register scaled corrections and updated node
     // values before saturation/commit, adding two clocks without changing any
     // arithmetic result.
@@ -32,7 +33,10 @@ module chord_corrector_v1_wide #(
     output logic                    valid
 );
 
-    logic signed [17:0] coefficient [0:COEFFICIENT_SETS * 81 - 1];
+    localparam integer PRODUCT_WIDTH = COEFFICIENT_WIDTH + 25;
+
+    logic signed [COEFFICIENT_WIDTH-1:0] coefficient
+        [0:COEFFICIENT_SETS * 81 - 1];
     logic signed [24:0] residual_latched [0:8];
     logic signed [39:0] voltage_latched [0:8];
     logic signed [47:0] accumulator [0:8];
@@ -42,7 +46,11 @@ module chord_corrector_v1_wide #(
     logic correction_staged;
     logic update_staged;
 
-    initial $readmemh(COEFFICIENT_FILE, coefficient);
+    initial begin
+        if ((COEFFICIENT_WIDTH < 18) || (COEFFICIENT_WIDTH > 19))
+            $error("COEFFICIENT_WIDTH must be 18 or 19");
+        $readmemh(COEFFICIENT_FILE, coefficient);
+    end
 
     function automatic int node_fractional_bits(input int row);
         begin
@@ -132,7 +140,7 @@ module chord_corrector_v1_wide #(
     endfunction
 
     logic apply_pending;
-    logic signed [42:0] product_by_row [0:8];
+    logic signed [PRODUCT_WIDTH-1:0] product_by_row [0:8];
     logic signed [48:0] correction_by_row [0:8];
     logic signed [48:0] correction_staged_by_row [0:8];
     logic signed [49:0] updated_by_row [0:8];
@@ -240,7 +248,9 @@ module chord_corrector_v1_wide #(
             end else if (!apply_pending) begin
                 for (row = 0; row < 9; row = row + 1)
                     accumulator[row] <= accumulator[row]
-                        + {{5{product_by_row[row][42]}}, product_by_row[row]};
+                        + {{(48 - PRODUCT_WIDTH){
+                                product_by_row[row][PRODUCT_WIDTH-1]
+                            }}, product_by_row[row]};
                 if (column == 4'd8)
                     apply_pending <= 1'b1;
                 else

@@ -127,6 +127,13 @@ def main() -> int:
         type=validated_result_tag,
         help="retain tagged synthesis logs and summaries for an experiment",
     )
+    parser.add_argument(
+        "--sample-rate-hz",
+        type=int,
+        choices=(384_000, 768_000),
+        default=768_000,
+        help="select rate-specific fixed assets for the supported V1 wrapper",
+    )
     soft_multiplier_mapping = parser.add_mutually_exclusive_group()
     soft_multiplier_mapping.add_argument(
         "--soft-multiplier-module",
@@ -145,6 +152,14 @@ def main() -> int:
         ),
     )
     args = parser.parse_args()
+    rate_selectable_top = (
+        "v1_solver_mono_wide_trapezoidal_banked_terminal"
+    )
+    if args.sample_rate_hz != 768_000 and args.top != rate_selectable_top:
+        parser.error(
+            "--sample-rate-hz 384000 is currently supported only for "
+            f"--top {rate_selectable_top}"
+        )
     yosys = locate("yosys")
     abc = locate("abc")
     if yosys is None or abc is None:
@@ -651,7 +666,8 @@ def main() -> int:
         sources.insert(solver_index, terminal_current_source)
     pnr_mode = args.pnr_json is not None
     result_tag = f"_{args.result_tag}" if args.result_tag is not None else ""
-    log_suffix = ("_pnr" if pnr_mode else "") + result_tag
+    rate_tag = "_384khz" if args.sample_rate_hz == 384_000 else ""
+    log_suffix = rate_tag + ("_pnr" if pnr_mode else "") + result_tag
     log_path = results / f"yosys_xc7_{args.top}{log_suffix}.log"
     # Only the legacy solver/stream aliases select the factorized primitive by
     # overriding a wrapper parameter.  The factorized tube primitive is itself
@@ -668,6 +684,11 @@ def main() -> int:
         actual_top = "v1_solver_mono_wide"
         parameter_command = (
             "chparam -set USE_LINEAR_FACTORIZED_TUBE 1 v1_solver_mono_wide"
+        )
+    if args.sample_rate_hz == 384_000:
+        parameter_command = (
+            "chparam -set SAMPLE_RATE_384KHZ 1 "
+            f"{rate_selectable_top}"
         )
     # The packaged Yosys has an absolute system ABC default. Stopping before
     # map_luts and invoking the identical documented steps with -exe keeps the
@@ -810,6 +831,7 @@ def main() -> int:
             else "Yosys out-of-context synth_xilinx XC7; no place/route"
         ),
         "top": args.top,
+        "sample_rate_hz": args.sample_rate_hz,
         "result_tag": args.result_tag,
         "soft_multiplier_module": args.soft_multiplier_module,
         "soft_multiplier_scope": soft_multiplier_scope,

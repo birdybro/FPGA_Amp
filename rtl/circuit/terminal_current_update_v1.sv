@@ -5,7 +5,9 @@
 // correction changes the committed capacitor voltages.  This block preserves
 // the existing single-edge combinational contract so it can first be timed in
 // isolation; any later pipelining must be an explicit solver-schedule change.
-module terminal_current_update_v1 (
+module terminal_current_update_v1 #(
+    parameter bit SAMPLE_RATE_384KHZ = 1'b0
+) (
     input  logic [399:0] terminal_voltage_q30,
     input  logic [399:0] previous_voltage_q30,
     input  logic [479:0] previous_current_q44,
@@ -14,6 +16,18 @@ module terminal_current_update_v1 (
 );
 
 `include "model/generated/v1_cap_conductance_q0_47_trapezoidal.svh"
+`include "model/generated/v1_cap_conductance_q0_47_trapezoidal_384khz.svh"
+
+    function automatic logic signed [47:0] selected_cap_g_q47(
+        input int index
+    );
+        begin
+            if (SAMPLE_RATE_384KHZ)
+                selected_cap_g_q47 = v1_terminal_cap_g_q47_384khz(index);
+            else
+                selected_cap_g_q47 = v1_terminal_cap_g_q47(index);
+        end
+    endfunction
 
     function automatic logic signed [62:0] rounded_current_q44(
         input logic signed [91:0] product
@@ -82,7 +96,7 @@ module terminal_current_update_v1 (
                           terminal_voltage_q30[lane * 40 +: 40]})
                 - $signed({{4{previous_voltage_q30[lane * 40 + 39]}},
                             previous_voltage_q30[lane * 40 +: 40]});
-            product[lane] = v1_terminal_cap_g_q47(lane)
+            product[lane] = selected_cap_g_q47(lane)
                             * voltage_delta[lane];
             current_value[lane] = rounded_current_q44(product[lane])
                 - $signed({{15{previous_current_q44[lane * 48 + 47]}},
@@ -104,7 +118,9 @@ endmodule
 // path at the cost of one solver clock. The arithmetic is identical to
 // terminal_current_update_v1.
 /* verilator lint_off DECLFILENAME */
-module terminal_current_update_v1_half_parallel (
+module terminal_current_update_v1_half_parallel #(
+    parameter bit SAMPLE_RATE_384KHZ = 1'b0
+) (
     input  logic         clk,
     input  logic         rst_n,
     input  logic         start,
@@ -117,6 +133,18 @@ module terminal_current_update_v1_half_parallel (
 );
 
 `include "model/generated/v1_cap_conductance_q0_47_trapezoidal.svh"
+`include "model/generated/v1_cap_conductance_q0_47_trapezoidal_384khz.svh"
+
+    function automatic logic signed [47:0] selected_cap_g_q47(
+        input int index
+    );
+        begin
+            if (SAMPLE_RATE_384KHZ)
+                selected_cap_g_q47 = v1_terminal_cap_g_q47_384khz(index);
+            else
+                selected_cap_g_q47 = v1_terminal_cap_g_q47(index);
+        end
+    endfunction
 
     function automatic logic signed [62:0] rounded_current_q44(
         input logic signed [91:0] product
@@ -210,8 +238,8 @@ module terminal_current_update_v1_half_parallel (
                         ? previous_current_second_latched[0 * 48 +: 48]
                         : previous_current_q44[0 * 48 +: 48];
                     worker_conductance[worker] = active
-                        ? v1_terminal_cap_g_q47(5)
-                        : v1_terminal_cap_g_q47(0);
+                        ? selected_cap_g_q47(5)
+                        : selected_cap_g_q47(0);
                 end
                 1: begin
                     worker_terminal_voltage[worker] = active
@@ -224,8 +252,8 @@ module terminal_current_update_v1_half_parallel (
                         ? previous_current_second_latched[1 * 48 +: 48]
                         : previous_current_q44[1 * 48 +: 48];
                     worker_conductance[worker] = active
-                        ? v1_terminal_cap_g_q47(6)
-                        : v1_terminal_cap_g_q47(1);
+                        ? selected_cap_g_q47(6)
+                        : selected_cap_g_q47(1);
                 end
                 2: begin
                     worker_terminal_voltage[worker] = active
@@ -238,8 +266,8 @@ module terminal_current_update_v1_half_parallel (
                         ? previous_current_second_latched[2 * 48 +: 48]
                         : previous_current_q44[2 * 48 +: 48];
                     worker_conductance[worker] = active
-                        ? v1_terminal_cap_g_q47(7)
-                        : v1_terminal_cap_g_q47(2);
+                        ? selected_cap_g_q47(7)
+                        : selected_cap_g_q47(2);
                 end
                 3: begin
                     worker_terminal_voltage[worker] = active
@@ -252,8 +280,8 @@ module terminal_current_update_v1_half_parallel (
                         ? previous_current_second_latched[3 * 48 +: 48]
                         : previous_current_q44[3 * 48 +: 48];
                     worker_conductance[worker] = active
-                        ? v1_terminal_cap_g_q47(8)
-                        : v1_terminal_cap_g_q47(3);
+                        ? selected_cap_g_q47(8)
+                        : selected_cap_g_q47(3);
                 end
                 default: begin
                     worker_terminal_voltage[worker] = active
@@ -266,8 +294,8 @@ module terminal_current_update_v1_half_parallel (
                         ? previous_current_second_latched[4 * 48 +: 48]
                         : previous_current_q44[4 * 48 +: 48];
                     worker_conductance[worker] = active
-                        ? v1_terminal_cap_g_q47(9)
-                        : v1_terminal_cap_g_q47(4);
+                        ? selected_cap_g_q47(9)
+                        : selected_cap_g_q47(4);
                 end
             endcase
             worker_delta[worker] =

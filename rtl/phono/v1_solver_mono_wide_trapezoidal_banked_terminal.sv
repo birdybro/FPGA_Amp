@@ -7,6 +7,9 @@
 // one shared tube engine or 95 clocks with two parallel tube engines. Enabling
 // all optional KCL/chord timing boundaries with parallel tubes takes 119 clocks.
 module v1_solver_mono_wide_trapezoidal_banked_terminal #(
+    parameter bit SAMPLE_RATE_384KHZ = 1'b0,
+    parameter integer CHORD_COEFFICIENT_WIDTH =
+        SAMPLE_RATE_384KHZ ? 19 : 18,
     parameter bit USE_LINEAR_FACTORIZED_TUBE = 1'b0,
     parameter bit PARALLEL_TUBES = 1'b0,
     parameter bit PIPELINED_KCL_FINISH = 1'b0,
@@ -42,21 +45,33 @@ module v1_solver_mono_wide_trapezoidal_banked_terminal #(
 
     v1_solver_mono_wide #(
         .NODE_INITIAL_FILE(
-            "model/generated/v1_node_initial_wide_trapezoidal.mem"
+            SAMPLE_RATE_384KHZ
+                ? "model/generated/v1_node_initial_wide_trapezoidal_384khz.mem"
+                : "model/generated/v1_node_initial_wide_trapezoidal.mem"
         ),
         .CAP_INITIAL_FILE(
-            "model/generated/v1_cap_initial_q30_wide_trapezoidal.mem"
+            SAMPLE_RATE_384KHZ
+                ? "model/generated/v1_cap_initial_q30_wide_trapezoidal_384khz.mem"
+                : "model/generated/v1_cap_initial_q30_wide_trapezoidal.mem"
         ),
         .CAP_CURRENT_INITIAL_FILE(
-            "model/generated/v1_cap_current_initial_q4_44_trapezoidal.mem"
+            SAMPLE_RATE_384KHZ
+                ? "model/generated/v1_cap_current_initial_q4_44_trapezoidal_384khz.mem"
+                : "model/generated/v1_cap_current_initial_q4_44_trapezoidal.mem"
         ),
         .CAP_G_FILE(
-            "model/generated/v1_cap_conductance_q0_47_trapezoidal.mem"
+            SAMPLE_RATE_384KHZ
+                ? "model/generated/v1_cap_conductance_q0_47_trapezoidal_384khz.mem"
+                : "model/generated/v1_cap_conductance_q0_47_trapezoidal.mem"
         ),
         .CHORD_COEFFICIENT_FILE(
-            "model/generated/v1_chord_inverse_banked_q17_1_trapezoidal.mem"
+            SAMPLE_RATE_384KHZ
+                ? "model/generated/v1_chord_inverse_banked_q17_1_trapezoidal_384khz.mem"
+                : "model/generated/v1_chord_inverse_banked_q17_1_trapezoidal.mem"
         ),
         .CHORD_COEFFICIENT_SETS(5),
+        .CHORD_COEFFICIENT_WIDTH(CHORD_COEFFICIENT_WIDTH),
+        .SAMPLE_RATE_384KHZ(SAMPLE_RATE_384KHZ),
         .TRAPEZOIDAL(1'b1),
         .TERMINAL_CORRECTION(1'b1),
         .USE_LINEAR_FACTORIZED_TUBE(USE_LINEAR_FACTORIZED_TUBE),
