@@ -571,17 +571,17 @@ The last controlled 768 kHz complete trapezoidal banked terminal stream
 measurement is 18,280 logic cells, 206 DSP48E1s, eight RAMB18E1s, and one
 RAMB36E1 with zero structural check problems. Each half-band decimator spends
 one additional MAC clock on its center product instead of instantiating a
-second multiplier. The subsequently selected reset-masked circular history is
-bit-exact at 16×, reduces the standalone four-stage decimator to 1,408 LC / 817
-FF / 16 DSP, and reduces the complete 768 kHz stream to 16,704 LC / 11,282 FF /
-206 DSP. This occupies 85.8% of the XC7A100T's DSPs,
+second multiplier. The subsequently selected reset-masked circular histories
+are bit-exact at 16×, reduce the standalone four-stage interpolator/decimator
+to 1,417 LC / 1,229 FF / 16 DSP and 1,408 / 817 / 16, and reduce the complete
+768 kHz stream to 16,062 LC / 9,033 FF / 206 DSP. This occupies 85.8% of the XC7A100T's DSPs,
 leaving 34 blocks but still ruling out duplication for stereo. Its exact solver
 latency remains 127 clocks; only named-part place-and-route can establish
 whether the arithmetic meets 98.304 MHz.
 
 The explicit 384 kHz candidate, including its three-stage converters, 19-bit
-chord bank, and circular decimator histories, measures 16,315 logic cells,
-10,520 flip-flops, 207 DSP48E1s, eight RAMB18E1s, and one RAMB36E1. The prior
+chord bank, and circular resampler histories, measures 15,716 logic cells,
+8,547 flip-flops, 207 DSP48E1s, eight RAMB18E1s, and one RAMB36E1. The prior
 shifting-history implementation measured 17,693 LC / 14,737 packed FFX. The
 circuit arithmetic is unchanged and the cycle budget remains 256 clocks.
 
@@ -611,8 +611,12 @@ history reduces controlled synthesis to 16,315 LC / 10,520 FF and packs at
 58,363 LUTX / 10,562 FFX / 4,099 CARRY4 / 207 DSP. Heap placement now
 legalizes, proving that the decimator registers were a real congestion blocker,
 but reaches only 22.79 MHz against 49.152 MHz. Static placement reaches 38.38
-MHz, effectively unchanged from the old 38.34 MHz result. Routing remains
-unjustified and is not claimed.
+MHz, effectively unchanged from the old 38.34 MHz result. Converting the
+interpolator history as well reduces controlled synthesis to 15,716 LC / 8,547
+FF and the pack to 56,041 LUTX / 8,589 FFX / 4,116 CARRY4 / 207 DSP. Static
+placement improves to 41.27 MHz, a remaining 19.1% frequency shortfall. A full
+open route is retained as diagnostic evidence and is not pre-labeled timing
+closure.
 
 The placement analyzer now recognizes complete-stream resampler hierarchy
 instead of folding it into harness constants. In the 38.34 MHz static result,
@@ -631,7 +635,11 @@ versus the old 8,397 / 4,791 / 12. It still spans 244x181 placement coordinates,
 while the unchanged interpolator consumes 5,225 / 2,910 / 12 over 184x242 and
 KCL consumes 19,616 / 2,920 / 72 over 211x160. The nearly unchanged static Fmax
 despite the decimator reduction is direct evidence against continuing to treat
-that history as the critical timing path.
+that history as the critical timing path. The circular interpolator maps to 12
+`RAM32M` plus 11 `RAM64M` primitives and falls from 1,549 LC / 2,910 FF to 950
+/ 938 at 8×. In the 41.27 MHz placement it occupies 2,806 LUTX / 937 FFX / 12
+DSP over 234x45 coordinates; the decimator is 2,725 / 618 / 12 over 48x203,
+and KCL is 19,627 / 2,920 / 72 over 230x153.
 
 The device-neutral asynchronous FIFO has a separately measured depth-8 × 32-bit
 configuration:

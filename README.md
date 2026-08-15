@@ -51,10 +51,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   13,158 LC / 174 DSP / 10 RAMB18 equivalents at 768 kHz. The complete
   candidate stream now matches 64 external outputs across 512 nonlinear
   updates exactly, with zero converter, solver, or deadline diagnostics.
-  After serializing each decimator center tap and replacing its reset-cleared
-  shift history with reset-masked circular distributed memory, controlled
-  full-stream synthesis measures 16,315 LC / 10,520 FF / 207 DSP / 10 RAMB18
-  equivalents at 384 kHz versus 16,704 / 11,282 / 206 / 10 for 768 kHz.
+  After serializing each decimator center tap and replacing both resamplers'
+  reset-cleared shift histories with reset-masked circular distributed memory,
+  controlled full-stream synthesis measures 15,716 LC / 8,547 FF / 207 DSP /
+  10 RAMB18 equivalents at 384 kHz versus 16,062 / 9,033 / 206 / 10 for 768 kHz.
   Reference mode remains 16×/768 kHz. A 772,608-update paired fixed-stream
   campaign finds
   8× recovery only 0.1875 ms later, with -84.71 dB aligned waveform and
@@ -83,8 +83,10 @@ The mono reference and complete 768 kHz circuit solver are operating:
   49.152 MHz. Circular decimator history then cuts the packed design to 58,363
   LUTX / 10,562 FFX / 4,099 CARRY4 / 207 DSP and makes heap placement legal for
   the first time, but its 22.79 MHz estimate still fails timing. Static
-  placement reaches 38.38 MHz, effectively unchanged from the old 38.34 MHz
-  result. Routing is skipped and 8× remains unpromoted.
+  placement initially reaches 38.38 MHz. Circular interpolation then reduces
+  the pack to 56,041 LUTX / 8,589 FFX / 4,116 CARRY4 / 207 DSP and improves
+  static placement to 41.27 MHz, still short of 49.152 MHz. The open route is
+  diagnostic rather than a timing-closure claim, and 8× remains unpromoted.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both

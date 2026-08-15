@@ -6,6 +6,18 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Replaced each half-band interpolator's reset-cleared shift history with a
+  reset-masked circular distributed memory. A single asynchronous read address
+  is multiplexed between the serial MAC and pre-write odd-phase delay capture,
+  preserving output order and latency. A reset-after-history regression covers
+  both phases; unit, both 8x schedules, 16x conversion, and complete 384/768 kHz
+  streams remain bit-exact. Yosys maps the 8x histories into 12 `RAM32M` plus
+  11 `RAM64M` primitives. One stage measures 364 LC / 306 FF / 4 DSP, 8x is
+  950 / 938 / 12, and 16x is 1,417 / 1,229 / 16. Complete 384/768 kHz synthesis
+  falls to 15,716 LC / 8,547 FF / 207 DSP and 16,062 / 9,033 / 206. Static A200T
+  placement packs at 56,041 LUTX / 8,589 FFX / 4,116 CARRY4 / 207 DSP and
+  improves from 38.38 to 41.27 MHz against 49.152 MHz; timing remains open.
+
 - Replaced every half-band decimator's reset-cleared shifting sample array with
   a circular history inferred as distributed RAM. An explicit valid-sample
   count provides architectural zero fill after reset while leaving physical

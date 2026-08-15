@@ -11,14 +11,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
-- [ ] Replace the remaining 8x interpolator reset-cleared shifting history with
-  a reset-masked circular/distributed-memory implementation, preserving the
-  exact even/odd output order and existing schedule. The completed decimator
-  rewrite proves the method: its 8x block falls from 2,448 LC / 4,791 FF to
-  961 / 618, the complete stream from 17,693 LC / 14,737 packed FFX to 16,315
-  LC / 10,562 packed FFX, and A200T heap placement now legalizes. Apply the
-  same reset-after-history and full-stream evidence before replacing the
-  interpolator baseline.
+- [ ] Close the remaining 49.152 MHz complete-stream timing gap with registered
+  cross-block scheduling, guided by routed critical-path evidence. Circular
+  histories reduce the complete 384 kHz candidate from 17,693 LC / 14,737
+  packed FFX to 15,716 LC / 8,589 packed FFX and improve static A200T placement
+  from 38.34 to 41.27 MHz, but still miss the clock by 19.1%. Preserve the
+  127-of-128-clock arithmetic contract and bit-exact stream while retiming;
+  lower resource occupancy alone is not timing closure.
 - [ ] Isolate and reduce the remaining fixed circuit/state/chord error. With
   the implemented 1,024-point grid branch, raw final-window error is now
   0.372/0.291 mV at 1.0 V and 0.631/0.321 mV at 1.5 V for backward Euler/
@@ -109,10 +108,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   costs nine more DSPs than the controlled 768 kHz core synthesis. The complete
   48→384→48 kHz candidate is now exact for 64 external outputs / 512
   nonlinear updates with zero diagnostics. After serial center-tap sharing and
-  reset-masked circular decimator histories, full-stream synthesis is 16,315
-  LC / 10,520 FF / 207 DSP / 10 RAMB18 equivalents at 384 kHz and 16,704 /
-  11,282 / 206 / 10 at 768 kHz; the corresponding 16x decimator alone is 1,408
-  LC / 817 FF / 16 DSP. The
+  reset-masked circular resampler histories, full-stream synthesis is 15,716
+  LC / 8,547 FF / 207 DSP / 10 RAMB18 equivalents at 384 kHz and 16,062 / 9,033
+  / 206 / 10 at 768 kHz. The
   772,608-update fixed transient comparison is diagnostic-clean and finds only
   +0.1875 ms recovery delta / -84.71 dB aligned recovery error. Known-delay
   windowed-sinc alignment measures the pop at -35.92 dB overall / 2.623 mV
@@ -130,10 +128,20 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   static placement to 38.34 MHz against 49.152 MHz, but still misses by 1.28x.
   Circular decimator history removes 4,173 packed FFX and makes heap placement
   legal for the first time, although its 22.79 MHz estimate still fails the
-  clock. Reference mode remains 16x and broader registered scheduling is
-  required.
+  clock. Circular interpolation then improves static placement to 41.27 MHz
+  while preserving every stream output. Reference mode remains 16x and broader
+  registered scheduling is required.
 
 ## Completed this milestone
+
+- [x] Replace reset-cleared half-band interpolator shift registers with reset-
+  masked circular distributed memories using one multiplexed asynchronous read
+  port for MAC and pre-write odd-phase capture. Add a reset-after-history test
+  for both output phases and preserve all unit, 8x/16x converter, and complete
+  stream vectors exactly. Measure 364 LC / 306 FF / 4 DSP for one stage, 950 /
+  938 / 12 for 8x, and 1,417 / 1,229 / 16 for 16x. Reduce complete 384/768 kHz
+  synthesis to 15,716 / 16,062 LC and static A200T placement to 56,041 LUTX /
+  8,589 FFX / 4,116 CARRY4 / 207 DSP at 41.27 MHz versus 49.152 MHz.
 
 - [x] Replace reset-cleared half-band decimator shift registers with a
   reset-masked circular distributed-memory history. Mask retained memory using

@@ -44,10 +44,11 @@ Reference mode remains 16×. The separately named three-stage 8× converter and
 64 external outputs cover 512 persistent solver updates with zero converter,
 solver, or deadline diagnostics. Its default stage-3 enable occurs every 256
 fabric clocks and interpolation scheduling delay is eight 384 kHz samples.
-After sharing each decimator stage's center-tap multiplier and replacing its
-shifting history with reset-masked circular distributed memory, Yosys synthesis
-measures 16,315 LC / 10,520 FF / 207 DSP / 10 RAMB18 equivalents versus 16,704
-/ 11,282 / 206 / 10 at 768 kHz. This is structural evidence, not Fmax closure.
+After sharing each decimator stage's center-tap multiplier and replacing both
+resamplers' shifting histories with reset-masked circular distributed memory,
+Yosys synthesis measures 15,716 LC / 8,547 FF / 207 DSP / 10 RAMB18 equivalents
+versus 16,062 / 9,033 / 206 / 10 at 768 kHz. This is structural evidence, not
+Fmax closure.
 The subsequent complete fixed-stream transient gate processes
 772,608 nonlinear updates with zero diagnostics. Its accepted-range overload
 recovery is close: 8× is 0.1875 ms later, -84.71 dB aligned overall, and
@@ -72,8 +73,9 @@ solver and all 64 complete outputs remain exact with zero diagnostics, proving
 one clock of real schedule margin. The shifting-history baseline reaches 38.34
 MHz with static placement against 49.152 MHz. Circular decimator history cuts
 4,173 packed flip-flops and lets heap placement legalize, but the resulting
-22.79 MHz estimate still fails the clock. Static placement reaches 38.38 MHz,
-effectively unchanged from the old 38.34 MHz result. The candidate remains
+22.79 MHz estimate still fails the clock. Adding circular interpolation reduces
+the static pack to 56,041 LUTX / 8,589 FFX and improves placement to 41.27 MHz,
+still 19.1% short of the clock. The candidate remains
 unpromoted pending registered cross-block scheduling and timing closure.
 
 `phono_stream_mono.sv` now implements this digital reference boundary from

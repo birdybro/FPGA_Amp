@@ -65,7 +65,10 @@ serially evaluates only the even-indexed off-center phase and implements the
 other phase as the exact delayed center sample. The decimator evaluates the
 even-indexed taps plus the exact center product. Both use Q8.24 samples, Q1.23
 coefficients, add-half/arithmetic-shift rounding, output saturation, and explicit
-overrun counters.
+overrun counters. Both histories use unreset circular distributed memories and
+explicit valid-sample masks to preserve causal zero fill after reset. The
+interpolator multiplexes its single read address between the MAC and pre-write
+odd-phase capture; this preserves its one-pair output delay.
 
 At 98.304 MHz the four interpolation output phases are staggered so all MACs
 complete before consumption; all signals remain in one clock domain. The
@@ -104,8 +107,8 @@ Stage-1 unit tests match 256 input pairs exactly in each direction. Complete
 chain tests match 2,048 interpolation outputs and 128 decimation outputs exactly,
 with zero saturation, overrun, or input-phase errors. The decimator bench also
 supports 131,072 custom inputs / 8,192 captured outputs for spectral tests.
-Generic XC7 synthesis reports 2,053 estimated logic cells / 16 DSP48E1s for
-interpolation and 1,408 logic cells / 817 flip-flops / 16 DSP48E1s for
+Generic XC7 synthesis reports 1,417 estimated logic cells / 1,229 flip-flops /
+16 DSP48E1s for interpolation and 1,408 logic cells / 817 flip-flops / 16 DSP48E1s for
 decimation. No Fmax is claimed without place-and-route. Each decimator stage
 schedules its center product through the existing serial MAC one clock before
 the off-center taps. Its sample history is an unreset circular distributed
@@ -113,11 +116,13 @@ memory; a reset valid-count mask supplies the same causal zero history and
 prevents retained physical bits from appearing after reset. Exact samples and
 latency are unchanged.
 
-The three-stage candidate synthesizes to 1,549 estimated logic cells / 12
-DSP48E1s for interpolation and 961 logic cells / 618 flip-flops / 12 DSP48E1s
-for decimation. One 79-tap decimator stage measures 349 LC / 214 FF / 4 DSP,
+The three-stage candidate synthesizes to 950 estimated logic cells / 938
+flip-flops / 12 DSP48E1s for interpolation and 961 logic cells / 618 flip-flops
+/ 12 DSP48E1s for decimation. One 79-tap interpolator/decimator stage measures
+364 LC / 306 FF / 4 DSP and 349 LC / 214 FF / 4 DSP, respectively. The latter is
 down from the shifting history's 1,284 / 2,753 / 4. Yosys maps the three-stage
-histories into 30 `RAM32M` distributed-memory primitives rather than block RAM.
+interpolator into 12 `RAM32M` plus 11 `RAM64M` and the decimator into 30
+`RAM32M` distributed-memory primitives rather than block RAM.
 These are controlled structural measurements, not timing results.
 
 Stage tap counts shrink as physical image transitions widen. Symmetry can reduce

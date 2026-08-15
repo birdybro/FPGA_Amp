@@ -90,6 +90,32 @@ module halfband_interpolator_2x_tb;
         repeat (48) @(posedge clk);
         pulse_output_and_check(previous_odd);
         $fclose(file_handle);
+
+        // Retained distributed-memory bits must be hidden by reset masking in
+        // both the computed phase and the pure-delay phase.
+        rst_n <= 1'b0;
+        @(posedge clk);
+        #1;
+        rst_n <= 1'b1;
+        sample_input_q24 <= 32'sd0;
+        ce_input <= 1'b1;
+        ce_output <= 1'b1;
+        @(posedge clk);
+        #1;
+        ce_input <= 1'b0;
+        ce_output <= 1'b0;
+        if (!output_valid || sample_output_q24 !== 32'sd0) begin
+            $error("post-reset initial phase exposed stale state: got=%0d",
+                   sample_output_q24);
+            error_count = error_count + 1;
+        end
+        repeat (48) @(posedge clk);
+        pulse_output_and_check(32'sd0);
+        repeat (48) @(posedge clk);
+        pulse_output_and_check(32'sd0);
+        repeat (48) @(posedge clk);
+        pulse_output_and_check(32'sd0);
+
         if (saturation_count != 0 || overrun_count != 0) begin
             $error("diagnostics saturation=%0d overrun=%0d",
                    saturation_count, overrun_count);
