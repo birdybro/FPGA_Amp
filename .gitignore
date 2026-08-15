@@ -18,3 +18,4 @@ obj_dir/
 *.vcd
 *.fst
 abc.history
+*.kicad_prl

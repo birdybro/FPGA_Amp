@@ -15,6 +15,20 @@ access and finished-device compliance.
 
 ## Active, highest value first
 
+- [x] Create and openly route the first KiCad EVT PCB for the motorized-volume
+  subsystem. The 80 x 48 mm four-layer daughterboard implements the protected
+  5 V rail, DRV8874 PH/EN bridge, hardware current regulation, IPROPI and fault
+  telemetry, separate motor and dual-position connectors, ratiometric wiper
+  filtering, DNP snubber site, and eight labeled test points. One source table
+  generates its native schematic, PCB placement, custom symbols, and BOM;
+  Freerouting v2.2.4 supplies the checked-in route through DSN/SES. KiCad 10.0.5
+  reports 0 ERC, 0 DRC, and 0 unconnected items, and a source-aware verifier
+  checks the DRV8874 pin map, board dimensions, stack, DNP state, connector
+  isolation, minimum geometries, and reports. Gerbers, split drill files, maps,
+  report, and DNP-filtered placement data regenerate with
+  `make kicad-motor-fab`. This is an unbuilt motor-only EVT board; connector
+  release, thermal-via strategy, motor emissions, stall thresholds, mechanism
+  feel, and life qualification remain open.
 - [x] Establish a comprehensive product hardware baseline for eARC, LCD/touch,
   premium physical controls, and motorized volume. The architecture partitions
   the product into digital/eARC, phono/ADC, DAC/line-output, front-panel, and
@@ -50,7 +64,8 @@ access and finished-device compliance.
   PCM; verify stereo LPCM capability exchange, ARC fallback, CEC volume, mute,
   relock, and latency on analyzer/EVM hardware. Do not advertise compressed or
   multichannel formats in V1.
-- [ ] Prototype the front-panel stack with the STM32H753-class MCU, 5-inch
+- [ ] Extend the front-panel PCB stack beyond the completed motor-volume EVT
+  daughterboard with the STM32H753-class MCU, 5-inch
   800x480 IPS capacitive display, premium optical encoders, current-sensed
   H-bridge, and a motorized rotary mechanism. Implement one authoritative
   volume target shared by local/touch/CEC/network inputs, position-only motor

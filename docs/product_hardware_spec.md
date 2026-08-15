@@ -493,6 +493,16 @@ current feedback, and fault feedback (`VOL-003`). The motor rail and return go
 directly to PB/FP power entry rather than through touch/display ground traces.
 The MCU ADC samples position and motor current synchronously to PWM blanking.
 
+The first concrete PCB artifact is the separate
+`hardware/kicad/front_panel_motor_eval_rev_a` daughterboard. It implements this
+motor/position boundary without any audio nets, labels eight bring-up points,
+and has a checked open route with zero KiCad 10.0.5 ERC/DRC/unconnected items.
+It is intentionally narrower than the eventual FP board: it qualifies the
+driver, mechanism, current telemetry, motor cable, and position sensing before
+placing those aggressors beside the LCD MCU. Its current threshold, PTC/TVS,
+connector release, and PowerPAD thermal-via implementation remain EVT
+decisions; the clean CAD checks are not electrical or production validation.
+
 The servo shall implement (`VOL-004`):
 
 - position-dependent speed so large remote moves are quick and the final

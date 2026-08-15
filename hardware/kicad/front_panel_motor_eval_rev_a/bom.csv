@@ -1,0 +1,45 @@
+Reference,Value,Footprint,Description
+U1,DRV8874PWPR,Package_SO:HTSSOP-16-1EP_4.4x5mm_P0.65mm_EP3.4x5mm_Mask2.46x2.31mm,Current-sensed PH/EN H-bridge; PWP PowerPAD must be soldered
+J1,MOTOR_5V_INPUT,Connector_JST:JST_VH_B2P-VH-B_1x02_P3.96mm_Vertical,Keyed 4.75-5.25 V motor supply from PB
+J2,FP_MCU_CONTROL,Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical,MCU control/telemetry; prototype header; production connector TBD
+J3,PRM16_MOTOR,Connector_JST:JST_VH_B2P-VH-B_1x02_P3.96mm_Vertical,Twisted motor pair to supported volume mechanism
+J4,PRM16_POSITION,Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical,Two ratiometric position tracks; never carries audio
+F1,500mA_PTC,Fuse:Fuse_1206_3216Metric,Resettable input fuse; select hold/trip after measured stall test
+D1,SMBJ6.0A,Diode_SMD:D_SMB,Motor-rail transient clamp
+C1,100nF_50V_X7R,Capacitor_SMD:C_0805_2012Metric,
+C2,10uF_16V_X7R,Capacitor_SMD:C_1210_3225Metric,
+C3,220uF_10V_LOW_ESR,Capacitor_SMD:C_Elec_6.3x5.8,
+C4,100nF_16V_X7R,Capacitor_SMD:C_0805_2012Metric,
+C5,22nF_16V_X7R,Capacitor_SMD:C_0805_2012Metric,
+R1,33R,Resistor_SMD:R_0805_2012Metric,
+R2,100k,Resistor_SMD:R_0805_2012Metric,
+R3,33R,Resistor_SMD:R_0805_2012Metric,
+R4,100k,Resistor_SMD:R_0805_2012Metric,
+R5,33R,Resistor_SMD:R_0805_2012Metric,
+R6,100k,Resistor_SMD:R_0805_2012Metric,
+R7,10k,Resistor_SMD:R_0805_2012Metric,
+R8,14.7k_1%,Resistor_SMD:R_0805_2012Metric,
+R9,10k_1%,Resistor_SMD:R_0805_2012Metric,
+C6,10nF_X7R,Capacitor_SMD:C_0805_2012Metric,
+R10,10k_1%,Resistor_SMD:R_0805_2012Metric,
+C7,10nF_X7R,Capacitor_SMD:C_0805_2012Metric,
+R11,1k,Resistor_SMD:R_0805_2012Metric,
+R12,62k_1%,Resistor_SMD:R_0805_2012Metric,
+R13,100R,Resistor_SMD:R_0805_2012Metric,
+R14,100R,Resistor_SMD:R_0805_2012Metric,
+R15,1k,Resistor_SMD:R_0805_2012Metric,
+C8,10nF_C0G,Capacitor_SMD:C_0805_2012Metric,
+R16,1k,Resistor_SMD:R_0805_2012Metric,
+C9,10nF_C0G,Capacitor_SMD:C_0805_2012Metric,
+R17,22k_1%,Resistor_SMD:R_0805_2012Metric,
+R18,10k_1%,Resistor_SMD:R_0805_2012Metric,
+R19,DNP_SNUBBER,Resistor_SMD:R_0805_2012Metric,DNP; tune only from conducted/radiated measurements
+C10,DNP_SNUBBER,Capacitor_SMD:C_0805_2012Metric,DNP; tune only from conducted/radiated measurements
+TP1,VM_DRV,TestPoint:TestPoint_Plated_Hole_D2.0mm,Bring-up test point
+TP2,GND,TestPoint:TestPoint_Plated_Hole_D2.0mm,Bring-up test point
+TP3,MOTOR_OUT1,TestPoint:TestPoint_Plated_Hole_D2.0mm,Bring-up test point
+TP4,MOTOR_OUT2,TestPoint:TestPoint_Plated_Hole_D2.0mm,Bring-up test point
+TP5,VREF,TestPoint:TestPoint_Plated_Hole_D2.0mm,Bring-up test point
+TP6,IPROPI_SENSE,TestPoint:TestPoint_Plated_Hole_D2.0mm,Bring-up test point
+TP7,POT_A_ADC,TestPoint:TestPoint_Plated_Hole_D2.0mm,Bring-up test point
+TP8,POT_B_ADC,TestPoint:TestPoint_Plated_Hole_D2.0mm,Bring-up test point

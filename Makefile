@@ -5,6 +5,8 @@ VERILATOR ?= verilator
 YOSYS ?= yosys
 NEXTPNR ?= nextpnr-himbaechel
 OPENFPGALOADER ?= openFPGALoader
+KICAD_CLI ?= kicad-cli
+FREEROUTING_JAR ?=
 NEXYS_AUDIO_BIT ?= build/openxc7/xc7a200tsbg484-1/phono_audio_top_xc7/routed/phono_audio_top_xc7.bit
 
 .PHONY: all reference analysis arithmetic-bounds accuracy-sweeps factorized-study factorized-frequency factorized-frequency-wide factorized-frequency-trapezoidal factorized-domain state-drift state-wide state-wide-audio linear-modes wide-rtl-audio wide-rtl-frequency trapezoidal-rtl-frequency trapezoidal-rtl-recovery wide-rtl-overload terminal-banked-rtl-metrics trapezoidal-terminal-banked-rtl-metrics banked-rtl-overload terminal-banked-rtl-overload banked-accuracy banked-selector banked-threshold banked-slew-selector banked-error-decomposition banked-iterations terminal-bank-study terminal-relaxation-study dual-triode-bank-study grid-current-resolution wide-stream-rtl-frequency trapezoidal-stream-rtl-frequency trapezoidal-terminal-stream-rtl-frequency wide-stream-rtl-alias wav-null-regression audio-regression spice-python-frequency overload-study overload-wide overload-trapezoidal overload-long overload-severe-long overload-seven-second overload-iterations overload-banked trapezoidal-overload precision-study resampler test python-test plots spice spice-all rtl hermite-rtl factorized-rtl factorized-linear-rtl chord-rtl wide-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl solver-rtl solver-factorized-rtl wide-solver-rtl wide-linear-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-terminal-banked-solver-rtl trapezoidal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl stream-trapezoidal-terminal-banked-rtl guarded-stream-rtl mute-rtl audio-clock-rtl async-fifo-rtl cdc-pulse-rtl cdc-snapshot-rtl spi-control-rtl i2s-rtl i2s-bridge-rtl calibration-rtl calibration-control-rtl control-registers-rtl frame-scheduler-rtl mono-adapter-rtl i2s-mono-top-rtl i2s-control-top-rtl i2s-spi-top-rtl formal formal-mute formal-async-fifo formal-calibration-control formal-frame-scheduler formal-cdc-snapshot formal-cdc-pulse formal-audio-clock formal-audio-calibration formal-spi-control lint synth synth-hermite synth-factorized synth-factorized-linear synth-chord synth-wide-chord synth-network synth-wide-network synth-solver synth-solver-factorized synth-wide-solver synth-wide-linear-solver synth-trapezoidal-solver synth-banked-solver synth-terminal-banked-solver synth-trapezoidal-terminal-banked-solver synth-trapezoidal-banked-solver synth-halfband synth-stream synth-stream-factorized synth-stream-wide synth-stream-terminal-banked synth-stream-trapezoidal synth-stream-trapezoidal-terminal-banked synth-stream-guarded synth-mute synth-audio-clock synth-async-fifo synth-cdc-pulse synth-cdc-snapshot synth-spi-control synth-i2s synth-i2s-bridge synth-calibration synth-calibration-control synth-control-registers synth-frame-scheduler synth-mono-adapter synth-i2s-mono-top synth-i2s-control-top synth-i2s-spi-top openxc7-probe openxc7-pnr openxc7-hermite-pnr openxc7-linear-tube-pnr openxc7-linear-solver-pnr openxc7-terminal-current-pnr openxc7-kcl-pnr openxc7-chord-pnr tools-openxc7 clean tools
@@ -18,7 +20,7 @@ NEXYS_AUDIO_BIT ?= build/openxc7/xc7a200tsbg484-1/phono_audio_top_xc7/routed/pho
 .PHONY: openxc7-stream-384-pack openxc7-stream-384-place openxc7-a200t-stream-384-static-place openxc7-a200t-stream-384-half-clock-static-place openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-pnr openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-bit
 .PHONY: mono-adapter-384-rtl i2s-mono-top-384-rtl i2s-control-top-384-rtl i2s-spi-top-384-rtl synth-mono-adapter-384 synth-i2s-spi-top-384
 .PHONY: audio-clock-plan nexys-audio-top-contract audio-serial-clock-rtl i2c-write-rtl adau1761-codec-init-rtl codec-shared-i2s-guard-rtl synth-audio-clock-xc7 synth-audio-serial-clock-xc7 synth-i2c-write synth-adau1761-codec-init synth-codec-shared-i2s-guard synth-nexys-phono-audio-xc7 openxc7-a200t-audio-clock-pnr openxc7-a200t-audio-clock-bit openxc7-a200t-phono-audio-pnr openxc7-a200t-phono-audio-bit nexys-audio-hardware-preflight nexys-audio-program-sram
-.PHONY: product-hardware-spec
+.PHONY: product-hardware-spec kicad-motor-generate kicad-motor-route kicad-motor-check kicad-motor-fab
 .PHONY: volume-servo-test
 .PHONY: master-volume-rtl synth-master-volume
 
@@ -756,6 +758,41 @@ nexys-audio-top-contract:
 
 product-hardware-spec:
 	$(PYTHON) scripts/verify_product_hardware_spec.py
+
+kicad-motor-generate:
+	$(PYTHON) hardware/kicad/front_panel_motor_eval_rev_a/generate.py
+
+kicad-motor-route: kicad-motor-generate
+	@test -n "$(FREEROUTING_JAR)" || (echo "set FREEROUTING_JAR=/path/to/freerouting.jar" >&2; exit 2)
+	$(PYTHON) hardware/kicad/front_panel_motor_eval_rev_a/route_open.py --jar "$(FREEROUTING_JAR)" --passes 30
+
+kicad-motor-check:
+	mkdir -p build/kicad/front_panel_motor_eval
+	$(KICAD_CLI) sch erc --severity-all --exit-code-violations --format json \
+		-o build/kicad/front_panel_motor_eval/erc.json \
+		hardware/kicad/front_panel_motor_eval_rev_a/front_panel_motor_eval.kicad_sch
+	$(KICAD_CLI) pcb drc --refill-zones --save-board --severity-all --exit-code-violations --format json \
+		-o build/kicad/front_panel_motor_eval/drc.json \
+		hardware/kicad/front_panel_motor_eval_rev_a/front_panel_motor_eval.kicad_pcb
+	$(PYTHON) hardware/kicad/front_panel_motor_eval_rev_a/verify.py \
+		--erc build/kicad/front_panel_motor_eval/erc.json \
+		--drc build/kicad/front_panel_motor_eval/drc.json \
+		--output build/kicad/front_panel_motor_eval/stats.json
+
+kicad-motor-fab: kicad-motor-check
+	mkdir -p build/kicad/front_panel_motor_eval/fab
+	$(KICAD_CLI) pcb export gerbers --check-zones \
+		--layers F.Cu,In1.Cu,In2.Cu,B.Cu,F.Paste,B.Paste,F.Silkscreen,B.Silkscreen,F.Mask,B.Mask,Edge.Cuts \
+		-o build/kicad/front_panel_motor_eval/fab \
+		hardware/kicad/front_panel_motor_eval_rev_a/front_panel_motor_eval.kicad_pcb
+	$(KICAD_CLI) pcb export drill --format excellon --excellon-units mm --excellon-separate-th \
+		--generate-map --map-format pdf --generate-report \
+		--report-path build/kicad/front_panel_motor_eval/fab/drill_report.txt \
+		-o build/kicad/front_panel_motor_eval/fab \
+		hardware/kicad/front_panel_motor_eval_rev_a/front_panel_motor_eval.kicad_pcb
+	$(KICAD_CLI) pcb export pos --side both --format csv --units mm --exclude-dnp \
+		-o build/kicad/front_panel_motor_eval/fab/positions.csv \
+		hardware/kicad/front_panel_motor_eval_rev_a/front_panel_motor_eval.kicad_pcb
 
 volume-servo-test:
 	mkdir -p build/firmware_front_panel

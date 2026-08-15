@@ -6,6 +6,21 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added the first KiCad PCB artifact: an 80 x 48 mm, four-layer motor-volume
+  EVT daughterboard around the DRV8874. It includes protected 5 V input,
+  current-limit/reference networks, IPROPI and nFAULT telemetry, fail-off motor
+  controls, physically separate motor and dual ratiometric position connectors,
+  filtered MCU ADC returns, DNP snubber tuning sites, mounting holes, and eight
+  labeled test points. A single Python parts/net model generates the native
+  KiCad 10 schematic, PCB placement, symbols, and BOM; an open Freerouting
+  DSN/SES flow supplies the checked-in route. KiCad 10.0.5 reports zero ERC,
+  zero DRC, and zero unconnected items on the final 235-segment/28-via board.
+  The verifier additionally checks dimensions, layer count, the DRV8874 pad
+  map, motor/position connector separation, DNP flags, and manufacturing
+  minima. Make targets regenerate, route, check, and export Gerbers, drill
+  files/maps/report, and DNP-filtered placement data. This is an unbuilt EVT
+  design; thermal strategy, connector release, motor EMI/current/torque/noise,
+  assembly, and lifetime are not validated.
 - Added a synthesizable stereo master-volume endpoint corresponding to the
   motorized front-panel control. The modern, post-model primitive accepts
   unsigned Q0.31 linear targets, reserves zero and `0x7fffffff` for exact
