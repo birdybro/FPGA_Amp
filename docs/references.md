@@ -3,7 +3,7 @@
 Sources are grouped by the decision they support. Scanned manufacturer material
 is treated as primary even when a third-party archive hosts the scan. A web
 article describing a historical circuit is provenance for that circuit, not a
-general authority on tube physics. Links were checked 2026-08-14.
+general authority on tube physics. Links were checked 2026-08-15.
 
 ## Open FPGA implementation flow
 
@@ -70,6 +70,81 @@ general authority on tube physics. Links were checked 2026-08-14.
   Its PLL and codec-generated BCLK/LRCLK choices are intentionally not copied:
   this project provides exact MCLK/BCLK/LRCLK from FPGA logic and therefore
   programs the ADAU1761 serial port as subordinate.
+
+## Product eARC, front-panel, and motor-control platform
+
+- HDMI Licensing Administrator,
+  [*Enhanced Audio Return Channel*](https://www.hdmi.org/spec21sub/enhancedaudioreturnchannel),
+  [adopter overview](https://www.hdmi.org/adopter/index), and
+  [licensed-product clarification](https://www.hdmi.org/adopter/enforcement).
+  The first source establishes the public eARC purpose and high-rate audio
+  context. The licensing sources establish that specification access belongs
+  to adopters and that a finished product must itself meet adopter/compliance
+  requirements even when it contains licensed components. They support the
+  explicit production gate in `product_hardware_spec.md`; public pages are not
+  treated as enough information to design a compliant connector network.
+- Lattice Semiconductor,
+  [SiI9437/SiI9438 product page](https://www.latticesemi.com/Products/ASSPs/HDMI21eARC)
+  and [receiver/transmitter data
+  brief](https://www.latticesemi.com/-/media/LatticeSemi/Documents/DataSheets/SiI-DB-02013-B.ashx?document_id=52242).
+  Primary device evidence for the provisional audio-only receiver: SiI9437 is
+  the audio-device eARC/ARC receiver, exposes four I2S outputs plus IEC 60958,
+  and describes up to eight-channel 24-bit/192 kHz transport. V1 deliberately
+  advertises only two-channel LPCM and keeps selection conditional on current
+  lifecycle, supply, full documentation, software terms, and licensed
+  reference-design access.
+- Analog Devices,
+  [ADV7671A product page](https://www.analog.com/en/products/adv7671a.html).
+  Primary contingency source for a full 48 Gbit/s HDMI transceiver that can
+  configure its transmit-side interface as an eARC receiver and expose
+  eight-channel 24-bit/192 kHz audio. The same page states HDMI 2.1 and HDCP 2.x
+  adopter requirements for purchase/sampling. Its video/HDCP/API burden is why
+  it is not the baseline audio-only architecture.
+- Texas Instruments,
+  [SRC4392 product page](https://www.ti.com/product/SRC4392) and
+  [data sheet](https://www.ti.com/lit/ds/symlink/src4392.pdf); Analog Devices,
+  [AD1896 product page](https://www.analog.com/en/products/ad1896.html) and
+  [data sheet](https://www.analog.com/media/en/technical-documentation/data-sheets/AD1896.pdf).
+  Primary sources for the provisional TV-to-local-clock boundary. SRC4392 is
+  active, host-controlled, two-channel, 24-bit, and rated through 216 kHz;
+  AD1896 is a production, hardware-configured 24-bit stereo alternative through
+  192 kHz. Device headline performance is not accepted in lieu of board-level
+  passband, residual, relock, latency, and transient measurements.
+- STMicroelectronics,
+  [STM32H743/753 product family](https://www.st.com/en/microcontrollers-microprocessors/stm32h743-753.html).
+  Primary source for the provisional front-panel MCU class: LTDC, external
+  memory interface, Ethernet MAC, timers/ADCs, up to 2 MiB flash/1 MiB RAM, and
+  the H753 security accelerators. The UI remains outside FPGA audio deadlines
+  and must build with an open compiler toolchain.
+- Newhaven Display,
+  [NHD-5.0-800480AF-ASXP-CTP product
+  page](https://newhavendisplay.com/5-0-inch-ips-capacitive-tft-display/).
+  Primary candidate source for the 5-inch, 800 x 480, 24-bit RGB IPS LCD with
+  capacitive FT5426G I2C touch, cover glass, 3.3 V logic, high-brightness
+  backlight, and EMI-shielded FPC. It supports the mechanical/electrical
+  baseline, not a lifecycle or thermal qualification claim.
+- Bourns,
+  [PRM16 motorized rotary potentiometer](https://www.bourns.com/products/potentiometers/product-detail/commercial-panel-controls/prm16)
+  and [PRM16 data
+  sheet](https://www.bourns.com/docs/Product-Datasheets/PRM16.pdf).
+  Primary prototype-mechanism source. It supports manual and motorized rotation
+  but publishes 15,000-cycle life, which motivates a separate 100,000-cycle
+  production qualification and prevents presenting this prototype selection as
+  a high-life production solution. Its tracks sense position only; they never
+  carry product audio.
+- Texas Instruments,
+  [DRV8874 product page](https://www.ti.com/product/DRV8874) and
+  [data sheet](https://www.ti.com/lit/ds/symlink/drv8874.pdf).
+  Primary source for the provisional motor H-bridge: bidirectional drive,
+  current regulation, proportional current feedback, sleep, and fault output.
+  The selected mechanism sets the current limit; the driver's maximum current
+  is not treated as a motor requirement.
+- Grayhill, [Series 62H optical encoder](https://grayhill.com/products/rotational-controls/optical-encoders/high-torque-haptic-rotary-encoder/62h/),
+  and Bourns, [EM14 optical
+  encoder](https://www.bourns.com/products/encoders/product-detail/optical-encoders/em14).
+  Primary candidates for metal-shaft/bushing, quadrature, push-capable physical
+  controls with published long life. Detent torque/resolution still require a
+  front-panel human-factors trial with production knob inertia.
 
 ## Frozen V1 circuit and equalization
 

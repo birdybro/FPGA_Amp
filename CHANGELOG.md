@@ -6,6 +6,26 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a comprehensive V1 product hardware specification for the requested TV
+  and front-panel platform. It partitions the product into five serviceable
+  boards—digital/eARC, shielded phono/ADC, DAC/line output, LCD/touch/motor
+  controls, and power/protection—and keeps all new functions outside the frozen
+  historical phono model. The design uses a provisional audio-only SiI9437
+  eARC/ARC receiver, an explicit SRC4392/AD1896-class asynchronous boundary to
+  the local 48 kHz clock, truthful stereo-LPCM-only capability policy, a
+  5-inch 800x480 IPS capacitive display on a dedicated STM32H753-class MCU,
+  premium optical encoder candidates, and a current-sensed motorized volume
+  servo whose position element never carries audio. It also specifies remote
+  control arbitration, grounding/EMC zoning, rail sequencing, independent
+  analog mute, manufacturing calibration, release gates, multi-TV testing, and
+  the finished-product HDMI adopter/compliance dependency. A machine-readable
+  ledger contains 52 reference/modern/infrastructure/safety/regulatory
+  requirements; a 31-row signal/contact budget owns six inter-board interfaces.
+  Seven regressions, including six deliberate mutations, reject traceability,
+  interface, contact, board-reference, and frozen-invariant drift. This is an architecture baseline,
+  not a released PCB/BOM, licensed HDMI product, measured eARC implementation,
+  stereo FPGA result, or qualified motor-life claim.
+
 - Added a non-programming Nexys Video hardware preflight and an explicit
   volatile-SRAM load target using openFPGALoader's official `nexysVideo`
   profile. The preflight rejects any bitstream whose part, byte count, SHA-256,

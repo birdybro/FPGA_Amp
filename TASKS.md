@@ -4,13 +4,46 @@ Last updated: 2026-08-15
 
 ## Current milestone
 
-Bring the openly routed Nexys Video image to physical measurement while
-preserving the frozen V1 circuit and the verified numerical hierarchy. The
-artifact is ready for volatile SRAM loading; matching connected hardware and
-an installed open programmer are the current external blockers. Safety
-processing remains explicitly outside reference circuit version 0.1.0.
+Advance the openly routed V1 phono core toward a stereo product-board platform
+without changing the frozen reference circuit. The product architecture now
+includes a separately clocked eARC/ARC TV input, touchscreen front panel,
+premium physical controls, motor-follow volume, line conversion, and independent
+power/protection. The Nexys Video artifact remains ready for volatile SRAM
+loading; matching connected hardware and an installed open programmer are still
+external blockers. Product eARC work is additionally gated by adopter/vendor
+access and finished-device compliance.
 
 ## Active, highest value first
+
+- [x] Establish a comprehensive product hardware baseline for eARC, LCD/touch,
+  premium physical controls, and motorized volume. The architecture partitions
+  the product into digital/eARC, phono/ADC, DAC/line-output, front-panel, and
+  power/protection boards so motor/display/HDMI currents are physically
+  separated from the MM input. Fifty-two classified requirements and 31 signal
+  rows across six board interfaces are machine checked. Mutation regressions
+  reject duplicate IDs, unknown boards, untraced requirements, connector-contact
+  overcommit, interface-budget drift, or downgrading the reference, stereo-PCM,
+  analog-mute, and motor-out-of-audio-path invariants. This is a board
+  architecture/specification result, not a released schematic, BOM, eARC
+  license, compliance result, or motor-life claim.
+- [ ] Close eARC EVT-0 gates before a mainboard schematic: confirm the current
+  supported audio-device receiver/successor and supply path; obtain HDMI adopter
+  and vendor reference/API access; compare SRC4392 and AD1896 with asynchronous
+  PCM; verify stereo LPCM capability exchange, ARC fallback, CEC volume, mute,
+  relock, and latency on analyzer/EVM hardware. Do not advertise compressed or
+  multichannel formats in V1.
+- [ ] Prototype the front-panel stack with the STM32H753-class MCU, 5-inch
+  800x480 IPS capacitive display, premium optical encoders, current-sensed
+  H-bridge, and a motorized rotary mechanism. Implement one authoritative
+  volume target shared by local/touch/CEC/network inputs, position-only motor
+  sensing, manual takeover, soft stops, deadband, stall timeout, and fault
+  telemetry. PRM16-class 15,000-cycle mechanisms are prototypes only; production
+  requires at least a 100,000 full-range-cycle qualification.
+- [ ] Implement and openly route the actual stereo product hierarchy before
+  freezing the production FPGA/package. The present 217-DSP mono Nexys build is
+  evidence for an XC7A200T resource-class baseline, not proof that stereo plus
+  TV routing, delay, diagnostics, and future full-amplifier headroom fit or meet
+  timing/thermal limits.
 
 - [x] Close the remaining 49.152 MHz complete-stream timing gap with registered
   cross-block scheduling, guided by the now-completed legal route. Circular

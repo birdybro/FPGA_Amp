@@ -1025,6 +1025,17 @@ under `model/generated/` as part of the numerical contract.
 - `sim/unit/`, `sim/integration/`: self-checking RTL testbenches
 - `scripts/`: all reproduction, comparison, analysis, and synthesis entry points
 - `docs/`: engineering decisions, budgets, known limitations, and hardware path
+- `hardware/product_v1/`: machine-checked product-board requirements and
+  interface ownership
+
+The comprehensive product-board baseline is
+[`docs/product_hardware_spec.md`](docs/product_hardware_spec.md). It partitions
+the low-noise phono/ADC, eARC/FPGA, DAC/line, LCD/touch/motor-control, and power/
+protection functions across five serviceable boards. Its eARC receiver,
+asynchronous clock boundary, motorized volume servo, premium physical controls,
+remote-control paths, grounding, safety, manufacturing, and acceptance gates
+are checked for traceability with `make product-hardware-spec`. These are design
+requirements, not a released PCB or HDMI compliance claim.
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
 path is further reducing terminal-solver approximation error without breaking

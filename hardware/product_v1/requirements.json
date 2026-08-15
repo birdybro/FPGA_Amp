@@ -1,0 +1,624 @@
+{
+  "schema_version": 1,
+  "product": "FPGA_Amp product hardware V1",
+  "document": "docs/product_hardware_spec.md",
+  "interface_budget": "hardware/product_v1/interface_budget.csv",
+  "status": "architecture baseline; component and compliance gates remain open",
+  "board_set": [
+    {
+      "id": "DB",
+      "name": "digital and eARC mainboard",
+      "purpose": "eARC reception, source-domain conversion, FPGA audio processing, clocks, control and diagnostics"
+    },
+    {
+      "id": "AB",
+      "name": "phono ADC board",
+      "purpose": "MM termination, low-noise gain, anti-alias filtering and stereo conversion"
+    },
+    {
+      "id": "OB",
+      "name": "DAC and line-output board",
+      "purpose": "stereo conversion, reconstruction, line driving and analog muting"
+    },
+    {
+      "id": "FP",
+      "name": "front-panel board",
+      "purpose": "LCD, capacitive touch, local controls, motor servo and remote-control host"
+    },
+    {
+      "id": "PB",
+      "name": "power and protection board",
+      "purpose": "input power, sequenced rails, supervisory functions and physical output protection"
+    }
+  ],
+  "interfaces": [
+    {
+      "id": "IF-AUDIO-AB-DB",
+      "from": "AB",
+      "to": "DB",
+      "signals": ["MCLK", "BCLK", "LRCLK", "SDATA_ADC", "RESET_N", "I2C", "FAULT_N"],
+      "clock_owner": "DB",
+      "electrical": "short-board synchronous CMOS or source-synchronous differential option after SI review",
+      "minimum_connector_contacts": 16,
+      "ground_contacts": 4,
+      "reserved_contacts": 4
+    },
+    {
+      "id": "IF-AUDIO-DB-OB",
+      "from": "DB",
+      "to": "OB",
+      "signals": ["MCLK", "BCLK", "LRCLK", "SDATA_DAC", "RESET_N", "I2C", "MUTE_N", "FAULT_N"],
+      "clock_owner": "DB",
+      "electrical": "short-board synchronous CMOS or source-synchronous differential option after SI review",
+      "minimum_connector_contacts": 16,
+      "ground_contacts": 4,
+      "reserved_contacts": 3
+    },
+    {
+      "id": "IF-CTRL-FP-DB",
+      "from": "FP",
+      "to": "DB",
+      "signals": ["SPI_SCLK", "SPI_CS_N", "SPI_MOSI", "SPI_MISO", "IRQ_N", "UI_ALIVE", "FORCE_MUTE_N"],
+      "clock_owner": "FP",
+      "electrical": "3.3 V CMOS with series damping; FPGA oversamples SPI in its fabric domain",
+      "minimum_connector_contacts": 12,
+      "ground_contacts": 3,
+      "reserved_contacts": 2
+    },
+    {
+      "id": "IF-SAFE-PB-DB",
+      "from": "PB",
+      "to": "DB",
+      "signals": ["POWER_GOOD", "FAULT_N", "HARD_MUTE_N"],
+      "clock_owner": "asynchronous supervisory",
+      "electrical": "open-drain or fail-safe static signals valid with destination rails absent",
+      "minimum_connector_contacts": 6,
+      "ground_contacts": 2,
+      "reserved_contacts": 1
+    },
+    {
+      "id": "IF-SAFE-FP-PB",
+      "from": "FP",
+      "to": "PB",
+      "signals": ["STANDBY_REQ", "USER_MUTE_N", "UI_ALIVE"],
+      "clock_owner": "asynchronous supervisory",
+      "electrical": "open-drain or fail-safe static signals valid with either endpoint unpowered",
+      "minimum_connector_contacts": 6,
+      "ground_contacts": 2,
+      "reserved_contacts": 1
+    },
+    {
+      "id": "IF-SAFE-PB-OB",
+      "from": "PB",
+      "to": "OB",
+      "signals": ["ANALOG_MUTE_N", "POWER_GOOD", "FAULT_N"],
+      "clock_owner": "asynchronous supervisory",
+      "electrical": "fail-safe static signals; ANALOG_MUTE_N deasserts only when PB and DB policy permit",
+      "minimum_connector_contacts": 6,
+      "ground_contacts": 2,
+      "reserved_contacts": 1
+    }
+  ],
+  "requirements": [
+    {
+      "id": "SYS-001",
+      "title": "Partition the product into the five defined boards",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["DB", "AB", "OB", "FP", "PB"],
+      "verification": ["inspection"],
+      "rationale": "Separates microvolt phono circuitry from HDMI, FPGA, display and motor noise while keeping board spins independently replaceable."
+    },
+    {
+      "id": "SYS-002",
+      "title": "Preserve the reference-model boundary",
+      "classification": "reference",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["DB"],
+      "verification": ["inspection", "simulation"],
+      "rationale": "eARC, UI, master volume, ASRC, muting and protection are modern system layers and shall not silently alter the frozen phono circuit."
+    },
+    {
+      "id": "SYS-003",
+      "title": "Support stereo end to end",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "gate",
+      "boards": ["DB", "AB", "OB"],
+      "verification": ["test"],
+      "rationale": "The current mono FPGA implementation is a prototype and is not sufficient for a product board release."
+    },
+    {
+      "id": "SYS-004",
+      "title": "Provide phono, eARC and service digital source selections",
+      "classification": "modern",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["DB", "FP"],
+      "verification": ["test"],
+      "rationale": "TV audio must be able to bypass the phono RIAA model and use bypass or later line/full-amplifier paths."
+    },
+    {
+      "id": "EARC-001",
+      "title": "Receive eARC and legacy ARC on the TV audio connector",
+      "classification": "modern",
+      "priority": "must",
+      "status": "gate",
+      "boards": ["DB"],
+      "verification": ["test", "certification"],
+      "rationale": "A dedicated eARC receiver is the preferred audio-only architecture; legacy ARC is needed for TV interoperability."
+    },
+    {
+      "id": "EARC-002",
+      "title": "V1 shall advertise and accept two-channel LPCM only",
+      "classification": "modern",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["DB"],
+      "verification": ["inspection", "test"],
+      "rationale": "Compressed and multichannel formats require decoders, licenses and channel policies not present in V1."
+    },
+    {
+      "id": "EARC-003",
+      "title": "Accept LPCM rates through 192 kHz and 24-bit words",
+      "classification": "modern",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["DB"],
+      "verification": ["test"],
+      "rationale": "Covers common TV PCM modes while conversion to the local model rate remains explicit."
+    },
+    {
+      "id": "EARC-004",
+      "title": "Do not advertise unavailable compressed or multichannel decoding",
+      "classification": "regulatory",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["DB"],
+      "verification": ["inspection", "test"],
+      "rationale": "Capability data must describe implemented behavior; Dolby, DTS, DSD and Atmos decoding are outside V1."
+    },
+    {
+      "id": "EARC-005",
+      "title": "Use a dedicated asynchronous sample-rate converter boundary",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["DB"],
+      "verification": ["analysis", "test"],
+      "rationale": "The TV owns the incoming audio clock while the analog converters and physical model use the local low-jitter clock."
+    },
+    {
+      "id": "EARC-006",
+      "title": "Expose eARC and ASRC link diagnostics",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["DB", "FP"],
+      "verification": ["test"],
+      "rationale": "Discovery, lock, rate, channel count, format, ARC fallback and overflow evidence must be observable."
+    },
+    {
+      "id": "EARC-007",
+      "title": "Support TV-originated volume and mute commands when available",
+      "classification": "modern",
+      "priority": "should",
+      "status": "gate",
+      "boards": ["DB", "FP"],
+      "verification": ["test"],
+      "rationale": "CEC/eARC control should update the same authoritative volume state and motor position as local and network controls."
+    },
+    {
+      "id": "EARC-008",
+      "title": "Complete HDMI adopter, vendor access and compliance gates before production",
+      "classification": "regulatory",
+      "priority": "must",
+      "status": "gate",
+      "boards": ["DB"],
+      "verification": ["certification"],
+      "rationale": "A receiver IC does not license or certify the finished product, and public briefs are insufficient for a compliant schematic."
+    },
+    {
+      "id": "CLK-001",
+      "title": "Use a local 48 kHz audio master clock family",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["DB", "AB", "OB"],
+      "verification": ["analysis", "test"],
+      "rationale": "The local oscillator owns ADC, FPGA output and DAC timing; model clock enables derive from it."
+    },
+    {
+      "id": "CLK-002",
+      "title": "Handle every asynchronous domain explicitly",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["DB", "FP"],
+      "verification": ["inspection", "simulation"],
+      "rationale": "eARC audio, UI SPI, touch interrupts and supervisory inputs may not be treated as synchronous to FPGA audio."
+    },
+    {
+      "id": "PHONO-001",
+      "title": "Provide 47.5 kilohm MM loading and selectable capacitance",
+      "classification": "reference",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["AB"],
+      "verification": ["analysis", "test"],
+      "rationale": "The physical input must present the modeled cartridge termination including cable and front-end capacitance."
+    },
+    {
+      "id": "PHONO-002",
+      "title": "Provide selectable flat analog gain of 20, 26 and 32 dB",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["AB"],
+      "verification": ["analysis", "test"],
+      "rationale": "Uses ADC range without embedding conventional RIAA into the reference path."
+    },
+    {
+      "id": "PHONO-003",
+      "title": "Provide a turntable ground terminal and RF/ESD input protection",
+      "classification": "safety",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["AB"],
+      "verification": ["inspection", "test"],
+      "rationale": "Hum, static discharge and RF ingress are physical input concerns."
+    },
+    {
+      "id": "CONV-001",
+      "title": "Use independent stereo 24-bit-class ADC and DAC paths",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["AB", "OB"],
+      "verification": ["analysis", "test"],
+      "rationale": "Converter selections remain subject to measured noise, headroom, availability and open control documentation."
+    },
+    {
+      "id": "CONV-002",
+      "title": "Provide a balanced line output and a separately protected single-ended line output",
+      "classification": "modern",
+      "priority": "should",
+      "status": "provisional",
+      "boards": ["OB"],
+      "verification": ["test"],
+      "rationale": "Balanced internal and external routing improves hum immunity while retaining consumer compatibility."
+    },
+    {
+      "id": "CONV-003",
+      "title": "Calibrate ADC and DAC gains as a muted atomic pair",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["DB", "AB", "OB"],
+      "verification": ["simulation", "test"],
+      "rationale": "Existing FPGA guards prevent mixed input/output scaling and preserve physical-unit model calibration."
+    },
+    {
+      "id": "FPGA-001",
+      "title": "Retain an open-source synthesis, place, route and programming flow",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["DB"],
+      "verification": ["demonstration"],
+      "rationale": "Yosys, nextpnr/Project X-Ray and openFPGALoader are the required implementation path."
+    },
+    {
+      "id": "FPGA-002",
+      "title": "Use the XC7A200T resource class as the current sizing baseline",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["DB"],
+      "verification": ["analysis", "demonstration"],
+      "rationale": "The routed prototype uses 217 DSP blocks and does not fit the earlier A100T resource plan with safe stereo/full-amplifier margin."
+    },
+    {
+      "id": "FPGA-003",
+      "title": "Expose saturation, solver, deadline, FIFO and converter diagnostics",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["DB", "FP"],
+      "verification": ["simulation", "test"],
+      "rationale": "The board must make numerical and transport failures observable instead of hiding them in audio."
+    },
+    {
+      "id": "UI-001",
+      "title": "Use a 5 inch 800 by 480 IPS capacitive LCD",
+      "classification": "modern",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["FP"],
+      "verification": ["inspection", "test"],
+      "rationale": "Provides a practical settings surface while remaining subordinate to physical mute and volume controls."
+    },
+    {
+      "id": "UI-002",
+      "title": "Use a dedicated front-panel MCU and local framebuffer",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["FP"],
+      "verification": ["inspection", "test"],
+      "rationale": "Display refresh and touch processing must not consume FPGA audio deadlines or define the audio control protocol."
+    },
+    {
+      "id": "UI-003",
+      "title": "Provide physical source, model and parameter encoders with push action",
+      "classification": "modern",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["FP"],
+      "verification": ["inspection", "test"],
+      "rationale": "Premium optical or similarly qualified encoders give deterministic control without placing potentiometers in the audio path."
+    },
+    {
+      "id": "UI-004",
+      "title": "Provide dedicated physical mute and standby controls",
+      "classification": "safety",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["FP", "PB"],
+      "verification": ["test"],
+      "rationale": "Safety and basic operation may not depend on a functioning touchscreen."
+    },
+    {
+      "id": "UI-005",
+      "title": "Keep audio operational under UI reset or crash",
+      "classification": "safety",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["DB", "FP"],
+      "verification": ["test"],
+      "rationale": "UI failure shall freeze safe controls or mute by policy, not corrupt the real-time signal path."
+    },
+    {
+      "id": "UI-006",
+      "title": "Support local operation without network or cloud service",
+      "classification": "modern",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["FP"],
+      "verification": ["test"],
+      "rationale": "Remote control is additive and must not be a product availability dependency."
+    },
+    {
+      "id": "VOL-001",
+      "title": "Provide a motorized physical volume dial",
+      "classification": "modern",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["FP"],
+      "verification": ["demonstration", "test"],
+      "rationale": "Remote, TV and touchscreen volume changes must be represented by the physical dial position."
+    },
+    {
+      "id": "VOL-002",
+      "title": "Keep the motorized control out of the analog audio path",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["FP", "DB"],
+      "verification": ["inspection", "test"],
+      "rationale": "Its track or encoder reports position only; authoritative gain uses click-free digital attenuation outside the reference model."
+    },
+    {
+      "id": "VOL-003",
+      "title": "Use a current-limited bidirectional motor driver with fault feedback",
+      "classification": "safety",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["FP", "PB"],
+      "verification": ["inspection", "test"],
+      "rationale": "Current feedback permits stall detection and protects mechanical end stops and the motor."
+    },
+    {
+      "id": "VOL-004",
+      "title": "Implement soft end stops, deadband, timeout and manual override",
+      "classification": "safety",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["FP"],
+      "verification": ["simulation", "test"],
+      "rationale": "The servo must be comfortable to touch, back-drivable and unable to grind against a stop."
+    },
+    {
+      "id": "VOL-005",
+      "title": "Slew all audible gain changes and synchronize displayed position",
+      "classification": "modern",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["DB", "FP"],
+      "verification": ["simulation", "test"],
+      "rationale": "One authoritative target prevents local, TV and network controls from fighting and prevents gain discontinuities."
+    },
+    {
+      "id": "VOL-006",
+      "title": "Qualify the production volume assembly for at least 100000 full-range cycles",
+      "classification": "infrastructure",
+      "priority": "should",
+      "status": "gate",
+      "boards": ["FP"],
+      "verification": ["test"],
+      "rationale": "Common rotary motor-pot candidates are rated around 15000 cycles and are acceptable for prototypes only."
+    },
+    {
+      "id": "PWR-001",
+      "title": "Use an external safety-certified DC supply for V1",
+      "classification": "safety",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["PB"],
+      "verification": ["inspection", "certification"],
+      "rationale": "Keeps hazardous mains outside the enclosure while the signal platform is developed."
+    },
+    {
+      "id": "PWR-002",
+      "title": "Separate motor, display, digital and low-noise analog rails",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["PB", "FP", "DB", "AB", "OB"],
+      "verification": ["inspection", "test"],
+      "rationale": "Motor PWM, backlight and FPGA transients may not share uncontrolled impedance with phono or converter supplies."
+    },
+    {
+      "id": "PWR-003",
+      "title": "Sequence resets, clocks, converters, model state and mute",
+      "classification": "safety",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["PB", "DB", "AB", "OB"],
+      "verification": ["simulation", "test"],
+      "rationale": "Power-up, power-down and brownout must not produce full-scale output transients."
+    },
+    {
+      "id": "EMC-001",
+      "title": "Bond connector shields to chassis at entry",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["DB", "AB", "OB"],
+      "verification": ["inspection", "test"],
+      "rationale": "ESD and common-mode currents should return to chassis without crossing signal-reference planes."
+    },
+    {
+      "id": "EMC-002",
+      "title": "Physically segregate eARC, FPGA, display and motor from phono input",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["DB", "AB", "FP"],
+      "verification": ["inspection", "test"],
+      "rationale": "Board partitioning and enclosure zoning provide more reliable isolation than split-plane folklore alone."
+    },
+    {
+      "id": "EMC-003",
+      "title": "Disable motor drive when stationary and use ultrasonic PWM",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["FP"],
+      "verification": ["test"],
+      "rationale": "Limits continuous magnetic and conducted interference from the volume servo."
+    },
+    {
+      "id": "SAFE-001",
+      "title": "Provide independent analog output mute",
+      "classification": "safety",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["OB", "PB"],
+      "verification": ["test"],
+      "rationale": "FPGA zero data is not sufficient protection from converter startup, power faults or line-driver DC."
+    },
+    {
+      "id": "SAFE-002",
+      "title": "Fail muted for invalid clocks, configuration or control heartbeat",
+      "classification": "safety",
+      "priority": "must",
+      "status": "frozen",
+      "boards": ["DB", "OB", "PB", "FP"],
+      "verification": ["simulation", "test"],
+      "rationale": "A stale or malformed subsystem may not silently restore output."
+    },
+    {
+      "id": "SAFE-003",
+      "title": "Keep speaker protection independent of FPGA firmware",
+      "classification": "safety",
+      "priority": "must",
+      "status": "gate",
+      "boards": ["PB"],
+      "verification": ["inspection", "test"],
+      "rationale": "Any later physical power-amplifier option requires dedicated DC, overcurrent and overtemperature protection."
+    },
+    {
+      "id": "MECH-001",
+      "title": "Use a conductive chassis with isolated phono zone and serviceable board stack",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["DB", "AB", "OB", "FP", "PB"],
+      "verification": ["inspection", "test"],
+      "rationale": "The chassis is part of EMC, grounding, cooling and long-term serviceability."
+    },
+    {
+      "id": "MECH-002",
+      "title": "Support a 50 millimeter-class volume knob without shaft side load",
+      "classification": "modern",
+      "priority": "should",
+      "status": "provisional",
+      "boards": ["FP"],
+      "verification": ["inspection", "test"],
+      "rationale": "A front bearing or supported coupler must carry knob mass rather than the motor-pot bushing alone."
+    },
+    {
+      "id": "TEST-001",
+      "title": "Provide production test points and board identity EEPROMs",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["DB", "AB", "OB", "FP", "PB"],
+      "verification": ["inspection", "test"],
+      "rationale": "Automated test must identify board revision, calibration, rails, clocks and safety state without probing fine-pitch parts."
+    },
+    {
+      "id": "TEST-002",
+      "title": "Validate eARC against multiple TV vendors and an analyzer",
+      "classification": "regulatory",
+      "priority": "must",
+      "status": "gate",
+      "boards": ["DB"],
+      "verification": ["test", "certification"],
+      "rationale": "A single television is not adequate interoperability evidence."
+    },
+    {
+      "id": "TEST-003",
+      "title": "Measure phono noise while display and motor exercise worst-case activity",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "gate",
+      "boards": ["AB", "FP", "DB"],
+      "verification": ["test"],
+      "rationale": "Static bench noise does not expose system-level coupling from the requested UI hardware."
+    },
+    {
+      "id": "TEST-004",
+      "title": "Automate stereo analog loopback and channel-separation tests",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "gate",
+      "boards": ["DB", "AB", "OB"],
+      "verification": ["test"],
+      "rationale": "Board release requires measured gain, phase, distortion, noise, crosstalk, clipping and mute transient results."
+    },
+    {
+      "id": "FW-001",
+      "title": "Use signed firmware images with recoverable update",
+      "classification": "safety",
+      "priority": "should",
+      "status": "provisional",
+      "boards": ["FP", "DB"],
+      "verification": ["test"],
+      "rationale": "Remote connectivity must not create an unrecoverable or unauthenticated control path."
+    },
+    {
+      "id": "FW-002",
+      "title": "Store model, UI and hardware compatibility versions",
+      "classification": "infrastructure",
+      "priority": "must",
+      "status": "provisional",
+      "boards": ["DB", "FP"],
+      "verification": ["inspection", "test"],
+      "rationale": "Firmware shall reject incompatible board/model combinations instead of applying undefined controls."
+    }
+  ]
+}

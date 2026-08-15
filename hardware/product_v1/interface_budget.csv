@@ -1,0 +1,32 @@
+interface_id,signal,driver,receiver,electrical,clock_domain,pins,notes
+IF-AUDIO-AB-DB,MCLK,DB,AB,local-audio-CMOS-or-differential,local_audio,1,route beside assigned return and source terminate when CMOS
+IF-AUDIO-AB-DB,BCLK,DB,AB,local-audio-CMOS-or-differential,local_audio,1,source synchronous with LRCLK and SDATA_ADC
+IF-AUDIO-AB-DB,LRCLK,DB,AB,local-audio-CMOS-or-differential,local_audio,1,48 kHz framing
+IF-AUDIO-AB-DB,SDATA_ADC,AB,DB,local-audio-CMOS-or-differential,local_audio,1,stereo serial ADC data
+IF-AUDIO-AB-DB,RESET_N,DB,AB,fail-safe-CMOS,asynchronous_assert,1,synchronous release on AB owning clock
+IF-AUDIO-AB-DB,I2C,DB/AB,AB/DB,open-drain-3V3,control,2,SCL and SDA with pullups owned once per assembled bus
+IF-AUDIO-AB-DB,FAULT_N,AB,DB,open-drain-fail-safe,asynchronous_supervisory,1,valid when AB main rails fail
+IF-AUDIO-DB-OB,MCLK,DB,OB,local-audio-CMOS-or-differential,local_audio,1,route beside assigned return and source terminate when CMOS
+IF-AUDIO-DB-OB,BCLK,DB,OB,local-audio-CMOS-or-differential,local_audio,1,source synchronous with LRCLK and SDATA_DAC
+IF-AUDIO-DB-OB,LRCLK,DB,OB,local-audio-CMOS-or-differential,local_audio,1,48 kHz framing
+IF-AUDIO-DB-OB,SDATA_DAC,DB,OB,local-audio-CMOS-or-differential,local_audio,1,stereo serial DAC data
+IF-AUDIO-DB-OB,RESET_N,DB,OB,fail-safe-CMOS,asynchronous_assert,1,synchronous release on OB owning clock
+IF-AUDIO-DB-OB,I2C,DB/OB,OB/DB,open-drain-3V3,control,2,SCL and SDA with pullups owned once per assembled bus
+IF-AUDIO-DB-OB,MUTE_N,DB,OB,fail-safe-static,asynchronous_supervisory,1,digital policy request cannot override PB hard mute
+IF-AUDIO-DB-OB,FAULT_N,OB,DB,open-drain-fail-safe,asynchronous_supervisory,1,output board DC or rail fault
+IF-CTRL-FP-DB,SPI_SCLK,FP,DB,LVCMOS33,ui_spi,1,placed limit must retain oversampling margin
+IF-CTRL-FP-DB,SPI_CS_N,FP,DB,LVCMOS33,ui_spi,1,fail inactive with FP unpowered
+IF-CTRL-FP-DB,SPI_MOSI,FP,DB,LVCMOS33,ui_spi,1,series damp at driver
+IF-CTRL-FP-DB,SPI_MISO,DB,FP,LVCMOS33,ui_spi,1,tri-state outside selected frame
+IF-CTRL-FP-DB,IRQ_N,DB,FP,open-drain-3V3,asynchronous_control,1,diagnostic and response attention
+IF-CTRL-FP-DB,UI_ALIVE,FP,DB,fail-safe-static,asynchronous_supervisory,1,heartbeat qualification is in DB
+IF-CTRL-FP-DB,FORCE_MUTE_N,FP,DB,open-drain-fail-safe,asynchronous_supervisory,1,physical mute request independent of GUI task
+IF-SAFE-PB-DB,POWER_GOOD,PB,DB,fail-safe-static,asynchronous_supervisory,1,low unless every required DB rail is in range
+IF-SAFE-PB-DB,FAULT_N,PB,DB,open-drain-fail-safe,asynchronous_supervisory,1,latched supervisor fault
+IF-SAFE-PB-DB,HARD_MUTE_N,PB,DB,fail-safe-static,asynchronous_supervisory,1,low is authoritative mute
+IF-SAFE-FP-PB,STANDBY_REQ,FP,PB,open-drain-fail-safe,asynchronous_supervisory,1,PB validates and sequences request
+IF-SAFE-FP-PB,USER_MUTE_N,FP,PB,open-drain-fail-safe,asynchronous_supervisory,1,dedicated button path not touchscreen state
+IF-SAFE-FP-PB,UI_ALIVE,FP,PB,fail-safe-static,asynchronous_supervisory,1,optional watchdog policy input
+IF-SAFE-PB-OB,ANALOG_MUTE_N,PB,OB,fail-safe-static,asynchronous_supervisory,1,OB defaults muted with cable absent
+IF-SAFE-PB-OB,POWER_GOOD,PB,OB,fail-safe-static,asynchronous_supervisory,1,low unless required output rails are valid
+IF-SAFE-PB-OB,FAULT_N,OB,PB,open-drain-fail-safe,asynchronous_supervisory,1,OB reports DC thermal or local rail fault
