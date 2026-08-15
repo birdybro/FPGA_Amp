@@ -72,6 +72,13 @@ configuration are not part of that harness yet.
 This is an implementation architecture for the explicit 8x candidate, not a
 silent change to 16x reference-mode numerical behavior.
 
+The generic open-drain write engine beneath codec initialization is now tested
+and synthesized. It supports the ADAU1761's 16-bit register addresses, checks
+ACK after all four transmitted bytes, and honors SCL stretching. The
+codec-specific ordered register table, fail-closed NACK policy, and final
+output-unmute boundary remain the next verification step; register readback is
+not part of the initial hardware bootstrap.
+
 The implemented protocol baseline is 24-bit signed I²S in 32-BCLK stereo slots,
 so 48 kHz produces the planned 3.072 MHz BCLK. Receiver and transmitter are
 separate BCLK-domain primitives with conventional one-bit-delay timing and no

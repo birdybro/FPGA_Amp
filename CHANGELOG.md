@@ -6,6 +6,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a device-neutral, synthesizable open-drain I2C register writer for the
+  codec-control path. It sends a seven-bit device address, a 16-bit register
+  address, and an eight-bit value; honors target clock stretching; records a
+  NACK from any byte; and always completes with STOP. The bus-level test checks
+  byte-exact ACK, deliberate NACK, and clean recovery. Warning-free Yosys XC7
+  synthesis reports 43 estimated logic cells, 59 flip-flops, three CARRY4s,
+  and no DSP or BRAM. Readback, arbitration, and multi-main behavior are not
+  claimed.
 - Added a warning-free serial-clock/reset leaf for the board implementation.
   A device-neutral power-of-two divider produces exact BCLK=/16, while the
   XC7 wrapper promotes it through a BUFG. Independent three-stage reset

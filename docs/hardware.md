@@ -790,6 +790,17 @@ Video's shared codec LRCLK must not be silently represented as independent
 ADC-input and DAC-output pins. Until those items and physical measurement are
 complete, the clock harness is not a functional audio image.
 
+The codec-control foundation is now implemented as a device-neutral open-drain
+I2C register writer. Each command emits the seven-bit target address plus write
+bit, a 16-bit register address, and one byte of data. It samples ACK after every
+byte, honors target SCL stretching while the line is released, and emits STOP
+before reporting completion even after a NACK. A bus-level target test verifies
+the exact four bytes, deliberate NACK capture, and recovery on a subsequent
+transaction. Warning-free Yosys XC7 synthesis uses 43 estimated logic cells,
+59 flip-flops, three CARRY4s, and no DSP/BRAM. The fixed startup use case does
+not require reads, arbitration, or multi-main operation; those capabilities are
+not implemented or claimed.
+
 The following configuration stage is also fully open. The pinned bootstrap now
 installs the Project X-Ray Python assembler dependencies, and
 `generate_openxc7_bitstream.py` converts a chosen routed FASM through

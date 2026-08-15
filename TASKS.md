@@ -82,6 +82,19 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   test checks exact 16-clock periods, release latency, and asynchronous
   reassertion. Yosys reports 10 FDCE / 1 CARRY4 / 1 BUFG, zero problems, and no
   warnings. Full named-board timing awaits composition with the pin top.
+- [x] Implement the device-neutral open-drain I2C register-write primitive for
+  codec startup. It transmits the seven-bit device address, 16-bit register
+  address, and one data byte, honors SCL clock stretching, samples every ACK,
+  and completes with a STOP after either ACK or NACK. A directed bus-target
+  test checks exact bytes, a deliberate address-byte NACK, and recovery on the
+  next write. Warning-free Yosys XC7 synthesis reports 43 estimated logic
+  cells, 59 flip-flops, three CARRY4s, and no DSP or BRAM. Reads, arbitration,
+  multi-main operation, and codec register readback remain explicitly out of
+  scope.
+- [ ] Add and verify the ADAU1761-specific fail-closed startup sequence. Keep
+  the codec subordinate to FPGA-supplied BCLK/LRCLK, configure direct 12.288
+  MHz MCLK for the 48 kHz family, leave the line outputs muted until the last
+  writes, and abort before later writes on any NACK.
 - [x] Carry the timing-closed 384 kHz / 49.152 MHz profile into the actual
   fabric adapter and complete SPI-controlled I²S hierarchy. Preserve 768 kHz
   as the default, add explicit rate-selectable vector/test runners, and pass
