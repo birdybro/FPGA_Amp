@@ -51,8 +51,16 @@ general authority on tube physics. Links were checked 2026-08-14.
   F*](https://www.analog.com/media/en/technical-documentation/data-sheets/ADAU1761.pdf).
   Primary codec source for 12.288 MHz operation in the 48 kHz family, shared
   BCLK/LRCLK serial-port constraints, I2S timing, and control-port setup. The
-  FPGA will be serial-clock master for initial bring-up; an I2C initialization
-  sequencer remains a required gate before codec operation is claimed.
+  FPGA is the serial-clock main device for initial bring-up; the implemented
+  I2C sequence derives register meanings and clock-role choices from this
+  source. Passing digital simulation is not evidence of physical codec setup.
+- Digilent, [Nexys Video DMA audio support source at commit
+  `6797909`](https://github.com/Digilent/Nexys-Video/blob/679790988e2792748e968f09de65233198a5c3c5/sw/src/Nexys-Video-DMA/src/audio/audio.c),
+  2023-07-26. This board-specific primary implementation corroborates the
+  seven-bit codec address `0x3b` and the proven analog mixer/line-output route.
+  Its PLL and codec-generated BCLK/LRCLK choices are intentionally not copied:
+  this project provides exact MCLK/BCLK/LRCLK from FPGA logic and therefore
+  programs the ADAU1761 serial port as subordinate.
 
 ## Frozen V1 circuit and equalization
 

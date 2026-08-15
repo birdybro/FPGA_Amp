@@ -134,11 +134,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   100 MHz oscillator to exact 12.288 MHz codec MCLK and 49.152 MHz fabric
   clocks. Its clock-only open route and CRC-readable bitstream pass. A tested
   /16 divider now produces 3.072 MHz BCLK with owning-domain reset release;
-  a bus-level-tested open-drain I2C register writer passes exact-byte
-  ACK/NACK/recovery simulation and warning-free XC7 synthesis at 43 estimated
-  logic cells / 59 flip-flops / no DSP or BRAM. The ADAU1761-specific sequence,
-  shared LRCLK wiring, programming, and physical frequency measurement remain
-  open.
+  a bus-level-tested open-drain I2C writer and 27-register ADAU1761 startup
+  sequence pass exact-byte and fail-stop NACK simulation. The codec layer is
+  warning-free in XC7 synthesis at 88 estimated logic cells / 94 flip-flops /
+  no DSP or BRAM. The codec remains subordinate to FPGA-provided BCLK/LRCLK,
+  and line unmute occurs last. Shared-LRCLK board composition, programming,
+  physical ACKs, analog audio, and clock measurements remain open.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both

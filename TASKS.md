@@ -91,10 +91,20 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   cells, 59 flip-flops, three CARRY4s, and no DSP or BRAM. Reads, arbitration,
   multi-main operation, and codec register readback remain explicitly out of
   scope.
-- [ ] Add and verify the ADAU1761-specific fail-closed startup sequence. Keep
+- [x] Add and verify the ADAU1761-specific fail-closed startup sequence. Keep
   the codec subordinate to FPGA-supplied BCLK/LRCLK, configure direct 12.288
   MHz MCLK for the 48 kHz family, leave the line outputs muted until the last
-  writes, and abort before later writes on any NACK.
+  writes, and abort before later writes on any NACK. The bus-target regression
+  checks all 27 address/register/data transactions and then injects a NACK at
+  table index five, where the sequencer exposes the failure and emits no more
+  writes. Warning-free Yosys XC7 synthesis reports 88 estimated logic cells,
+  94 flip-flops, ten CARRY4s, and no DSP/BRAM. Physical ACKs and analog output
+  behavior remain unmeasured.
+- [ ] Compose the actual Nexys Video pin top: the exact clock leaf, reset/BCLK
+  leaf, codec initializer, single shared LRCLK, bidirectional serial audio,
+  calibrated 384 kHz phono hierarchy, SPI control, forced-zero startup data,
+  and status indicators. Then openly synthesize/place/route it before making
+  any hardware-ready claim.
 - [x] Carry the timing-closed 384 kHz / 49.152 MHz profile into the actual
   fabric adapter and complete SPI-controlled I²S hierarchy. Preserve 768 kHz
   as the default, add explicit rate-selectable vector/test runners, and pass

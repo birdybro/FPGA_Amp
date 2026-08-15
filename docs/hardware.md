@@ -801,6 +801,36 @@ transaction. Warning-free Yosys XC7 synthesis uses 43 estimated logic cells,
 not require reads, arbitration, or multi-main operation; those capabilities are
 not implemented or claimed.
 
+### ADAU1761 bootstrap contract
+
+The startup table follows the ADAU1761 Rev. F register definitions and the
+Nexys Video's proven analog route, with clock ownership deliberately changed
+from Digilent's older demo: the FPGA is main for BCLK/LRCLK, so R15 is `00` and
+only CLK0 is enabled in R66. The codec PLL is unnecessary at exact 12.288 MHz.
+The full tested order is:
+
+| Index | Register | Data | Purpose |
+|---:|---:|---:|---|
+| 0 | `4000` | `01` | direct MCLK, core enable |
+| 1--2 | `4025`, `4026` | `E4`, `E4` | line L/R at 0 dB, muted |
+| 3--6 | `4015`, `4016`, `4017`, `40F8` | `00`, `00`, `00`, `00` | subordinate I2S, 64-bit frame, 48 kHz converters/port |
+| 7--10 | `400A`--`400D` | `01`, `05`, `01`, `05` | symmetric L/R input mixers, AUX 0 dB, differential inputs muted |
+| 11--13 | `4019`, `402A`, `4029` | `13`, `03`, `03` | enable stereo ADC, DAC, and playback paths |
+| 14--15 | `40F2`, `40F3` | `01`, `01` | serial L0/R0 to DAC; ADC L0/R0 to serial |
+| 16--19 | `401C`--`401F` | `21`, `00`, `41`, `00` | DAC playback mixers at documented -6 dB; bypasses muted |
+| 20--21 | `4020`, `4021` | `03`, `09` | Nexys Video line-output mixer route |
+| 22--24 | `40F4`, `40F9`, `40FA` | `00`, `7F`, `01` | serial pins, digital clocks, CLK0 only |
+| 25--26 | `4025`, `4026` | `E6`, `E6` | unmute L/R line outputs last |
+
+The production parameter waits 491,520 fabric clocks, 10 ms at 49.152 MHz,
+before issuing the first transaction. An I2C quarter-period divider of 32 gives
+384 kHz nominal SCL. All 27 writes are byte-exact in the target-model test. A
+forced NACK at index five completes STOP, latches `failed_index=5`, and issues
+no later transaction. Because the final left/right unmute cannot be atomic on
+I2C, the board wrapper must hold transmitted PCM at zero until the entire table
+reports `configured`; a bus failure cannot by itself prove an analog mute.
+Physical ACKs, converter clocks, and analog behavior remain unmeasured.
+
 The following configuration stage is also fully open. The pinned bootstrap now
 installs the Project X-Ray Python assembler dependencies, and
 `generate_openxc7_bitstream.py` converts a chosen routed FASM through

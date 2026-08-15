@@ -6,6 +6,15 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added the fixed ADAU1761 startup sequencer above the generic I2C writer. Its
+  27-entry table uses direct 12.288 MHz MCLK, leaves the codec subordinate to
+  FPGA-provided 3.072 MHz BCLK/48 kHz LRCLK, configures stereo ADC/DAC routes,
+  keeps both line outputs muted during setup, and unmutes them only in the last
+  two transactions. A bus-target regression checks every transmitted byte and
+  proves that an injected table-index-five NACK latches the failed index and
+  prevents all later writes. Warning-free Yosys XC7 synthesis reports 88
+  estimated logic cells, 94 flip-flops, ten CARRY4s, and no DSP/BRAM. This is
+  digital verification; no physical codec ACK or analog output is claimed.
 - Added a device-neutral, synthesizable open-drain I2C register writer for the
   codec-control path. It sends a seven-bit device address, a 16-bit register
   address, and an eight-bit value; honors target clock stretching; records a

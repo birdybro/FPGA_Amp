@@ -93,6 +93,7 @@ def main() -> int:
             "audio_clock_synth_xc7_pnr_harness",
             "audio_serial_clock_master_xc7",
             "i2c_write_master",
+            "adau1761_codec_init",
             "solver_pnr_harness",
             "linear_solver_pnr_harness",
             "parallel_solver_pnr_harness",
@@ -558,6 +559,10 @@ def main() -> int:
         "async_fifo": ["rtl/io/async_fifo.sv"],
         "audio_clock_rate_monitor": ["rtl/io/audio_clock_rate_monitor.sv"],
         "i2c_write_master": ["rtl/io/i2c_write_master.sv"],
+        "adau1761_codec_init": [
+            "rtl/io/i2c_write_master.sv",
+            "rtl/io/adau1761_codec_init.sv",
+        ],
         "i2s_receiver": ["rtl/io/i2s_receiver.sv"],
         "cdc_toggle_pulse": ["rtl/io/cdc_toggle_pulse.sv"],
         "cdc_word_snapshot": ["rtl/io/cdc_word_snapshot.sv"],

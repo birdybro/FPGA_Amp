@@ -72,12 +72,16 @@ configuration are not part of that harness yet.
 This is an implementation architecture for the explicit 8x candidate, not a
 silent change to 16x reference-mode numerical behavior.
 
-The generic open-drain write engine beneath codec initialization is now tested
-and synthesized. It supports the ADAU1761's 16-bit register addresses, checks
-ACK after all four transmitted bytes, and honors SCL stretching. The
-codec-specific ordered register table, fail-closed NACK policy, and final
-output-unmute boundary remain the next verification step; register readback is
-not part of the initial hardware bootstrap.
+The generic open-drain write engine and codec-specific ordered register table
+are now tested and synthesized. The writer supports the ADAU1761's 16-bit
+register addresses, checks ACK after all four transmitted bytes, and honors
+SCL stretching. Direct 12.288 MHz MCLK selects the 48 kHz family without the
+codec PLL; the ADAU1761 remains subordinate to FPGA-provided BCLK/LRCLK. Both
+line outputs are set to 0 dB but muted before signal routing, and their unmute
+writes are the final two transactions. A NACK aborts the table and preserves
+the failed index; the surrounding board top must continue driving zero PCM
+unless `configured` is asserted. Register readback is not part of the initial
+bootstrap.
 
 The implemented protocol baseline is 24-bit signed I²S in 32-BCLK stereo slots,
 so 48 kHz produces the planned 3.072 MHz BCLK. Receiver and transmitter are
