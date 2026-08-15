@@ -15,6 +15,16 @@ access and finished-device compliance.
 
 ## Active, highest value first
 
+- [x] Implement the PCM5242 write-only reference-path bootstrap. The common I2C
+  engine now supports one- or two-byte register addresses without regressing
+  the ADAU1761 path. The new sequence emits twenty exact transactions at board
+  address 0x4c for external SCK, 24-bit I2S, direct stereo routing, ROM
+  interpolation program 1, unity digital/analog gain, VREF output, no
+  de-emphasis, and disabled zero-detect auto mute. A bus model checks every
+  byte, released-bus completion, and fail-closed NACK abort. Yosys reports 83
+  estimated XC7 logic cells / 86 flip-flops / no DSP or BRAM / zero warnings.
+  `configuration_written` is explicitly not an unmute permit; I2C readback and
+  clock/power-state validation remain the next converter-control gate.
 - [x] Generate and openly route the four-layer PCM5242 DAC/line-output Rev-A
   EVT board. The 112 x 72 mm design implements 48 kHz external-clock slave I2S,
   I2C unity/reference configuration, separate analog/digital TPS7A2033
@@ -108,6 +118,9 @@ access and finished-device compliance.
   PCM; verify stereo LPCM capability exchange, ARC fallback, CEC volume, mute,
   relock, and latency on analyzer/EVM hardware. Do not advertise compressed or
   multichannel formats in V1.
+- [ ] Add PCM5242 one-byte register readback and compare the critical page 0/1
+  configuration plus clock/power status before allowing XSMT or line-relay
+  permission. Keep an ACKed write sequence distinct from verified configuration.
 - [ ] Turn the completed front-panel controller and motor-volume EVT boards
   into a fabrication candidate: print/fit the drawing-derived Molex footprints,
   obtain assembler DFM and first-article inspection; obtain a fabricator stackup

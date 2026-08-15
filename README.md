@@ -935,6 +935,8 @@ make audio-serial-clock-rtl        # verify /16 BCLK and domain reset release
 make synth-audio-serial-clock-xc7  # XC7 BCLK/reset leaf measurement
 make i2c-write-rtl                 # verify open-drain register transactions
 make adau1761-codec-init-rtl       # verify fixed bootstrap and fail-stop NACK
+make pcm5242-dac-init-rtl          # verify exact DAC write sequence/NACK abort
+make synth-pcm5242-dac-init        # measure DAC bootstrap XC7 resources
 make codec-shared-i2s-guard-rtl    # verify shared LRCLK and startup zero gate
 make synth-nexys-phono-audio-xc7   # synthesize complete board wrapper
 make hermite-rtl                   # bit-exact iterative Hermite regression
@@ -1089,9 +1091,15 @@ PCM5242 external-clock slave, balanced and RCA reconstruction networks,
 separate low-noise analog/digital post-regulators, normally-open output relays,
 and dual hardware AND interlocks so an external supervisor dominates both DAC
 XSMT and relay permission. It remains an unbuilt EVT design; converter
-register/readback firmware, loaded audio measurements, fault/mute sequencing,
+readback/status control, loaded audio measurements, fault/mute sequencing,
 ESD/RF, production connector/chassis mechanics, stackup, and DFM are explicit
 release gates.
+
+The matching write-only PCM5242 RTL bootstrap is bus-regression-tested for its
+exact twenty one-byte-register transactions and NACK abort. It configures the
+external-clock, unity/reference path but deliberately exposes only
+`configuration_written`; it cannot authorize board unmute until a later
+readback/status layer validates the actual converter state.
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
 path is further reducing terminal-solver approximation error without breaking

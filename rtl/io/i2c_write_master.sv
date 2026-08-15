@@ -1,13 +1,14 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-// Single-main I2C register writer for devices with a 16-bit register address
-// and one data byte. Pins are open drain: a drive_low output of zero means the
-// board wrapper must release the corresponding line. Clock stretching is
-// honored while SCL is released. Arbitration and reads are deliberately out
-// of scope for the fixed codec-initialization path.
+// Single-main I2C register writer for devices with a one- or two-byte register
+// address and one data byte. Pins are open drain: a drive_low output of zero
+// means the board wrapper must release the corresponding line. Clock stretching
+// is honored while SCL is released. Arbitration and reads are deliberately out
+// of scope for fixed converter-initialization paths.
 module i2c_write_master #(
-    parameter int unsigned CLOCK_DIVIDER = 32
+    parameter int unsigned CLOCK_DIVIDER = 32,
+    parameter int unsigned REGISTER_ADDRESS_BYTES = 2
 ) (
     input  logic        clk,
     input  logic        rst_n,
@@ -50,6 +51,8 @@ module i2c_write_master #(
     initial begin
         if (CLOCK_DIVIDER < 1)
             $error("CLOCK_DIVIDER must be positive");
+        if (REGISTER_ADDRESS_BYTES < 1 || REGISTER_ADDRESS_BYTES > 2)
+            $error("REGISTER_ADDRESS_BYTES must be one or two");
     end
 
     state_t state;
@@ -64,12 +67,14 @@ module i2c_write_master #(
     logic divider_tick;
 
     always_comb begin
-        case (byte_index)
-            2'd0: active_byte = {latched_device_address, 1'b0};
-            2'd1: active_byte = latched_register_address[15:8];
-            2'd2: active_byte = latched_register_address[7:0];
-            default: active_byte = latched_write_data;
-        endcase
+        if (byte_index == 2'd0)
+            active_byte = {latched_device_address, 1'b0};
+        else if (REGISTER_ADDRESS_BYTES == 2 && byte_index == 2'd1)
+            active_byte = latched_register_address[15:8];
+        else if (byte_index == 2'(REGISTER_ADDRESS_BYTES))
+            active_byte = latched_register_address[7:0];
+        else
+            active_byte = latched_write_data;
         active_bit = active_byte[bit_index];
         divider_tick = divider_count == DIVIDER_WIDTH'(CLOCK_DIVIDER - 1);
 
@@ -158,7 +163,7 @@ module i2c_write_master #(
                         state <= STATE_ACK_FALL;
                     end
                     STATE_ACK_FALL: begin
-                        if (byte_index == 2'd3) begin
+                        if (byte_index == 2'(REGISTER_ADDRESS_BYTES + 1)) begin
                             state <= STATE_STOP_LOW;
                         end else begin
                             byte_index <= byte_index + 1'b1;

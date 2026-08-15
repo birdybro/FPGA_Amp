@@ -83,11 +83,20 @@ unconnected items. `verify.py` also locks the PCM5242 and interlock pad maps,
 mode straps, normally-open relay contacts, filter values, DNP chassis options,
 calculation consistency, board stack/outline, and minimum routing geometry.
 
+`rtl/io/pcm5242_dac_init.sv` now supplies the first write-only configuration
+bootstrap. Its bus-level regression checks all twenty `{0x98, register, data}`
+transactions and a fail-closed injected NACK. It explicitly selects external
+SCK, 24-bit I2S, unity/VREF operation, ROM interpolation program 1, and disables
+de-emphasis and zero-detect auto mute. Yosys reports 83 estimated XC7 logic
+cells, 86 flip-flops, no DSP/BRAM, and no warnings. The status is deliberately
+named `configuration_written`: readback and clock/power validation are still
+required before the separate XSMT/relay permissions may be raised.
+
 ## Release gates
 
 Do not order this as a production board until all of the following are closed:
 
-- PCM5242 register write/readback and every mute transition are verified with
+- PCM5242 critical-register readback and every mute transition are verified with
   the external supervisor able to dominate a stuck controller;
 - loaded THD+N, dynamic range, frequency response, channel balance, crosstalk,
   output impedance, DC, and clipping are measured on populated hardware;

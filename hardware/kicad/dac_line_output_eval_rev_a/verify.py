@@ -178,7 +178,7 @@ def main() -> None:
                          "L_BAL_P_FILT", "L_BAL_N_FILT", "R_BAL_P_FILT", "R_BAL_N_FILT")
         },
         "release_gates": [
-            "PCM5242 register script and readback under asserted hardware mute",
+            "PCM5242 critical-register readback under asserted hardware mute",
             "loaded THD+N, dynamic range, channel balance, crosstalk, and reconstruction response",
             "power-up, power-down, brownout, unplug, and external-supervisor mute sequencing",
             "enclosure XLR/RCA connector mechanics, pin-1/chassis treatment, and harness qualification",

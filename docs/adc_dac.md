@@ -60,9 +60,21 @@ does not replace required sequencing and transient measurements.
 The four-layer 112 x 72 mm route has 581 segments and 86 vias. KiCad 10.0.5
 reports zero ERC, zero DRC, and zero unconnected items, and the source-aware
 verifier locks the converter/interlock/relay maps and calculated loading. It
-remains unbuilt pending register/readback firmware, loaded audio measurements,
+remains unbuilt pending register readback/status control, loaded audio measurements,
 mute/brownout tests, connector and chassis qualification, ESD/RF testing,
 stackup review, and DFM.
+
+The first synthesizable PCM5242 bootstrap now writes twenty explicitly audited
+register transactions through the shared I2C engine's new one-byte-address
+mode. A bus-level target model proves the `0x4c` strap address, exact page and
+register data, final bus release, and immediate halt on an injected NACK. The
+sequence selects external SCK, 24-bit I2S, direct L/R routing, ROM interpolation
+program 1, 0 dB digital/analog gain, VREF output, no de-emphasis, and disables
+zero-detect auto mute so converter silence recovery is not inserted into the
+reference behavior. Yosys reports 83 estimated XC7 logic cells / 86 flip-flops /
+no DSP or BRAM / zero warnings. Its `configuration_written` output is not an
+unmute permit: critical-register readback plus clock/power-state validation
+remain required before the independent board interlocks can be released.
 
 ## Nominal clock tree
 

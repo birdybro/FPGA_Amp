@@ -19,7 +19,7 @@ NEXYS_AUDIO_BIT ?= build/openxc7/xc7a200tsbg484-1/phono_audio_top_xc7/routed/pho
 .PHONY: synth-stream-trapezoidal-384-terminal-banked
 .PHONY: openxc7-stream-384-pack openxc7-stream-384-place openxc7-a200t-stream-384-static-place openxc7-a200t-stream-384-half-clock-static-place openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-pnr openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-bit
 .PHONY: mono-adapter-384-rtl i2s-mono-top-384-rtl i2s-control-top-384-rtl i2s-spi-top-384-rtl synth-mono-adapter-384 synth-i2s-spi-top-384
-.PHONY: audio-clock-plan nexys-audio-top-contract audio-serial-clock-rtl i2c-write-rtl adau1761-codec-init-rtl codec-shared-i2s-guard-rtl synth-audio-clock-xc7 synth-audio-serial-clock-xc7 synth-i2c-write synth-adau1761-codec-init synth-codec-shared-i2s-guard synth-nexys-phono-audio-xc7 openxc7-a200t-audio-clock-pnr openxc7-a200t-audio-clock-bit openxc7-a200t-phono-audio-pnr openxc7-a200t-phono-audio-bit nexys-audio-hardware-preflight nexys-audio-program-sram
+.PHONY: audio-clock-plan nexys-audio-top-contract audio-serial-clock-rtl i2c-write-rtl adau1761-codec-init-rtl pcm5242-dac-init-rtl codec-shared-i2s-guard-rtl synth-audio-clock-xc7 synth-audio-serial-clock-xc7 synth-i2c-write synth-adau1761-codec-init synth-pcm5242-dac-init synth-codec-shared-i2s-guard synth-nexys-phono-audio-xc7 openxc7-a200t-audio-clock-pnr openxc7-a200t-audio-clock-bit openxc7-a200t-phono-audio-pnr openxc7-a200t-phono-audio-bit nexys-audio-hardware-preflight nexys-audio-program-sram
 .PHONY: product-hardware-spec kicad-motor-generate kicad-motor-route kicad-motor-check kicad-motor-fab
 .PHONY: kicad-controller-generate kicad-controller-route kicad-controller-check kicad-controller-render
 .PHONY: kicad-phono-adc-generate kicad-phono-adc-route kicad-phono-adc-check kicad-phono-adc-render
@@ -437,6 +437,9 @@ i2c-write-rtl:
 adau1761-codec-init-rtl:
 	$(PYTHON) scripts/run_adau1761_codec_init_rtl.py --verilator $(VERILATOR)
 
+pcm5242-dac-init-rtl:
+	$(PYTHON) scripts/run_pcm5242_dac_init_rtl.py --verilator $(VERILATOR)
+
 codec-shared-i2s-guard-rtl:
 	$(PYTHON) scripts/run_codec_shared_i2s_guard_rtl.py --verilator $(VERILATOR)
 
@@ -753,6 +756,9 @@ synth-i2c-write:
 synth-adau1761-codec-init:
 	$(PYTHON) scripts/run_synthesis.py --top adau1761_codec_init
 
+synth-pcm5242-dac-init:
+	$(PYTHON) scripts/run_synthesis.py --top pcm5242_dac_init
+
 synth-codec-shared-i2s-guard:
 	$(PYTHON) scripts/run_synthesis.py --top codec_shared_i2s_guard
 
@@ -894,6 +900,7 @@ python-test:
 test: python-test arithmetic-bounds rtl hermite-rtl factorized-rtl factorized-linear-rtl chord-rtl wide-chord-rtl wide-chord-pipelined-rtl wide-chord-early-preview-rtl trapezoidal-banked-chord-rtl trapezoidal-384-chord-rtl network-rtl wide-network-rtl trapezoidal-network-rtl trapezoidal-384-network-rtl decoupled-diagnostic-kcl-rtl decoupled-maximum-only-kcl-rtl serial-maximum-kcl-rtl shared-capacitor-decoupled-diagnostic-kcl-rtl solver-rtl solver-factorized-rtl wide-solver-rtl wide-linear-solver-rtl parallel-solver-rtl trapezoidal-solver-rtl banked-solver-rtl terminal-banked-solver-rtl trapezoidal-banked-solver-rtl trapezoidal-terminal-banked-solver-rtl trapezoidal-384-terminal-banked-solver-rtl trapezoidal-parallel-terminal-banked-solver-rtl trapezoidal-parallel-pipelined-terminal-banked-solver-rtl trapezoidal-parallel-decoupled-diagnostic-pipelined-terminal-banked-solver-rtl trapezoidal-parallel-shared-capacitor-decoupled-diagnostic-pipelined-terminal-banked-solver-rtl trapezoidal-parallel-shared-capacitor-terminal-decoupled-diagnostic-pipelined-terminal-banked-solver-rtl terminal-current-half-parallel-rtl trapezoidal-parallel-shared-terminal-diagnostic-pipelined-terminal-banked-solver-rtl halfband-rtl stream-rtl stream-factorized-rtl stream-wide-rtl stream-terminal-banked-rtl stream-trapezoidal-rtl stream-trapezoidal-terminal-banked-rtl stream-trapezoidal-384-terminal-banked-rtl stream-trapezoidal-384-terminal-banked-half-clock-rtl stream-trapezoidal-384-terminal-banked-half-clock-pipelined-rtl stream-trapezoidal-384-terminal-banked-half-clock-retimed-rtl stream-trapezoidal-384-terminal-banked-half-clock-late-select-rtl stream-trapezoidal-384-terminal-banked-half-clock-late-select-retimed-rtl stream-trapezoidal-384-terminal-banked-half-clock-late-select-serial-max-rtl stream-trapezoidal-384-terminal-banked-half-clock-node-prefetch-serial-max-rtl guarded-stream-rtl mute-rtl audio-clock-rtl async-fifo-rtl cdc-pulse-rtl cdc-snapshot-rtl spi-control-rtl i2s-rtl i2s-bridge-rtl pcm4202-capture-rtl calibration-rtl calibration-control-rtl control-registers-rtl frame-scheduler-rtl mono-adapter-rtl i2s-mono-top-rtl i2s-control-top-rtl i2s-spi-top-rtl
 test: volume-servo-test
 test: master-volume-rtl
+test: pcm5242-dac-init-rtl
 
 openxc7-probe:
 	$(PYTHON) scripts/run_openxc7.py --probe --nextpnr $(NEXTPNR)

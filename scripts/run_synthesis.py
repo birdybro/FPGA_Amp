@@ -96,6 +96,7 @@ def main() -> int:
             "audio_serial_clock_master_xc7",
             "i2c_write_master",
             "adau1761_codec_init",
+            "pcm5242_dac_init",
             "codec_shared_i2s_guard",
             "phono_audio_top_xc7",
             "solver_pnr_harness",
@@ -567,6 +568,10 @@ def main() -> int:
         "adau1761_codec_init": [
             "rtl/io/i2c_write_master.sv",
             "rtl/io/adau1761_codec_init.sv",
+        ],
+        "pcm5242_dac_init": [
+            "rtl/io/i2c_write_master.sv",
+            "rtl/io/pcm5242_dac_init.sv",
         ],
         "codec_shared_i2s_guard": ["rtl/io/codec_shared_i2s_guard.sv"],
         "i2s_receiver": ["rtl/io/i2s_receiver.sv"],

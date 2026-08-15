@@ -6,6 +6,18 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a synthesizable write-only PCM5242 reference-path bootstrap and extended
+  the existing I2C writer to select one- or two-byte register addresses. The
+  twenty-write sequence explicitly selects the strapped 0x4c device, external
+  SCK with PLL disabled, 24-bit I2S, direct stereo routing, ROM interpolation
+  program 1, unity digital/analog gain, VREF output, no de-emphasis, and no
+  zero-detect auto mute. A bus-level target captures and checks every byte,
+  confirms released-bus completion, and proves an injected NACK stops at the
+  failing index without further writes. Existing 16-bit ADAU1761 and generic
+  writer regressions remain passing. Yosys reports 83 estimated XC7 logic cells
+  / 86 flip-flops / no DSP or BRAM / zero warnings. The output is deliberately
+  `configuration_written`, not `configured`; register readback and live
+  clock/power validation still gate hardware unmute.
 - Added the routed four-layer PCM5242 DAC/protected line-output Rev-A EVT KiCad
   project. It implements 48 kHz 24-bit I2S slave operation with external
   24.576 MHz SCK, I2C unity/reference configuration, separate analog/digital
