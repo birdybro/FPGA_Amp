@@ -7,6 +7,7 @@ module phono_stream_mono_wide_trapezoidal_384khz_banked_terminal #(
     parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048,
     parameter bit PIPELINED_SOLVER_PROFILE = 1'b0,
     parameter bit PREFETCH_TUBE_INPUTS = 1'b0,
+    parameter bit PREFETCH_TUBE_NODES = 1'b0,
     parameter bit LATE_TUBE_INPUT_SELECT = 1'b0,
     parameter bit DECOUPLED_KCL_MAXIMUM_ONLY = 1'b0,
     parameter bit SERIAL_KCL_MAXIMUM_ONLY = 1'b0
@@ -56,6 +57,7 @@ module phono_stream_mono_wide_trapezoidal_384khz_banked_terminal #(
         .TERMINAL_CORRECTION(1'b1),
         .PIPELINED_SOLVER_PROFILE(PIPELINED_SOLVER_PROFILE),
         .PREFETCH_TUBE_INPUTS(PREFETCH_TUBE_INPUTS),
+        .PREFETCH_TUBE_NODES(PREFETCH_TUBE_NODES),
         .LATE_TUBE_INPUT_SELECT(LATE_TUBE_INPUT_SELECT),
         .DECOUPLED_KCL_MAXIMUM_ONLY(DECOUPLED_KCL_MAXIMUM_ONLY),
         .SERIAL_KCL_MAXIMUM_ONLY(SERIAL_KCL_MAXIMUM_ONLY)

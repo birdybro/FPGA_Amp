@@ -34,6 +34,11 @@ def main() -> int:
         help="capture exact tube pin pairs before each residual launch",
     )
     parser.add_argument(
+        "--prefetch-tube-nodes",
+        action="store_true",
+        help="capture exact early-preview nodes before tube-pin conversion",
+    )
+    parser.add_argument(
         "--late-tube-input-select",
         action="store_true",
         help="select between independently converted current/corrected tube pins",
@@ -74,9 +79,13 @@ def main() -> int:
         )
     if args.fabric_clock_hz == 49_152_000 and args.sample_rate_hz != 384_000:
         parser.error("49.152 MHz fabric operation requires the 384 kHz stream")
-    if args.prefetch_tube_inputs and args.late_tube_input_select:
+    if sum((
+        args.prefetch_tube_inputs,
+        args.prefetch_tube_nodes,
+        args.late_tube_input_select,
+    )) > 1:
         parser.error(
-            "--prefetch-tube-inputs and --late-tube-input-select are mutually exclusive"
+            "tube input prefetch/select timing profiles are mutually exclusive"
         )
     if args.serial_kcl_maximum_only and args.decoupled_kcl_maximum_only:
         parser.error(
@@ -189,6 +198,8 @@ def main() -> int:
         parameter_args.append("-GPIPELINED_SOLVER_PROFILE=1")
     if args.prefetch_tube_inputs:
         parameter_args.append("-GPREFETCH_TUBE_INPUTS=1")
+    if args.prefetch_tube_nodes:
+        parameter_args.append("-GPREFETCH_TUBE_NODES=1")
     if args.late_tube_input_select:
         parameter_args.append("-GLATE_TUBE_INPUT_SELECT=1")
     if args.decoupled_kcl_maximum_only:
@@ -204,6 +215,7 @@ def main() -> int:
         + ("_terminal" if args.terminal_correction else "")
         + ("_pipelined_solver" if args.pipelined_solver_profile else "")
         + ("_prefetched_tube_inputs" if args.prefetch_tube_inputs else "")
+        + ("_prefetched_tube_nodes" if args.prefetch_tube_nodes else "")
         + ("_late_tube_input_select" if args.late_tube_input_select else "")
         + (
             "_decoupled_kcl_maximum_only"

@@ -6,6 +6,20 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Closed the complete 48->384->48 kHz stream's 49.152 MHz open-flow timing
+  target on XC7A200T without changing arithmetic or the 127-clock solver
+  schedule. A selectable node-prefetch boundary captures the six raw tube nodes
+  from the exact one-cycle-early chord preview, then performs the original node
+  subtraction and Q conversion during the existing preview-to-launch interval.
+  The 64-output/512-update stream remains bit-exact with zero diagnostics.
+  Yosys measures 15,220 LC / 8,855 FF / 207 DSP / 10 RAMB18 equivalents and the
+  open pack is 54,280 LUTX / 8,855 FFX / 3,979 CARRY4 / 207 DSP. The legal
+  seed-1 router2 result completes in 23 iterations at 61.072 MHz versus
+  49.152 MHz; its 16.37 ns terminal-current/state path contains 6.44 ns logic
+  and 9.94 ns routing. Seed 2 independently closes in 14 iterations at
+  51.080 MHz with a 19.58 ns registered-node-to-tube path. This is nextpnr
+  `DEFAULT`-grade timing evidence, not
+  qualified -1 signoff, a bitstream, or physical validation.
 - Replaced the final-pass-only combinational KCL maximum with an optional
   low-state serial diagnostic. The correction result remains valid at the
   original 11-clock KCL latency while one unsigned comparator scans the nine

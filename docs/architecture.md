@@ -75,8 +75,17 @@ MHz with static placement against 49.152 MHz. Circular decimator history cuts
 4,173 packed flip-flops and lets heap placement legalize, but the resulting
 22.79 MHz estimate still fails the clock. Adding circular interpolation reduces
 the static pack to 56,041 LUTX / 8,589 FFX and improves placement to 41.27 MHz,
-still 19.1% short of the clock. The candidate remains
-unpromoted pending registered cross-block scheduling and timing closure.
+still 19.1% short of the clock. Route-guided scheduling then serializes only
+the final diagnostic maximum and captures the six raw tube nodes on the exact
+one-cycle-early chord preview. Node subtraction and Q conversion remain in the
+existing preview-to-launch interval, so all arithmetic and the 127-clock
+contract are unchanged. The resulting 54,280-LUTX / 8,855-FFX / 207-DSP A200T
+design routes legally at 61.072 MHz against 49.152 MHz. This closes the
+experimental nextpnr `DEFAULT`-grade estimate; an independent seed-2 route
+also passes at 51.080 MHz. Qualified -1 timing, bitstream
+generation, and physical board validation remain separate gates. The candidate
+remains unpromoted as the reference rate because numerical-rate selection and
+implementation timing are different engineering decisions.
 
 `phono_stream_mono.sv` now implements this digital reference boundary from
 48 kHz Q8.24 physical input volts through 16× interpolation, the complete V1

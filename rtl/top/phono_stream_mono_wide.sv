@@ -24,6 +24,8 @@ module phono_stream_mono_wide #(
     // Timing-only option that captures exact triode pin values before each
     // residual launch. It preserves the default solver schedule/arithmetic.
     parameter bit PREFETCH_TUBE_INPUTS = 1'b0,
+    // Capture exact early-preview nodes, then convert pins before launch.
+    parameter bit PREFETCH_TUBE_NODES = 1'b0,
     // Select between independently converted current/corrected tube pins.
     parameter bit LATE_TUBE_INPUT_SELECT = 1'b0,
     // Keep correction latency unchanged while the final-only physical
@@ -108,6 +110,7 @@ module phono_stream_mono_wide #(
         .TRAPEZOIDAL(TRAPEZOIDAL),
         .TERMINAL_CORRECTION(TERMINAL_CORRECTION),
         .PREFETCH_TUBE_INPUTS(PREFETCH_TUBE_INPUTS),
+        .PREFETCH_TUBE_NODES(PREFETCH_TUBE_NODES),
         .LATE_TUBE_INPUT_SELECT(LATE_TUBE_INPUT_SELECT),
         .PARALLEL_TUBES(PIPELINED_SOLVER_PROFILE),
         .PIPELINED_KCL_FINISH(PIPELINED_SOLVER_PROFILE),

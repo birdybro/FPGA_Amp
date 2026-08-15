@@ -1,6 +1,6 @@
 # Engineering task ledger
 
-Last updated: 2026-08-14
+Last updated: 2026-08-15
 
 ## Current milestone
 
@@ -11,7 +11,7 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
-- [ ] Close the remaining 49.152 MHz complete-stream timing gap with registered
+- [x] Close the remaining 49.152 MHz complete-stream timing gap with registered
   cross-block scheduling, guided by the now-completed legal route. Circular
   histories reduce the complete 384 kHz candidate from 17,693 LC / 14,737
   packed FFX to 15,716 LC / 8,589 packed FFX. The full A200T route reaches
@@ -21,8 +21,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   tube-pin prefetch removes that path, and a diagnostic-only four-boundary KCL
   maximum pipeline preserves all KCL/solver/stream vectors at 127 clocks, but
   the clean legal route reaches only 47.07 MHz through chord preview and tube
-  conversion. Reject this prefetch family: another register costs a clock per
-  correction pass and cannot fit the 127-of-128-clock contract. A zero-latency
+  conversion. Reject this pin-prefetch/deep-maximum family: another pin register
+  costs a clock per correction pass and cannot fit the 127-of-128-clock
+  contract. A zero-latency
   late selector now converts the current/corrected stage-one pin pairs in
   parallel and moves the mux onto the two 32-bit tube buses. It preserves the
   64-output/512-update stream exactly at 127 clocks and improves the best legal
@@ -33,14 +34,30 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   clocks, matches 1,024 BE + 1,024 trapezoidal KCL vectors and the complete
   stream, and cuts the pack to 54,699 LUTX / 8,657 FFX / 4,044 CARRY4 / 207
   DSP. Its legal 14-iteration route reaches only 47.567 MHz because the
-  corrected-node-to-tube path becomes critical again. Next register the exact
-  one-cycle-early chord nodes, leaving pin conversion in the existing
-  preview-to-launch interval; do not replicate the prior four-boundary
-  implementation, whose 1,076 added registers made routing pathological. A
+  corrected-node-to-tube path becomes critical again. Registering the six exact
+  one-cycle-early chord nodes, while leaving subtraction and Q-format conversion
+  in the existing preview-to-launch interval, preserves the complete stream at
+  127 clocks and closes the open A200T route at 61.072 MHz against 49.152 MHz.
+  Yosys measures 15,220 LC / 8,855 FF / 207 DSP / 10 RAMB18 equivalents; open
+  packing measures 54,280 LUTX / 8,855 FFX / 3,979 CARRY4 / 207 DSP. The legal
+  23-iteration seed-1 route has a 16.37 ns terminal-current/state path with
+  6.44 ns logic and 9.94 ns routing, leaving 3.97 ns positive estimated slack.
+  Seed 2 also closes in 14 iterations at 51.080 MHz with a 19.58 ns
+  registered-node-to-tube path and 0.77 ns positive estimated slack.
+  This is timing closure under nextpnr's experimental `DEFAULT` grade, not
+  qualified XC7A200T-1 signoff, a generated bitstream, or hardware validation.
+  Do not replicate the prior four-boundary implementation, whose 1,076 added
+  registers made routing pathological. A
   broad 123-clock parallel/pipelined profile remains exact but
   grows to 242 DSP / 66,658 packed LUTX and places at only 39.62 MHz, so do not
   promote it. Lower resource occupancy or nominal cycle margin alone is not
   timing closure.
+- [ ] Complete open-flow implementation evidence for the selected A200T timing
+  profile: retain the now-completed seed-1/seed-2 routes, convert the emitted
+  FASM through the Project X-Ray frame/bitstream tools, record every artifact
+  and tool revision, and run a physical oscillator/signature smoke test when
+  matching hardware is available. Keep the experimental `DEFAULT` timing
+  estimate distinct from qualified speed-grade and board measurements.
 - [ ] Isolate and reduce the remaining fixed circuit/state/chord error. With
   the implemented 1,024-point grid branch, raw final-window error is now
   0.372/0.291 mV at 1.0 V and 0.631/0.321 mV at 1.5 V for backward Euler/

@@ -31,6 +31,9 @@ module v1_solver_mono_wide #(
     // state and node-format logic from the tube request path without adding a
     // solver clock or changing the numerical operations.
     parameter bit PREFETCH_TUBE_INPUTS = 1'b0,
+    // Capture raw tube-related chord nodes on the exact early-preview edge,
+    // leaving pin subtraction/conversion for the existing launch interval.
+    parameter bit PREFETCH_TUBE_NODES = 1'b0,
     // Compute current/corrected tube pins independently, then select the
     // already converted 32-bit values. This moves the state-dependent mux
     // after node conversion without changing arithmetic or latency.
@@ -109,8 +112,10 @@ module v1_solver_mono_wide #(
     logic signed [47:0] capacitor_current_state [0:9];
 
     initial begin
-        if (PREFETCH_TUBE_INPUTS && LATE_TUBE_INPUT_SELECT)
-            $error("tube-input prefetch and late select are mutually exclusive");
+        if ((PREFETCH_TUBE_INPUTS && LATE_TUBE_INPUT_SELECT)
+            || (PREFETCH_TUBE_NODES && LATE_TUBE_INPUT_SELECT)
+            || (PREFETCH_TUBE_INPUTS && PREFETCH_TUBE_NODES))
+            $error("tube input timing profiles are mutually exclusive");
         $readmemh(NODE_INITIAL_FILE, node_initial);
         $readmemh(CAP_INITIAL_FILE, capacitor_initial);
         if (TRAPEZOIDAL)
@@ -611,6 +616,12 @@ module v1_solver_mono_wide #(
     logic signed [31:0] prefetched_tube1_v_pk;
     logic signed [31:0] prefetched_tube2_v_gk;
     logic signed [31:0] prefetched_tube2_v_pk;
+    logic signed [39:0] prefetched_tube1_grid_node;
+    logic signed [39:0] prefetched_tube1_plate_node;
+    logic signed [39:0] prefetched_tube1_cathode_node;
+    logic signed [39:0] prefetched_tube2_grid_node;
+    logic signed [39:0] prefetched_tube2_plate_node;
+    logic signed [39:0] prefetched_tube2_cathode_node;
     logic signed [31:0] current_tube1_v_gk;
     logic signed [31:0] current_tube1_v_pk;
     logic signed [31:0] corrected_tube1_v_gk;
@@ -676,11 +687,53 @@ module v1_solver_mono_wide #(
         end
     end
 
+    // Like the pin prefetch above, these registers are always written before
+    // use: sample state at RHS start and each corrected state on the exact
+    // one-cycle-early chord preview.
+    always_ff @(posedge clk) begin
+        if (PREFETCH_TUBE_NODES && rhs_start) begin
+            prefetched_tube1_grid_node <=
+                $signed(voltage_flat[0 * 40 +: 40]);
+            prefetched_tube1_plate_node <=
+                $signed(voltage_flat[1 * 40 +: 40]);
+            prefetched_tube1_cathode_node <=
+                $signed(voltage_flat[2 * 40 +: 40]);
+            prefetched_tube2_grid_node <=
+                $signed(voltage_flat[4 * 40 +: 40]);
+            prefetched_tube2_plate_node <=
+                $signed(voltage_flat[6 * 40 +: 40]);
+            prefetched_tube2_cathode_node <=
+                $signed(voltage_flat[7 * 40 +: 40]);
+        end else if (PREFETCH_TUBE_NODES && chord_preview_valid) begin
+            prefetched_tube1_grid_node <=
+                $signed(chord_preview_voltage[0 * 40 +: 40]);
+            prefetched_tube1_plate_node <=
+                $signed(chord_preview_voltage[1 * 40 +: 40]);
+            prefetched_tube1_cathode_node <=
+                $signed(chord_preview_voltage[2 * 40 +: 40]);
+            prefetched_tube2_grid_node <=
+                $signed(chord_preview_voltage[4 * 40 +: 40]);
+            prefetched_tube2_plate_node <=
+                $signed(chord_preview_voltage[6 * 40 +: 40]);
+            prefetched_tube2_cathode_node <=
+                $signed(chord_preview_voltage[7 * 40 +: 40]);
+        end
+    end
+
     always_comb begin
         triode_ce = residual_launch;
         if (PREFETCH_TUBE_INPUTS) begin
             triode_v_gk = prefetched_tube1_v_gk;
             triode_v_pk = prefetched_tube1_v_pk;
+        end else if (PREFETCH_TUBE_NODES) begin
+            triode_v_gk = node_difference_q24(
+                prefetched_tube1_grid_node, 0,
+                prefetched_tube1_cathode_node, 2
+            );
+            triode_v_pk = node_difference_q20(
+                prefetched_tube1_plate_node, 1,
+                prefetched_tube1_cathode_node, 2
+            );
         end else if (LATE_TUBE_INPUT_SELECT) begin
             triode_v_gk = (state == WAIT_CHORD)
                 ? corrected_tube1_v_gk : current_tube1_v_gk;
@@ -701,6 +754,15 @@ module v1_solver_mono_wide #(
             if (PREFETCH_TUBE_INPUTS) begin
                 triode_v_gk = prefetched_tube2_v_gk;
                 triode_v_pk = prefetched_tube2_v_pk;
+            end else if (PREFETCH_TUBE_NODES) begin
+                triode_v_gk = node_difference_q24(
+                    prefetched_tube2_grid_node, 4,
+                    prefetched_tube2_cathode_node, 7
+                );
+                triode_v_pk = node_difference_q20(
+                    prefetched_tube2_plate_node, 6,
+                    prefetched_tube2_cathode_node, 7
+                );
             end else begin
                 triode_v_gk = node_difference_q24(
                     node_voltage[4], 4,
@@ -765,6 +827,15 @@ module v1_solver_mono_wide #(
                 if (PREFETCH_TUBE_INPUTS) begin
                     v_gk = prefetched_tube2_v_gk;
                     v_pk = prefetched_tube2_v_pk;
+                end else if (PREFETCH_TUBE_NODES) begin
+                    v_gk = node_difference_q24(
+                        prefetched_tube2_grid_node, 4,
+                        prefetched_tube2_cathode_node, 7
+                    );
+                    v_pk = node_difference_q20(
+                        prefetched_tube2_plate_node, 6,
+                        prefetched_tube2_cathode_node, 7
+                    );
                 end else if (LATE_TUBE_INPUT_SELECT) begin
                     v_gk = (state == WAIT_CHORD)
                         ? node_difference_q24(
@@ -850,7 +921,7 @@ module v1_solver_mono_wide #(
         .COEFFICIENT_SETS(CHORD_COEFFICIENT_SETS),
         .COEFFICIENT_WIDTH(CHORD_COEFFICIENT_WIDTH),
         .PIPELINED_APPLY(PIPELINED_CHORD_APPLY),
-        .EARLY_PREVIEW(PREFETCH_TUBE_INPUTS)
+        .EARLY_PREVIEW(PREFETCH_TUBE_INPUTS || PREFETCH_TUBE_NODES)
     ) chord_engine (
         .clk,
         .rst_n,

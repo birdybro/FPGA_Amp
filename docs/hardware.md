@@ -700,6 +700,35 @@ chord-corrected node through stage-one pin conversion and the factorized-tube
 input logic. Serializing the diagnostic is therefore a valid area/schedule
 improvement, but does not close timing by itself.
 
+`stream_384khz_49mhz_node_prefetch_serial_max_pnr_harness` adds the successful
+register boundary. It captures stage-one and stage-two grid, plate, and cathode
+nodes from the exact one-cycle-early chord preview; the original subtraction
+and Q-format conversion then execute during the already available
+preview-to-launch interval. Current-state nodes are captured at RHS start for
+the first iteration. The numerical operations, update order, and solver latency
+are unchanged: all 64 outputs / 512 nonlinear updates match the fixed model
+exactly at 127 clocks with zero diagnostics.
+
+Yosys 0.66 measures 15,220 logic cells, 8,855 flip-flops, 207 DSP48E1s, eight
+RAMB18E1s, and one RAMB36E1. Open packing uses 54,280 `SLICE_LUTX`, 8,855
+`SLICE_FFX`, 3,979 CARRY4s, and the same DSP/RAM count. Seed 1 with the static
+placer and router2 completes a legal route in 23 iterations at 61.072 MHz
+against 49.152 MHz. The 16.37 ns critical path begins at stored capacitor
+current, crosses the terminal-current update and solver-state arithmetic, and
+contains 6.44 ns logic plus 9.94 ns routing. Estimated positive margin is
+3.97 ns. The prior chord-to-tube path is no longer critical. Seed 2 also
+completes legally, in 14 router2 iterations at 51.080 MHz. Its limiting path
+runs from a prefetched node through subtraction/conversion and the factorized
+tube input logic in 19.58 ns (6.22 ns logic / 13.36 ns routing), leaving
+0.77 ns positive estimated margin. The two successful seeds have different
+critical paths.
+
+This is the first complete-stream timing closure under the pinned open
+nextpnr-Himbaechel backend's experimental `DEFAULT` grade. It is not qualified
+XC7A200T-1 timing signoff, a generated configuration bitstream, or a board
+measurement. Those claims remain gated on the open frame/bitstream flow,
+additional route seeds, and physical validation.
+
 The placement analyzer now recognizes complete-stream resampler hierarchy
 instead of folding it into harness constants. In the 38.34 MHz static result,
 the decimator accounts for 8,397 LUTX / 4,791 FFX / 12 DSP and spans 244x143
