@@ -19,7 +19,7 @@ NEXYS_AUDIO_BIT ?= build/openxc7/xc7a200tsbg484-1/phono_audio_top_xc7/routed/pho
 .PHONY: synth-stream-trapezoidal-384-terminal-banked
 .PHONY: openxc7-stream-384-pack openxc7-stream-384-place openxc7-a200t-stream-384-static-place openxc7-a200t-stream-384-half-clock-static-place openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-pnr openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-bit
 .PHONY: mono-adapter-384-rtl i2s-mono-top-384-rtl i2s-control-top-384-rtl i2s-spi-top-384-rtl synth-mono-adapter-384 synth-i2s-spi-top-384
-.PHONY: audio-clock-plan nexys-audio-top-contract audio-serial-clock-rtl i2c-write-rtl adau1761-codec-init-rtl pcm5242-dac-init-rtl codec-shared-i2s-guard-rtl synth-audio-clock-xc7 synth-audio-serial-clock-xc7 synth-i2c-write synth-adau1761-codec-init synth-pcm5242-dac-init synth-codec-shared-i2s-guard synth-nexys-phono-audio-xc7 openxc7-a200t-audio-clock-pnr openxc7-a200t-audio-clock-bit openxc7-a200t-phono-audio-pnr openxc7-a200t-phono-audio-bit nexys-audio-hardware-preflight nexys-audio-program-sram
+.PHONY: audio-clock-plan nexys-audio-top-contract audio-serial-clock-rtl i2c-write-rtl i2c-read-rtl adau1761-codec-init-rtl pcm5242-dac-init-rtl codec-shared-i2s-guard-rtl synth-audio-clock-xc7 synth-audio-serial-clock-xc7 synth-i2c-write synth-i2c-read synth-adau1761-codec-init synth-pcm5242-dac-init synth-codec-shared-i2s-guard synth-nexys-phono-audio-xc7 openxc7-a200t-audio-clock-pnr openxc7-a200t-audio-clock-bit openxc7-a200t-phono-audio-pnr openxc7-a200t-phono-audio-bit nexys-audio-hardware-preflight nexys-audio-program-sram
 .PHONY: product-hardware-spec kicad-motor-generate kicad-motor-route kicad-motor-check kicad-motor-fab
 .PHONY: kicad-controller-generate kicad-controller-route kicad-controller-check kicad-controller-render
 .PHONY: kicad-phono-adc-generate kicad-phono-adc-route kicad-phono-adc-check kicad-phono-adc-render
@@ -434,6 +434,9 @@ audio-serial-clock-rtl:
 i2c-write-rtl:
 	$(PYTHON) scripts/run_i2c_write_rtl.py --verilator $(VERILATOR)
 
+i2c-read-rtl:
+	$(PYTHON) scripts/run_i2c_read_register_rtl.py --verilator $(VERILATOR)
+
 adau1761-codec-init-rtl:
 	$(PYTHON) scripts/run_adau1761_codec_init_rtl.py --verilator $(VERILATOR)
 
@@ -753,6 +756,9 @@ synth-audio-serial-clock-xc7:
 synth-i2c-write:
 	$(PYTHON) scripts/run_synthesis.py --top i2c_write_master
 
+synth-i2c-read:
+	$(PYTHON) scripts/run_synthesis.py --top i2c_read_register_master
+
 synth-adau1761-codec-init:
 	$(PYTHON) scripts/run_synthesis.py --top adau1761_codec_init
 
@@ -901,6 +907,7 @@ test: python-test arithmetic-bounds rtl hermite-rtl factorized-rtl factorized-li
 test: volume-servo-test
 test: master-volume-rtl
 test: pcm5242-dac-init-rtl
+test: i2c-read-rtl
 
 openxc7-probe:
 	$(PYTHON) scripts/run_openxc7.py --probe --nextpnr $(NEXTPNR)

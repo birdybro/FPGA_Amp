@@ -934,6 +934,8 @@ make synth-audio-clock-xc7         # clock-only XC7 structural measurement
 make audio-serial-clock-rtl        # verify /16 BCLK and domain reset release
 make synth-audio-serial-clock-xc7  # XC7 BCLK/reset leaf measurement
 make i2c-write-rtl                 # verify open-drain register transactions
+make i2c-read-rtl                  # verify repeated-START byte register reads
+make synth-i2c-read                # measure I2C read primitive XC7 resources
 make adau1761-codec-init-rtl       # verify fixed bootstrap and fail-stop NACK
 make pcm5242-dac-init-rtl          # verify exact DAC write sequence/NACK abort
 make synth-pcm5242-dac-init        # measure DAC bootstrap XC7 resources
@@ -1100,6 +1102,14 @@ exact twenty one-byte-register transactions and NACK abort. It configures the
 external-clock, unity/reference path but deliberately exposes only
 `configuration_written`; it cannot authorize board unmute until a later
 readback/status layer validates the actual converter state.
+
+A separate synthesizable I2C reader now implements the required one-byte
+register-address transaction through repeated START and master NACK. Its
+directed target model checks exact bus bytes, returned data, STOP/release, and
+an address-NACK abort; Yosys reports 70 estimated XC7 logic cells, 63
+flip-flops, no DSP/BRAM, and no warnings. It remains deliberately transport
+only—page-aware masked comparison and live PCM5242 clock/power validation are
+the next fail-closed control layer.
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
 path is further reducing terminal-solver approximation error without breaking

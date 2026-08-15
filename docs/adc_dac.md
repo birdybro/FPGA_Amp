@@ -76,6 +76,16 @@ no DSP or BRAM / zero warnings. Its `configuration_written` output is not an
 unmute permit: critical-register readback plus clock/power-state validation
 remain required before the independent board interlocks can be released.
 
+The corresponding single-register read transport is now implemented separately.
+It performs the PCM5242-required indirect one-byte read with a repeated START,
+returns one byte, terminates it with a master NACK, and honors target clock
+stretching. Directed bus simulation proves the exact `0x98`, register, and
+`0x99` transmitted bytes, returned data, STOP/release behavior, and an
+address-NACK abort. Its generic XC7 structural result is 70 estimated logic
+cells / 63 flip-flops / no DSP or BRAM / zero warnings. This is transport only:
+the next layer must select the correct page, apply per-register masks, read live
+clock/power status, and retain hardware mute on any NACK or mismatch.
+
 ## Nominal clock tree
 
 ```text

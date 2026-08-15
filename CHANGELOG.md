@@ -6,6 +6,14 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a synthesizable one-byte-register I2C read primitive for PCM5242
+  verification. It implements address+W, register index, repeated START,
+  address+R, one returned byte, master NACK, and STOP with open-drain pins and
+  clock-stretch handling. A directed bus target verifies exact transaction
+  bytes, returned data, final NACK/STOP/release, and fail-closed address-NACK
+  abort. Yosys reports 70 estimated XC7 logic cells / 63 flip-flops / no DSP or
+  BRAM / zero warnings. This is transport only; page-aware masked register and
+  live clock/power status checks still gate DAC unmute.
 - Added a synthesizable write-only PCM5242 reference-path bootstrap and extended
   the existing I2C writer to select one- or two-byte register addresses. The
   twenty-write sequence explicitly selects the strapped 0x4c device, external

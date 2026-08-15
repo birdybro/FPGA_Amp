@@ -15,6 +15,14 @@ access and finished-device compliance.
 
 ## Active, highest value first
 
+- [x] Add a synthesizable one-byte-register I2C read primitive needed by the
+  PCM5242 verification layer. The engine emits address+W, register, repeated
+  START, address+R, one data byte, master NACK, and STOP while honoring clock
+  stretching. Its bus-level regression checks all three transmitted bytes,
+  returned data, released-bus completion, and fail-closed address-NACK abort.
+  Yosys reports 70 estimated XC7 logic cells / 63 flip-flops / no DSP or BRAM /
+  zero warnings. This primitive does not itself declare the DAC configured;
+  masked register/status verification and unmute gating remain active work.
 - [x] Implement the PCM5242 write-only reference-path bootstrap. The common I2C
   engine now supports one- or two-byte register addresses without regressing
   the ADAU1761 path. The new sequence emits twenty exact transactions at board
