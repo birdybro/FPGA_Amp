@@ -191,6 +191,7 @@ scripts/run_frame_scheduler_formal.py  phase/zero-fill/counter induction
 | Python MNA vs ngspice | 5 mV peak, 1 kHz, last 10 ms | -53.10 dB normalized residual, 0.00179 dB gain error |
 | backward Euler vs ngspice frequency | 5 mV, 100 Hz/1/10/20 kHz | <=0.0646 dB gain; phase rises from 0.0244 to 4.7197 degrees |
 | trapezoidal float candidate vs ngspice | 5 mV, 10/20 kHz | <=0.00846 dB gain, <=0.0582 degree phase; zero failed solves |
+| 384 kHz/8x trapezoidal architecture study | 10/20 kHz SPICE; 20 kHz static-tube and complete-circuit rate A/B | <=0.06653 dB / <=0.02234 degree vs SPICE; complete-circuit selected products within 0.52 dB through steady 0.5 V; hot static tube +11.33 dB but -118.65 dBc; zero failed solves, not promoted |
 | trapezoidal overload stability | 20 mV/0.5/1.0/1.5 V, 85 ms post-burst | finite/convergent; 20 mV recovery within 2.6 us of BE |
 | long trapezoidal overload recovery | 0.5/1.0/1.5 V, 235 ms post-burst | 0.5 V 10% recovery 146.552 ms; 98.2--118.1 ms fitted modes; severe crossings remain labeled projections |
 | severe trapezoidal overload recovery | 1.0/1.5 V, 835 ms post-burst | 1.0 V sustained 10% 270.112 ms; 1.5 V not 10%; 413--451x cancellation rebound falsifies early fit |

@@ -199,6 +199,7 @@ def main() -> int:
             for integration_method, sample_rate_hz in (
                 ("backward_euler", 1_536_000.0),
                 ("backward_euler", 3_072_000.0),
+                ("trapezoidal", 384_000.0),
                 ("trapezoidal", 768_000.0),
             ):
                 candidate = compare_model(
@@ -229,6 +230,13 @@ def main() -> int:
         if candidate["integration_method"] == "trapezoidal"
         and candidate["sample_rate_hz"] == SAMPLE_RATE_HZ
     ]
+    trapezoidal_384khz_errors = [
+        candidate["python_vs_spice"]
+        for study in high_frequency_method_study
+        for candidate in study["candidates"]
+        if candidate["integration_method"] == "trapezoidal"
+        and candidate["sample_rate_hz"] == 384_000.0
+    ]
     report = {
         "comparison": "ngspice transient vs 768 kHz backward-Euler nonlinear MNA",
         "stimulus": {
@@ -253,6 +261,16 @@ def main() -> int:
             "maximum_absolute_phase_error_deg": max(
                 abs(float(error["fundamental_phase_error_deg"]))
                 for error in trapezoidal_errors
+            ),
+        },
+        "trapezoidal_384khz_high_frequency": {
+            "maximum_absolute_gain_error_db": max(
+                abs(float(error["fundamental_gain_error_db"]))
+                for error in trapezoidal_384khz_errors
+            ),
+            "maximum_absolute_phase_error_deg": max(
+                abs(float(error["fundamental_phase_error_deg"]))
+                for error in trapezoidal_384khz_errors
             ),
         },
         "total_python_nonconvergence_count": sum(

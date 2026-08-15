@@ -90,7 +90,23 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   floorplanned placements reach only 30.63/32.94 MHz. Develop a broader
   cross-block time-multiplexed schedule with registered multiplier boundaries;
   do not treat lower DSP occupancy by itself as evidence of timing progress.
+  A separately labeled 384 kHz/8x study now bounds 10/20 kHz SPICE error at
+  0.06653 dB / 0.02234 degree and finds complete-circuit selected products
+  within 0.52 dB of 768 kHz through steady 0.5 V, while exposing an 11.33 dB
+  static-tube stress penalty at -118.65 dBc. Its 256-cycle budget is promising,
+  but reference mode remains 16x. Generate and verify a distinct 384 kHz fixed
+  coefficient/state set, add transient/pop and post-burst alias comparisons,
+  and only then decide whether an 8x RTL scheduling branch is justified.
 ## Completed this milestone
+
+- [x] Quantify an explicit 8x internal-rate architecture without changing the
+  16x reference. Extend the reproducible SPICE study to 384 kHz trapezoidal,
+  add static-Koren and complete-circuit 8x/16x nonlinear product comparisons at
+  20 kHz, and retain exact 10 ms coherent analysis windows. Measure -0.058 dB
+  complete-circuit fundamental change, <=0.52 dB selected-product change
+  through steady 0.5 V, and the separate -118.65 dBc static-tube stress result.
+  Record the remaining fixed/RTL/transient verification debt rather than
+  silently reducing oversampling.
 
 - [x] Reuse the two KCL capacitor products through one explicit 48-by-44-bit
   multiplier. Prefetch branch 9 on the accepting edge so 1,024 vectors per

@@ -1,0 +1,254 @@
+{
+  "status": "architecture study; reference mode remains 16x/768 kHz",
+  "external_sample_rate_hz": 48000,
+  "fundamental_hz": 20000,
+  "selected_audio_band_product_hz": [
+    4000,
+    8000,
+    12000,
+    16000
+  ],
+  "duration_s": 0.04,
+  "analysis_start_s": 0.02,
+  "analysis_duration_s": 0.01,
+  "tube_static_stress": [
+    {
+      "drive_peak_v": 0.5,
+      "quiescent_v_gk_v": -1.2,
+      "v_pk_v": 200.0,
+      "rates": {
+        "8": {
+          "factor": 8,
+          "internal_sample_rate_hz": 384000,
+          "decimator_delay_external_samples": 24.375,
+          "analysis_start_sample": 985,
+          "analysis_stop_sample": 1465,
+          "fundamental_peak": 0.0011033815016574728,
+          "selected_product_peaks": {
+            "4000": 6.751591052081758e-13,
+            "8000": 4.224392452284664e-12,
+            "12000": 3.512949904215215e-13,
+            "16000": 1.0420541454696862e-12
+          },
+          "selected_product_rss": 4.417082342525545e-12,
+          "selected_product_relative_db": -167.95180406591243,
+          "fit_residual_relative_db": -217.14471806336581
+        },
+        "16": {
+          "factor": 16,
+          "internal_sample_rate_hz": 768000,
+          "decimator_delay_external_samples": 24.9375,
+          "analysis_start_sample": 985,
+          "analysis_stop_sample": 1465,
+          "fundamental_peak": 0.001103388757053313,
+          "selected_product_peaks": {
+            "4000": 6.712417687943454e-13,
+            "8000": 4.2243332162250054e-12,
+            "12000": 3.509015410412948e-13,
+            "16000": 1.0417535194255455e-12
+          },
+          "selected_product_rss": 4.416326405579272e-12,
+          "selected_product_relative_db": -167.95334780606353,
+          "fit_residual_relative_db": -221.8275160484605
+        }
+      },
+      "comparison": {
+        "eight_vs_sixteen_fundamental_gain_db": -5.7114751568817966e-05,
+        "eight_vs_sixteen_selected_product_delta_db": 0.0015437401511064763
+      }
+    },
+    {
+      "drive_peak_v": 2.0,
+      "quiescent_v_gk_v": -1.2,
+      "v_pk_v": 200.0,
+      "rates": {
+        "8": {
+          "factor": 8,
+          "internal_sample_rate_hz": 384000,
+          "decimator_delay_external_samples": 24.375,
+          "analysis_start_sample": 985,
+          "analysis_stop_sample": 1465,
+          "fundamental_peak": 0.004017957224912796,
+          "selected_product_peaks": {
+            "4000": 2.5994861883354833e-09,
+            "8000": 6.137548126604158e-11,
+            "12000": 5.92378523417782e-12,
+            "16000": 3.908907767479348e-09
+          },
+          "selected_product_rss": 4.6947513692355915e-09,
+          "selected_product_relative_db": -118.64785423338643,
+          "fit_residual_relative_db": -127.59868733523919
+        },
+        "16": {
+          "factor": 16,
+          "internal_sample_rate_hz": 768000,
+          "decimator_delay_external_samples": 24.9375,
+          "analysis_start_sample": 985,
+          "analysis_stop_sample": 1465,
+          "fundamental_peak": 0.004017983645393927,
+          "selected_product_peaks": {
+            "4000": 2.216698423303231e-10,
+            "8000": 5.3841968099203626e-11,
+            "12000": 7.187203753989888e-12,
+            "16000": 1.2527525221540481e-09
+          },
+          "selected_product_rss": 1.2733722999141596e-09,
+          "selected_product_relative_db": -129.98105532809032,
+          "fit_residual_relative_db": -182.52374139745424
+        }
+      },
+      "comparison": {
+        "eight_vs_sixteen_fundamental_gain_db": -5.711475158714031e-05,
+        "eight_vs_sixteen_selected_product_delta_db": 11.333201094703895
+      }
+    }
+  ],
+  "complete_circuit": [
+    {
+      "input_peak_v": 0.005,
+      "rates": {
+        "8": {
+          "factor": 8,
+          "internal_sample_rate_hz": 384000,
+          "decimator_delay_external_samples": 24.375,
+          "analysis_start_sample": 985,
+          "analysis_stop_sample": 1465,
+          "fundamental_peak": 0.05734526191346478,
+          "selected_product_peaks": {
+            "4000": 1.5925630385643675e-07,
+            "8000": 6.357440533575699e-08,
+            "12000": 5.827824478042333e-08,
+            "16000": 2.2870019453267297e-08
+          },
+          "selected_product_rss": 1.8254771139701698e-07,
+          "selected_product_relative_db": -109.9424229614282,
+          "fit_residual_relative_db": -77.63936113346415,
+          "maximum_solver_iterations": 3,
+          "solver_nonconvergence_count": 0
+        },
+        "16": {
+          "factor": 16,
+          "internal_sample_rate_hz": 768000,
+          "decimator_delay_external_samples": 24.9375,
+          "analysis_start_sample": 985,
+          "analysis_stop_sample": 1465,
+          "fundamental_peak": 0.05773029815714636,
+          "selected_product_peaks": {
+            "4000": 1.5974039425490636e-07,
+            "8000": 8.270357625710096e-08,
+            "12000": 5.849466024683876e-08,
+            "16000": 4.771704948442722e-08
+          },
+          "selected_product_rss": 1.9507797715610906e-07,
+          "selected_product_relative_db": -109.42391113843237,
+          "fit_residual_relative_db": -77.66706647846163,
+          "maximum_solver_iterations": 2,
+          "solver_nonconvergence_count": 0
+        }
+      },
+      "comparison": {
+        "eight_vs_sixteen_fundamental_gain_db": -0.05812519700615218,
+        "eight_vs_sixteen_selected_product_delta_db": -0.5185118229958334
+      }
+    },
+    {
+      "input_peak_v": 0.02,
+      "rates": {
+        "8": {
+          "factor": 8,
+          "internal_sample_rate_hz": 384000,
+          "decimator_delay_external_samples": 24.375,
+          "analysis_start_sample": 985,
+          "analysis_stop_sample": 1465,
+          "fundamental_peak": 0.22937916484447302,
+          "selected_product_peaks": {
+            "4000": 3.246391210250978e-06,
+            "8000": 1.6804321244497763e-06,
+            "12000": 1.1881758222336628e-06,
+            "16000": 9.699459459610808e-07
+          },
+          "selected_product_rss": 3.96427356996267e-06,
+          "selected_product_relative_db": -95.24780700310899,
+          "fit_residual_relative_db": -63.024234130523894,
+          "maximum_solver_iterations": 3,
+          "solver_nonconvergence_count": 0
+        },
+        "16": {
+          "factor": 16,
+          "internal_sample_rate_hz": 768000,
+          "decimator_delay_external_samples": 24.9375,
+          "analysis_start_sample": 985,
+          "analysis_stop_sample": 1465,
+          "fundamental_peak": 0.23091842622066763,
+          "selected_product_peaks": {
+            "4000": 3.2443987860628916e-06,
+            "8000": 1.662758529726936e-06,
+            "12000": 1.1874751065769116e-06,
+            "16000": 9.612802072345647e-07
+          },
+          "selected_product_rss": 3.952852916153955e-06,
+          "selected_product_relative_db": -95.33095868485478,
+          "fit_residual_relative_db": -63.089196463057604,
+          "maximum_solver_iterations": 3,
+          "solver_nonconvergence_count": 0
+        }
+      },
+      "comparison": {
+        "eight_vs_sixteen_fundamental_gain_db": -0.05809243643556257,
+        "eight_vs_sixteen_selected_product_delta_db": 0.08315168174578957
+      }
+    },
+    {
+      "input_peak_v": 0.5,
+      "rates": {
+        "8": {
+          "factor": 8,
+          "internal_sample_rate_hz": 384000,
+          "decimator_delay_external_samples": 24.375,
+          "analysis_start_sample": 985,
+          "analysis_stop_sample": 1465,
+          "fundamental_peak": 5.694147003595531,
+          "selected_product_peaks": {
+            "4000": 0.0021484599524314394,
+            "8000": 0.001111471696763332,
+            "12000": 0.0007845946162319228,
+            "16000": 0.0006366868011557112
+          },
+          "selected_product_rss": 0.00262148970901922,
+          "selected_product_relative_db": -66.73761035584177,
+          "fit_residual_relative_db": -36.63038735812102,
+          "maximum_solver_iterations": 4,
+          "solver_nonconvergence_count": 0
+        },
+        "16": {
+          "factor": 16,
+          "internal_sample_rate_hz": 768000,
+          "decimator_delay_external_samples": 24.9375,
+          "analysis_start_sample": 985,
+          "analysis_stop_sample": 1465,
+          "fundamental_peak": 5.7316464272394745,
+          "selected_product_peaks": {
+            "4000": 0.0021487066814168346,
+            "8000": 0.0011119289135942396,
+            "12000": 0.0007856310784778714,
+            "16000": 0.0006395874543585823
+          },
+          "selected_product_rss": 0.0026229019453451567,
+          "selected_product_relative_db": -66.78994673316947,
+          "fit_residual_relative_db": -36.66398238883861,
+          "maximum_solver_iterations": 3,
+          "solver_nonconvergence_count": 0
+        }
+      },
+      "comparison": {
+        "eight_vs_sixteen_fundamental_gain_db": -0.05701433808077863,
+        "eight_vs_sixteen_selected_product_delta_db": 0.05233637732770546
+      }
+    }
+  ],
+  "limitations": [
+    "selected products are an alias stress metric, not a complete perceptual error metric",
+    "the complete-circuit cases cover steady 20 kHz drive, not clicks or post-burst overload recovery",
+    "the fixed-point model, RTL coefficients, and resampler scheduling remain 16x only"
+  ]
+}

@@ -54,6 +54,10 @@ DEFAULT_STAGES = (
     HalfbandStage(384_000, 19, 8.6),
 )
 
+# Explicit architecture-study prefix. Reference mode continues to use all four
+# stages; naming the prefix prevents callers from silently slicing the chain.
+EIGHT_X_STAGES = DEFAULT_STAGES[:3]
+
 
 def interpolate_2x(samples: ArrayLike, coefficients: ArrayLike) -> FloatArray:
     """Return the causal full convolution of a zero-stuffed 2x stream.

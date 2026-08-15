@@ -24,10 +24,12 @@ from fpga_amp.fixed_circuit import (  # noqa: E402
 from fpga_amp.riaa import riaa_db  # noqa: E402
 from fpga_amp.resampling import (  # noqa: E402
     DEFAULT_STAGES,
+    EIGHT_X_STAGES,
     decimate_16x,
     decimate_16x_fixed_q24,
     interpolate_16x,
     interpolate_16x_fixed_q24,
+    interpolation_delay_internal_samples,
 )
 from fpga_amp.tube import Koren12AX7  # noqa: E402
 from fpga_amp.v1_circuit import V1CircuitModel  # noqa: E402
@@ -177,6 +179,11 @@ class TubeModelTests(unittest.TestCase):
 
 
 class ResamplerTests(unittest.TestCase):
+    def test_eight_x_candidate_is_explicit_prefix(self) -> None:
+        self.assertEqual(EIGHT_X_STAGES, DEFAULT_STAGES[:3])
+        self.assertEqual(EIGHT_X_STAGES[-1].output_rate_hz, 384_000)
+        self.assertEqual(interpolation_delay_internal_samples(EIGHT_X_STAGES), 195)
+
     def test_composed_stream_preserves_scheduled_pipeline_contract(self) -> None:
         index = np.arange(32, dtype=np.float64)
         input_q24 = np.rint(

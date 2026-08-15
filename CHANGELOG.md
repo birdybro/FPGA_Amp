@@ -183,6 +183,18 @@ All notable engineering changes are recorded here. The project is pre-release; d
   are retained as reproducible area results, not timing closure or a reference-
   circuit change.
 
+- Added a reproducible 384 kHz/8x architecture study while retaining
+  768 kHz/16x as reference mode. The SPICE comparison now measures the lower-
+  rate trapezoidal model at 10 and 20 kHz: maximum error is 0.06653 dB and
+  0.02234 degree, versus 0.00846 dB and 0.0582 degree at 768 kHz. A new exact-
+  window nonlinear-rate script compares the Koren law and complete circuit
+  through the matching three- or four-stage half-band decimators. At 20 kHz,
+  complete-circuit selected 4/8/12/16 kHz products remain within 0.52 dB of
+  16x for 5 mV, 20 mV, and steady 0.5 V, with zero failed solves; a hot static-
+  tube stress is 11.33 dB worse but remains -118.65 dBc. The resulting 256-
+  cycle scheduling option remains unimplemented pending fixed-point, transient,
+  recovery, and RTL proof.
+
 - Added a bounded arbitrary-pin formal contract for the oversampled mode-0 SPI
   control transport. Eleven assertions cover the two-stage pin synchronizers,
   0--80 bit-count bound/transition, one-cycle request decode and exact fields,

@@ -27,6 +27,17 @@ and 98.304 MHz fabric. The fabric rate is a refinement of the original “about
 clocks per 48 kHz sample when derived from a 24.576 MHz audio master. Datapath
 logic uses enables, not derived fabric clocks.
 
+An 8×/384 kHz implementation is now a measured architecture candidate, not a
+reference-mode change. It would provide 256 fabric clocks per nonlinear update
+and remove the fourth 2× converter stage, creating enough schedule margin for
+substantial multiplier reuse. Floating comparison bounds its 20 kHz SPICE
+error at -0.06653 dB / +0.01167° and finds no meaningful selected-product
+increase in 5 mV, 20 mV, or steady 0.5 V complete-circuit tests. A hot static-
+tube stress is 11.33 dB worse than 16×, although still -118.65 dBc. The current
+fixed coefficients, RTL, diagnostics, clock enables, and verified stream remain
+16×. The lower-rate candidate must pass transient alias, recovery, fixed-point,
+and complete RTL comparisons before it can be selected.
+
 `phono_stream_mono.sv` now implements this digital reference boundary from
 48 kHz Q8.24 physical input volts through 16× interpolation, the complete V1
 solver, saturating Q12.20-to-Q8.24 line-voltage conversion, and anti-alias

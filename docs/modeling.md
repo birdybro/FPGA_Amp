@@ -71,7 +71,25 @@ icap[n] = Gc*(vcap[n] - vcap[n-1]) - icap[n-1]
 
 At 768 kHz it measures +0.005806 dB / +0.03900° at 10 kHz and -0.008455 dB /
 +0.05817° at 20 kHz, with no failed solve. It is a candidate rather than a
-reference-circuit change. Backward Euler remains the implemented RTL behavior.
+reference-circuit change. Both integration methods now have separately
+selectable bit-exact RTL implementations.
+
+An explicitly non-reference 384 kHz trapezoidal study measures -0.008208 dB /
++0.02234° at 10 kHz and -0.066528 dB / +0.01167° at 20 kHz against the same
+SPICE captures. The apparently smaller phase error is cancellation at these
+points, not evidence that the lower rate is intrinsically more accurate; its
+20 kHz magnitude error is 0.05807 dB worse than the 768 kHz candidate.
+
+The separate nonlinear-rate stress uses identical half-band stages and the
+same Koren/circuit equations at 384 and 768 kHz. With a 20 kHz complete-circuit
+drive, the 384 kHz fundamental is 0.0581 dB lower at 5 and 20 mV and 0.0570 dB
+lower at 0.5 V. The RSS of selected 4/8/12/16 kHz products differs from 768 kHz
+by -0.52, +0.08, and +0.05 dB respectively; all solves converge. A deliberately
+hot static-tube case (`Vgk=-1.2 V + 2 V peak`, `Vpk=200 V`) exposes the narrower
+Nyquist margin: selected products rise by 11.33 dB, though they remain
+-118.65 dBc. This supports a fixed/RTL 8x feasibility experiment, not promotion:
+clicks, post-burst recovery, fixed coefficients, scheduling, and broader alias
+vectors remain unverified, while reference mode stays 16x/768 kHz.
 
 The first trapezoidal large-signal gate applies 5 ms, 1 kHz bursts inside a
 100 ms trajectory. Both floating methods remain finite and Newton-convergent at
@@ -435,6 +453,7 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | SPICE circuit | reproducible DC/AC/transient | golden numerical reference, not hardware truth |
 | 768 kHz backward-Euler integration | four SPICE transients, 100 Hz--20 kHz | <=0.0646 dB gain; phase grows to 4.72 degrees |
 | 768 kHz trapezoidal float candidate | 10/20 kHz SPICE transients | <=0.00846 dB gain / <=0.0582 degree phase; downstream proof open |
+| 384 kHz trapezoidal architecture study | 10/20 kHz SPICE plus 20 kHz nonlinear rate stress | <=0.06653 dB / <=0.02234 degree vs SPICE; nominal/hot complete-circuit selected products within 0.52 dB of 768 kHz; static-tube stress 11.33 dB worse but -118.65 dBc; not promoted |
 | trapezoidal float overload stability | 20 mV--1.5 V, 100 ms records | finite/convergent; clean recovery matches BE; shared long memory above 0.5 V |
 | long floating overload tail | 0.5--1.5 V, 250 ms records / 235 ms post-burst | 0.5 V 10% recovery 146.552 ms; severe fitted crossings explicitly projected |
 | severe floating overload tail | 1.0/1.5 V, 850 ms records / 835 ms post-burst | early exponential projection falsified; 1.0 V 10% at 270.112 ms; 1.5 V not recovered |

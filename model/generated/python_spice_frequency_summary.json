@@ -17,6 +17,10 @@
     "maximum_absolute_gain_error_db": 0.00845533967575772,
     "maximum_absolute_phase_error_deg": 0.058170343325656404
   },
+  "trapezoidal_384khz_high_frequency": {
+    "maximum_absolute_gain_error_db": 0.06652833782241864,
+    "maximum_absolute_phase_error_deg": 0.02233594696582486
+  },
   "total_python_nonconvergence_count": 0,
   "total_method_study_nonconvergence_count": 0,
   "measurements": [
@@ -209,6 +213,23 @@
           }
         },
         {
+          "sample_rate_hz": 384000.0,
+          "integration_method": "trapezoidal",
+          "samples": 11520,
+          "python_vs_spice": {
+            "fundamental_gain_error_db": -0.00820833568840442,
+            "fundamental_phase_error_deg": 0.02233594696582486,
+            "raw_normalized_residual_db": -46.98238561512604,
+            "mean_removed_normalized_residual_db": -59.76425326288671,
+            "residual_mean_v": 0.00039092013384169256,
+            "maximum_absolute_error_v": 0.0005438918521777497
+          },
+          "python_solver": {
+            "maximum_iterations": 2,
+            "nonconvergence_count": 0
+          }
+        },
+        {
           "sample_rate_hz": 768000.0,
           "integration_method": "trapezoidal",
           "samples": 23040,
@@ -275,6 +296,23 @@
             "mean_removed_normalized_residual_db": -33.32019013409693,
             "residual_mean_v": 0.0004017065677725898,
             "maximum_absolute_error_v": 0.0011192314275504992
+          },
+          "python_solver": {
+            "maximum_iterations": 2,
+            "nonconvergence_count": 0
+          }
+        },
+        {
+          "sample_rate_hz": 384000.0,
+          "integration_method": "trapezoidal",
+          "samples": 11520,
+          "python_vs_spice": {
+            "fundamental_gain_error_db": -0.06652833782241864,
+            "fundamental_phase_error_deg": 0.01166765371098677,
+            "raw_normalized_residual_db": -34.59714136928789,
+            "mean_removed_normalized_residual_db": -42.334556168261194,
+            "residual_mean_v": 0.00039025036648947383,
+            "maximum_absolute_error_v": 0.0006539718785012957
           },
           "python_solver": {
             "maximum_iterations": 2,

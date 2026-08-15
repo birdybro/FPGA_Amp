@@ -37,6 +37,14 @@ The mono reference and complete 768 kHz circuit solver are operating:
   -0.0646 dB / +4.72°. Raising backward-Euler to 3.072 MHz still leaves 1.24°
   at 20 kHz. An explicit 768 kHz trapezoidal candidate improves 10/20 kHz
   floating error to at most 0.00846 dB / 0.0582°.
+- A separately labeled 384 kHz/8× trapezoidal architecture candidate measures
+  at most 0.06653 dB / 0.02234° against the same 10/20 kHz SPICE captures. At
+  20 kHz, its complete-circuit selected 4/8/12/16 kHz products remain within
+  0.52 dB of 768 kHz for 5 mV, 20 mV, and steady 0.5 V inputs, while a hot
+  static-tube stress is 11.33 dB worse but still -118.65 dBc. The candidate
+  would provide 256 fabric clocks per nonlinear sample, but reference mode,
+  fixed coefficients, and RTL remain 16×/768 kHz until transient alias and
+  fixed/RTL equivalence are proven.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both
@@ -651,6 +659,7 @@ python3 scripts/spice_level_sweep.py
 python3 scripts/run_reference.py --plots
 python3 scripts/compare_spice_python.py
 make spice-python-frequency          # four SPICE transients + integrator study
+make internal-rate-study             # explicit 8x-vs-16x nonlinear rate study
 make trapezoidal-overload            # floating integrator overload stability
 python3 scripts/characterize_solver.py
 python3 scripts/study_solver_architecture.py
