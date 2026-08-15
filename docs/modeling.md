@@ -95,11 +95,18 @@ requires signed 19-bit rather than 18-bit Q17.1 coefficients. The complete
 512 internal updates exactly with zero converter, solver, or deadline events.
 The subsequent paired fixed-stream campaign covers 772,608 nonlinear updates
 with zero diagnostics. A 0.5 V burst recovers at 147.771 ms versus 147.583 ms
-for 768 kHz and has a -56.25 dB aligned waveform residual. The record-pop
-response is materially less similar: -15.18 dB aligned waveform residual,
-85.6 mV maximum error, and -16.76 dB audio-band spectral residual. This total
-rate delta includes integration, fixed-point, and resampler effects and is not
-mislabeled as alias alone. Reference mode therefore stays 16x/768 kHz.
+for 768 kHz and has -84.71 dB overall / -81.02 dB in-band residual after known
+delay alignment. The record-pop result is -35.92 dB overall, 2.623 mV maximum,
+and -53.33 dB in-band. These values supersede an earlier -15.18 dB / 85.6 mV
+measurement that used linear interpolation for a near-Nyquist transient.
+
+A 393,216-update decomposition quantifies the cause. Converter-only in-band
+residual is -67.49 dB; the complete floating Newton and fixed banked-terminal
+paths measure -55.71 and -53.33 dB. At a common rate, fixed versus floating pop
+nulls are -58.88 dB at 384 kHz and -59.13 dB at 768 kHz. Thus most remaining
+rate delta is in the rate-dependent circuit trajectory, not fixed arithmetic or
+RTL. The aggregate is not mislabeled as alias alone. Reference mode stays
+16x/768 kHz pending absolute SPICE transient and timing evidence.
 Direct long-vector RTL then matches all 24,576 corresponding fixed outputs over
 294,912 nonlinear updates. Maximum residual is 0.672 uA at 384 kHz and 0.322 uA
 at 768 kHz, with zero diagnostics. This closes implementation equivalence for
@@ -469,8 +476,9 @@ timing measurement, but it is sufficient to reject a simple serial-pass increase
 | 768 kHz trapezoidal float candidate | 10/20 kHz SPICE transients | <=0.00846 dB gain / <=0.0582 degree phase; downstream proof open |
 | 384 kHz trapezoidal architecture study | 10/20 kHz SPICE plus 20 kHz nonlinear rate stress | <=0.06653 dB / <=0.02234 degree vs SPICE; nominal/hot complete-circuit selected products within 0.52 dB of 768 kHz; static-tube stress 11.33 dB worse but -118.65 dBc; not promoted |
 | 384 kHz fixed/RTL circuit core | 1,024 all-bank chord + 1,024 KCL + 512 persistent solver vectors | bit-exact at 10/11/127 clocks; zero solver diagnostics; 19-bit chord coefficient required |
-| 384 kHz fixed/RTL complete stream | 64 outputs / 512 nonlinear updates | exact Q8.24 output and diagnostics; 17,629 LC / 219 DSP / 10 RAMB18 equivalents versus 18,302 / 222 / 10 at 768 kHz; long-vector RTL and Fmax open |
-| 384/768 kHz fixed transient A/B | pop/control and 0.5 V burst/control; 772,608 nonlinear updates | zero diagnostics; pop -15.18 dB aligned / 85.6 mV peak delta, so 8x not promoted; recovery +0.1875 ms / -56.25 dB aligned |
+| 384 kHz fixed/RTL complete stream | 64 outputs / 512 nonlinear updates | exact Q8.24 output and diagnostics; 17,629 LC / 219 DSP / 10 RAMB18 equivalents versus 18,302 / 222 / 10 at 768 kHz; Fmax open, long-vector proof below |
+| 384/768 kHz fixed transient A/B | pop/control and 0.5 V burst/control; 772,608 nonlinear updates | zero diagnostics; known-delay sinc-aligned pop -35.92 dB / 2.623 mV peak / -53.33 dB in-band; recovery +0.1875 ms / -84.71 dB overall / -81.02 dB in-band |
+| internal-rate pop decomposition | converter-only plus floating/fixed circuit; 393,216 nonlinear updates | in-band 8x/16x residual -67.49 / -55.71 / -53.33 dB; same-rate fixed/float -58.88/-59.13 dB; prior linear-alignment result superseded |
 | 384/768 kHz transient RTL vs fixed | 24,576 pop/recovery outputs / 294,912 nonlinear updates | all Q8.24 outputs exact, zero diagnostics, 127 clocks; max residual 0.672/0.322 uA at 384/768 kHz; confirms implementation, not rate equivalence |
 | trapezoidal float overload stability | 20 mV--1.5 V, 100 ms records | finite/convergent; clean recovery matches BE; shared long memory above 0.5 V |
 | long floating overload tail | 0.5--1.5 V, 250 ms records / 235 ms post-burst | 0.5 V 10% recovery 146.552 ms; severe fitted crossings explicitly projected |

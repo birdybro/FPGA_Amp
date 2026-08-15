@@ -48,12 +48,15 @@ Yosys synthesis measures 17,629 LC / 219 DSP / 10 RAMB18 equivalents versus
 18,302 / 222 / 10 for the selected 768 kHz stream. This is structural evidence,
 not Fmax closure. The subsequent complete fixed-stream transient gate processes
 772,608 nonlinear updates with zero diagnostics. Its accepted-range overload
-recovery is close (8× is 0.1875 ms later and -56.25 dB aligned), but the
-synthetic-pop response differs by -15.18 dB RMS after fractional-delay alignment
-and by 85.6 mV peak. That discrepancy blocks lower-rate selection pending
-diagnosis. Direct 384/768 kHz RTL captures subsequently match all 24,576 fixed
-pop/recovery outputs across 294,912 nonlinear updates with zero diagnostics, so
-the discrepancy is not attributable to RTL transcription.
+recovery is close: 8× is 0.1875 ms later, -84.71 dB aligned overall, and
+-81.02 dB in-band. The pop comparison uses the independently known -1.25-sample
+converter delay and 64-tap windowed-sinc interpolation; it measures -35.92 dB
+overall, 2.623 mV peak, and -53.33 dB in-band. Converter-only in-band error is
+-67.49 dB, while the floating/fixed complete paths are -55.71/-53.33 dB, so the
+remaining delta is primarily rate-dependent circuit behavior. Direct RTL
+matches all 24,576 fixed outputs across 294,912 updates. The candidate remains
+unpromoted because its area saving is modest, absolute transient-to-SPICE
+evidence is open, and Fmax is unproven.
 
 `phono_stream_mono.sv` now implements this digital reference boundary from
 48 kHz Q8.24 physical input volts through 16× interpolation, the complete V1

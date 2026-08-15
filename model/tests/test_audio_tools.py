@@ -125,6 +125,47 @@ class NullComparisonTests(unittest.TestCase):
             transforms["estimated_total_latency_samples"], 17.25, delta=0.10
         )
 
+    def test_known_windowed_sinc_latency_preserves_upper_audio_tones(self) -> None:
+        sample_rate_hz = 48_000.0
+        indices = np.arange(8192, dtype=np.float64)
+        frequencies_hz = (997.0, 7_013.0, 17_003.0)
+        reference = sum(
+            np.sin(2.0 * np.pi * frequency * indices / sample_rate_hz)
+            for frequency in frequencies_hz
+        )
+        delay = 17.25
+        candidate = sum(
+            np.sin(
+                2.0
+                * np.pi
+                * frequency
+                * (indices - delay)
+                / sample_rate_hz
+            )
+            for frequency in frequencies_hz
+        )
+        linear = compare_signals(
+            reference,
+            candidate,
+            fractional_delay=True,
+            known_latency_samples=delay,
+        )
+        sinc = compare_signals(
+            reference,
+            candidate,
+            fractional_delay=True,
+            fractional_delay_method="windowed_sinc",
+            known_latency_samples=delay,
+        )
+        transforms = sinc.report["transformations"]
+        self.assertEqual(transforms["known_latency_samples"], delay)
+        self.assertIn("windowed sinc", transforms["fractional_delay_method"])
+        self.assertLess(sinc.report["final"]["normalized_residual_db"], -70.0)
+        self.assertLess(
+            sinc.report["final"]["normalized_residual_db"],
+            linear.report["final"]["normalized_residual_db"] - 40.0,
+        )
+
     def test_spectrum_preserves_frequency_axis_and_residual(self) -> None:
         sample_rate = 48_000.0
         index = np.arange(4096, dtype=np.float64)

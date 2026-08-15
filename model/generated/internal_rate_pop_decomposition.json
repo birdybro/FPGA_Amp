@@ -1,0 +1,446 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "category": "8x architecture diagnosis; reference remains 16x",
+  "external_sample_rate_hz": 48000,
+  "frame_count": 4096,
+  "total_nonlinear_updates": 393216,
+  "stimulus": {
+    "nominal_tone_hz": 1000,
+    "nominal_tone_peak_v": 0.005,
+    "event_start_sample": 1024,
+    "event_samples_v": [
+      0.02,
+      -0.012
+    ]
+  },
+  "rates": {
+    "8": {
+      "internal_sample_rate_hz": 384000,
+      "converter_saturation_count": 0,
+      "floating_nonconvergence_count": 0,
+      "fixed_diagnostics": {
+        "pop": {
+          "interpolation_saturation_count": 0,
+          "output_conversion_saturation_count": 0,
+          "decimation_saturation_count": 0,
+          "solver_saturation_count": 0,
+          "solver_range_clip_count": 0,
+          "solver_residual_limit_exceedance_count": 0,
+          "solver_correction_scale_fallback_count": 0
+        },
+        "control": {
+          "interpolation_saturation_count": 0,
+          "output_conversion_saturation_count": 0,
+          "decimation_saturation_count": 0,
+          "solver_saturation_count": 0,
+          "solver_range_clip_count": 0,
+          "solver_residual_limit_exceedance_count": 0,
+          "solver_correction_scale_fallback_count": 0
+        }
+      },
+      "response_peak_v": {
+        "converter_only": 0.013787806034088135,
+        "floating_newton": 0.42362323702022064,
+        "fixed_banked_terminal": 0.4236212372779846
+      },
+      "fixed_vs_floating": {
+        "conventions": {
+          "residual": "candidate - reference",
+          "positive_latency_samples": "candidate is delayed relative to reference",
+          "gain": "scalar multiplied into candidate; no DC offset is fitted",
+          "decibel_floor": -300.0
+        },
+        "input": {
+          "reference_sample_count": 4096,
+          "candidate_sample_count": 4096
+        },
+        "transformations": {
+          "integer_latency_alignment_enabled": true,
+          "maximum_lag_requested_samples": 8,
+          "maximum_lag_searched_samples": 0,
+          "minimum_latency_overlap_samples": 4096,
+          "latency_estimation_method": "caller-supplied known latency",
+          "known_latency_samples": 0.0,
+          "latency_identifiable": true,
+          "estimated_integer_latency_samples": 0,
+          "fractional_delay_alignment_enabled": false,
+          "estimated_fractional_latency_samples": 0.0,
+          "estimated_total_latency_samples": 0.0,
+          "fractional_delay_method": "disabled",
+          "gain_alignment_enabled": false,
+          "applied_candidate_gain": 1.0
+        },
+        "raw_zero_lag": {
+          "sample_count": 4096,
+          "reference_rms": 0.010585890267406202,
+          "candidate_rms": 0.010588110245283779,
+          "residual_rms": 1.2045568772347236e-05,
+          "normalized_residual_db": -58.878001526167935,
+          "maximum_absolute_residual": 5.197717412430691e-05,
+          "candidate_relative_gain": 1.0002090856166197,
+          "candidate_relative_gain_db": 0.0018159047576972462,
+          "least_squares_gain_to_apply": 0.9997897078022936,
+          "correlation_coefficient": 0.9999993693095455
+        },
+        "latency_aligned_before_gain": {
+          "sample_count": 4096,
+          "reference_rms": 0.010585890267406202,
+          "candidate_rms": 0.010588110245283779,
+          "residual_rms": 1.2045568772347236e-05,
+          "normalized_residual_db": -58.878001526167935,
+          "maximum_absolute_residual": 5.197717412430691e-05,
+          "candidate_relative_gain": 1.0002090856166197,
+          "candidate_relative_gain_db": 0.0018159047576972462,
+          "least_squares_gain_to_apply": 0.9997897078022936,
+          "correlation_coefficient": 0.9999993693095455
+        },
+        "final": {
+          "sample_count": 4096,
+          "reference_rms": 0.010585890267406202,
+          "candidate_rms": 0.010588110245283779,
+          "residual_rms": 1.2045568772347236e-05,
+          "normalized_residual_db": -58.878001526167935,
+          "maximum_absolute_residual": 5.197717412430691e-05,
+          "candidate_relative_gain": 1.0002090856166197,
+          "candidate_relative_gain_db": 0.0018159047576972462,
+          "least_squares_gain_to_apply": 0.9997897078022936,
+          "correlation_coefficient": 0.9999993693095455
+        },
+        "latency_peak_correlation": 0.9999993693095455,
+        "aligned_spectral_delta": {
+          "audio_band_reference_spectral_rss_v": 0.01569715553655927,
+          "audio_band_residual_spectral_rss_v": 2.0872151000871816e-05,
+          "audio_band_residual_relative_db": -57.525075070058875,
+          "upper_audio_band_reference_spectral_rss_v": 0.0063441629307851395,
+          "upper_audio_band_residual_spectral_rss_v": 9.46404998816242e-06,
+          "upper_audio_band_residual_relative_db": -56.52594604954704
+        }
+      }
+    },
+    "16": {
+      "internal_sample_rate_hz": 768000,
+      "converter_saturation_count": 0,
+      "floating_nonconvergence_count": 0,
+      "fixed_diagnostics": {
+        "pop": {
+          "interpolation_saturation_count": 0,
+          "output_conversion_saturation_count": 0,
+          "decimation_saturation_count": 0,
+          "solver_saturation_count": 0,
+          "solver_range_clip_count": 0,
+          "solver_residual_limit_exceedance_count": 0,
+          "solver_correction_scale_fallback_count": 0
+        },
+        "control": {
+          "interpolation_saturation_count": 0,
+          "output_conversion_saturation_count": 0,
+          "decimation_saturation_count": 0,
+          "solver_saturation_count": 0,
+          "solver_range_clip_count": 0,
+          "solver_residual_limit_exceedance_count": 0,
+          "solver_correction_scale_fallback_count": 0
+        }
+      },
+      "response_peak_v": {
+        "converter_only": 0.01911330223083496,
+        "floating_newton": 0.3827763139887451,
+        "fixed_banked_terminal": 0.3827905058860779
+      },
+      "fixed_vs_floating": {
+        "conventions": {
+          "residual": "candidate - reference",
+          "positive_latency_samples": "candidate is delayed relative to reference",
+          "gain": "scalar multiplied into candidate; no DC offset is fitted",
+          "decibel_floor": -300.0
+        },
+        "input": {
+          "reference_sample_count": 4096,
+          "candidate_sample_count": 4096
+        },
+        "transformations": {
+          "integer_latency_alignment_enabled": true,
+          "maximum_lag_requested_samples": 8,
+          "maximum_lag_searched_samples": 0,
+          "minimum_latency_overlap_samples": 4096,
+          "latency_estimation_method": "caller-supplied known latency",
+          "known_latency_samples": 0.0,
+          "latency_identifiable": true,
+          "estimated_integer_latency_samples": 0,
+          "fractional_delay_alignment_enabled": false,
+          "estimated_fractional_latency_samples": 0.0,
+          "estimated_total_latency_samples": 0.0,
+          "fractional_delay_method": "disabled",
+          "gain_alignment_enabled": false,
+          "applied_candidate_gain": 1.0
+        },
+        "raw_zero_lag": {
+          "sample_count": 4096,
+          "reference_rms": 0.010589912057511853,
+          "candidate_rms": 0.01059207952235148,
+          "residual_rms": 1.1701799319395407e-05,
+          "normalized_residual_db": -59.132794153993295,
+          "maximum_absolute_residual": 4.734784104865053e-05,
+          "candidate_relative_gain": 1.0002040830389993,
+          "candidate_relative_gain_db": 0.001772461895195297,
+          "least_squares_gain_to_apply": 0.9997947799616062,
+          "correlation_coefficient": 0.999999485590736
+        },
+        "latency_aligned_before_gain": {
+          "sample_count": 4096,
+          "reference_rms": 0.010589912057511853,
+          "candidate_rms": 0.01059207952235148,
+          "residual_rms": 1.1701799319395407e-05,
+          "normalized_residual_db": -59.132794153993295,
+          "maximum_absolute_residual": 4.734784104865053e-05,
+          "candidate_relative_gain": 1.0002040830389993,
+          "candidate_relative_gain_db": 0.001772461895195297,
+          "least_squares_gain_to_apply": 0.9997947799616062,
+          "correlation_coefficient": 0.999999485590736
+        },
+        "final": {
+          "sample_count": 4096,
+          "reference_rms": 0.010589912057511853,
+          "candidate_rms": 0.01059207952235148,
+          "residual_rms": 1.1701799319395407e-05,
+          "normalized_residual_db": -59.132794153993295,
+          "maximum_absolute_residual": 4.734784104865053e-05,
+          "candidate_relative_gain": 1.0002040830389993,
+          "candidate_relative_gain_db": 0.001772461895195297,
+          "least_squares_gain_to_apply": 0.9997947799616062,
+          "correlation_coefficient": 0.999999485590736
+        },
+        "latency_peak_correlation": 0.999999485590736,
+        "aligned_spectral_delta": {
+          "audio_band_reference_spectral_rss_v": 0.015735323115352355,
+          "audio_band_residual_spectral_rss_v": 1.926820730444083e-05,
+          "audio_band_residual_relative_db": -58.240687102466644,
+          "upper_audio_band_reference_spectral_rss_v": 0.006378671182171851,
+          "upper_audio_band_residual_spectral_rss_v": 6.821749184632232e-06,
+          "upper_audio_band_residual_relative_db": -59.41668934752936
+        }
+      }
+    }
+  },
+  "candidate_8x_vs_reference_16x": {
+    "converter_only": {
+      "conventions": {
+        "residual": "candidate - reference",
+        "positive_latency_samples": "candidate is delayed relative to reference",
+        "gain": "scalar multiplied into candidate; no DC offset is fitted",
+        "decibel_floor": -300.0
+      },
+      "input": {
+        "reference_sample_count": 4096,
+        "candidate_sample_count": 4096
+      },
+      "transformations": {
+        "integer_latency_alignment_enabled": true,
+        "maximum_lag_requested_samples": 8,
+        "maximum_lag_searched_samples": 0,
+        "minimum_latency_overlap_samples": 4096,
+        "latency_estimation_method": "caller-supplied known latency",
+        "known_latency_samples": -1.25,
+        "latency_identifiable": true,
+        "estimated_integer_latency_samples": -1,
+        "fractional_delay_alignment_enabled": true,
+        "estimated_fractional_latency_samples": -0.25,
+        "estimated_total_latency_samples": -1.25,
+        "fractional_delay_method": "known latency + 64-tap Lanczos-windowed sinc interpolation",
+        "gain_alignment_enabled": false,
+        "applied_candidate_gain": 1.0
+      },
+      "raw_zero_lag": {
+        "sample_count": 4096,
+        "reference_rms": 0.00034849411112666383,
+        "candidate_rms": 0.0003467078407152457,
+        "residual_rms": 0.0006232106582158253,
+        "normalized_residual_db": 5.048788566317971,
+        "maximum_absolute_residual": 0.032820701599121094,
+        "candidate_relative_gain": -0.6041140093923333,
+        "candidate_relative_gain_db": -4.377621857460387,
+        "least_squares_gain_to_apply": -0.6103549459512252,
+        "correlation_coefficient": -0.6072772062832735
+      },
+      "latency_aligned_before_gain": {
+        "sample_count": 4033,
+        "reference_rms": 0.0003512054985877314,
+        "candidate_rms": 0.0003487936610654744,
+        "residual_rms": 1.829696784818271e-05,
+        "normalized_residual_db": -25.663643636331997,
+        "maximum_absolute_residual": 0.0002453684226066267,
+        "candidate_relative_gain": 0.9917991879928689,
+        "candidate_relative_gain_db": -0.07152503221821499,
+        "least_squares_gain_to_apply": 1.0055627913153706,
+        "correlation_coefficient": 0.9986572361478502
+      },
+      "final": {
+        "sample_count": 4033,
+        "reference_rms": 0.0003512054985877314,
+        "candidate_rms": 0.0003487936610654744,
+        "residual_rms": 1.829696784818271e-05,
+        "normalized_residual_db": -25.663643636331997,
+        "maximum_absolute_residual": 0.0002453684226066267,
+        "candidate_relative_gain": 0.9917991879928689,
+        "candidate_relative_gain_db": -0.07152503221821499,
+        "least_squares_gain_to_apply": 1.0055627913153706,
+        "correlation_coefficient": 0.9986572361478502
+      },
+      "latency_peak_correlation": 0.8628495603425678,
+      "aligned_spectral_delta": {
+        "audio_band_reference_spectral_rss_v": 0.0004554928389482827,
+        "audio_band_residual_spectral_rss_v": 1.9235134608209677e-07,
+        "audio_band_residual_relative_db": -67.48772647438024,
+        "upper_audio_band_reference_spectral_rss_v": 0.0004049506380897649,
+        "upper_audio_band_residual_spectral_rss_v": 1.9188687321239443e-07,
+        "upper_audio_band_residual_relative_db": -66.48713643052518
+      }
+    },
+    "floating_newton_complete_stream": {
+      "conventions": {
+        "residual": "candidate - reference",
+        "positive_latency_samples": "candidate is delayed relative to reference",
+        "gain": "scalar multiplied into candidate; no DC offset is fitted",
+        "decibel_floor": -300.0
+      },
+      "input": {
+        "reference_sample_count": 4096,
+        "candidate_sample_count": 4096
+      },
+      "transformations": {
+        "integer_latency_alignment_enabled": true,
+        "maximum_lag_requested_samples": 8,
+        "maximum_lag_searched_samples": 0,
+        "minimum_latency_overlap_samples": 4096,
+        "latency_estimation_method": "caller-supplied known latency",
+        "known_latency_samples": -1.25,
+        "latency_identifiable": true,
+        "estimated_integer_latency_samples": -1,
+        "fractional_delay_alignment_enabled": true,
+        "estimated_fractional_latency_samples": -0.25,
+        "estimated_total_latency_samples": -1.25,
+        "fractional_delay_method": "known latency + 64-tap Lanczos-windowed sinc interpolation",
+        "gain_alignment_enabled": false,
+        "applied_candidate_gain": 1.0
+      },
+      "raw_zero_lag": {
+        "sample_count": 4096,
+        "reference_rms": 0.010589912057511853,
+        "candidate_rms": 0.010585890267406202,
+        "residual_rms": 0.009515451319719917,
+        "normalized_residual_db": -0.9292592359789988,
+        "maximum_absolute_residual": 0.4916934201888317,
+        "candidate_relative_gain": 0.5959339316109938,
+        "candidate_relative_gain_db": -4.496037715505718,
+        "least_squares_gain_to_apply": 0.5963868319170098,
+        "correlation_coefficient": 0.5909205777874722
+      },
+      "latency_aligned_before_gain": {
+        "sample_count": 4033,
+        "reference_rms": 0.010672046639285344,
+        "candidate_rms": 0.010666069370746857,
+        "residual_rms": 0.00016998379742862282,
+        "normalized_residual_db": -35.95680374831459,
+        "maximum_absolute_residual": 0.002647895733163888,
+        "candidate_relative_gain": 0.9993132206610303,
+        "candidate_relative_gain_db": -0.0059673389011564125,
+        "least_squares_gain_to_apply": 1.0004335653630163,
+        "correlation_coefficient": 0.9998715488250748
+      },
+      "final": {
+        "sample_count": 4033,
+        "reference_rms": 0.010672046639285344,
+        "candidate_rms": 0.010666069370746857,
+        "residual_rms": 0.00016998379742862282,
+        "normalized_residual_db": -35.95680374831459,
+        "maximum_absolute_residual": 0.002647895733163888,
+        "candidate_relative_gain": 0.9993132206610303,
+        "candidate_relative_gain_db": -0.0059673389011564125,
+        "least_squares_gain_to_apply": 1.0004335653630163,
+        "correlation_coefficient": 0.9998715488250748
+      },
+      "latency_peak_correlation": 0.9705378602851523,
+      "aligned_spectral_delta": {
+        "audio_band_reference_spectral_rss_v": 0.015487750093709745,
+        "audio_band_residual_spectral_rss_v": 2.5380361563302218e-05,
+        "audio_band_residual_relative_db": -55.7098105537553,
+        "upper_audio_band_reference_spectral_rss_v": 0.0062759923681493315,
+        "upper_audio_band_residual_spectral_rss_v": 2.4796768762288025e-05,
+        "upper_audio_band_residual_relative_db": -48.06574629370373
+      }
+    },
+    "fixed_banked_terminal_complete_stream": {
+      "conventions": {
+        "residual": "candidate - reference",
+        "positive_latency_samples": "candidate is delayed relative to reference",
+        "gain": "scalar multiplied into candidate; no DC offset is fitted",
+        "decibel_floor": -300.0
+      },
+      "input": {
+        "reference_sample_count": 4096,
+        "candidate_sample_count": 4096
+      },
+      "transformations": {
+        "integer_latency_alignment_enabled": true,
+        "maximum_lag_requested_samples": 8,
+        "maximum_lag_searched_samples": 0,
+        "minimum_latency_overlap_samples": 4096,
+        "latency_estimation_method": "caller-supplied known latency",
+        "known_latency_samples": -1.25,
+        "latency_identifiable": true,
+        "estimated_integer_latency_samples": -1,
+        "fractional_delay_alignment_enabled": true,
+        "estimated_fractional_latency_samples": -0.25,
+        "estimated_total_latency_samples": -1.25,
+        "fractional_delay_method": "known latency + 64-tap Lanczos-windowed sinc interpolation",
+        "gain_alignment_enabled": false,
+        "applied_candidate_gain": 1.0
+      },
+      "raw_zero_lag": {
+        "sample_count": 4096,
+        "reference_rms": 0.01059207952235148,
+        "candidate_rms": 0.010588110245283779,
+        "residual_rms": 0.009515694356213954,
+        "normalized_residual_db": -0.930814972072749,
+        "maximum_absolute_residual": 0.4916820526123047,
+        "candidate_relative_gain": 0.5960835484164129,
+        "candidate_relative_gain_db": -4.493857285959225,
+        "least_squares_gain_to_apply": 0.596530552497779,
+        "correlation_coefficient": 0.5910469396450757
+      },
+      "latency_aligned_before_gain": {
+        "sample_count": 4033,
+        "reference_rms": 0.010674240911090881,
+        "candidate_rms": 0.010668307434495533,
+        "residual_rms": 0.0001706900495345096,
+        "normalized_residual_db": -35.922575918197026,
+        "maximum_absolute_residual": 0.0026228358852910805,
+        "candidate_relative_gain": 0.999316432339954,
+        "candidate_relative_gain_db": -0.005939423485569259,
+        "least_squares_gain_to_apply": 1.000428336848771,
+        "correlation_coefficient": 0.9998705537801393
+      },
+      "final": {
+        "sample_count": 4033,
+        "reference_rms": 0.010674240911090881,
+        "candidate_rms": 0.010668307434495533,
+        "residual_rms": 0.0001706900495345096,
+        "normalized_residual_db": -35.922575918197026,
+        "maximum_absolute_residual": 0.0026228358852910805,
+        "candidate_relative_gain": 0.999316432339954,
+        "candidate_relative_gain_db": -0.005939423485569259,
+        "least_squares_gain_to_apply": 1.000428336848771,
+        "correlation_coefficient": 0.9998705537801393
+      },
+      "latency_peak_correlation": 0.9705447958629296,
+      "aligned_spectral_delta": {
+        "audio_band_reference_spectral_rss_v": 0.015490900468973836,
+        "audio_band_residual_spectral_rss_v": 3.337206651926639e-05,
+        "audio_band_residual_relative_db": -53.33387125954726,
+        "upper_audio_band_reference_spectral_rss_v": 0.006276223465630263,
+        "upper_audio_band_residual_spectral_rss_v": 2.6636547520761823e-05,
+        "upper_audio_band_residual_relative_db": -47.44440929902925
+      }
+    }
+  },
+  "comparison_policy": "known -1.25-sample converter-delay alignment with 64-tap Lanczos-windowed sinc interpolation; no gain or DC fit"
+}

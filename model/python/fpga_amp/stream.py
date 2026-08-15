@@ -24,6 +24,7 @@ from .fixed_circuit import (
 from .resampling import (
     DEFAULT_STAGES,
     EIGHT_X_STAGES,
+    HalfbandStage,
     decimate_16x,
     decimate_16x_fixed_q24,
     interpolate_16x,
@@ -88,6 +89,27 @@ class FloatingStreamResult:
     circuit_output_v: FloatArray
     output_v: FloatArray
     circuit: V1CircuitModel
+    internal_sample_rate_hz: int
+    oversampling_factor: int
+    interpolator_pipeline_delay_internal_samples: int
+
+
+def _rate_configuration(
+    internal_sample_rate_hz: int,
+) -> tuple[tuple[HalfbandStage, ...], int, int]:
+    if internal_sample_rate_hz == 768_000:
+        return (
+            DEFAULT_STAGES,
+            16,
+            INTERPOLATOR_PIPELINE_DELAY_INTERNAL_SAMPLES,
+        )
+    if internal_sample_rate_hz == 384_000:
+        return (
+            EIGHT_X_STAGES,
+            8,
+            EIGHT_X_INTERPOLATOR_PIPELINE_DELAY_INTERNAL_SAMPLES,
+        )
+    raise ValueError("internal sample rate must be 384000 or 768000 Hz")
 
 
 def _scheduled_internal(
@@ -124,16 +146,9 @@ def compose_fixed_wide_stream(
 
     if terminal_correction and not banked:
         raise ValueError("terminal correction requires the banked chord solver")
-    if internal_sample_rate_hz == 768_000:
-        stages = DEFAULT_STAGES
-        oversampling_factor = 16
-        pipeline_delay = INTERPOLATOR_PIPELINE_DELAY_INTERNAL_SAMPLES
-    elif internal_sample_rate_hz == 384_000:
-        stages = EIGHT_X_STAGES
-        oversampling_factor = 8
-        pipeline_delay = EIGHT_X_INTERPOLATOR_PIPELINE_DELAY_INTERNAL_SAMPLES
-    else:
-        raise ValueError("internal sample rate must be 384000 or 768000 Hz")
+    stages, oversampling_factor, pipeline_delay = _rate_configuration(
+        internal_sample_rate_hz
+    )
     inputs = np.asarray(input_q24, dtype=np.int64)
     interpolated_q24, interpolation_saturations = interpolate_16x_fixed_q24(
         inputs, stages=stages
@@ -199,47 +214,85 @@ def compose_floating_stream(
     input_q24: IntArray,
     *,
     integration_method: str = "backward_euler",
+    internal_sample_rate_hz: int = 768_000,
 ) -> FloatingStreamResult:
     """Run the end-to-end floating reference from the same quantized input."""
 
     inputs = np.asarray(input_q24, dtype=np.int64)
+    stages, oversampling_factor, pipeline_delay = _rate_configuration(
+        internal_sample_rate_hz
+    )
     input_v = inputs.astype(np.float64) / float(1 << 24)
-    internal_v = _scheduled_internal(interpolate_16x(input_v), inputs.size)
+    internal_v = _scheduled_internal(
+        interpolate_16x(input_v, stages=stages),
+        inputs.size,
+        oversampling_factor=oversampling_factor,
+        pipeline_delay_internal_samples=pipeline_delay,
+    )
     circuit = V1CircuitModel(
-        INTERNAL_SAMPLE_RATE_HZ,
+        internal_sample_rate_hz,
         integration_method=integration_method,
     )
     circuit_output_v = circuit.process(
         internal_v, max_iterations=8, tolerance_a=1.0e-12
     )
-    output_v = decimate_16x(circuit_output_v)[: inputs.size]
+    output_v = decimate_16x(circuit_output_v, stages=stages)[: inputs.size]
     return FloatingStreamResult(
         internal_input_v=internal_v,
         circuit_output_v=circuit_output_v,
         output_v=output_v,
         circuit=circuit,
+        internal_sample_rate_hz=internal_sample_rate_hz,
+        oversampling_factor=oversampling_factor,
+        interpolator_pipeline_delay_internal_samples=pipeline_delay,
     )
 
 
-def compose_fixed_converter_only(input_q24: IntArray) -> tuple[IntArray, int]:
+def compose_fixed_converter_only(
+    input_q24: IntArray,
+    *,
+    internal_sample_rate_hz: int = 768_000,
+) -> tuple[IntArray, int]:
     """Run the scheduled fixed converters with an identity internal system."""
 
     inputs = np.asarray(input_q24, dtype=np.int64)
-    interpolated_q24, interpolation_saturations = interpolate_16x_fixed_q24(
-        inputs
+    stages, oversampling_factor, pipeline_delay = _rate_configuration(
+        internal_sample_rate_hz
     )
-    internal_q24 = _scheduled_internal(interpolated_q24, inputs.size)
-    output_q24, decimation_saturations = decimate_16x_fixed_q24(internal_q24)
+    interpolated_q24, interpolation_saturations = interpolate_16x_fixed_q24(
+        inputs, stages=stages
+    )
+    internal_q24 = _scheduled_internal(
+        interpolated_q24,
+        inputs.size,
+        oversampling_factor=oversampling_factor,
+        pipeline_delay_internal_samples=pipeline_delay,
+    )
+    output_q24, decimation_saturations = decimate_16x_fixed_q24(
+        internal_q24, stages=stages
+    )
     return (
         output_q24[: inputs.size],
         interpolation_saturations + decimation_saturations,
     )
 
 
-def compose_floating_converter_only(input_q24: IntArray) -> FloatArray:
+def compose_floating_converter_only(
+    input_q24: IntArray,
+    *,
+    internal_sample_rate_hz: int = 768_000,
+) -> FloatArray:
     """Run the float converters with an identity internal system."""
 
     inputs = np.asarray(input_q24, dtype=np.int64)
+    stages, oversampling_factor, pipeline_delay = _rate_configuration(
+        internal_sample_rate_hz
+    )
     input_v = inputs.astype(np.float64) / float(1 << 24)
-    internal_v = _scheduled_internal(interpolate_16x(input_v), inputs.size)
-    return decimate_16x(internal_v)[: inputs.size]
+    internal_v = _scheduled_internal(
+        interpolate_16x(input_v, stages=stages),
+        inputs.size,
+        oversampling_factor=oversampling_factor,
+        pipeline_delay_internal_samples=pipeline_delay,
+    )
+    return decimate_16x(internal_v, stages=stages)[: inputs.size]

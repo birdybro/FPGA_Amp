@@ -103,12 +103,23 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   nonlinear updates with zero diagnostics. Full-stream synthesis is 17,629 LC /
   219 DSP / 10 RAMB18 equivalents, versus 18,302 / 222 / 10 at 768 kHz. The
   772,608-update fixed transient comparison is diagnostic-clean and finds only
-  +0.1875 ms recovery delta / -56.25 dB aligned recovery error, but the pop
-  response differs by -15.18 dB aligned / 85.6 mV peak. Keep 8x unpromoted;
-  diagnose that transient difference. Long-vector RTL now proves both
+  +0.1875 ms recovery delta / -84.71 dB aligned recovery error. Known-delay
+  windowed-sinc alignment measures the pop at -35.92 dB overall / 2.623 mV
+  peak / -53.33 dB in-band; this supersedes a flawed linear-interpolation
+  result. Converter/float/fixed in-band decomposition is -67.49/-55.71/-53.33
+  dB. Long-vector RTL proves both
   rate-specific implementations exact for 24,576 outputs / 294,912 nonlinear
-  updates, so do not attribute the A/B difference to RTL transcription.
+  updates. Compare the 384 kHz pop directly with an ngspice transient and obtain
+  named-part timing before considering promotion; a three-DSP area saving alone
+  is insufficient.
 ## Completed this milestone
+
+- [x] Correct the transient A/B alignment error. Add optional caller-known
+  latency and 64-tap Lanczos-windowed sinc interpolation to the null tool, with
+  a three-tone upper-band regression below -70 dB. Re-run 772,608 fixed updates
+  and a 393,216-update converter/float/fixed decomposition. Supersede the
+  invalid -15.18 dB / 85.6 mV pop claim with -35.92 dB overall / 2.623 mV peak /
+  -53.33 dB in-band; measure recovery at -84.71 dB overall.
 
 - [x] Capture the rate-study transients directly from both complete RTL paths.
   Match 4,096 pop plus 8,192 overload/recovery outputs at each rate: 24,576
@@ -118,10 +129,9 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 - [x] Compare complete 384/768 kHz fixed streams on matched record-pop and
   accepted-range 0.5 V overload/control trajectories. Process 772,608 nonlinear
-  updates with zero diagnostics; measure 147.771/147.583 ms recovery and a
-  -56.25 dB aligned recovery null. Preserve the failing pop evidence (-15.18 dB
-  aligned, 85.6 mV peak, -16.76 dB audio-band spectral residual) and withhold
-  8x promotion rather than weakening the comparison.
+  updates with zero diagnostics; measure 147.771/147.583 ms recovery. The
+  original linear-interpolation null was later corrected by the explicit
+  known-delay/windowed-sinc milestone above.
 
 - [x] Compose the exact three-stage converters with the rate-specific 384 kHz
   banked-terminal core. Generalize the bit-accurate stream model and vector/

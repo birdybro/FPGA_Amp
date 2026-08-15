@@ -32,6 +32,12 @@ def main() -> int:
     parser.add_argument("--max-lag", type=int, default=4096)
     parser.add_argument("--no-latency-align", action="store_true")
     parser.add_argument("--fractional-delay", action="store_true")
+    parser.add_argument(
+        "--fractional-delay-method",
+        choices=("linear", "windowed_sinc"),
+        default="linear",
+    )
+    parser.add_argument("--known-latency-samples", type=float)
     parser.add_argument("--gain-align", action="store_true")
     parser.add_argument("--residual-wav", type=Path)
     parser.add_argument("--spectrum-csv", type=Path)
@@ -51,6 +57,8 @@ def main() -> int:
         parser.error("--channel is outside the candidate channel count")
     if args.fractional_delay and args.no_latency_align:
         parser.error("--fractional-delay requires latency alignment")
+    if args.known_latency_samples is not None and args.no_latency_align:
+        parser.error("--known-latency-samples requires latency alignment")
 
     comparison = compare_signals(
         reference.samples[:, args.channel],
@@ -58,6 +66,8 @@ def main() -> int:
         max_lag_samples=args.max_lag,
         align_latency=not args.no_latency_align,
         fractional_delay=args.fractional_delay,
+        fractional_delay_method=args.fractional_delay_method,
+        known_latency_samples=args.known_latency_samples,
         align_gain=args.gain_align,
     )
     report = {

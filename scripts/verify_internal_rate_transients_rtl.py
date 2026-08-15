@@ -179,8 +179,8 @@ def main() -> int:
         "measurements": measurements,
         "interpretation": (
             "This proves implementation equivalence for both rate-specific "
-            "trajectories. The separate fixed A/B pop discrepancy remains and "
-            "continues to block 8x promotion."
+            "trajectories. Rate-to-rate accuracy is measured separately with "
+            "known-delay windowed-sinc alignment; this report does not promote 8x."
         ),
     }
     for path in (

@@ -54,14 +54,17 @@ The mono reference and complete 768 kHz circuit solver are operating:
   Controlled full-stream synthesis measures 17,629 LC / 219 DSP / 10 RAMB18
   equivalents at 384 kHz versus 18,302 / 222 / 10 at 768 kHz. Reference mode
   remains 16×/768 kHz. A 772,608-update paired fixed-stream campaign finds
-  8× recovery only 0.1875 ms later, with a -56.25 dB aligned residual, but
-  exposes a material synthetic-pop difference: -15.18 dB aligned residual,
-  85.6 mV peak error, and -16.76 dB audio-band spectral residual. The 8× path
-  is therefore not promoted. Direct RTL capture matches the corresponding
+  8× recovery only 0.1875 ms later, with -84.71 dB aligned waveform and
+  -81.02 dB audio-band residuals. Known-delay, windowed-sinc alignment measures
+  the synthetic pop at -35.92 dB overall, 2.623 mV peak error, and -53.33 dB
+  in-band. A layer decomposition measures the identity converters at -67.49 dB
+  in-band, floating Newton at -55.71 dB, and fixed at -53.33 dB; same-rate
+  fixed/float nulls remain about -59 dB. This supersedes an invalid earlier
+  linear-interpolation result. Direct RTL capture matches the corresponding
   fixed models for all 24,576 pop/recovery outputs and 294,912 nonlinear
-  updates at both rates with zero diagnostics, proving the discrepancy is not
-  an RTL transcription bug. Neither structural result is a timing-closure
-  claim.
+  updates at both rates with zero diagnostics. The modest three-DSP saving,
+  missing absolute transient-to-SPICE comparison, and open named-part timing
+  keep 8× unpromoted. Neither structural result is a timing-closure claim.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both
@@ -678,6 +681,7 @@ python3 scripts/run_reference.py --plots
 python3 scripts/compare_spice_python.py
 make spice-python-frequency          # four SPICE transients + integrator study
 make internal-rate-study             # explicit 8x-vs-16x nonlinear rate study
+make internal-rate-pop-decomposition # converter/float/fixed transient layers
 make internal-rate-transient-rtl     # direct long pop/recovery RTL equivalence
 make fixed-384-assets                 # regenerate distinct 384 kHz fixed assets
 make trapezoidal-384-chord-rtl        # exact five-bank correction equivalence
@@ -874,8 +878,10 @@ python3 scripts/compare_wav.py reference.wav candidate.wav \
 ```
 
 The comparison defaults to integer latency alignment but does not fit gain, DC,
-or fractional delay. `--gain-align` and `--fractional-delay` are opt-in and every
-applied transformation is recorded alongside the unaligned metrics.
+or fractional delay. `--gain-align` and `--fractional-delay` are opt-in. The
+fractional method is explicitly selected as `linear` or `windowed_sinc`, and a
+known physical delay can be supplied instead of correlation. Every applied
+transformation is recorded alongside the unaligned metrics.
 
 Generated CSV, plots, logs, ROM images, and reports are intentionally ignored;
 every one has a source script. The compact LUT characterization report is kept

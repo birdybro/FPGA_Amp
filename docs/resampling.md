@@ -82,10 +82,12 @@ overrun, or phase errors. This establishes the converter arithmetic and clock-
 enable schedule. The converter also composes bit-exactly with the 384 kHz
 nonlinear core for 64 external outputs / 512 internal updates, with zero
 converter, solver, or deadline diagnostics. A longer paired fixed-stream study
-then finds the overload-recovery trajectory close but a -15.18 dB aligned
-record-pop residual and 85.6 mV peak difference. This aggregate includes the
-rate-specific integrator and fixed circuit as well as the converters. It blocks
-8× promotion rather than silently accepting the smaller converter.
+then finds -84.71 dB aligned overload recovery and a -35.92 dB / 2.623 mV
+record-pop difference using known-delay windowed-sinc alignment. The pop's
+converter-only in-band residual is -67.49 dB, versus -55.71 dB floating and
+-53.33 dB fixed through the complete circuit. This aggregate includes the
+rate-specific integrator and circuit. The modest converter saving is not by
+itself enough to promote 8×.
 Direct long-vector RTL matches each rate's corresponding fixed trajectory for
 4,096 pop and 8,192 overload/recovery outputs, totaling 24,576 outputs and
 294,912 nonlinear updates. This rules out a converter/solver RTL mismatch; it

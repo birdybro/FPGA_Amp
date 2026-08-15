@@ -231,6 +231,41 @@ def _fractional_overlap(
     return reference[reference_indices], aligned_candidate
 
 
+def _windowed_sinc_overlap(
+    reference: FloatArray,
+    candidate: FloatArray,
+    lag_samples: float,
+    *,
+    half_width: int = 32,
+) -> tuple[FloatArray, FloatArray]:
+    """Align at ``i + lag`` with a 64-tap Lanczos-windowed sinc kernel."""
+
+    if half_width < 2:
+        raise ValueError("windowed-sinc half width must be at least two")
+    reference_indices = np.arange(reference.size, dtype=np.int64)
+    candidate_positions = reference_indices.astype(np.float64) + lag_samples
+    bases = np.floor(candidate_positions).astype(np.int64)
+    valid = (
+        (bases - half_width + 1 >= 0)
+        & (bases + half_width < candidate.size)
+    )
+    reference_indices = reference_indices[valid]
+    candidate_positions = candidate_positions[valid]
+    bases = bases[valid]
+    if reference_indices.size < 3:
+        raise ValueError("latency leaves fewer than three sinc-aligned samples")
+    offsets = np.arange(-half_width + 1, half_width + 1, dtype=np.int64)
+    source_indices = bases[:, None] + offsets[None, :]
+    distance = candidate_positions[:, None] - source_indices
+    weights = np.sinc(distance) * np.sinc(distance / float(half_width))
+    weight_sum = np.sum(weights, axis=1)
+    if np.any(np.abs(weight_sum) < 1.0e-15):
+        raise RuntimeError("windowed-sinc interpolation has a zero weight sum")
+    weights /= weight_sum[:, None]
+    aligned_candidate = np.sum(candidate[source_indices] * weights, axis=1)
+    return reference[reference_indices], aligned_candidate
+
+
 def _metrics(reference: FloatArray, candidate: FloatArray) -> dict[str, float | int]:
     residual = candidate - reference
     reference_rms = _rms(reference)
@@ -269,12 +304,23 @@ def compare_signals(
     max_lag_samples: int = 4096,
     align_latency: bool = True,
     fractional_delay: bool = False,
+    fractional_delay_method: str = "linear",
+    known_latency_samples: float | None = None,
     align_gain: bool = False,
 ) -> NullComparison:
     """Compare signals while recording every operation applied to the residual."""
 
     ref = _as_signal(reference, "reference")
     test = _as_signal(candidate, "candidate")
+    if fractional_delay_method not in ("linear", "windowed_sinc"):
+        raise ValueError("fractional delay method must be linear or windowed_sinc")
+    if known_latency_samples is not None:
+        if not align_latency:
+            raise ValueError("known latency requires latency alignment")
+        if not np.isfinite(known_latency_samples):
+            raise ValueError("known latency must be finite")
+        if not fractional_delay and not float(known_latency_samples).is_integer():
+            raise ValueError("noninteger known latency requires fractional delay")
     raw_count = min(ref.size, test.size)
     raw_ref = ref[:raw_count]
     raw_test = test[:raw_count]
@@ -290,7 +336,7 @@ def compare_signals(
     actual_maximum_lag = 0
     minimum_latency_overlap = raw_count
     latency_method = "disabled"
-    if align_latency:
+    if align_latency and known_latency_samples is None:
         actual_maximum_lag, minimum_latency_overlap = _latency_search_bounds(
             ref, test, max_lag_samples
         )
@@ -308,11 +354,34 @@ def compare_signals(
         peak_correlation = scores[integer_lag]
         if fractional_delay:
             fractional_offset = _parabolic_peak_offset(scores, integer_lag)
+    elif align_latency:
+        total_known_lag = float(known_latency_samples)
+        integer_lag = int(np.trunc(total_known_lag))
+        fractional_offset = total_known_lag - integer_lag
+        latency_method = "caller-supplied known latency"
+        known_ref, known_candidate = _integer_overlap(
+            ref, test, int(round(total_known_lag))
+        )
+        peak_correlation = _correlation_score(known_ref, known_candidate)
     total_lag = float(integer_lag) + fractional_offset
 
     if align_latency and fractional_delay:
-        aligned_ref, aligned_test = _fractional_overlap(ref, test, total_lag)
-        fractional_method = "parabolic correlation peak + linear interpolation"
+        if fractional_delay_method == "windowed_sinc":
+            aligned_ref, aligned_test = _windowed_sinc_overlap(
+                ref, test, total_lag
+            )
+            interpolation_description = (
+                "64-tap Lanczos-windowed sinc interpolation"
+            )
+        else:
+            aligned_ref, aligned_test = _fractional_overlap(ref, test, total_lag)
+            interpolation_description = "linear interpolation"
+        alignment_description = (
+            "known latency + "
+            if known_latency_samples is not None
+            else "parabolic correlation peak + "
+        )
+        fractional_method = alignment_description + interpolation_description
     elif align_latency:
         aligned_ref, aligned_test = _integer_overlap(ref, test, integer_lag)
         fractional_method = "disabled"
@@ -345,6 +414,7 @@ def compare_signals(
             "maximum_lag_searched_samples": actual_maximum_lag,
             "minimum_latency_overlap_samples": minimum_latency_overlap,
             "latency_estimation_method": latency_method,
+            "known_latency_samples": known_latency_samples,
             "latency_identifiable": latency_identifiable,
             "estimated_integer_latency_samples": integer_lag,
             "fractional_delay_alignment_enabled": fractional_delay and align_latency,

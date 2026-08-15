@@ -199,7 +199,8 @@ scripts/run_frame_scheduler_formal.py  phase/zero-fill/counter induction
 | 8x interpolator/decimator RTL | 128 external inputs; 1,024/128 compared outputs | bit-exact Q8.24; zero saturation/overrun/phase errors; 8-sample 384 kHz interpolation schedule delay |
 | 8x interpolator/decimator synthesis | Yosys 0.66 XC7 out-of-context | interpolation 1,549 LC / 12 DSP; decimation 2,355 LC / 24 DSP; no Fmax claim |
 | 384 kHz banked-terminal complete stream | 64 outputs / 512 circuit samples plus controlled synthesis | bit-exact Q8.24; zero converter/solver/deadline diagnostics; 127-clock solver; 17,629 LC / 219 DSP / 10 RAMB18 equivalents versus 18,302 / 222 / 10 at 768 kHz; no Fmax or promotion claim |
-| 384/768 kHz fixed transient rate A/B | 4,096-frame pop/control plus 12,000-frame 0.5 V burst/control | 772,608 updates, zero diagnostics; pop -15.178 dB aligned, 85.605 mV max delta, -16.755 dB audio-band spectral residual; 8x recovery 147.771 ms vs 147.583 ms, -56.251 dB aligned; not promoted |
+| 384/768 kHz fixed transient rate A/B | 4,096-frame pop/control plus 12,000-frame 0.5 V burst/control | 772,608 updates, zero diagnostics; known -1.25-sample sinc alignment: pop -35.923 dB / 2.623 mV max / -53.334 dB in-band; 8x recovery 147.771 ms vs 147.583 ms, -84.706 dB overall / -81.020 dB in-band |
+| internal-rate pop decomposition | identity converter plus complete floating/fixed pop/control | 393,216 nonlinear updates; converter/float/fixed in-band residual -67.488/-55.710/-53.334 dB; same-rate fixed/float -58.878/-59.133 dB; corrected linear-alignment artifact |
 | 384/768 kHz long transient RTL | 4,096 pop + 8,192 recovery outputs at each rate | all 24,576 outputs / 294,912 nonlinear updates fixed-exact; zero diagnostics; 127 clocks; max residual 0.672 uA at 384 kHz / 0.322 uA at 768 kHz; does not promote 8x |
 | trapezoidal overload stability | 20 mV/0.5/1.0/1.5 V, 85 ms post-burst | finite/convergent; 20 mV recovery within 2.6 us of BE |
 | long trapezoidal overload recovery | 0.5/1.0/1.5 V, 235 ms post-burst | 0.5 V 10% recovery 146.552 ms; 98.2--118.1 ms fitted modes; severe crossings remain labeled projections |
@@ -352,9 +353,13 @@ zero-lag metrics. Silence/constant streams return deterministic zero latency and
 explicitly report that latency is not identifiable. Integer
 alignment is on by default, while gain and fractional-delay alignment are opt-in.
 The gain fit is a scalar candidate multiplier and never fits a DC offset. The
-fractional option uses a parabolic correlation-peak estimate and labeled linear
-interpolation. Reports preserve metrics before and after gain, the applied
-transformations, a residual WAV clip count, and optional Hann-windowed spectrum.
+fractional option records its method. Linear interpolation remains available for
+simple fixtures; a 64-tap Lanczos-windowed sinc option preserves upper-band
+content, and a caller-supplied physical latency can bypass correlation fitting.
+A 997/7,013/17,003 Hz regression bounds its known-delay null below -70 dB and
+shows over 40 dB improvement versus linear interpolation. Reports preserve
+metrics before and after gain, the applied transformations, a residual WAV clip
+count, and optional Hann-windowed spectrum.
 
 `scripts/process_wav.py` is the offline physical-scaling boundary for the actual
 fixed V1 stream. It requires 48 kHz integer PCM, an explicitly named integration/

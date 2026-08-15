@@ -37,6 +37,7 @@ from fpga_amp.stream import (  # noqa: E402
     CONVERTER_GROUP_DELAY_EXTERNAL_SAMPLES,
     compose_fixed_converter_only,
     compose_fixed_wide_stream,
+    compose_floating_stream,
 )
 
 
@@ -247,6 +248,24 @@ class ResamplerTests(unittest.TestCase):
         self.assertEqual(
             sum(candidate_8x.circuit.chord_bank_selection_count),
             8 * input_q24.size,
+        )
+        candidate_converter, candidate_converter_saturations = (
+            compose_fixed_converter_only(
+                input_q24, internal_sample_rate_hz=384_000
+            )
+        )
+        self.assertEqual(candidate_converter.size, input_q24.size)
+        self.assertEqual(candidate_converter_saturations, 0)
+        candidate_float = compose_floating_stream(
+            input_q24,
+            integration_method="trapezoidal",
+            internal_sample_rate_hz=384_000,
+        )
+        self.assertEqual(candidate_float.output_v.size, input_q24.size)
+        self.assertEqual(candidate_float.internal_sample_rate_hz, 384_000)
+        self.assertEqual(candidate_float.oversampling_factor, 8)
+        self.assertEqual(
+            candidate_float.interpolator_pipeline_delay_internal_samples, 8
         )
         with self.assertRaisesRegex(ValueError, "384000 or 768000"):
             compose_fixed_wide_stream(input_q24, internal_sample_rate_hz=192_000)

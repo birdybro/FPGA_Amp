@@ -213,12 +213,10 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 - Extended the internal-rate study through complete fixed-stream synthetic-pop
   and accepted-range 0.5 V overload/control pairs. Across 772,608 nonlinear
-  updates both rates remain diagnostic-clean. The 8x recovery crossing is only
-  0.1875 ms later and its latency-aligned waveform residual is -56.25 dB, but
-  the pop differs by -15.18 dB RMS after fractional-delay alignment, 85.6 mV
-  peak, and -16.76 dB over the audio-band spectrum. Absolute spectral RSS is
-  recorded alongside ratios. The material pop discrepancy explicitly blocks
-  8x promotion pending diagnosis and long-vector RTL capture.
+  updates both rates remain diagnostic-clean and the 8x recovery crossing is
+  0.1875 ms later. The initial linear fractional-delay interpolation produced
+  invalid near-Nyquist residual magnitudes; the correction below supersedes
+  those values rather than preserving them as acceptance evidence.
 
 - Added direct long-vector RTL proof for the rate-study transients. Both
   complete streams match 4,096 synthetic-pop and 8,192 overload/recovery fixed
@@ -226,6 +224,17 @@ All notable engineering changes are recorded here. The project is pre-release; d
   updates with zero diagnostics and 127-clock latency. Maximum solver residual
   is 0.672 uA at 384 kHz and 0.322 uA at 768 kHz. This closes RTL transcription
   as an explanation for the pop discrepancy; it does not promote 8x.
+
+- Corrected the transient A/B methodology after layer decomposition exposed
+  linear fractional-delay interpolation as the dominant measurement artifact.
+  Added explicit caller-known latency and a 64-tap Lanczos-windowed sinc method;
+  a 997/7,013/17,003 Hz regression nulls below -70 dB and improves over linear
+  interpolation by more than 40 dB. With the independently known -1.25-sample
+  converter delay, pop error is -35.92 dB overall, 2.623 mV peak, and -53.33 dB
+  in-band; recovery is -84.71 dB overall / -81.02 dB in-band. A separate
+  393,216-update decomposition measures converter/floating/fixed in-band error
+  at -67.49/-55.71/-53.33 dB and same-rate fixed/float at about -59 dB. The
+  prior -15.18 dB / 85.6 mV claim is explicitly invalidated.
 
 - Added a reproducible 384 kHz/8x architecture study while retaining
   768 kHz/16x as reference mode. The SPICE comparison now measures the lower-

@@ -222,6 +222,8 @@ def _rate_comparison(
         max_lag_samples=8,
         align_latency=True,
         fractional_delay=True,
+        fractional_delay_method="windowed_sinc",
+        known_latency_samples=-1.25,
         align_gain=False,
     )
     return {
