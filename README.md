@@ -124,6 +124,13 @@ The mono reference and complete 768 kHz circuit solver are operating:
   SHA-256 `98a53adf...2b9dcb`; the script fixes only header timestamp metadata
   and records that hardware remains unprogrammed/unvalidated. The 8×
   architecture remains an explicit candidate and reference mode remains 16×.
+  The selected 8× profile now also runs through the actual calibrated fabric
+  adapter, asynchronous I²S bridge, register bank, and SPI transport. Exact
+  regressions cover 64 adapter frames, 64 serial inputs / 44 observable DAC
+  frames, control transitions, and 15 SPI frames. Yosys measures 15,699 LC /
+  9,085 FF for the adapter and 16,614 LC / 11,586 FF for the full SPI/I²S top;
+  both use 217 DSPs / 10 RAMB18 equivalents with zero structural problems.
+  Board clock generation and converter pin/clock-master wiring remain open.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both
@@ -842,9 +849,13 @@ make calibration-control-rtl       # atomic muted coefficient-pair commit
 make control-registers-rtl         # snapshot/shadow/transaction register bank
 make frame-scheduler-rtl           # deterministic 48 kHz fabric phase launch
 make mono-adapter-rtl               # exact framed PCM-to-model-to-PCM datapath
+make mono-adapter-384-rtl           # selected 8x/49.152 MHz adapter path
 make i2s-mono-top-rtl               # serial ADC through model to serial DAC
+make i2s-mono-top-384-rtl           # serial path with selected 384 kHz model
 make i2s-control-top-rtl            # register-owned pin hierarchy and clear CDC
+make i2s-control-top-384-rtl        # register hierarchy with 384 kHz model
 make i2s-spi-top-rtl                # complete SPI-controlled I2S audio hierarchy
+make i2s-spi-top-384-rtl            # complete 384 kHz SPI/I2S hierarchy
 make synth                         # generic XC7 structural estimate
 make synth-factorized              # factorized tube structural estimate
 make synth-chord                   # generic XC7 chord-corrector estimate
@@ -881,6 +892,8 @@ make synth-mono-adapter            # calibrated accuracy-first fabric datapath
 make synth-i2s-mono-top            # protocol/CDC plus calibrated mono datapath
 make synth-i2s-control-top         # register-controlled complete pin hierarchy
 make synth-i2s-spi-top             # SPI transport plus complete pin hierarchy
+make synth-mono-adapter-384        # 384 kHz adapter XC7 resource measurement
+make synth-i2s-spi-top-384         # complete 384 kHz pin-top measurement
 make hermite-rtl                   # bit-exact iterative Hermite regression
 make synth-hermite                 # isolated Hermite resource measurement
 make factorized-linear-rtl         # value-only tube exact-vector regression

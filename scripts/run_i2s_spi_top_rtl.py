@@ -17,6 +17,9 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
     parser.add_argument("--skip-generate", action="store_true")
+    parser.add_argument(
+        "--sample-rate-hz", type=int, choices=(384_000, 768_000), default=768_000
+    )
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
@@ -29,6 +32,8 @@ def main() -> int:
                 "scripts/run_mono_adapter_rtl.py",
                 "--verilator",
                 verilator,
+                "--sample-rate-hz",
+                str(args.sample_rate_hz),
             ],
             cwd=ROOT,
             check=True,
@@ -45,6 +50,8 @@ def main() -> int:
         "rtl/filters/halfband_decimator_2x.sv",
         "rtl/audio/interpolator_16x.sv",
         "rtl/audio/decimator_16x.sv",
+        "rtl/audio/interpolator_8x.sv",
+        "rtl/audio/decimator_8x.sv",
         "rtl/audio/output_mute_ramp.sv",
         "rtl/control/calibration_commit_guard.sv",
         "rtl/control/phono_control_registers.sv",
@@ -61,6 +68,7 @@ def main() -> int:
         "rtl/io/q8_24_to_pcm24.sv",
         "rtl/top/phono_stream_mono_wide.sv",
         "rtl/top/phono_stream_mono_wide_trapezoidal_banked_terminal.sv",
+        "rtl/top/phono_stream_mono_wide_trapezoidal_384khz_banked_terminal.sv",
         "rtl/top/phono_fabric_mono_adapter.sv",
         "rtl/top/phono_i2s_mono_top.sv",
         "rtl/top/phono_i2s_control_top.sv",
@@ -69,10 +77,20 @@ def main() -> int:
     ]
     common = [
         "--timing", "-Wall", "-Wno-fatal", "-sv",
-        "--top-module", "phono_i2s_spi_top_tb", *sources,
+        "--top-module", "phono_i2s_spi_top_tb",
+        *(
+            [
+                "-GMODEL_SAMPLE_RATE_HZ=384000",
+                "-GFABRIC_CLOCKS_PER_48K_INPUT=1024",
+            ]
+            if args.sample_rate_hz == 384_000
+            else []
+        ),
+        *sources,
     ]
     subprocess.run([verilator, "--lint-only", *common], cwd=ROOT, check=True)
-    build = ROOT / "build" / "verilator_phono_i2s_spi_top"
+    rate_suffix = "_384khz" if args.sample_rate_hz == 384_000 else ""
+    build = ROOT / "build" / f"verilator_phono_i2s_spi_top{rate_suffix}"
     subprocess.run(
         [verilator, "--binary", *common, "--Mdir", str(build)],
         cwd=ROOT,

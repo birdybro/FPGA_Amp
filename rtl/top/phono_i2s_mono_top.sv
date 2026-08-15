@@ -10,7 +10,9 @@ module phono_i2s_mono_top #(
     parameter int unsigned CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS = 32768,
     parameter int unsigned CLOCK_MONITOR_EXPECTED_BCLK_EDGES = 1024,
     parameter int unsigned CLOCK_MONITOR_EDGE_TOLERANCE = 1,
-    parameter int unsigned CLOCK_MONITOR_LOCK_WINDOWS = 3
+    parameter int unsigned CLOCK_MONITOR_LOCK_WINDOWS = 3,
+    parameter int unsigned MODEL_SAMPLE_RATE_HZ = 768000,
+    parameter int unsigned FABRIC_CLOCKS_PER_48K_INPUT = 2048
 ) (
     input  logic                 i2s_bclk,
     input  logic                 i2s_rst_n,
@@ -163,7 +165,9 @@ module phono_i2s_mono_top #(
     );
 
     phono_fabric_mono_adapter #(
-        .OUTPUT_RAMP_SAMPLES(OUTPUT_RAMP_SAMPLES)
+        .OUTPUT_RAMP_SAMPLES(OUTPUT_RAMP_SAMPLES),
+        .MODEL_SAMPLE_RATE_HZ(MODEL_SAMPLE_RATE_HZ),
+        .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT)
     ) adapter (
         .clk(fabric_clk),
         .rst_n(audio_rst_n),

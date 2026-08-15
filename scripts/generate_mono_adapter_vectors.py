@@ -27,6 +27,9 @@ OUTPUT_RECIPROCAL_FULL_SCALE_Q24 = round((1.0 / 8.0) * (1 << 24))
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--vectors", type=int, default=64)
+    parser.add_argument(
+        "--sample-rate-hz", type=int, choices=(384_000, 768_000), default=768_000
+    )
     args = parser.parse_args()
     if not 1 <= args.vectors <= 512:
         parser.error("--vectors must be within 1..512")
@@ -67,6 +70,7 @@ def main() -> int:
         trapezoidal=True,
         banked=True,
         terminal_correction=True,
+        internal_sample_rate_hz=args.sample_rate_hz,
     )
     output_results = [
         q8_24_to_pcm24(
@@ -90,7 +94,8 @@ def main() -> int:
 
     directory = REPOSITORY_ROOT / "sim" / "vectors" / "generated"
     directory.mkdir(parents=True, exist_ok=True)
-    vector_path = directory / "phono_fabric_mono_adapter.txt"
+    rate_suffix = "_384khz" if args.sample_rate_hz == 384_000 else ""
+    vector_path = directory / f"phono_fabric_mono_adapter{rate_suffix}.txt"
     with vector_path.open("w", encoding="ascii") as handle:
         for left, right, physical in zip(
             left_pcm24, right_pcm24, model_input_q24, strict=True
@@ -104,7 +109,9 @@ def main() -> int:
 
     # Preserve the exact core-boundary companion vector so failures can be
     # localized between scheduling/calibration and the nonlinear stream.
-    core_vector_path = directory / "phono_fabric_mono_adapter_core.txt"
+    core_vector_path = (
+        directory / f"phono_fabric_mono_adapter_core{rate_suffix}.txt"
+    )
     with core_vector_path.open("w", encoding="ascii") as handle:
         for sample in model_input_q24:
             handle.write(f"{int(sample)}\n")
@@ -118,6 +125,7 @@ def main() -> int:
         "integration_method": "trapezoidal",
         "banked_chord": True,
         "terminal_correction": True,
+        "internal_sample_rate_hz": args.sample_rate_hz,
         "vectors": args.vectors,
         "input_full_scale_peak_volts_q24": INPUT_FULL_SCALE_PEAK_VOLTS_Q24,
         "input_full_scale_peak_volts": (
@@ -142,7 +150,7 @@ def main() -> int:
         REPOSITORY_ROOT
         / "model"
         / "generated"
-        / "phono_fabric_mono_adapter_metadata.json"
+        / f"phono_fabric_mono_adapter{rate_suffix}_metadata.json"
     )
     metadata_path.write_text(
         json.dumps(metadata, indent=2) + "\n", encoding="utf-8"

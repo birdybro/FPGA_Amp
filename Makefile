@@ -13,6 +13,7 @@ NEXTPNR ?= nextpnr-himbaechel
 .PHONY: stream-trapezoidal-384-terminal-banked-rtl stream-trapezoidal-384-terminal-banked-half-clock-rtl stream-trapezoidal-384-terminal-banked-half-clock-pipelined-rtl stream-trapezoidal-384-terminal-banked-half-clock-prefetched-rtl stream-trapezoidal-384-terminal-banked-half-clock-retimed-rtl stream-trapezoidal-384-terminal-banked-half-clock-late-select-rtl stream-trapezoidal-384-terminal-banked-half-clock-late-select-retimed-rtl stream-trapezoidal-384-terminal-banked-half-clock-late-select-serial-max-rtl stream-trapezoidal-384-terminal-banked-half-clock-node-prefetch-serial-max-rtl
 .PHONY: synth-stream-trapezoidal-384-terminal-banked
 .PHONY: openxc7-stream-384-pack openxc7-stream-384-place openxc7-a200t-stream-384-static-place openxc7-a200t-stream-384-half-clock-static-place openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-pnr openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-bit
+.PHONY: mono-adapter-384-rtl i2s-mono-top-384-rtl i2s-control-top-384-rtl i2s-spi-top-384-rtl synth-mono-adapter-384 synth-i2s-spi-top-384
 
 all: reference test
 
@@ -445,14 +446,26 @@ frame-scheduler-rtl:
 mono-adapter-rtl:
 	$(PYTHON) scripts/run_mono_adapter_rtl.py --verilator $(VERILATOR)
 
+mono-adapter-384-rtl:
+	$(PYTHON) scripts/run_mono_adapter_rtl.py --verilator $(VERILATOR) --sample-rate-hz 384000
+
 i2s-mono-top-rtl:
 	$(PYTHON) scripts/run_i2s_mono_top_rtl.py --verilator $(VERILATOR)
+
+i2s-mono-top-384-rtl:
+	$(PYTHON) scripts/run_i2s_mono_top_rtl.py --verilator $(VERILATOR) --sample-rate-hz 384000
 
 i2s-control-top-rtl:
 	$(PYTHON) scripts/run_i2s_control_top_rtl.py --verilator $(VERILATOR)
 
+i2s-control-top-384-rtl:
+	$(PYTHON) scripts/run_i2s_control_top_rtl.py --verilator $(VERILATOR) --sample-rate-hz 384000
+
 i2s-spi-top-rtl:
 	$(PYTHON) scripts/run_i2s_spi_top_rtl.py --verilator $(VERILATOR)
+
+i2s-spi-top-384-rtl:
+	$(PYTHON) scripts/run_i2s_spi_top_rtl.py --verilator $(VERILATOR) --sample-rate-hz 384000
 
 lint:
 	$(PYTHON) scripts/run_rtl.py --verilator $(VERILATOR) --lint-only
@@ -683,6 +696,14 @@ synth-i2s-control-top: synth-mono-adapter
 
 synth-i2s-spi-top: synth-mono-adapter
 	$(PYTHON) scripts/run_synthesis.py --top phono_i2s_spi_top
+
+synth-mono-adapter-384: fixed-384-assets
+	$(PYTHON) scripts/generate_factorized_tube.py
+	$(PYTHON) scripts/generate_halfband_rtl_vectors.py
+	$(PYTHON) scripts/run_synthesis.py --top phono_fabric_mono_adapter --sample-rate-hz 384000
+
+synth-i2s-spi-top-384: synth-mono-adapter-384
+	$(PYTHON) scripts/run_synthesis.py --top phono_i2s_spi_top --sample-rate-hz 384000
 
 python-test:
 	$(PYTHON) -m unittest discover -s model/tests -v

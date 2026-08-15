@@ -1,0 +1,31 @@
+{
+  "model": "12ax7_passive_riaa_v1",
+  "mode": "mono_left_input_duplicated_output",
+  "integration_method": "trapezoidal",
+  "banked_chord": true,
+  "terminal_correction": true,
+  "internal_sample_rate_hz": 384000,
+  "vectors": 64,
+  "input_full_scale_peak_volts_q24": 335544,
+  "input_full_scale_peak_volts": 0.019999980926513672,
+  "output_reciprocal_full_scale_q24": 2097152,
+  "output_model_peak_volts_at_pcm_full_scale": 8.0,
+  "maximum_abs_input_q24": 203294,
+  "maximum_abs_output_q24": 9692754,
+  "maximum_abs_output_pcm24": 605797,
+  "output_calibration_saturations": 0,
+  "core_diagnostics": {
+    "interpolation_saturation_count": 0,
+    "output_conversion_saturation_count": 0,
+    "decimation_saturation_count": 0,
+    "solver_saturation_count": 0,
+    "solver_range_clip_count": 0,
+    "solver_residual_limit_exceedance_count": 0,
+    "solver_correction_scale_fallback_count": 0
+  },
+  "solver_latency_clocks": 127,
+  "outputs": [
+    "sim/vectors/generated/phono_fabric_mono_adapter_384khz.txt",
+    "sim/vectors/generated/phono_fabric_mono_adapter_core_384khz.txt"
+  ]
+}

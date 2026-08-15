@@ -1,10 +1,16 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-module phono_fabric_mono_adapter_tb;
+module phono_fabric_mono_adapter_tb #(
+    parameter int MODEL_SAMPLE_RATE_HZ = 768000,
+    parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048
+);
     localparam int VECTOR_COUNT = 64;
     localparam int INPUT_FULL_SCALE_PEAK_VOLTS_Q24 = 335544;
     localparam int OUTPUT_RECIPROCAL_FULL_SCALE_Q24 = 2097152;
+    localparam string VECTOR_FILE = (MODEL_SAMPLE_RATE_HZ == 384000)
+        ? "sim/vectors/generated/phono_fabric_mono_adapter_384khz.txt"
+        : "sim/vectors/generated/phono_fabric_mono_adapter.txt";
 
     logic clk;
     logic rst_n = 1'b0;
@@ -91,7 +97,9 @@ module phono_fabric_mono_adapter_tb;
     endfunction
 
     phono_fabric_mono_adapter #(
-        .OUTPUT_RAMP_SAMPLES(8)
+        .OUTPUT_RAMP_SAMPLES(8),
+        .MODEL_SAMPLE_RATE_HZ(MODEL_SAMPLE_RATE_HZ),
+        .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT)
     ) dut (.*);
 
     always #5 clk = ~clk;
@@ -168,7 +176,7 @@ module phono_fabric_mono_adapter_tb;
         error_count = 0;
         clock_count = 0;
         file_handle = $fopen(
-            "sim/vectors/generated/phono_fabric_mono_adapter.txt", "r"
+            VECTOR_FILE, "r"
         );
         if (file_handle == 0)
             $fatal(1, "cannot open mono-adapter vectors");
@@ -207,7 +215,8 @@ module phono_fabric_mono_adapter_tb;
             while (!rx_frame_ready)
                 @(negedge clk);
             if (!scheduled_frame_present
-                || scheduler_phase_counter != 11'd2047) begin
+                || scheduler_phase_counter
+                    != 11'(FABRIC_CLOCKS_PER_48K_INPUT - 1)) begin
                 $error("input %0d accepted outside present launch phase",
                        input_index);
                 error_count = error_count + 1;
@@ -225,7 +234,8 @@ module phono_fabric_mono_adapter_tb;
         while (output_index < VECTOR_COUNT) begin
             @(posedge clk);
             clock_count = clock_count + 1;
-            if (clock_count > VECTOR_COUNT * 2300)
+            if (clock_count > VECTOR_COUNT
+                * (FABRIC_CLOCKS_PER_48K_INPUT + 300))
                 $fatal(1, "adapter timeout output=%0d", output_index);
         end
         #1;

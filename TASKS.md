@@ -63,6 +63,19 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   smoke test when matching hardware is available. Keep the experimental
   `DEFAULT` timing estimate distinct from qualified speed-grade and board
   measurements.
+- [x] Carry the timing-closed 384 kHz / 49.152 MHz profile into the actual
+  fabric adapter and complete SPI-controlled I²S hierarchy. Preserve 768 kHz
+  as the default, add explicit rate-selectable vector/test runners, and pass
+  exact adapter, serial I²S, register-control, and 15-frame SPI regressions.
+  The 384 kHz pin test accepts all 64 serial inputs, matches 44 observable DAC
+  frames, keeps each local FIFO high-water mark at one, and measures 265 fabric
+  clocks from model input to output-valid plus the unchanged 192-BCLK/three-
+  sample frame-boundary latency. Yosys reports 15,699 LC / 9,085 FF for the
+  adapter and 16,614 LC / 11,586 FF for the full SPI/I²S top, both with
+  217 DSP / 10 RAMB18 equivalents and zero structural-check problems. A board
+  top remains blocked on selecting a real 49.152 MHz source and concrete
+  converter pin/clock-master wiring; do not route arbitrary pins and label
+  them hardware-ready.
 - [ ] Isolate and reduce the remaining fixed circuit/state/chord error. With
   the implemented 1,024-point grid branch, raw final-window error is now
   0.372/0.291 mV at 1.0 V and 0.631/0.321 mV at 1.5 V for backward Euler/

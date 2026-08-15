@@ -6,6 +6,24 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Extended the selected 384 kHz / 49.152 MHz implementation from the
+  three-pin timing harness through the real framed-audio hierarchy. The fabric
+  adapter, asynchronous I²S bridge, register-owned controls, and mode-0 SPI
+  transport now select the 8x rate explicitly while preserving the legacy
+  16x default. The adapter matches 64 calibrated frames exactly; the pin test
+  matches all 64 serial inputs and 44 observable DAC frames with one-frame
+  FIFO high-water marks; the control and 15-frame SPI tests pass. Yosys 0.66
+  measures 15,699 LC / 9,085 FF / 217 DSP / 10 RAMB18 equivalents for the
+  adapter and 16,614 LC / 11,586 FF / 217 DSP / 10 RAMB18 equivalents for the
+  complete SPI/I²S hierarchy. Both structural checks report zero problems;
+  named-board clock generation, pin constraints, CDC timing, and hardware
+  operation remain open.
+- Corrected the retained 768 kHz pin-transport latency contract after locating
+  its four-clock change at the circular-history decimator conversion. Each of
+  the four 2x stages now performs its center tap in one dedicated clock, so
+  calibrated model input to output-valid is 277 rather than the stale 273
+  clocks. Audio values, first-nonzero index, and the 192-BCLK/three-sample
+  serial frame-boundary latency remain unchanged.
 - Added a reproducible, Vivado-free FASM-to-bitstream stage for the pinned XC7
   toolchain. `generate_openxc7_bitstream.py` invokes Project X-Ray's
   `fasm2frames` and `xc7frames2bit`, normalizes only variable `.bit` header

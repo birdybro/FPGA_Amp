@@ -11,7 +11,9 @@ module phono_i2s_control_top #(
     parameter int unsigned CLOCK_MONITOR_EXPECTED_BCLK_EDGES = 1024,
     parameter int unsigned CLOCK_MONITOR_EDGE_TOLERANCE = 1,
     parameter int unsigned CLOCK_MONITOR_LOCK_WINDOWS = 3,
-    parameter int unsigned DIAGNOSTIC_SNAPSHOT_TIMEOUT_CLOCKS = 131072
+    parameter int unsigned DIAGNOSTIC_SNAPSHOT_TIMEOUT_CLOCKS = 131072,
+    parameter int unsigned MODEL_SAMPLE_RATE_HZ = 768000,
+    parameter int unsigned FABRIC_CLOCKS_PER_48K_INPUT = 2048
 ) (
     input  logic                 i2s_bclk,
     input  logic                 i2s_rst_n,
@@ -304,7 +306,9 @@ module phono_i2s_control_top #(
         .CLOCK_MONITOR_EDGE_TOLERANCE(
             CLOCK_MONITOR_EDGE_TOLERANCE
         ),
-        .CLOCK_MONITOR_LOCK_WINDOWS(CLOCK_MONITOR_LOCK_WINDOWS)
+        .CLOCK_MONITOR_LOCK_WINDOWS(CLOCK_MONITOR_LOCK_WINDOWS),
+        .MODEL_SAMPLE_RATE_HZ(MODEL_SAMPLE_RATE_HZ),
+        .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT)
     ) digital_top (
         .i2s_bclk,
         .i2s_rst_n,

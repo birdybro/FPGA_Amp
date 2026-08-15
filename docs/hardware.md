@@ -728,6 +728,25 @@ nextpnr-Himbaechel backend's experimental `DEFAULT` grade. It is not qualified
 XC7A200T-1 timing signoff or a board measurement. Those claims remain gated on
 qualified timing and physical validation.
 
+The same selected profile is now elaborated inside the real fabric and pin
+hierarchies rather than only the timing harness. At 384 kHz / 49.152 MHz the
+calibrated fabric adapter matches 64 mono frames exactly, and the asynchronous
+I²S regression accepts all 64 serial inputs and matches 44 post-startup DAC
+frames with all four local FIFO high-water marks equal to one. The
+register-owned control and complete 15-frame mode-0 SPI tests also pass with
+the 384 kHz branch selected. Yosys 0.66 out-of-context synthesis measures
+15,699 estimated logic cells, 9,085 flip-flops, 217 DSP48E1s, and ten 18-kbit
+BRAM equivalents for the adapter. The complete `phono_i2s_spi_top` measures
+16,614 logic cells, 11,586 flip-flops, the same 217 DSPs and ten BRAM
+equivalents. Both checks report zero structural problems.
+
+These are hierarchy-integration and structural results, not a board image. A
+concrete board wrapper still needs a physically realizable 49.152 MHz source,
+an explicit ADC/DAC clock-master policy, and verified package pins. The Nexys
+Video's fixed 100 MHz oscillator must not simply be constrained as though it
+were 49.152 MHz, and its shared codec LRCLK cannot be silently treated as the
+current top's independent ADC-input and DAC-output LRCLK pins.
+
 The following configuration stage is also fully open. The pinned bootstrap now
 installs the Project X-Ray Python assembler dependencies, and
 `generate_openxc7_bitstream.py` converts a chosen routed FASM through

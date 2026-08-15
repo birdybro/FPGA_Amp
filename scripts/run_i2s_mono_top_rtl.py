@@ -14,17 +14,31 @@ import sys
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 REPORT_PREFIX = "LATENCY_REPORT "
-FABRIC_HZ = 98_304_000
 I2S_BCLK_HZ = 3_072_000
 SAMPLE_RATE_HZ = 48_000
-CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS = 32_768
 CLOCK_MONITOR_EXPECTED_BCLK_EDGES = 1_024
 CLOCK_MONITOR_EDGE_TOLERANCE = 1
 CLOCK_MONITOR_LOCK_WINDOWS = 3
 
 
-def _build_latency_report(markers: dict[str, int | float]) -> dict[str, object]:
-    expected_first_nonzero_output_index = 19
+def _build_latency_report(
+    markers: dict[str, int | float], *, internal_sample_rate_hz: int = 768_000
+) -> dict[str, object]:
+    if internal_sample_rate_hz == 384_000:
+        fabric_hz = 49_152_000
+        clock_monitor_window_fabric_clocks = 16_384
+        expected_first_nonzero_output_index = 20
+        expected_model_input_to_output_clocks = 265
+    elif internal_sample_rate_hz == 768_000:
+        fabric_hz = 98_304_000
+        clock_monitor_window_fabric_clocks = 32_768
+        expected_first_nonzero_output_index = 19
+        # The circular-history decimator performs its center tap in a
+        # dedicated cycle.  Four cascaded 2x stages therefore add four exact
+        # fabric clocks relative to the pre-inference transport report.
+        expected_model_input_to_output_clocks = 277
+    else:
+        raise ValueError("internal sample rate must be 384000 or 768000")
     if (
         int(markers["first_nonzero_output_index"])
         != expected_first_nonzero_output_index
@@ -36,7 +50,7 @@ def _build_latency_report(markers: dict[str, int | float]) -> dict[str, object]:
         )
     expected_differences = {
         "fabric_rx_to_model_input_clocks": 1,
-        "model_input_to_output_clocks": 273,
+        "model_input_to_output_clocks": expected_model_input_to_output_clocks,
         "model_output_to_calibrated_output_clocks": 2,
         "calibrated_output_to_tx_accept_clocks": 1,
         "adc_complete_to_dac_complete_bclks": 192,
@@ -155,11 +169,11 @@ def _build_latency_report(markers: dict[str, int | float]) -> dict[str, object]:
         "clock_contract": {
             "sample_rate_hz": SAMPLE_RATE_HZ,
             "i2s_bclk_hz": I2S_BCLK_HZ,
-            "fabric_hz": FABRIC_HZ,
+            "fabric_hz": fabric_hz,
             "sample_bits": 24,
             "slot_bits": 32,
             "rate_monitor": {
-                "window_fabric_clocks": CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS,
+                "window_fabric_clocks": clock_monitor_window_fabric_clocks,
                 "expected_bclk_edges": CLOCK_MONITOR_EXPECTED_BCLK_EDGES,
                 "edge_tolerance": CLOCK_MONITOR_EDGE_TOLERANCE,
                 "lock_windows": CLOCK_MONITOR_LOCK_WINDOWS,
@@ -200,6 +214,9 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
     parser.add_argument("--skip-generate", action="store_true")
+    parser.add_argument(
+        "--sample-rate-hz", type=int, choices=(384_000, 768_000), default=768_000
+    )
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
@@ -213,6 +230,8 @@ def main() -> int:
                 "scripts/run_mono_adapter_rtl.py",
                 "--verilator",
                 verilator,
+                "--sample-rate-hz",
+                str(args.sample_rate_hz),
             ],
             cwd=REPOSITORY_ROOT,
             check=True,
@@ -229,6 +248,8 @@ def main() -> int:
         "rtl/filters/halfband_decimator_2x.sv",
         "rtl/audio/interpolator_16x.sv",
         "rtl/audio/decimator_16x.sv",
+        "rtl/audio/interpolator_8x.sv",
+        "rtl/audio/decimator_8x.sv",
         "rtl/audio/output_mute_ramp.sv",
         "rtl/control/calibration_commit_guard.sv",
         "rtl/io/audio_clock_rate_monitor.sv",
@@ -241,6 +262,7 @@ def main() -> int:
         "rtl/io/q8_24_to_pcm24.sv",
         "rtl/top/phono_stream_mono_wide.sv",
         "rtl/top/phono_stream_mono_wide_trapezoidal_banked_terminal.sv",
+        "rtl/top/phono_stream_mono_wide_trapezoidal_384khz_banked_terminal.sv",
         "rtl/top/phono_fabric_mono_adapter.sv",
         "rtl/top/phono_i2s_mono_top.sv",
         "sim/integration/phono_i2s_mono_top_tb.sv",
@@ -252,6 +274,14 @@ def main() -> int:
         "-sv",
         "--top-module",
         "phono_i2s_mono_top_tb",
+        *(
+            [
+                "-GMODEL_SAMPLE_RATE_HZ=384000",
+                "-GFABRIC_CLOCKS_PER_48K_INPUT=1024",
+            ]
+            if args.sample_rate_hz == 384_000
+            else []
+        ),
         *sources,
     ]
     subprocess.run(
@@ -259,7 +289,10 @@ def main() -> int:
         cwd=REPOSITORY_ROOT,
         check=True,
     )
-    build = REPOSITORY_ROOT / "build" / "verilator_phono_i2s_mono_top"
+    rate_suffix = "_384khz" if args.sample_rate_hz == 384_000 else ""
+    build = (
+        REPOSITORY_ROOT / "build" / f"verilator_phono_i2s_mono_top{rate_suffix}"
+    )
     subprocess.run(
         [verilator, "--binary", *common, "--Mdir", str(build)],
         cwd=REPOSITORY_ROOT,
@@ -281,9 +314,12 @@ def main() -> int:
     )
     if match is None:
         raise RuntimeError("pin-top simulation did not emit a latency report")
-    report = _build_latency_report(json.loads(match.group(1)))
+    report = _build_latency_report(
+        json.loads(match.group(1)), internal_sample_rate_hz=args.sample_rate_hz
+    )
     report_path = (
-        REPOSITORY_ROOT / "model/generated/phono_i2s_mono_top_latency.json"
+        REPOSITORY_ROOT
+        / f"model/generated/phono_i2s_mono_top{rate_suffix}_latency.json"
     )
     report_path.write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))

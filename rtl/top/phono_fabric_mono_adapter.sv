@@ -12,7 +12,9 @@
 // while unmuted. This block detects invalid coefficients but does not provide
 // the future atomic control-plane update or startup mute sequence.
 module phono_fabric_mono_adapter #(
-    parameter int unsigned OUTPUT_RAMP_SAMPLES = 2048
+    parameter int unsigned OUTPUT_RAMP_SAMPLES = 2048,
+    parameter int unsigned MODEL_SAMPLE_RATE_HZ = 768000,
+    parameter int unsigned FABRIC_CLOCKS_PER_48K_INPUT = 2048
 ) (
     input  logic                 clk,
     input  logic                 rst_n,
@@ -58,13 +60,31 @@ module phono_fabric_mono_adapter #(
     output logic [7:0]           solver_latency_cycles
 );
 
+    localparam int unsigned SCHEDULER_PHASE_WIDTH =
+        $clog2(FABRIC_CLOCKS_PER_48K_INPUT);
+
+    initial begin
+        if (MODEL_SAMPLE_RATE_HZ != 384000
+            && MODEL_SAMPLE_RATE_HZ != 768000)
+            $error("MODEL_SAMPLE_RATE_HZ must be 384000 or 768000");
+        if (FABRIC_CLOCKS_PER_48K_INPUT != 1024
+            && FABRIC_CLOCKS_PER_48K_INPUT != 2048)
+            $error("fabric clocks per input must be 1024 or 2048");
+        if (MODEL_SAMPLE_RATE_HZ == 768000
+            && FABRIC_CLOCKS_PER_48K_INPUT != 2048)
+            $error("768 kHz model requires the 98.304 MHz/2048-clock schedule");
+    end
+
     // The right slot and the left sign-extension byte are intentionally
     // discarded by this explicitly mono PCM24 boundary.
     /* verilator lint_off UNUSEDSIGNAL */
     logic [63:0] scheduled_frame_data;
     /* verilator lint_on UNUSEDSIGNAL */
     logic scheduled_frame_valid;
-    audio_frame_scheduler scheduler (
+    logic [SCHEDULER_PHASE_WIDTH-1:0] scheduler_phase_counter_internal;
+    audio_frame_scheduler #(
+        .PERIOD_CLOCKS(FABRIC_CLOCKS_PER_48K_INPUT)
+    ) scheduler (
         .clk,
         .rst_n,
         .frame_input_data(rx_frame_data),
@@ -75,8 +95,13 @@ module phono_fabric_mono_adapter #(
         .frame_was_present(scheduled_frame_present),
         .clear_diagnostics,
         .underflow_count(scheduler_underflow_count),
-        .phase_counter(scheduler_phase_counter)
+        .phase_counter(scheduler_phase_counter_internal)
     );
+    always_comb begin
+        scheduler_phase_counter = '0;
+        scheduler_phase_counter[SCHEDULER_PHASE_WIDTH-1:0] =
+            scheduler_phase_counter_internal;
+    end
 
     logic signed [31:0] calibrated_input_q24;
     logic calibrated_input_valid;
@@ -111,27 +136,59 @@ module phono_fabric_mono_adapter #(
 
     logic signed [31:0] model_output_q24;
     logic model_output_valid;
-    phono_stream_mono_wide_trapezoidal_banked_terminal model (
-        .clk,
-        .rst_n(model_rst_n),
-        .ce_input_48k(calibrated_input_valid),
-        .sample_input_q24(calibrated_input_q24),
-        .sample_output_q24(model_output_q24),
-        .output_valid(model_output_valid),
-        .resampler_saturation_count,
-        .resampler_overrun_count,
-        .input_phase_error_count,
-        .output_conversion_saturation_count,
-        .solver_missed_request_count,
-        .solver_deadline_miss_count,
-        .solver_saturation_count,
-        .solver_lut_clip_count,
-        .solver_nonconvergence_count,
-        .solver_correction_scale_fallback_count,
-        .solver_minimum_correction_fractional_bits,
-        .solver_last_residual_q44,
-        .solver_latency_cycles
-    );
+    generate
+        if (MODEL_SAMPLE_RATE_HZ == 384000) begin : generate_384khz_model
+            phono_stream_mono_wide_trapezoidal_384khz_banked_terminal #(
+                .FABRIC_CLOCKS_PER_48K_INPUT(
+                    FABRIC_CLOCKS_PER_48K_INPUT
+                ),
+                .PREFETCH_TUBE_NODES(1'b1),
+                .SERIAL_KCL_MAXIMUM_ONLY(1'b1)
+            ) model (
+                .clk,
+                .rst_n(model_rst_n),
+                .ce_input_48k(calibrated_input_valid),
+                .sample_input_q24(calibrated_input_q24),
+                .sample_output_q24(model_output_q24),
+                .output_valid(model_output_valid),
+                .resampler_saturation_count,
+                .resampler_overrun_count,
+                .input_phase_error_count,
+                .output_conversion_saturation_count,
+                .solver_missed_request_count,
+                .solver_deadline_miss_count,
+                .solver_saturation_count,
+                .solver_lut_clip_count,
+                .solver_nonconvergence_count,
+                .solver_correction_scale_fallback_count,
+                .solver_minimum_correction_fractional_bits,
+                .solver_last_residual_q44,
+                .solver_latency_cycles
+            );
+        end else begin : generate_768khz_model
+            phono_stream_mono_wide_trapezoidal_banked_terminal model (
+                .clk,
+                .rst_n(model_rst_n),
+                .ce_input_48k(calibrated_input_valid),
+                .sample_input_q24(calibrated_input_q24),
+                .sample_output_q24(model_output_q24),
+                .output_valid(model_output_valid),
+                .resampler_saturation_count,
+                .resampler_overrun_count,
+                .input_phase_error_count,
+                .output_conversion_saturation_count,
+                .solver_missed_request_count,
+                .solver_deadline_miss_count,
+                .solver_saturation_count,
+                .solver_lut_clip_count,
+                .solver_nonconvergence_count,
+                .solver_correction_scale_fallback_count,
+                .solver_minimum_correction_fractional_bits,
+                .solver_last_residual_q44,
+                .solver_latency_cycles
+            );
+        end
+    endgenerate
 
     logic signed [23:0] calibrated_output_pcm24;
     logic calibrated_output_valid;

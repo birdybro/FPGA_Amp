@@ -1,7 +1,10 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-module phono_i2s_spi_top_tb;
+module phono_i2s_spi_top_tb #(
+    parameter int MODEL_SAMPLE_RATE_HZ = 768000,
+    parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048
+);
     localparam time SPI_HALF_PERIOD = 100ns;
 
     logic i2s_bclk;
@@ -44,7 +47,9 @@ module phono_i2s_spi_top_tb;
     end
 
     phono_i2s_spi_top #(
-        .OUTPUT_RAMP_SAMPLES(8)
+        .OUTPUT_RAMP_SAMPLES(8),
+        .MODEL_SAMPLE_RATE_HZ(MODEL_SAMPLE_RATE_HZ),
+        .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT)
     ) dut (.*);
 
     always_ff @(posedge i2s_bclk or negedge i2s_rst_n) begin

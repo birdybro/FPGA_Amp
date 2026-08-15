@@ -1,7 +1,10 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-module phono_i2s_control_top_tb;
+module phono_i2s_control_top_tb #(
+    parameter int MODEL_SAMPLE_RATE_HZ = 768000,
+    parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048
+);
     logic i2s_bclk;
     logic bclk_running = 1'b1;
     logic i2s_rst_n = 1'b0;
@@ -61,7 +64,9 @@ module phono_i2s_control_top_tb;
         .CLOCK_MONITOR_EXPECTED_BCLK_EDGES(10),
         .CLOCK_MONITOR_EDGE_TOLERANCE(0),
         .CLOCK_MONITOR_LOCK_WINDOWS(3),
-        .DIAGNOSTIC_SNAPSHOT_TIMEOUT_CLOCKS(512)
+        .DIAGNOSTIC_SNAPSHOT_TIMEOUT_CLOCKS(512),
+        .MODEL_SAMPLE_RATE_HZ(MODEL_SAMPLE_RATE_HZ),
+        .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT)
     ) dut (.*);
 
     always_ff @(posedge i2s_bclk or negedge i2s_rst_n) begin

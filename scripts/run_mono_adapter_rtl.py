@@ -17,20 +17,33 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verilator", default="verilator")
     parser.add_argument("--skip-generate", action="store_true")
+    parser.add_argument(
+        "--sample-rate-hz", type=int, choices=(384_000, 768_000), default=768_000
+    )
     args = parser.parse_args()
     verilator = shutil.which(args.verilator)
     if verilator is None:
         print("ERROR: verilator unavailable", file=sys.stderr)
         return 2
 
+    rate_arguments = (
+        ["--sample-rate-hz", "384000"]
+        if args.sample_rate_hz == 384_000
+        else []
+    )
     generators = [
         [sys.executable, "scripts/generate_wide_network_vectors.py"],
-        [sys.executable, "scripts/generate_trapezoidal_network_vectors.py"],
+        [
+            sys.executable,
+            "scripts/generate_trapezoidal_network_vectors.py",
+            *rate_arguments,
+        ],
         [
             sys.executable,
             "scripts/generate_wide_chord_vectors.py",
             "--trapezoidal",
             "--banked",
+            *rate_arguments,
         ],
         [sys.executable, "scripts/generate_factorized_tube.py"],
         [
@@ -39,9 +52,14 @@ def main() -> int:
             "--trapezoidal",
             "--banked",
             "--terminal-correction",
+            *rate_arguments,
         ],
         [sys.executable, "scripts/generate_halfband_rtl_vectors.py"],
-        [sys.executable, "scripts/generate_mono_adapter_vectors.py"],
+        [
+            sys.executable,
+            "scripts/generate_mono_adapter_vectors.py",
+            *rate_arguments,
+        ],
     ]
     if not args.skip_generate:
         for command in generators:
@@ -58,12 +76,15 @@ def main() -> int:
         "rtl/filters/halfband_decimator_2x.sv",
         "rtl/audio/interpolator_16x.sv",
         "rtl/audio/decimator_16x.sv",
+        "rtl/audio/interpolator_8x.sv",
+        "rtl/audio/decimator_8x.sv",
         "rtl/audio/output_mute_ramp.sv",
         "rtl/io/audio_frame_scheduler.sv",
         "rtl/io/pcm24_to_q8_24.sv",
         "rtl/io/q8_24_to_pcm24.sv",
         "rtl/top/phono_stream_mono_wide.sv",
         "rtl/top/phono_stream_mono_wide_trapezoidal_banked_terminal.sv",
+        "rtl/top/phono_stream_mono_wide_trapezoidal_384khz_banked_terminal.sv",
         "rtl/top/phono_fabric_mono_adapter.sv",
         "sim/integration/phono_fabric_mono_adapter_tb.sv",
     ]
@@ -75,6 +96,14 @@ def main() -> int:
         "-sv",
         "--top-module",
         "phono_fabric_mono_adapter_tb",
+        *(
+            [
+                "-GMODEL_SAMPLE_RATE_HZ=384000",
+                "-GFABRIC_CLOCKS_PER_48K_INPUT=1024",
+            ]
+            if args.sample_rate_hz == 384_000
+            else []
+        ),
         *sources,
     ]
     subprocess.run(
@@ -82,7 +111,12 @@ def main() -> int:
         cwd=REPOSITORY_ROOT,
         check=True,
     )
-    build = REPOSITORY_ROOT / "build" / "verilator_phono_fabric_mono_adapter"
+    rate_suffix = "_384khz" if args.sample_rate_hz == 384_000 else ""
+    build = (
+        REPOSITORY_ROOT
+        / "build"
+        / f"verilator_phono_fabric_mono_adapter{rate_suffix}"
+    )
     subprocess.run(
         [
             verilator,

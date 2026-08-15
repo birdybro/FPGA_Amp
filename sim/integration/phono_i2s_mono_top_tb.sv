@@ -1,12 +1,22 @@
 `timescale 1ns/1fs
 `default_nettype none
 
-module phono_i2s_mono_top_tb;
+module phono_i2s_mono_top_tb #(
+    parameter int MODEL_SAMPLE_RATE_HZ = 768000,
+    parameter int FABRIC_CLOCKS_PER_48K_INPUT = 2048
+);
     localparam int VECTOR_COUNT = 64;
     localparam int INPUT_FULL_SCALE_PEAK_VOLTS_Q24 = 335544;
     localparam int OUTPUT_RECIPROCAL_FULL_SCALE_Q24 = 2097152;
-    localparam realtime FABRIC_HALF_PERIOD_NS = 5.086263020833;
+    localparam realtime FABRIC_HALF_PERIOD_NS =
+        (FABRIC_CLOCKS_PER_48K_INPUT == 1024)
+            ? 10.172526041667 : 5.086263020833;
     localparam realtime I2S_BCLK_HALF_PERIOD_NS = 162.760416666667;
+    localparam int CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS =
+        (FABRIC_CLOCKS_PER_48K_INPUT == 1024) ? 16384 : 32768;
+    localparam string VECTOR_FILE = (MODEL_SAMPLE_RATE_HZ == 384000)
+        ? "sim/vectors/generated/phono_fabric_mono_adapter_384khz.txt"
+        : "sim/vectors/generated/phono_fabric_mono_adapter.txt";
 
     logic i2s_bclk;
     logic i2s_rst_n = 1'b0;
@@ -173,7 +183,12 @@ module phono_i2s_mono_top_tb;
     );
 
     phono_i2s_mono_top #(
-        .OUTPUT_RAMP_SAMPLES(8)
+        .OUTPUT_RAMP_SAMPLES(8),
+        .CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS(
+            CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS
+        ),
+        .MODEL_SAMPLE_RATE_HZ(MODEL_SAMPLE_RATE_HZ),
+        .FABRIC_CLOCKS_PER_48K_INPUT(FABRIC_CLOCKS_PER_48K_INPUT)
     ) dut (
         .i2s_bclk,
         .i2s_rst_n,
@@ -252,7 +267,7 @@ module phono_i2s_mono_top_tb;
         .frame_error_sticky(dac_frame_error)
     );
 
-    // Exactly frequency locked: 98.304 MHz / 3.072 MHz = 32. The independent
+    // Exactly frequency locked at either supported fabric rate. Independent
     // phase offsets still exercise the asynchronous FIFO crossings.
     initial begin
         fabric_clk = 1'b0;
@@ -465,7 +480,7 @@ module phono_i2s_mono_top_tb;
         observed_tx_fifo_fabric_high_water = '0;
         observed_tx_fifo_i2s_high_water = '0;
         file_handle = $fopen(
-            "sim/vectors/generated/phono_fabric_mono_adapter.txt", "r"
+            VECTOR_FILE, "r"
         );
         if (file_handle == 0)
             $fatal(1, "cannot open I2S-top vectors");

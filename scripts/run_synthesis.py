@@ -164,13 +164,23 @@ def main() -> int:
         ),
     )
     args = parser.parse_args()
-    rate_selectable_top = (
+    rate_selectable_solver_top = (
         "v1_solver_mono_wide_trapezoidal_banked_terminal"
     )
-    if args.sample_rate_hz != 768_000 and args.top != rate_selectable_top:
+    rate_selectable_hierarchy_tops = {
+        "phono_fabric_mono_adapter",
+        "phono_i2s_mono_top",
+        "phono_i2s_control_top",
+        "phono_i2s_spi_top",
+    }
+    rate_selectable_tops = {
+        rate_selectable_solver_top,
+        *rate_selectable_hierarchy_tops,
+    }
+    if args.sample_rate_hz != 768_000 and args.top not in rate_selectable_tops:
         parser.error(
-            "--sample-rate-hz 384000 is currently supported only for "
-            f"--top {rate_selectable_top}"
+            "--sample-rate-hz 384000 is supported only for the rate-selectable "
+            "V1 solver, fabric adapter, and I2S control hierarchies"
         )
     yosys = locate("yosys")
     abc = locate("abc")
@@ -830,6 +840,20 @@ def main() -> int:
             "rtl/diagnostics/solver_block_pnr_harnesses.sv",
         ],
     }[args.top]
+    # The selectable pin hierarchy contains both rate wrappers behind a
+    # constant generate condition. Read both definitions so Yosys can derive
+    # either the legacy 16x/768 kHz or timing-closed 8x/384 kHz branch.
+    if "rtl/top/phono_fabric_mono_adapter.sv" in sources:
+        rate_hierarchy_dependencies = [
+            "rtl/audio/interpolator_8x.sv",
+            "rtl/audio/decimator_8x.sv",
+            "rtl/top/phono_stream_mono_wide_trapezoidal_384khz_banked_terminal.sv",
+        ]
+        adapter_index = sources.index("rtl/top/phono_fabric_mono_adapter.sv")
+        for dependency in rate_hierarchy_dependencies:
+            if dependency not in sources:
+                sources.insert(adapter_index, dependency)
+                adapter_index += 1
     # The wide solver has a compile-time selectable value-only tube candidate.
     # Include its definition for every wide hierarchy; the default parameter
     # still elaborates the established Hermite implementation exclusively.
@@ -872,10 +896,22 @@ def main() -> int:
             "chparam -set USE_LINEAR_FACTORIZED_TUBE 1 v1_solver_mono_wide"
         )
     if args.sample_rate_hz == 384_000:
-        parameter_command = (
-            "chparam -set SAMPLE_RATE_384KHZ 1 "
-            f"{rate_selectable_top}"
-        )
+        if args.top == rate_selectable_solver_top:
+            parameter_command = (
+                "chparam -set SAMPLE_RATE_384KHZ 1 "
+                f"{rate_selectable_solver_top}"
+            )
+        else:
+            monitor_parameter = (
+                " -set CLOCK_MONITOR_WINDOW_FABRIC_CLOCKS 16384"
+                if args.top != "phono_fabric_mono_adapter"
+                else ""
+            )
+            parameter_command = (
+                "chparam -set MODEL_SAMPLE_RATE_HZ 384000 "
+                "-set FABRIC_CLOCKS_PER_48K_INPUT 1024"
+                f"{monitor_parameter} {args.top}"
+            )
     # The packaged Yosys has an absolute system ABC default. Stopping before
     # map_luts and invoking the identical documented steps with -exe keeps the
     # non-root bootstrap reproducible.
@@ -1055,8 +1091,15 @@ def main() -> int:
             else "Fmax requires named-part place-and-route and is not claimed here."
         ),
     }
-    if args.top == rate_selectable_top:
+    if args.top in rate_selectable_tops:
         summary["sample_rate_hz"] = args.sample_rate_hz
+        if args.top in rate_selectable_hierarchy_tops:
+            summary["input_sample_rate_hz"] = 48_000
+            summary["circuit_sample_rate_hz"] = args.sample_rate_hz
+            summary["output_sample_rate_hz"] = 48_000
+            summary["fabric_clock_hz"] = (
+                49_152_000 if args.sample_rate_hz == 384_000 else 98_304_000
+            )
     candidate_stream_top = (
         "phono_stream_mono_wide_trapezoidal_384khz_banked_terminal"
     )

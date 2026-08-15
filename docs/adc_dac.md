@@ -111,14 +111,18 @@ must be evaluated together rather than quoting one time-domain number.
 The tube LUT is eight 98.304 MHz clocks (0.0814 µs) per evaluation. Digital
 frame flow now exists through I²S, interpolation, solver, decimation, the
 modern digital output ramp, and output serialization. The pin-level RTL now
-timestamps actual valid/ready and serial-frame events at 3.072/98.304 MHz. From
-completion of the first ADC PCM frame to completion of the first corresponding
-valid model-output DAC frame it measures exactly 192 BCLKs: 62.500 µs or 3.000
-48 kHz sample periods. Within the fabric path, accepted calibrated input to the
-first model output-valid is 273 fabric clocks (2.7771 µs); mute/output
-calibration adds two clocks and the held transmit frame is accepted one clock
-later. The detailed reproducible event report is
-`model/generated/phono_i2s_mono_top_latency.json`.
+timestamps actual valid/ready and serial-frame events at 3.072 MHz and both
+supported fabric rates. From completion of the first ADC PCM frame to completion
+of the first corresponding valid model-output DAC frame, both paths measure
+exactly 192 BCLKs: 62.500 µs or 3.000 48 kHz sample periods. At
+768 kHz / 98.304 MHz, accepted calibrated input to first model output-valid is
+277 fabric clocks (2.8178 µs). This is four clocks beyond the older report
+because each circular-history 2x decimator performs its center tap in a
+dedicated cycle. At 384 kHz / 49.152 MHz the corresponding interval is 265
+clocks (5.3914 µs). Mute/output calibration adds two clocks and the held
+transmit frame is accepted one clock later in both cases. The detailed reports
+are `model/generated/phono_i2s_mono_top_latency.json` and
+`model/generated/phono_i2s_mono_top_384khz_latency.json`.
 
 This is transaction/valid transport latency, not signal group delay. The first
 fixture code becomes nonzero at output index 19 because of initialized circuit
