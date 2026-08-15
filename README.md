@@ -155,7 +155,12 @@ The mono reference and complete 768 kHz circuit solver are operating:
   pinned Project-X-Ray stage twice emits the same CRC-readable 9,730,825-byte
   bitstream at SHA-256 `5f196e52...b09dbb8`. This closes the experimental open
   implementation gate only; the `DEFAULT` timing grade is not qualified -1
-  signoff and the image has not been programmed.
+  signoff and the image has not been programmed. A non-programming hardware
+  preflight now rechecks that exact artifact's part, length, SHA-256, and saved
+  `bitread -C` evidence before asking openFPGALoader to detect the official
+  `nexysVideo` board profile. The current host has neither openFPGALoader nor a
+  Nexys Video USB device, so physical bring-up is explicitly blocked rather
+  than inferred from the image.
 - A 100 ms floating overload comparison finds the trapezoidal candidate finite
   and convergent through 1.5 V peak / 26.4 µA stage-two grid current. At 20 mV,
   its 10% / 1% / 1 mV recovery agrees with backward Euler within 2.6 µs. Both
@@ -947,6 +952,8 @@ make openxc7-a200t-audio-clock-pnr # route exact Nexys Video audio clocks
 make openxc7-a200t-audio-clock-bit # assemble/CRC-check clock-only bitstream
 make openxc7-a200t-phono-audio-pnr # route complete codec/phono/SPI board top
 make openxc7-a200t-phono-audio-bit # assemble/CRC-check complete board image
+make nexys-audio-hardware-preflight # validate image and detect cable, no load
+make nexys-audio-program-sram      # explicitly load volatile SRAM after checks
 make openxc7-pnr                   # route the solver timing harness on A7-100T
 make openxc7-hermite-pnr           # route the Hermite timing harness on A7-100T
 make openxc7-linear-tube-pnr       # route the value-only tube harness

@@ -846,6 +846,27 @@ Pinned Project X-Ray converts it to 20,230 frame records and a reproducible
 reports only its experimental `DEFAULT` timing grade, not qualified
 XC7A200T-1 timing. The bitstream has not been loaded onto a board.
 
+`scripts/nexys_video_hardware_preflight.py` is the open-source boundary before
+that first load. It refuses an image whose part, byte count, SHA-256, saved
+Project-X-Ray CRC result, configuration-frame count, or configuration-word
+count disagrees with the adjacent `.bit.json` manifest. It then optionally
+runs only openFPGALoader discovery operations: `--version`, `--list-boards`,
+and `-b nexysVideo --detect`. It never programs the device and always records
+`programming_performed=false` and `hardware_validated=false`. The explicit
+volatile configuration target is:
+
+```text
+make nexys-audio-hardware-preflight
+make nexys-audio-program-sram
+```
+
+The second command first requires successful detection and only then invokes
+`openFPGALoader -b nexysVideo <bitstream>`. It loads SRAM, not SPI flash; no
+flash target is provided before volatile bring-up succeeds. On 2026-08-15 the
+preflight accepted the exact artifact above but found no openFPGALoader
+executable and no Nexys Video USB device. Physical reset, clocks, codec ACKs,
+audio, and SPI checks therefore remain blocked on matching connected hardware.
+
 This image supersedes the earlier `3ea5cea8...c286f23` board artifact. That
 version zero-gated DAC data but released the I2S bridge as soon as clocks
 locked, allowing pre-configuration ADC frames to enter the receive FIFO. It

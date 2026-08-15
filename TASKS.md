@@ -4,10 +4,11 @@ Last updated: 2026-08-15
 
 ## Current milestone
 
-Close the measured factorized fixed/analytical DC-state and severe-overload
-solver gaps, reproduce waveform metrics from captured integrated RTL, and
-harden the 48/768 kHz stream boundary. The circuit remains frozen at version
-0.1.0; safety processing remains explicitly outside it.
+Bring the openly routed Nexys Video image to physical measurement while
+preserving the frozen V1 circuit and the verified numerical hierarchy. The
+artifact is ready for volatile SRAM loading; matching connected hardware and
+an installed open programmer are the current external blockers. Safety
+processing remains explicitly outside reference circuit version 0.1.0.
 
 ## Active, highest value first
 
@@ -129,7 +130,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 - [ ] Program the complete image on a matching Nexys Video and validate reset,
   12.288 MHz MCLK, 3.072 MHz BCLK, 48 kHz LRCLK, all codec I2C ACKs, startup
   silence, line-output audio, and SPI diagnostics with external instruments.
-  Do not infer any of these physical results from the CRC-readable artifact.
+  The non-programming preflight now validates the exact part, byte count,
+  SHA-256, CRC evidence, frame count, and word count before using the official
+  openFPGALoader `nexysVideo` detection profile. It passes the artifact but the
+  2026-08-15 host has neither openFPGALoader nor a Nexys Video USB device, so
+  no configuration was attempted. `nexys-audio-program-sram` is deliberately
+  volatile-only and requires successful detection first. Do not infer any of
+  these physical results from the CRC-readable artifact.
 - [x] Carry the timing-closed 384 kHz / 49.152 MHz profile into the actual
   fabric adapter and complete SPI-controlled I²S hierarchy. Preserve 768 kHz
   as the default, add explicit rate-selectable vector/test runners, and pass

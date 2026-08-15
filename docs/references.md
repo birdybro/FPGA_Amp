@@ -19,6 +19,14 @@ general authority on tube physics. Links were checked 2026-08-14.
   bitstream documentation/tooling and device database consumed by nextpnr. The
   checked database contains `artix7/xc7a100tcsg324-1`, the exact provisional
   Arty A7-100T part.
+- trabucayre, [openFPGALoader](https://github.com/trabucayre/openFPGALoader)
+  and its [official board compatibility
+  list](https://trabucayre.github.io/openFPGALoader/compatibility/board.html).
+  The upstream command documentation distinguishes volatile SRAM loading from
+  `-f` flash writes, and the compatibility table lists the Artix-7 Nexys Video
+  as `nexysVideo` with both SRAM and flash support. These sources fix the open
+  programmer profile and support offering SRAM-only bring-up before any
+  persistent flash operation.
 - Digilent,
   [Arty-A7-100 master XDC](https://github.com/Digilent/digilent-xdc/blob/master/Arty-A7-100-Master.xdc).
   Primary board-source provenance for the E3 oscillator, D9 button, and H5 LED

@@ -6,6 +6,16 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a non-programming Nexys Video hardware preflight and an explicit
+  volatile-SRAM load target using openFPGALoader's official `nexysVideo`
+  profile. The preflight rejects any bitstream whose part, byte count, SHA-256,
+  saved `bitread -C` result, configuration frames, or configuration words do
+  not match its adjacent manifest, then limits probe operations to programmer
+  version/board enumeration and JTAG detection. Three Python regressions cover
+  exact acceptance, tamper rejection, and absent-programmer behavior. The real
+  9,730,825-byte artifact passes all integrity checks; this host has no
+  openFPGALoader executable or attached Nexys Video, so no programming or
+  physical validation is claimed.
 - Added the complete Nexys Video audio board wrapper. It composes the exact
   dual-MMCM clock leaf, /16 serial clock and reset release, ADAU1761 bootstrap,
   one physically shared LRCLK, bidirectional I2S data, the selected 384 kHz
