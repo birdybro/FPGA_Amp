@@ -126,9 +126,15 @@ access and finished-device compliance.
   PCM; verify stereo LPCM capability exchange, ARC fallback, CEC volume, mute,
   relock, and latency on analyzer/EVM hardware. Do not advertise compressed or
   multichannel formats in V1.
-- [ ] Add PCM5242 one-byte register readback and compare the critical page 0/1
-  configuration plus clock/power status before allowing XSMT or line-relay
-  permission. Keep an ACKed write sequence distinct from verified configuration.
+- [x] Add PCM5242 page-aware register readback and startup status verification.
+  Twenty-four exact operations select pages 0/1, compare every critical field
+  with reserved-bit-safe masks, return to page 0, and require detected 48 kHz,
+  512-fS SCK, 64-fS BCK, valid-clock flags, DSP boot, and run state. Directed
+  bus simulation proves success plus masked-mismatch and NACK fail-closed paths.
+  Yosys reports 170 estimated XC7 logic cells / 173 flip-flops / no DSP or BRAM /
+  zero warnings. `configuration_verified` remains distinct from the earlier
+  ACK-only result and is a startup snapshot; integrate it with the board permit
+  gate and add continuous clock/fault monitoring before hardware release.
 - [ ] Turn the completed front-panel controller and motor-volume EVT boards
   into a fabrication candidate: print/fit the drawing-derived Molex footprints,
   obtain assembler DFM and first-article inspection; obtain a fabricator stackup

@@ -6,6 +6,16 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added the page-aware PCM5242 startup verifier above the generic read
+  transport. Its 24 operations compare critical page 0/1 writable fields with
+  reserved-bit-safe masks, restore page 0, and require detected 48 kHz,
+  512-fS SCK, 64-fS BCK, valid clock status, DSP boot complete, and run state.
+  A bus-level regression proves the exact success sequence and injected masked
+  mismatch/NACK fail-closed paths, including captured failure evidence. Yosys
+  reports 170 estimated XC7 logic cells / 173 flip-flops / no DSP or BRAM /
+  zero warnings. `configuration_verified` remains a startup snapshot; it is
+  explicitly distinct from ACKed writes and does not replace runtime monitors
+  or the independent hardware supervisor.
 - Added a synthesizable one-byte-register I2C read primitive for PCM5242
   verification. It implements address+W, register index, repeated START,
   address+R, one returned byte, master NACK, and STOP with open-drain pins and

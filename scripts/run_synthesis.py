@@ -98,6 +98,7 @@ def main() -> int:
             "i2c_read_register_master",
             "adau1761_codec_init",
             "pcm5242_dac_init",
+            "pcm5242_dac_verify",
             "codec_shared_i2s_guard",
             "phono_audio_top_xc7",
             "solver_pnr_harness",
@@ -574,6 +575,11 @@ def main() -> int:
         "pcm5242_dac_init": [
             "rtl/io/i2c_write_master.sv",
             "rtl/io/pcm5242_dac_init.sv",
+        ],
+        "pcm5242_dac_verify": [
+            "rtl/io/i2c_write_master.sv",
+            "rtl/io/i2c_read_register_master.sv",
+            "rtl/io/pcm5242_dac_verify.sv",
         ],
         "codec_shared_i2s_guard": ["rtl/io/codec_shared_i2s_guard.sv"],
         "i2s_receiver": ["rtl/io/i2s_receiver.sv"],

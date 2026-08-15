@@ -939,6 +939,8 @@ make synth-i2c-read                # measure I2C read primitive XC7 resources
 make adau1761-codec-init-rtl       # verify fixed bootstrap and fail-stop NACK
 make pcm5242-dac-init-rtl          # verify exact DAC write sequence/NACK abort
 make synth-pcm5242-dac-init        # measure DAC bootstrap XC7 resources
+make pcm5242-dac-verify-rtl        # verify DAC readback/status fail-closed gate
+make synth-pcm5242-dac-verify      # measure readback/status XC7 resources
 make codec-shared-i2s-guard-rtl    # verify shared LRCLK and startup zero gate
 make synth-nexys-phono-audio-xc7   # synthesize complete board wrapper
 make hermite-rtl                   # bit-exact iterative Hermite regression
@@ -1108,8 +1110,14 @@ register-address transaction through repeated START and master NACK. Its
 directed target model checks exact bus bytes, returned data, STOP/release, and
 an address-NACK abort; Yosys reports 70 estimated XC7 logic cells, 63
 flip-flops, no DSP/BRAM, and no warnings. It remains deliberately transport
-only—page-aware masked comparison and live PCM5242 clock/power validation are
-the next fail-closed control layer.
+only. The page-aware verifier above it performs 24 exact operations and requires
+the critical page 0/1 configuration, detected 48 kHz, 512-fS SCK, 64-fS BCK,
+valid clock flags, DSP boot, and run state. Directed simulation covers the
+complete success path and injected masked-mismatch/NACK failures. Its
+`configuration_verified` result is distinct from the ACK-only write result;
+Yosys reports 170 logic cells, 173 flip-flops, no DSP/BRAM, and no warnings.
+This is a startup snapshot, so continuous runtime fault monitoring and final
+integration with the board permission outputs remain release gates.
 
 The prioritized engineering ledger is [`TASKS.md`](TASKS.md). The next critical
 path is further reducing terminal-solver approximation error without breaking

@@ -19,6 +19,15 @@ then release XSMT; shutdown first ramps/mutes XSMT and only then opens relays.
 This topology is checked for connectivity but its acoustic transient, brownout,
 missing-clock, and fault timing remain unmeasured release gates.
 
+The FPGA startup verifier now supplies the stronger digital prerequisite for
+that sequence. It does not equate ACKed writes with safe state: it reads back
+the masked critical PCM5242 configuration and requires the expected detected
+48 kHz / 512-fS SCK / 64-fS BCK clocks, valid-clock flags, DSP boot, and run
+state. A NACK or mismatch latches failure. Its `configuration_verified` output
+is a one-shot startup snapshot and must still be combined with continuous clock
+monitoring, system fault state, and `HARD_MUTE_N`; it is not by itself a
+safety-rated output or permission for firmware to bypass the physical gates.
+
 The low-level pin top reports live BCLK/fabric rate lock after three good
 measurement windows and latches any bad window. The register-controlled wrapper
 now converts that evidence into a fail-closed digital output policy: it asserts

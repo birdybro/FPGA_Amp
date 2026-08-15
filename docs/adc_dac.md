@@ -82,9 +82,22 @@ returns one byte, terminates it with a master NACK, and honors target clock
 stretching. Directed bus simulation proves the exact `0x98`, register, and
 `0x99` transmitted bytes, returned data, STOP/release behavior, and an
 address-NACK abort. Its generic XC7 structural result is 70 estimated logic
-cells / 63 flip-flops / no DSP or BRAM / zero warnings. This is transport only:
-the next layer must select the correct page, apply per-register masks, read live
-clock/power status, and retain hardware mute on any NACK or mismatch.
+cells / 63 flip-flops / no DSP or BRAM / zero warnings.
+
+The completed startup verifier builds on that transport with 24 exact
+operations. It selects page 0, compares normal-operation/mute, PLL, I2S,
+routing, DSP program, digital-volume, and auto-mute fields; selects page 1 and
+checks VREF, analog gain/mute, and boost fields; then returns to page 0. Status
+acceptance requires detected 48 kHz, 512-fS SCK, 64-fS BCK, all clock-valid
+flags, the expected unlocked indication for the deliberately disabled PLL, DSP
+boot complete, and run state. Reserved bits are excluded by explicit masks.
+Any NACK or masked mismatch latches an error with failing index, observation,
+expectation, and mask. The directed bus test covers the complete success path,
+a program-select mismatch, and a page-1 NACK. Yosys reports 170 estimated XC7
+logic cells / 173 flip-flops / no DSP or BRAM / zero warnings. The result is a
+startup snapshot, not continuous fault surveillance; a later board controller
+must combine it with persistent clock/fault monitoring and the external
+hardware supervisor.
 
 ## Nominal clock tree
 

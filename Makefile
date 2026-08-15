@@ -19,7 +19,7 @@ NEXYS_AUDIO_BIT ?= build/openxc7/xc7a200tsbg484-1/phono_audio_top_xc7/routed/pho
 .PHONY: synth-stream-trapezoidal-384-terminal-banked
 .PHONY: openxc7-stream-384-pack openxc7-stream-384-place openxc7-a200t-stream-384-static-place openxc7-a200t-stream-384-half-clock-static-place openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-pnr openxc7-a200t-stream-384-half-clock-node-prefetch-serial-max-bit
 .PHONY: mono-adapter-384-rtl i2s-mono-top-384-rtl i2s-control-top-384-rtl i2s-spi-top-384-rtl synth-mono-adapter-384 synth-i2s-spi-top-384
-.PHONY: audio-clock-plan nexys-audio-top-contract audio-serial-clock-rtl i2c-write-rtl i2c-read-rtl adau1761-codec-init-rtl pcm5242-dac-init-rtl codec-shared-i2s-guard-rtl synth-audio-clock-xc7 synth-audio-serial-clock-xc7 synth-i2c-write synth-i2c-read synth-adau1761-codec-init synth-pcm5242-dac-init synth-codec-shared-i2s-guard synth-nexys-phono-audio-xc7 openxc7-a200t-audio-clock-pnr openxc7-a200t-audio-clock-bit openxc7-a200t-phono-audio-pnr openxc7-a200t-phono-audio-bit nexys-audio-hardware-preflight nexys-audio-program-sram
+.PHONY: audio-clock-plan nexys-audio-top-contract audio-serial-clock-rtl i2c-write-rtl i2c-read-rtl adau1761-codec-init-rtl pcm5242-dac-init-rtl pcm5242-dac-verify-rtl codec-shared-i2s-guard-rtl synth-audio-clock-xc7 synth-audio-serial-clock-xc7 synth-i2c-write synth-i2c-read synth-adau1761-codec-init synth-pcm5242-dac-init synth-pcm5242-dac-verify synth-codec-shared-i2s-guard synth-nexys-phono-audio-xc7 openxc7-a200t-audio-clock-pnr openxc7-a200t-audio-clock-bit openxc7-a200t-phono-audio-pnr openxc7-a200t-phono-audio-bit nexys-audio-hardware-preflight nexys-audio-program-sram
 .PHONY: product-hardware-spec kicad-motor-generate kicad-motor-route kicad-motor-check kicad-motor-fab
 .PHONY: kicad-controller-generate kicad-controller-route kicad-controller-check kicad-controller-render
 .PHONY: kicad-phono-adc-generate kicad-phono-adc-route kicad-phono-adc-check kicad-phono-adc-render
@@ -443,6 +443,9 @@ adau1761-codec-init-rtl:
 pcm5242-dac-init-rtl:
 	$(PYTHON) scripts/run_pcm5242_dac_init_rtl.py --verilator $(VERILATOR)
 
+pcm5242-dac-verify-rtl:
+	$(PYTHON) scripts/run_pcm5242_dac_verify_rtl.py --verilator $(VERILATOR)
+
 codec-shared-i2s-guard-rtl:
 	$(PYTHON) scripts/run_codec_shared_i2s_guard_rtl.py --verilator $(VERILATOR)
 
@@ -765,6 +768,9 @@ synth-adau1761-codec-init:
 synth-pcm5242-dac-init:
 	$(PYTHON) scripts/run_synthesis.py --top pcm5242_dac_init
 
+synth-pcm5242-dac-verify:
+	$(PYTHON) scripts/run_synthesis.py --top pcm5242_dac_verify
+
 synth-codec-shared-i2s-guard:
 	$(PYTHON) scripts/run_synthesis.py --top codec_shared_i2s_guard
 
@@ -908,6 +914,7 @@ test: volume-servo-test
 test: master-volume-rtl
 test: pcm5242-dac-init-rtl
 test: i2c-read-rtl
+test: pcm5242-dac-verify-rtl
 
 openxc7-probe:
 	$(PYTHON) scripts/run_openxc7.py --probe --nextpnr $(NEXTPNR)
