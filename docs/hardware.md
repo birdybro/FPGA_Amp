@@ -607,6 +607,17 @@ heap attempt on the reduced netlist still fails legalization after 10,001
 attempts at a stage-three decimator flip-flop. Routing remains unjustified and
 is not claimed.
 
+The placement analyzer now recognizes complete-stream resampler hierarchy
+instead of folding it into harness constants. In the 38.34 MHz static result,
+the decimator accounts for 8,397 LUTX / 4,791 FFX / 12 DSP and spans 244x143
+placement coordinates; the interpolator is 5,193 / 2,910 / 12 over 244x139.
+For comparison, KCL is 19,609 / 2,920 / 72 over 190x185. The resampler history
+registers and their nearly device-wide placement are therefore a first-class
+congestion target, consistent with the heap failure occurring in decimator
+stage three. A reset-safe circular/distributed-memory history is the next
+candidate; resource reduction must be measured and exact FIR vectors preserved
+before it replaces the shift-register baseline.
+
 The device-neutral asynchronous FIFO has a separately measured depth-8 × 32-bit
 configuration:
 

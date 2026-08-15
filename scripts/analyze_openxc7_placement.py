@@ -30,6 +30,10 @@ def hierarchy_group(raw_name: str) -> str:
     """Classify flattened cells without depending on generated numeric names."""
 
     name = raw_name.replace("\\", "")
+    if "generate_interpolator_8x.interpolator" in name:
+        return "interpolator_8x"
+    if "generate_decimator_8x.decimator" in name:
+        return "decimator_8x"
     if "generate_parallel_tube.generate_hermite_tube.tube_engine" in name:
         return "tube_2_parallel"
     if "generate_hermite_tube.tube_engine" in name:
@@ -42,7 +46,11 @@ def hierarchy_group(raw_name: str) -> str:
     ):
         if token in name:
             return group
-    if "harness.solver.core" in name or "harness.solver" in name:
+    if (
+        "harness.solver.core" in name
+        or "harness.solver" in name
+        or ".solver." in name
+    ):
         return "solver_control_and_state"
     return "harness_and_constants"
 

@@ -6,6 +6,12 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Extended the placed-JSON analyzer to separate complete-stream interpolator,
+  decimator, and solver-control hierarchy, with flattened-name regression
+  coverage. The half-clock static placement attributes 8,397 LUTX / 4,791 FFX
+  / 12 DSP to the 244x143-coordinate decimator and 5,193 / 2,910 / 12 to the
+  244x139 interpolator, identifying reset-cleared shifting histories as a
+  measured congestion target rather than an assumed optimization.
 - Added an explicit 49.152 MHz fabric schedule for the 384 kHz candidate. It
   scales the three interpolator enable phases to 1,024 clocks per external
   sample and 128 per nonlinear update without changing circuit arithmetic.

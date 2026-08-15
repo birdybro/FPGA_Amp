@@ -11,6 +11,13 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
 
 ## Active, highest value first
 
+- [ ] Replace the 8x resampler's reset-cleared shifting history only if a
+  reset-safe circular/distributed-memory implementation remains bit-exact.
+  The improved half-clock placement attributes 4,791 FFX to the decimator and
+  2,910 to the interpolator, each spread across 244 X coordinates, and heap
+  legalization fails in decimator stage three. Preserve reset semantics and
+  all FIR/complete-stream vectors; measure inference and placement rather than
+  assuming a memory rewrite helps.
 - [ ] Isolate and reduce the remaining fixed circuit/state/chord error. With
   the implemented 1,024-point grid branch, raw final-window error is now
   0.372/0.291 mV at 1.0 V and 0.631/0.321 mV at 1.5 V for backward Euler/
@@ -122,6 +129,11 @@ harden the 48/768 kHz stream boundary. The circuit remains frozen at version
   mode remains 16x and broader registered scheduling is required.
 
 ## Completed this milestone
+
+- [x] Extend the placed-JSON hierarchy analyzer to distinguish the complete
+  8x interpolator and decimator, with regression coverage for flattened names.
+  Measure decimator/interpolator/KCL placement at 8,397/5,193/19,609 LUTX,
+  4,791/2,910/2,920 FFX, and 244x143/244x139/190x185 coordinate spans.
 
 - [x] Implement and verify a half-frequency fabric schedule for the 384 kHz
   candidate without changing circuit arithmetic. Match both 1,024-output
