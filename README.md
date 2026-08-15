@@ -1024,6 +1024,7 @@ under `model/generated/` as part of the numerical contract.
 - `rtl/tube/`, `rtl/circuit/`, `rtl/phono/`: synthesizable tube and V1 solver
 - `sim/unit/`, `sim/integration/`: self-checking RTL testbenches
 - `scripts/`: all reproduction, comparison, analysis, and synthesis entry points
+- `firmware/front_panel/`: host-tested motor-volume safety/control core
 - `docs/`: engineering decisions, budgets, known limitations, and hardware path
 - `hardware/product_v1/`: machine-checked product-board requirements and
   interface ownership

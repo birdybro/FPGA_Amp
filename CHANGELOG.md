@@ -6,6 +6,18 @@ All notable engineering changes are recorded here. The project is pre-release; d
 
 ### Added
 
+- Added a portable C11 motor-volume servo core for the future front-panel MCU.
+  It keeps the motor position transducer outside audio, clamps commands to
+  calibrated soft endpoints, reduces duty on approach, coasts in deadband,
+  inserts direction-reversal dead time, accepts explicit or inferred manual
+  takeover, and latches sensor, driver, current/stall, and travel-timeout faults.
+  Explicit safe clear adopts the present position and requires a new command,
+  preventing automatic retries against a mechanical stop. A host test compiled
+  with all common warnings promoted to errors covers the control and fault
+  transitions. The initial regression caught a command-intent bug where the
+  idle manual detector canceled a reversal after its coast interval; a retained
+  `target_pending` state fixes it. No physical motor, MCU peripheral, EMI,
+  torque, acoustic, touch-safety, or lifetime result is claimed.
 - Added a comprehensive V1 product hardware specification for the requested TV
   and front-panel platform. It partitions the product into five serviceable
   boards—digital/eARC, shielded phono/ADC, DAC/line output, LCD/touch/motor

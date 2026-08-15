@@ -491,6 +491,14 @@ The servo shall implement (`VOL-004`):
 - manual override/current rise handling while driven; and
 - no automatic retry against a mechanical stop.
 
+The mechanism-independent portion is now implemented in
+`firmware/front_panel/volume_servo.c` with a warning-as-error host regression.
+It explicitly retains command intent through reversal dead time; without that
+state, the idle-manual detector can mistake a pending remote reversal for a
+back-driven knob and cancel it. The core is not a physical motor validation or
+an STM32 peripheral implementation. PWM timing, ADC/current filtering, grip
+detection, and exact tick parameters are closed on the FP prototype.
+
 The motor is normally unpowered. Grabbing the dial must not expose unsafe
 torque or cause the control loop to fight continuously. A production prototype
 should evaluate a capacitive grip electrode or clutch if current-limited

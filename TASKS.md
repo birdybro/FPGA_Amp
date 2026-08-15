@@ -26,6 +26,15 @@ access and finished-device compliance.
   analog-mute, and motor-out-of-audio-path invariants. This is a board
   architecture/specification result, not a released schematic, BOM, eARC
   license, compliance result, or motor-life claim.
+- [x] Implement the mechanism-independent motor-volume servo core in portable
+  C11. It provides soft endpoint clamping, far/approach duty, deadband/coast,
+  exact reversal dead time, explicit and inferred manual takeover, hardware-
+  current-feedback stall retention, travel timeout, driver/sensor faults, and a
+  safe clear that adopts present position instead of retrying a stop. The first
+  host run exposed and fixed a pending-reversal/manual-takeover collision; the
+  failing reversal sequence is retained. The warning-as-error regression now
+  passes. This does not validate PWM/ADC peripherals, motor EMI/torque/noise,
+  touchscreen interaction, or mechanism lifetime.
 - [ ] Close eARC EVT-0 gates before a mainboard schematic: confirm the current
   supported audio-device receiver/successor and supply path; obtain HDMI adopter
   and vendor reference/API access; compare SRC4392 and AD1896 with asynchronous
